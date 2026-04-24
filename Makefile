@@ -28,25 +28,29 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 	@$(call print_success,Build complete.)
 
+# --- Simulation Scaling ---
+SCALE ?= 64
+ITER  ?= 1000
+
 # --- Unified Execution & Certification ---
 
 verify/epidemiology: build ##H Generate and certify Wolbachia deployment (Lean focused)
-	@$(call print_info,Generating Epidemiology Policy)
-	./$(TARGET) epidemiology proofs/VectorDeployment.lean
+	@$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)])
+	./$(TARGET) epidemiology proofs/VectorDeployment.lean $(SCALE) $(ITER)
 	cd proofs && lake build VectorDeployment
 
 verify/surveillance: build ##H Generate and certify drone surveillance playbook (Lean focused)
-	@$(call print_info,Generating Threat Hunting Playbook)
-	./$(TARGET) surveillance proofs/ThreatHunting.lean
+	@$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)])
+	./$(TARGET) surveillance proofs/ThreatHunting.lean $(SCALE) $(ITER)
 	cd proofs && lake build ThreatHunting
 
 run/spectrum: build ##H Stress-test 6G frequency allocation (C++ benchmark)
-	@$(call print_info,Running 6G Signal Audit)
-	./$(TARGET) spectrum proofs/SignalAudit.lean
+	@$(call print_info,Running 6G Signal Audit [Iter: $(ITER)])
+	./$(TARGET) spectrum proofs/SignalAudit.lean $(SCALE) $(ITER)
 
 run/finance: build ##H Audit financial network for systemic risk (C++ benchmark)
-	@$(call print_info,Running Systemic Risk Audit)
-	./$(TARGET) finance proofs/RiskAudit.lean
+	@$(call print_info,Running Systemic Risk Audit [Scale: $(SCALE)])
+	./$(TARGET) finance proofs/RiskAudit.lean $(SCALE) $(ITER)
 
 test/all: build ##H Run all certification pipelines
 	@$(call print_info,Running all pipelines)
