@@ -62,8 +62,10 @@ format: ##H Format source files
 	-pre-commit run --all-files
 
 lint: ##H Lint C++ sources
-	-cppcheck --enable=all --quiet $(SRC)
-	-clang-tidy $(SRC) -- $(CXXFLAGS)
+	@$(call print_info,Linting)
+	-cppcheck --std=c++17 --enable=warning,style,performance --quiet $(SRC)
+	-clang-tidy $(SRC) --checks='*,-llvmlibc-*,-fuchsia-*,-altera-*,-boost-*,-llvm-*' -- $(CXXFLAGS)
+	@$(call print_success,Lint complete.)
 
 lean: ##H Build Lean 4 verifiers
 	cd proofs && lake build

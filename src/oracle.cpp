@@ -71,15 +71,15 @@ class TuranEngine {
                                     size_t n_words) {
         uint32_t count = 0;
         for (size_t i = 0; i < n_words; i += 8) {
-            __m512i va =
+            const __m512i va =
                 _mm512_loadu_si512(reinterpret_cast<const __m512i *>(&a[i]));
-            __m512i vb =
+            const __m512i vb =
                 _mm512_loadu_si512(reinterpret_cast<const __m512i *>(&b[i]));
-            __m512i res = _mm512_and_si512(va, vb);
+            const __m512i res = _mm512_and_si512(va, vb);
             uint64_t tmp[8];
             _mm512_storeu_si512(reinterpret_cast<__m512i *>(tmp), res);
-            for (uint64_t v : tmp)
-                count += __builtin_popcountll(v);
+            for (const uint64_t v : tmp)
+                count += static_cast<uint32_t>(__builtin_popcountll(v));
         }
         return count;
     }
@@ -103,6 +103,11 @@ class BumpAllocator {
   public:
     explicit BumpAllocator(size_t s) : buf(new char[s]), sz(s), off(0) {}
     ~BumpAllocator() { delete[] buf; }
+
+    // Disable copy and assignment for safety
+    BumpAllocator(const BumpAllocator &) = delete;
+    BumpAllocator &operator=(const BumpAllocator &) = delete;
+
     void *alloc(size_t s) {
         if (off + s > sz)
             return nullptr;
@@ -113,24 +118,26 @@ class BumpAllocator {
     void reset() { off = 0; }
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     if (argc < 2) {
         std::cout << "Usage: oracle <mode> [output_file]\n";
-        std::cout << "Modes: epidemiology, surveillance, spectrum, finance, test_all\n";
+        std::cout << "Modes: epidemiology, surveillance, spectrum, finance, "
+                     "test_all\n";
         return 1;
     }
 
-    std::string mode = argv[1];
-    std::string output = (argc > 2) ? argv[2] : "policy.lean";
+    const std::string mode = argv[1];
+    const std::string output = (argc > 2) ? argv[2] : "policy.lean";
 
     if (mode == "epidemiology") {
         std::cout << "Solving Urban Epidemiology Grid...\n";
-        std::vector<DeploymentNode> policy = {{10, 20, 1}, {15, 25, 2}, {30, 45, 3}};
+        const std::vector<DeploymentNode> policy = {
+            {10, 20, 1}, {15, 25, 2}, {30, 45, 3}};
         EpidemiologyOracle::generate_policy(output, policy);
         std::cout << "Policy generated: " << output << "\n";
     } else if (mode == "surveillance") {
         std::cout << "Calculating Drone Surveillance Playbook...\n";
-        std::vector<DroneMove> moves = {{1, 102}, {2, 105}, {1, 110}};
+        const std::vector<DroneMove> moves = {{1, 102}, {2, 105}, {1, 110}};
         SurveillanceOracle::generate_playbook(output, moves);
         std::cout << "Playbook generated: " << output << "\n";
     } else if (mode == "test_all") {
@@ -140,6 +147,4 @@ int main(int argc, char** argv) {
     }
 
     return 0;
-}
-
 }
