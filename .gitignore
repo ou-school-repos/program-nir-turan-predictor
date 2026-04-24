@@ -15,10 +15,7 @@
 /arrangementv5
 /arrangementoptimized
 /predict
-/burning_oracle
 /turan_oracle
-/evasion_oracle
-/wmat_oracle
 
 # ── Java build artifacts ─────────────────────────────────────
 *.class
