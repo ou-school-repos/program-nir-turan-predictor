@@ -16,8 +16,10 @@ graph Epidemiology {
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
+    rank=source;
     leg_burn [fillcolor=red, label="Burn Source"];
     leg_safe [fillcolor=lightgrey, label="Unburned"];
+    leg_burn -- leg_safe [style=invis];
   }
 
   30 [fillcolor=red, label="Node 30\nStep 1"];

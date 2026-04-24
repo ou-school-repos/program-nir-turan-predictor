@@ -22,154 +22,126 @@ class Visualizer:
 
     @staticmethod
     def export_burning(fn, adj, seq):
-        n_nodes = 64
+        n = 64
         with open(fn, "w") as f:
-            f.write("graph Epidemiology {\n")
-            f.write("  graph [\n")
-            f.write("    label=<\n")
-            f.write('      <TABLE BORDER="0" CELLSPACING="0">\n')
-            f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
-            f.write("Burning Number Conjecture Verification")
-            f.write("</FONT></B></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
-            f.write(f"Comb Graph C(32,2) — N={n_nodes} vertices")
-            f.write("</FONT></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
-            f.write(f"BNC Limit: b(G) ≤ ⌈√{n_nodes}⌉ = 8 | ")
-            f.write(f"Achieved: {len(seq)} steps via IDDFS")
-            f.write("</FONT></TD></TR>\n")
-            f.write("      </TABLE>\n")
-            f.write("    >\n")
-            f.write("    labelloc=t\n")
-            f.write('    fontname="Helvetica"\n')
-            f.write("  ];\n")
-            f.write(
-                '  node [fontname="Helvetica", style=filled, '
-                "fillcolor=lightgrey];\n\n"
-            )
-            # Legend
-            f.write("  subgraph cluster_legend {\n")
-            f.write('    label="Legend";\n')
-            f.write('    fontname="Helvetica";\n')
-            f.write("    style=dashed; color=gray60;\n")
-            f.write('    leg_burn [fillcolor=red, label="Burn Source"];\n')
-            f.write("    leg_safe [fillcolor=lightgrey, " 'label="Unburned"];\n')
-            f.write("  }\n\n")
-            # Nodes
+            f.write(f"""\
+graph Epidemiology {{
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Burning Number Conjecture Verification</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Comb Graph C(32,2) — N={n} vertices</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">BNC Limit: b(G) ≤ ⌈√{n}⌉ = 8 | Achieved: {len(seq)} steps via IDDFS</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
+
+  subgraph cluster_legend {{
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    rank=source;
+    leg_burn [fillcolor=red, label="Burn Source"];
+    leg_safe [fillcolor=lightgrey, label="Unburned"];
+    leg_burn -- leg_safe [style=invis];
+  }}
+
+""")
             for step, node in enumerate(seq):
                 f.write(
-                    f'  {node} [fillcolor=red, label="Node {node}\\n'
-                    f'Step {step + 1}"];\n'
+                    f'  {node} [fillcolor=red, label="Node {node}\\nStep {step + 1}"];\n'
                 )
-            for i in range(n_nodes):
-                for j in range(i + 1, n_nodes):
+            for i in range(n):
+                for j in range(i + 1, n):
                     if (adj[i] >> j) & 1:
                         f.write(f"  {i} -- {j};\n")
             f.write("}\n")
 
     @staticmethod
     def export_finance(fn, adj, risk, fraud):
-        n_nodes = 64
+        n = 64
         n_fraud = len(fraud)
         total_risk = sum(r for r in risk if r > 0)
         with open(fn, "w") as f:
-            f.write("graph SystemicRisk {\n")
-            f.write("  graph [\n")
-            f.write("    label=<\n")
-            f.write('      <TABLE BORDER="0" CELLSPACING="0">\n')
-            f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
-            f.write("Turán Supersaturation &amp; Systemic Risk Audit")
-            f.write("</FONT></B></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
-            f.write(f"Bipartite K(32,32) + {n_fraud} fraudulent edges")
-            f.write("</FONT></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
-            f.write("Mantel Limit: ex(64, K₃) = 1024 | ")
-            f.write(f"Risk Score: {total_risk}")
-            f.write("</FONT></TD></TR>\n")
-            f.write("      </TABLE>\n")
-            f.write("    >\n")
-            f.write("    labelloc=t\n")
-            f.write('    fontname="Helvetica"\n')
-            f.write("  ];\n")
-            f.write(
-                '  node [fontname="Helvetica", style=filled, '
-                "fillcolor=lightblue];\n\n"
-            )
-            # Legend
-            f.write("  subgraph cluster_legend {\n")
-            f.write('    label="Legend";\n')
-            f.write('    fontname="Helvetica";\n')
-            f.write("    style=dashed; color=gray60;\n")
-            f.write("    leg_safe [fillcolor=lightblue, " 'label="Safe Node"];\n')
-            f.write(
-                "    leg_risk [fillcolor=orange, " 'label="Risk Node\\n(K₃ member)"];\n'
-            )
-            f.write(
-                "    leg_safe -- leg_risk [color=red, "
-                'penwidth=3.0, label=" Fraud"];\n'
-            )
-            f.write("  }\n\n")
-            # Nodes
-            for i in range(n_nodes):
+            f.write(f"""\
+graph SystemicRisk {{
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Turán Supersaturation &amp; Systemic Risk Audit</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Bipartite K(32,32) + {n_fraud} fraudulent edges</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Mantel Limit: ex(64, K₃) = 1024 | Risk Score: {total_risk}</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=lightblue];
+
+  subgraph cluster_legend {{
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    rank=source;
+    leg_safe [fillcolor=lightblue, label="Safe Node"];
+    leg_risk [fillcolor=orange, label="Risk Node\\n(K₃ member)"];
+    leg_safe -- leg_risk [color=red, penwidth=3.0, label=" Fraud"];
+  }}
+
+""")
+            for i in range(n):
                 if risk[i] > 0:
                     f.write(
-                        f'  {i} [fillcolor=orange, label="N{i}\\n'
-                        f'Risk: {risk[i] // 2}"];\n'
+                        f'  {i} [fillcolor=orange, label="N{i}\\nRisk: {risk[i] // 2}"];\n'
                     )
                 else:
                     f.write(f'  {i} [label="N{i}"];\n')
-            for i in range(n_nodes):
-                for j in range(i + 1, n_nodes):
+            for i in range(n):
+                for j in range(i + 1, n):
                     if (adj[i] >> j) & 1:
                         if (i, j) in fraud:
                             f.write(
-                                f"  {i} -- {j} [color=red, "
-                                f'penwidth=3.0, label=" FRAUD"];\n'
+                                f'  {i} -- {j} [color=red, penwidth=3.0, label=" FRAUD"];\n'
                             )
                         else:
-                            f.write(f"  {i} -- {j} [color=grey, " f"penwidth=0.5];\n")
+                            f.write(f"  {i} -- {j} [color=grey, penwidth=0.5];\n")
             f.write("}\n")
 
     @staticmethod
     def export_surveillance(fn, adj, probes):
         with open(fn, "w") as f:
-            f.write("graph Surveillance {\n")
-            f.write("  graph [\n")
-            f.write("    label=<\n")
-            f.write('      <TABLE BORDER="0" CELLSPACING="0">\n')
-            f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
-            f.write("1-Visibility Localization POMDP")
-            f.write("</FONT></B></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
-            f.write("Binary Tree (N=63) — Min-Entropy Belief Reduction")
-            f.write("</FONT></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
-            f.write(f"Capture guaranteed in {len(probes)} probes | ")
-            f.write("0 blind spots")
-            f.write("</FONT></TD></TR>\n")
-            f.write("      </TABLE>\n")
-            f.write("    >\n")
-            f.write("    labelloc=t\n")
-            f.write('    fontname="Helvetica"\n')
-            f.write("  ];\n")
-            f.write(
-                '  node [fontname="Helvetica", style=filled, '
-                "fillcolor=lightgrey];\n\n"
-            )
-            # Legend
-            f.write("  subgraph cluster_legend {\n")
-            f.write('    label="Legend";\n')
-            f.write('    fontname="Helvetica";\n')
-            f.write("    style=dashed; color=gray60;\n")
-            f.write("    leg_probe [fillcolor=yellow, " 'label="Probed"];\n')
-            f.write("    leg_unvis [fillcolor=lightgrey, " 'label="Unvisited"];\n')
-            f.write("  }\n\n")
-            # Nodes
+            f.write(f"""\
+graph Surveillance {{
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">1-Visibility Localization POMDP</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Binary Tree (N=63) — Min-Entropy Belief Reduction</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Capture guaranteed in {len(probes)} probes | 0 blind spots</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
+
+  subgraph cluster_legend {{
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    rank=source;
+    leg_probe [fillcolor=yellow, label="Probed"];
+    leg_unvis [fillcolor=lightgrey, label="Unvisited"];
+    leg_probe -- leg_unvis [style=invis];
+  }}
+
+""")
             for step, node in enumerate(probes):
                 f.write(
-                    f'  {node} [fillcolor=yellow, label="Probe {node}\\n'
-                    f'Turn {step + 1}"];\n'
+                    f'  {node} [fillcolor=yellow, label="Probe {node}\\nTurn {step + 1}"];\n'
                 )
             for i in range(64):
                 for j in range(i + 1, 64):
@@ -179,39 +151,38 @@ class Visualizer:
 
     @staticmethod
     def export_spectrum(fn, n, adj, p_ans, l_ans):
+        hub1_deg = len(adj[1])
+        hub3_deg = len(adj[3])
         with open(fn, "w") as f:
-            f.write("graph Spectrum {\n")
-            f.write("  graph [\n")
-            f.write("    label=<\n")
-            f.write('      <TABLE BORDER="0" CELLSPACING="0">\n')
-            f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
-            f.write("Hoffman-London Spectrum Fragility Analysis")
-            f.write("</FONT></B></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
-            f.write(f"Leontovich Tree L({n}) — Independent Set Count")
-            f.write("</FONT></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
-            f.write(f"Path P({n}): {p_ans} | Leontovich L({n}): {l_ans}")
-            f.write("</FONT></TD></TR>\n")
-            f.write("      </TABLE>\n")
-            f.write("    >\n")
-            f.write("    labelloc=t\n")
-            f.write('    fontname="Helvetica"\n')
-            f.write("  ];\n")
-            f.write(
-                '  node [fontname="Helvetica", style=filled, ' "fillcolor=white];\n\n"
-            )
-            # Legend
-            f.write("  subgraph cluster_legend {\n")
-            f.write('    label="Legend";\n')
-            f.write('    fontname="Helvetica";\n')
-            f.write("    style=dashed; color=gray60;\n")
-            f.write("    leg_hub [fillcolor=cyan, " 'label="Hub Node"];\n')
-            f.write("    leg_leaf [fillcolor=white, " 'label="Leaf Node"];\n')
-            f.write("  }\n\n")
-            # Nodes
-            f.write('  1 [fillcolor=cyan, label="Hub 1\\n' f'deg={len(adj[1])}"];\n')
-            f.write('  3 [fillcolor=cyan, label="Hub 3\\n' f'deg={len(adj[3])}"];\n')
+            f.write(f"""\
+graph Spectrum {{
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Hoffman-London Spectrum Fragility Analysis</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Leontovich Tree L({n}) — Independent Set Count</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Path P({n}): {p_ans} | Leontovich L({n}): {l_ans}</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=white];
+
+  subgraph cluster_legend {{
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    rank=source;
+    leg_hub [fillcolor=cyan, label="Hub Node"];
+    leg_leaf [fillcolor=white, label="Leaf Node"];
+    leg_hub -- leg_leaf [style=invis];
+  }}
+
+  1 [fillcolor=cyan, label="Hub 1\\ndeg={hub1_deg}"];
+  3 [fillcolor=cyan, label="Hub 3\\ndeg={hub3_deg}"];
+
+""")
             for u in range(n):
                 for v in adj[u]:
                     if u < v:
@@ -298,7 +269,7 @@ class EpidemiologyModule:
         Visualizer.export_burning(fn + ".dot", adj, seq)
 
         with open(fn, "w") as out:
-            out.write("import Mathlib.Tactic\ndef grid_adj : Array UInt64 " ":= #[\n")
+            out.write("import Mathlib.Tactic\ndef grid_adj : Array UInt64 := #[\n")
             for r in adj:
                 out.write(f"  {r},\n")
             out.write("\n]\ndef deployment_sequence : List Nat := [")
@@ -364,7 +335,7 @@ class SurveillanceModule:
         Visualizer.export_surveillance(fn + ".dot", adj, probes)
 
         with open(fn, "w") as out:
-            out.write("import Mathlib.Tactic\ndef cave_adj : Array UInt64 " ":= #[\n")
+            out.write("import Mathlib.Tactic\ndef cave_adj : Array UInt64 := #[\n")
             for r in adj:
                 out.write(f"  {r},\n")
             out.write("\n]\ndef drone_routing_playbook : List Nat := [")

@@ -16,12 +16,15 @@ graph Spectrum {
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
+    rank=source;
     leg_hub [fillcolor=cyan, label="Hub Node"];
     leg_leaf [fillcolor=white, label="Leaf Node"];
+    leg_hub -- leg_leaf [style=invis];
   }
 
   1 [fillcolor=cyan, label="Hub 1\ndeg=10"];
   3 [fillcolor=cyan, label="Hub 3\ndeg=10"];
+
   0 -- 1;
   1 -- 2;
   1 -- 5;

@@ -16,6 +16,7 @@ graph SystemicRisk {
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
+    rank=source;
     leg_safe [fillcolor=lightblue, label="Safe Node"];
     leg_risk [fillcolor=orange, label="Risk Node\n(K₃ member)"];
     leg_safe -- leg_risk [color=red, penwidth=3.0, label=" Fraud"];
