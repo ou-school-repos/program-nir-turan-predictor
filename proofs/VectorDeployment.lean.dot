@@ -1,17 +1,13 @@
 graph Epidemiology {
-  node [style=filled, fillcolor=white];
-  1 [fillcolor=red, fontcolor=white, label="Act 1"];
-  4 [fillcolor=red, fontcolor=white, label="Act 4"];
-  7 [fillcolor=red, fontcolor=white, label="Act 7"];
-  10 [fillcolor=red, fontcolor=white, label="Act 10"];
-  13 [fillcolor=red, fontcolor=white, label="Act 13"];
-  16 [fillcolor=red, fontcolor=white, label="Act 16"];
-  19 [fillcolor=red, fontcolor=white, label="Act 19"];
-  22 [fillcolor=red, fontcolor=white, label="Act 22"];
-  25 [fillcolor=red, fontcolor=white, label="Act 25"];
-  28 [fillcolor=red, fontcolor=white, label="Act 28"];
-  30 [fillcolor=red, fontcolor=white, label="Act 30"];
-  63 [fillcolor=red, fontcolor=white, label="Act 63"];
+  node [fontname="Helvetica", style=filled, color=lightgrey];
+  30 [fillcolor=red, label="Node 30 (Step 1)"];
+  24 [fillcolor=red, label="Node 24 (Step 2)"];
+  17 [fillcolor=red, label="Node 17 (Step 3)"];
+  11 [fillcolor=red, label="Node 11 (Step 4)"];
+  7 [fillcolor=red, label="Node 7 (Step 5)"];
+  3 [fillcolor=red, label="Node 3 (Step 6)"];
+  1 [fillcolor=red, label="Node 1 (Step 7)"];
+  32 [fillcolor=red, label="Node 32 (Step 8)"];
   0 -- 1;
   0 -- 32;
   1 -- 2;

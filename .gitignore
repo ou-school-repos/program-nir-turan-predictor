@@ -1,6 +1,7 @@
 # Binaries
-/*oracle
-/solver
+*oracle
+solver
+predictor
 
 # Lean build artifacts
 .lake/

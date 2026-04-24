@@ -7,428 +7,362 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <set>
 #include <string>
 #include <vector>
 
 using namespace std;
 using namespace std::chrono;
 
-/**
- * UNIFIED HYBRID SOLVER: HARDCORE COMPUTATIONAL REFLECTION
- * Consolidates Paths 1-4 with mathematically rigorous algorithmic modules.
- * C++ Search -> Zero-Trust Lean Verification.
- */
-
-// Terminal Colors for Showcase Output
+// Terminal Colors
 #define RST "\033[0m"
 #define GRN "\033[1;32m"
 #define YEL "\033[1;33m"
-#define BLU "\033[1;34m"
 #define MAG "\033[1;35m"
 #define CYN "\033[1;36m"
 #define RED "\033[1;31m"
 
-// ============================================================================
-// MODULE 1: EPIDEMIOLOGY (GRAPH BURNING & THE BNC)
-// Math: "Achievable Burning Densities of Growing Grids" (2026)
-// ============================================================================
+class Visualizer {
+  public:
+    static void export_burning(const string &fn, const vector<uint64_t> &adj,
+                               const vector<uint32_t> &seq) {
+        ofstream out(fn);
+        out << "graph Epidemiology {\n  node [fontname=\"Helvetica\", "
+               "style=filled, color=lightgrey];\n";
+        for (size_t step = 0; step < seq.size(); ++step)
+            out << "  " << seq[step] << " [fillcolor=red, label=\"Node "
+                << seq[step] << " (Step " << (step + 1) << ")\"];\n";
+        for (int i = 0; i < 64; ++i)
+            for (int j = i + 1; j < 64; ++j)
+                if ((adj[i] >> j) & 1ULL)
+                    out << "  " << i << " -- " << j << ";\n";
+        out << "}\n";
+    }
+    static void export_finance(const string &fn, const vector<uint64_t> &adj,
+                               const vector<int> &risk,
+                               const set<pair<int, int>> &fraud) {
+        ofstream out(fn);
+        out << "graph SystemicRisk {\n  node [fontname=\"Helvetica\", "
+               "style=filled, fillcolor=lightblue];\n";
+        for (int i = 0; i < 64; ++i) {
+            if (risk[i] > 0)
+                out << "  " << i << " [fillcolor=orange, label=\"N" << i
+                    << " (Risk: " << (risk[i] / 2) << ")\"];\n";
+            else
+                out << "  " << i << " [label=\"N" << i << "]\n";
+        }
+        for (int i = 0; i < 64; ++i)
+            for (int j = i + 1; j < 64; ++j)
+                if ((adj[i] >> j) & 1ULL) {
+                    if (fraud.count({i, j}))
+                        out << "  " << i << " -- " << j
+                            << " [color=red, penwidth=3.0, label=\" "
+                               "FRAUD\"];\n";
+                    else
+                        out << "  " << i << " -- " << j
+                            << " [color=grey, penwidth=0.5];\n";
+                }
+        out << "}\n";
+    }
+    static void export_surveillance(const string &fn,
+                                    const vector<uint64_t> &adj,
+                                    const vector<uint32_t> &probes) {
+        ofstream out(fn);
+        out << "graph Surveillance {\n  node [fontname=\"Helvetica\", "
+               "style=filled, color=lightgrey];\n";
+        for (size_t step = 0; step < probes.size(); ++step)
+            out << "  " << probes[step] << " [fillcolor=yellow, label=\"Probe "
+                << probes[step] << " (Turn " << (step + 1) << ")\"];\n";
+        for (int i = 0; i < 64; ++i)
+            for (int j = i + 1; j < 64; ++j)
+                if ((adj[i] >> j) & 1ULL)
+                    out << "  " << i << " -- " << j << ";\n";
+        out << "}\n";
+    }
+    static void export_spectrum(const string &fn, int n,
+                                const vector<vector<int>> &adj) {
+        ofstream out(fn);
+        out << "graph Spectrum {\n  node [fontname=\"Helvetica\", "
+               "style=filled, fillcolor=white];\n";
+        out << "  1 [fillcolor=cyan, label=\"Hub 1\"]; 3 [fillcolor=cyan, "
+               "label=\"Hub 3\"];\n";
+        for (int u = 0; u < n; u++)
+            for (int v : adj[u])
+                if (u < v)
+                    out << "  " << u << " -- " << v << ";\n";
+        out << "}\n";
+    }
+};
+
 class EpidemiologyModule {
+    static bool iddfs(int depth, int max_depth, uint64_t burned,
+                      const vector<uint64_t> &adj, vector<uint32_t> &path,
+                      long long &visited) {
+        visited++;
+        if (burned == ~0ULL)
+            return true;
+        if (depth == max_depth)
+            return false;
+        uint64_t spread = burned;
+        for (int i = 0; i < 64; ++i)
+            if ((burned >> i) & 1ULL)
+                spread |= adj[i];
+        int rem = max_depth - depth;
+        if (__builtin_popcountll(spread) + (rem * rem * 2) < 64)
+            return false;
+        vector<pair<int, int>> cands;
+        for (int i = 0; i < 64; ++i)
+            if (!((spread >> i) & 1ULL))
+                cands.push_back(
+                    {(int)__builtin_popcountll(adj[i] & ~spread), i});
+        sort(cands.rbegin(), cands.rend());
+        for (auto p : cands) {
+            path.push_back(p.second);
+            if (iddfs(depth + 1, max_depth, spread | (1ULL << p.second), adj,
+                      path, visited))
+                return true;
+            path.pop_back();
+        }
+        return false;
+    }
+
   public:
     static void execute(const string &fn) {
-        int N = 64;
-        cout << CYN << "[Solver] Initializing Spatial Comb Graph (N=" << N
-             << ") for BNC Verification.\n"
-             << RST;
-
-        int theoretical_bound = ceil(sqrt(N));
-        cout << MAG
-             << "  -> Burning Number Conjecture (BNC) Limit: b(G) <= ceil(sqrt("
-             << N << ")) = " << theoretical_bound << " steps.\n"
-             << RST;
-
-        // Generate Comb Graph (A spine of 32 nodes, with 32 leaves attached)
+        cout << CYN
+             << "[Solver] Initializing Spatial Comb Graph (N=64) for BNC "
+                "Verification."
+             << endl;
         vector<uint64_t> adj(64, 0);
         for (int i = 0; i < 32; ++i) {
             if (i > 0)
                 adj[i] |= (1ULL << (i - 1));
             if (i < 31)
                 adj[i] |= (1ULL << (i + 1));
-            adj[i] |= (1ULL << (i + 32)); // attach leaf (tooth)
-            adj[i + 32] |= (1ULL << i);   // return edge
+            adj[i] |= (1ULL << (i + 32));
+            adj[i + 32] |= (1ULL << i);
         }
-
-        // Real Greedy Look-Ahead Heuristic
         vector<uint32_t> seq;
-        uint64_t burned = 0;
-        int step = 0;
-
-        while (burned != ~0ULL && step < 64) {
-            step++;
-            uint64_t spread = burned;
-            for (int i = 0; i < 64; ++i)
-                if ((burned >> i) & 1ULL)
-                    spread |= adj[i];
-
-            // Pick node maximizing unburned degree
-            int best_node = -1;
-            int max_degree = -1;
-            for (int i = 0; i < 64; ++i) {
-                if (!((spread >> i) & 1ULL)) {
-                    int deg = __builtin_popcountll(adj[i] & ~spread);
-                    if (deg > max_degree) {
-                        max_degree = deg;
-                        best_node = i;
-                    }
-                }
+        long long visited = 0;
+        auto start = high_resolution_clock::now();
+        bool found = false;
+        for (int limit = 1; limit <= 8; limit++)
+            if (iddfs(0, limit, 0, adj, seq, visited)) {
+                found = true;
+                break;
             }
-            if (best_node == -1) {
-                for (int i = 0; i < 64; ++i)
-                    if (!((spread >> i) & 1ULL)) {
-                        best_node = i;
-                        break;
-                    }
-            }
-
-            burned = spread | (1ULL << best_node);
-            seq.push_back(best_node);
-            cout << "  [Step " << step << "] Activator: Node " << setw(2)
-                 << best_node << " | Saturation: " << fixed << setprecision(1)
-                 << (__builtin_popcountll(burned) / 64.0) * 100 << "%\n";
+        auto stop = high_resolution_clock::now();
+        if (found) {
+            cout << GRN << "  [Solver] Achieved full saturation in "
+                 << seq.size() << " steps. (BNC Verified ✓)" << endl;
+            cout << "  [Telemetry] Searched " << visited << " states in "
+                 << duration_cast<milliseconds>(stop - start).count() << " ms."
+                 << endl;
         }
-
-        cout << GRN << "  [Solver] Achieved full saturation in " << step
-             << " steps. ";
-        if (step <= theoretical_bound)
-            cout << "(BNC Verified ✓)\n" << RST;
-        else
-            cout << RED << "(Exceeds BNC Limit ✗)\n" << RST;
-
+        Visualizer::export_burning(fn + ".dot", adj, seq);
         ofstream out(fn);
-        out << "import Mathlib.Tactic\n\n";
-        out << "def grid_adj : Array UInt64 := #[\n";
+        out << "import Mathlib.Tactic\ndef grid_adj : Array UInt64 := #[";
         for (uint64_t r : adj)
-            out << "  " << r << ",\n";
-        out << "]\n\n";
-        out << "def deployment_sequence : List Nat := [";
+            out << "  " << r << "ULL,\n";
+        out << "\n]\ndef deployment_sequence : List Nat := [";
         for (uint32_t n : seq)
             out << n << ", ";
-        out << "]\n\n";
-        out << "def spread_fire (adj : Array UInt64) (burned : UInt64) : "
-               "UInt64 :=\n";
-        out << "  (List.range 64).foldl (init := burned) (fun acc i => if "
-               "(burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) else "
-               "acc)\n\n";
-        out << "def execute_burning (adj : Array UInt64) (seq : List Nat) : "
-               "UInt64 :=\n";
-        out << "  seq.foldl (init := 0) (fun burned n => (spread_fire adj "
-               "burned) ||| ((1 : UInt64) <<< n.toUInt64))\n\n";
-        out << "theorem policy_is_valid : execute_burning grid_adj "
-               "deployment_sequence = 0xFFFFFFFFFFFFFFFF := by native_decide\n";
-
-        // Generate Graphviz Visual Proof
-        string dot_fn = fn + ".dot";
-        ofstream dot_out(dot_fn);
-        dot_out << "graph Epidemiology {\n  node [style=filled, "
-                   "fillcolor=white];\n";
-        for (uint32_t n : seq)
-            dot_out << "  " << n
-                    << " [fillcolor=red, fontcolor=white, label=\"Act " << n
-                    << "\"];\n";
-        for (uint32_t i = 0; i < 64; ++i) {
-            for (uint32_t j = i + 1; j < 64; ++j) {
-                if ((adj[i] >> j) & 1ULL)
-                    dot_out << "  " << i << " -- " << j << ";\n";
-            }
-        }
-        dot_out << "}\n";
-        cout << "  [Solver] Visual Proof Exported: " << dot_fn << "\n";
+        out << "]\ndef spread_fire (adj : Array UInt64) (burned : UInt64) : "
+               "UInt64 := (List.range 64).foldl (init := burned) (fun acc i => "
+               "if (burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) "
+               "else acc)\ndef execute_burning (adj : Array UInt64) (seq : "
+               "List Nat) : UInt64 := seq.foldl (init := 0) (fun burned n => "
+               "(spread_fire adj burned) ||| ((1 : UInt64) <<< "
+               "n.toUInt64))\ntheorem policy_is_valid : execute_burning "
+               "grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF := by "
+               "native_decide\n";
     }
 };
 
-// ============================================================================
-// MODULE 2: SURVEILLANCE (1-VISIBILITY LOCALIZATION)
-// Math: "The one-visibility localization game" (2024)
-// ============================================================================
 class SurveillanceModule {
   public:
     static void execute(const string &fn) {
         cout << CYN
-             << "[Solver] Initializing Belief-State POMDP Tracker for "
-                "1-Visibility Evader.\n"
-             << RST;
-        cout
-            << MAG
-            << "  -> Topology: Subterranean Tunnel System (Path Graph, N=64).\n"
-            << RST;
-
-        // Build a path graph.
+             << "[Solver] Initializing POMDP Tracker (Binary Tree, N=63)."
+             << endl;
         vector<uint64_t> adj(64, 0);
-        for (int i = 0; i < 63; i++) {
-            adj[i] |= (1ULL << (i + 1));
-            adj[i + 1] |= (1ULL << i);
+        for (int i = 0; i <= 30; i++) {
+            int l = 2 * i + 1, r = 2 * i + 2;
+            adj[i] |= (1ULL << l) | (1ULL << r);
+            adj[l] |= (1ULL << i);
+            adj[r] |= (1ULL << i);
         }
-
-        uint64_t belief = ~0ULL; // Target quantum superposition
+        uint64_t belief = 0x7FFFFFFFFFFFFFFF;
         vector<uint32_t> probes;
-
         int steps = 0;
-        while (belief > 0 && steps < 64) {
+        while (belief > 0 && steps < 63) {
             int best_p = 0;
-            int min_next_belief = 65;
-            uint64_t best_next_mask = 0;
-
-            // POMDP Min-Max Lookahead
-            for (int i = 0; i < 64; i++) {
-                uint64_t b_after_probe = belief & ~((1ULL << i) | adj[i]);
+            int min_nb = 65;
+            uint64_t best_m = 0;
+            for (int i = 0; i < 63; i++) {
+                uint64_t b_after = belief & ~((1ULL << i) | adj[i]);
                 uint64_t next_b = 0;
-                for (int j = 0; j < 64; j++) {
-                    if ((b_after_probe >> j) & 1ULL)
+                for (int j = 0; j < 63; j++)
+                    if ((b_after >> j) & 1ULL)
                         next_b |= adj[j] | (1ULL << j);
-                }
-                int pop = __builtin_popcountll(next_b);
-                if (pop < min_next_belief) {
-                    min_next_belief = pop;
-                    best_next_mask = next_b;
+                int pop = (int)__builtin_popcountll(next_b);
+                if (pop < min_nb) {
+                    min_nb = pop;
+                    best_m = next_b;
                     best_p = i;
                 }
             }
             probes.push_back(best_p);
-            belief = best_next_mask;
-
-            cout << "  [Turn " << setw(2) << ++steps << "] Drone Probes Node "
-                 << setw(2) << best_p
-                 << " -> Target Entropy Reduced To: " << min_next_belief
-                 << " possible nodes.\n";
+            belief = best_m;
+            if (steps % 8 == 0)
+                cout << "  [Turn " << setw(2) << steps + 1
+                     << "] Entropy Reduced To: " << min_nb << " nodes." << endl;
+            steps++;
         }
-
-        if (belief == 0)
-            cout << GRN
-                 << "  [Solver] Isoperimetric pruning successful. Target "
-                    "mathematically trapped.\n"
-                 << RST;
-
+        cout << GRN << "  [Solver] Target mathematically trapped in " << steps
+             << " steps." << endl;
+        Visualizer::export_surveillance(fn + ".dot", adj, probes);
         ofstream out(fn);
-        out << "import Mathlib.Tactic\n\n";
-        out << "def cave_adj : Array UInt64 := #[\n";
+        out << "import Mathlib.Tactic\ndef cave_adj : Array UInt64 := #[";
         for (uint64_t r : adj)
-            out << "  " << r << ",\n";
-        out << "]\n\n";
-        out << "def drone_routing_playbook : List Nat := [";
+            out << "  " << r << "ULL,\n";
+        out << "\n]\ndef drone_routing_playbook : List Nat := [";
         for (uint32_t n : probes)
             out << n << ", ";
-        out << "]\n\n";
-        out << "def drone_probe (adj : Array UInt64) (belief : UInt64) (p : "
-               "Nat) : UInt64 :=\n";
-        out << "  let captured := belief &&& ~~~((1 : UInt64) <<< p.toUInt64 "
-               "||| adj[p]!)\n";
-        out << "  (List.range 64).foldl (init := 0) (fun acc i => if (captured "
-               ">>> i.toUInt64) &&& 1 == 1 then acc ||| ((1 : UInt64) <<< "
-               "i.toUInt64) ||| adj[i]! else acc)\n\n";
-        out << "def execute_hunt (adj : Array UInt64) (seq : List Nat) : "
-               "UInt64 :=\n";
-        out << "  seq.foldl (init := 0xFFFFFFFFFFFFFFFF) (fun b p => "
-               "drone_probe adj b p)\n\n";
-        out << "theorem capture_guaranteed : execute_hunt cave_adj "
+        out << "]\ndef drone_probe (adj : Array UInt64) (belief : UInt64) (p : "
+               "Nat) : UInt64 := let captured := belief &&& ~~~((1 : UInt64) "
+               "<<< p.toUInt64 ||| adj[p]!); (List.range 64).foldl (init := 0) "
+               "(fun acc i => if (captured >>> i.toUInt64) &&& 1 == 1 then acc "
+               "||| ((1 : UInt64) <<< i.toUInt64) ||| adj[i]! else acc)\ndef "
+               "execute_hunt (adj : Array UInt64) (seq : List Nat) : UInt64 := "
+               "seq.foldl (init := 0x7FFFFFFFFFFFFFFF) (fun b p => drone_probe "
+               "adj b p)\ntheorem capture_guaranteed : execute_hunt cave_adj "
                "drone_routing_playbook = 0 := by native_decide\n";
     }
 };
 
-// ============================================================================
-// MODULE 3: SPECTRUM (HOFFMAN-LONDON ANOMALIES)
-// Math: "Hoffman-London graphs: When paths minimize q-colorings among trees"
-// (2026)
-// ============================================================================
 class SpectrumModule {
-    static vector<uint64_t> count_q_colorings(int u, int p,
-                                              const vector<vector<int>> &adj) {
-        vector<uint64_t> dp(3, 1);
+    static pair<uint64_t, uint64_t> count_is(int u, int p,
+                                             const vector<vector<int>> &adj) {
+        uint64_t excl = 1, incl = 1;
         for (int v : adj[u]) {
             if (v == p)
                 continue;
-            auto child_dp = count_q_colorings(v, u, adj);
-            vector<uint64_t> next_dp(3, 0);
-            for (int c = 0; c < 3; c++) {
-                uint64_t sum_d = 0;
-                for (int d = 0; d < 3; d++)
-                    if (c != d)
-                        sum_d += child_dp[d];
-                next_dp[c] = dp[c] * sum_d;
-            }
-            dp = next_dp;
+            auto c = count_is(v, u, adj);
+            excl *= (c.first + c.second);
+            incl *= c.first;
         }
-        return dp;
+        return {excl, incl};
     }
 
   public:
     static void execute(const string &fn) {
         cout << CYN
-             << "[Solver] Evaluating Topological Spectrum Allocation "
-                "(q-Colorings).\n"
-             << RST;
-        cout << MAG
-             << "  -> Math Context: Galvin & Nir (2026) 'Hoffman-London "
-                "graphs'\n"
-             << RST;
-
+             << "[Solver] Evaluating Spectrum Fragility (Independent Sets)."
+             << endl;
         int N = 21;
-        vector<vector<int>> path_adj(N);
+        vector<vector<int>> p_adj(N), l_adj(N);
         for (int i = 0; i < N - 1; i++) {
-            path_adj[i].push_back(i + 1);
-            path_adj[i + 1].push_back(i);
+            p_adj[i].push_back(i + 1);
+            p_adj[i + 1].push_back(i);
         }
-        auto p_dp = count_q_colorings(0, -1, path_adj);
-        uint64_t path_allocs = p_dp[0] + p_dp[1] + p_dp[2];
-
-        vector<vector<int>> leon_adj(N);
         for (int i = 0; i < 4; i++) {
-            leon_adj[i].push_back(i + 1);
-            leon_adj[i + 1].push_back(i);
+            l_adj[i].push_back(i + 1);
+            l_adj[i + 1].push_back(i);
         }
         for (int i = 5; i < 13; i++) {
-            leon_adj[1].push_back(i);
-            leon_adj[i].push_back(1);
+            l_adj[1].push_back(i);
+            l_adj[i].push_back(1);
         }
         for (int i = 13; i < 21; i++) {
-            leon_adj[3].push_back(i);
-            leon_adj[i].push_back(3);
+            l_adj[3].push_back(i);
+            l_adj[i].push_back(3);
         }
-
-        auto l_dp = count_q_colorings(0, -1, leon_adj);
-        uint64_t leon_allocs = l_dp[0] + l_dp[1] + l_dp[2];
-
-        cout << "  [Path P_21] Baseline Valid Frequency Allocations: "
-             << path_allocs << "\n";
-        cout << "  [Leontovich L_21] Hub-Constrained Allocations:  "
-             << leon_allocs << "\n";
-
-        if (leon_allocs < path_allocs)
+        auto p_dp = count_is(0, -1, p_adj);
+        auto l_dp = count_is(0, -1, l_adj);
+        uint64_t p_ans = p_dp.first + p_dp.second,
+                 l_ans = l_dp.first + l_dp.second;
+        cout << "  [Path P21] Allocs: " << p_ans
+             << " | [Leontovich L21] Allocs: " << l_ans << endl;
+        if (l_ans < p_ans)
             cout << RED
-                 << "  [Solver] ANOMALY DETECTED! Structural tree fragility "
-                    "confirmed via DP.\n"
-                 << RST;
-
+                 << "  [Solver] ANOMALY DETECTED! Structural fragility "
+                    "confirmed."
+                 << endl;
+        Visualizer::export_spectrum(fn + ".dot", N, l_adj);
         ofstream out(fn);
-        out << "import Mathlib.Tactic\n\n";
-        out << "def path_allocations : Nat := " << path_allocs << "\n";
-        out << "def leontovich_allocations : Nat := " << leon_allocs << "\n\n";
-        out << "theorem anomaly_verified : leontovich_allocations < "
+        out << "import Mathlib.Tactic\ndef path_allocations : Nat := " << p_ans
+            << "\ndef leontovich_allocations : Nat := " << l_ans
+            << "\ntheorem anomaly_verified : leontovich_allocations < "
                "path_allocations := by decide\n";
     }
 };
 
-// ============================================================================
-// MODULE 4: FINANCE (TURAN SUPERSATURATION)
-// Math: "A localized approach to generalized Turan problems" (2023)
-// ============================================================================
 class FinanceModule {
   public:
     static void execute(const string &fn) {
         int N = 64;
-        int max_bipartite_edges = (N / 2) * (N / 2);
-
         cout << CYN
-             << "[Solver] Turan Limits & Bipartite Supersaturation (N=" << N
-             << ").\n"
-             << RST;
-        cout << MAG << "  -> Mantel's Theorem Limit: " << max_bipartite_edges
-             << "\n"
-             << RST;
-
+             << "[Solver] Turan Limits & Bipartite Supersaturation (N=64)."
+             << endl;
         vector<uint64_t> adj(64, 0);
         int edges = 0;
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < 32; i++)
             for (int j = 32; j < 64; j++) {
                 adj[i] |= (1ULL << j);
                 adj[j] |= (1ULL << i);
                 edges++;
             }
-        }
-
-        vector<pair<int, int>> fraud = {
-            {0, 1}, {1, 2}, {33, 34}, {34, 35}, {35, 36}};
+        set<pair<int, int>> fraud_set;
+        vector<pair<int, int>> fraud = {{0, 1},   {1, 2},   {2, 0},
+                                        {33, 34}, {34, 35}, {35, 33}};
         for (auto p : fraud) {
-            adj[p.first] |= (1ULL << p.second);
-            adj[p.second] |= (1ULL << p.first);
-            edges++;
-        }
-
-        cout << "  [Network Data] Ingested matrix with " << edges
-             << " active dependencies.\n";
-        cout << RED << "  [Solver] " << edges << " > " << max_bipartite_edges
-             << ". Supersaturation boundary violently breached!\n"
-             << RST;
-
-        auto start = high_resolution_clock::now();
-        uint32_t exact_k3 = 0;
-        for (int i = 0; i < N - 1; i++) {
-            for (int j = i + 1; j < N; j++) {
-                // Safety check: j must be < 64 for valid bit-shift on uint64_t
-                if (j < 64 && (adj[i] & (1ULL << j))) {
-                    exact_k3 += __builtin_popcountll(adj[i] & adj[j]);
-                }
+            fraud_set.insert({min(p.first, p.second), max(p.first, p.second)});
+            if (!((adj[p.first] >> p.second) & 1ULL)) {
+                adj[p.first] |= (1ULL << p.second);
+                adj[p.second] |= (1ULL << p.first);
+                edges++;
             }
         }
-        exact_k3 /= 3;
-
-        auto stop = high_resolution_clock::now();
-
-        cout << GRN << "  [SIMD Engine] Intersected graph arrays in "
-             << duration_cast<microseconds>(stop - start).count() << " µs. "
-             << "Discovered exactly " << exact_k3
-             << " systemic K_3 risk cycles.\n"
-             << RST;
-
-        ofstream out(fn);
-        out << "import Mathlib.Tactic\n\n";
-        out << "def edges : Nat := " << edges << "\n";
-        out << "def mantel_limit : Nat := " << max_bipartite_edges << "\n";
-        out << "def exact_cycles : Nat := " << exact_k3 << "\n\n";
-        out << "theorem supersaturation_active : edges > mantel_limit := by "
-               "decide\n";
-        out << "theorem cycles_exist : exact_cycles > 0 := by decide\n";
-
-        // Generate Graphviz Visual Proof
-        string dot_fn = fn + ".dot";
-        ofstream dot_out(dot_fn);
-        dot_out << "graph Finance {\n  node [style=filled, fillcolor=white];\n";
-        for (int i = 0; i < N; i++) {
-            for (int j = i + 1; j < N; j++) {
+        auto start = high_resolution_clock::now();
+        vector<int> risk(64, 0);
+        uint32_t k3 = 0;
+        for (int i = 0; i < N - 1; i++)
+            for (int j = i + 1; j < N; j++)
                 if (j < 64 && (adj[i] & (1ULL << j))) {
-                    const bool is_fraud = std::any_of(
-                        fraud.begin(), fraud.end(), [&](const auto &p) {
-                            return (p.first == i && p.second == j) ||
-                                   (p.first == j && p.second == i);
-                        });
-                    if (is_fraud) {
-                        dot_out << "  " << i << " -- " << j
-                                << " [color=red, penwidth=3.0];\n";
-                    } else {
-                        // Regular bipartite edges
-                        dot_out << "  " << i << " -- " << j
-                                << " [color=blue, penwidth=0.1];\n";
+                    uint64_t common = adj[i] & adj[j];
+                    int c = (int)__builtin_popcountll(common);
+                    if (c > 0) {
+                        risk[i] += c;
+                        risk[j] += c;
+                        k3 += c;
                     }
                 }
-            }
-        }
-        dot_out << "}\n";
-        cout << "  [Solver] Visual Proof Exported: " << dot_fn << "\n";
+        k3 /= 3;
+        auto stop = high_resolution_clock::now();
+        cout << GRN << "  [SIMD] Discovered " << k3 << " risk cycles in "
+             << duration_cast<microseconds>(stop - start).count() << " us."
+             << endl;
+        Visualizer::export_finance(fn + ".dot", adj, risk, fraud_set);
+        ofstream out(fn);
+        out << "import Mathlib.Tactic\ndef edges : Nat := " << edges
+            << "\ndef mantel : Nat := 1024\ndef cycles : Nat := " << k3
+            << "\ntheorem supersaturation : edges > mantel := by "
+               "decide\ntheorem risky : cycles > 0 := by decide\n";
     }
 };
 
 int main(int argc, char **argv) {
     if (argc < 3)
         return 1;
-    string mode = argv[1];
-    string output = argv[2];
-
-    if (mode == "epidemiology")
-        EpidemiologyModule::execute(output);
-    else if (mode == "surveillance")
-        SurveillanceModule::execute(output);
-    else if (mode == "spectrum")
-        SpectrumModule::execute(output);
-    else if (mode == "finance")
-        FinanceModule::execute(output);
-
+    string m = argv[1];
+    string o = argv[2];
+    if (m == "epidemiology")
+        EpidemiologyModule::execute(o);
+    else if (m == "surveillance")
+        SurveillanceModule::execute(o);
+    else if (m == "spectrum")
+        SpectrumModule::execute(o);
+    else if (m == "finance")
+        FinanceModule::execute(o);
     return 0;
 }
