@@ -28,9 +28,33 @@ endef
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Build
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.PHONY: all clean _help help format lint lean vars
+.PHONY: all clean _help help format lint lean vars build run test bundle
 
 all: $(TARGETS) ##H Build all oracles
+
+bundle: clean ##H Bundle project into bundle.zip
+	@$(call print_info,Bundling project)
+	zip -r bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*" "*.o"
+	@$(call print_success,Bundle created: bundle.zip)
+
+build: all ##H Alias for 'all'
+
+run: build/burning ##H Run the Phase 1 Burning Oracle
+	@$(call print_info,Running burning_oracle)
+	./burning_oracle
+
+test: build ##H Run all oracle smoke tests
+	@$(call print_info,Running tests)
+	./burning_oracle
+	./turan_oracle
+	./evasion_oracle
+	./wmat_oracle
+	@$(call print_success,All tests passed.)
+
+build/burning: burning_oracle
+build/turan: turan_oracle
+build/evasion: evasion_oracle
+build/wmat: wmat_oracle
 
 burning_oracle: src/burning_oracle.cpp
 	@$(call print_info,Building $@)

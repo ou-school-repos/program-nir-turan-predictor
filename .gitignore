@@ -16,3 +16,4 @@ proofs/lean.log
 *.swp
 .DS_Store
 .tmp/
+*.zip
