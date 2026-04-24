@@ -1,7 +1,7 @@
 import Mathlib.Tactic
 
 /--
-# Unified Hybrid Oracle Verification
+# Unified Hybrid Solver Verification
 Formalizes the "Squeeze" for Phases 1-4.
 -/
 

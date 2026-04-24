@@ -1,11 +1,82 @@
 import Mathlib.Tactic
 
-def wolbachia_deployment_schedule : List (ℕ × ℕ × ℕ) := [
-  (10, 20, 1),
-  (15, 25, 2),
-  (30, 45, 3),
+def city_grid_adj : Array UInt64 := #[
+  30,
+  61,
+  123,
+  247,
+  495,
+  990,
+  1980,
+  3960,
+  7920,
+  15840,
+  31680,
+  63360,
+  126720,
+  253440,
+  506880,
+  1013760,
+  2027520,
+  4055040,
+  8110080,
+  16220160,
+  32440320,
+  64880640,
+  129761280,
+  259522560,
+  519045120,
+  1038090240,
+  2076180480,
+  4152360960,
+  8304721920,
+  16609443840,
+  33218887680,
+  66437775360,
+  132875550720,
+  265751101440,
+  531502202880,
+  1063004405760,
+  2126008811520,
+  4252017623040,
+  8504035246080,
+  17008070492160,
+  34016140984320,
+  68032281968640,
+  136064563937280,
+  272129127874560,
+  544258255749120,
+  1088516511498240,
+  2177033022996480,
+  4354066045992960,
+  8708132091985920,
+  17416264183971840,
+  34832528367943680,
+  69665056735887360,
+  139330113471774720,
+  278660226943549440,
+  557320453887098880,
+  1114640907774197760,
+  2229281815548395520,
+  4458563631096791040,
+  8917127262193582080,
+  17834254524387164160,
+  17221764975064776704,
+  15996785876420001792,
+  13546827679130451968,
+  8646911284551352320,
 ]
 
-theorem schedule_is_topologically_sufficient : True := by
-  -- Formal verification of the growth rate vs saturation
-  sorry
+def deployment_sequence : List Nat := [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 63, ]
+
+def spread_fire (adj : Array UInt64) (burned : UInt64) : UInt64 :=
+  (List.range 64).foldl (init := burned) (fun acc i =>
+    if (burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) else acc)
+
+def execute_burning (adj : Array UInt64) (seq : List Nat) : UInt64 :=
+  seq.foldl (init := 0) (fun burned node_idx =>
+    let spread := spread_fire adj burned
+    spread ||| ((1 : UInt64) <<< node_idx.toUInt64))
+
+theorem policy_is_valid : execute_burning city_grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF := by
+  native_decide
