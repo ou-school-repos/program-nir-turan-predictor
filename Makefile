@@ -97,15 +97,22 @@ lean: ##H Build Lean 4 verifiers
 lean-cache: ##H Download mathlib cache
 	cd proofs && lake exe cache get
 
+.PHONY: dots
+dots: ##H Regenerate all .dot visual proofs and .lean witnesses
+	@$(call print_info,Regenerating witnesses and graphs)
+	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
+	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
+	@$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean
+	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
+
 .PHONY: render
-render: ##H Render all .dot visual proofs to .png (requires graphviz)
+render: dots ##H Render all .dot visual proofs to SVG+PNG (requires graphviz)
 	@$(call print_info,Rendering visual proofs)
 	@mkdir -p docs/out
 	@for f in docs/*.dot; do \
 		base=$$(basename "$$f" .dot); \
-		dot -Tsvg "$$f" -o "docs/out/$${base}.svg"; \
-		dot -Tpng "$$f" -o "docs/out/$${base}.png"; \
-		printf "  \033[1;34m✓ Rendered: docs/out/$${base}.{svg,png}\033[0m\n"; \
+		dot -Tgif "$$f" -o "docs/out/$${base}.gif"; \
+		printf "  \033[1;34m✓ Rendered: docs/out/$${base}.gif\033[0m\n"; \
 	done
 
 

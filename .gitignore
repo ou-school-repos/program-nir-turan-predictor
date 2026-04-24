@@ -16,5 +16,6 @@ output.log
 .DS_Store
 .tmp/
 *.zip
+*.gif
 *.png
 *.svg

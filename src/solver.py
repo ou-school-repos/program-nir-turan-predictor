@@ -30,14 +30,14 @@ graph Epidemiology {{
   graph [
     label=<
       <TABLE BORDER="0" CELLSPACING="0">
-        <TR><TD><B><FONT POINT-SIZE="18">Burning Number Conjecture Verification</FONT></B></TD></TR>
+        <TR><TD><B><FONT POINT-SIZE="18">Burning Number Conjecture — Simulation</FONT></B></TD></TR>
         <TR><TD><FONT POINT-SIZE="12">Comb Graph C(32,2) — N={n} vertices</FONT></TD></TR>
         <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">BNC Limit: b(G) ≤ ⌈√{n}⌉ = 8 | Achieved: {len(seq)} steps via IDDFS</FONT></TD></TR>
       </TABLE>
     >
     labelloc=t
     fontname="Helvetica"
-    rankdir=LR
+    size="10,8!"
   ];
   node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
 
@@ -51,14 +51,57 @@ graph Epidemiology {{
   }}
 
 """)
+            burn_set = set(seq)
+            # Mark burn sources
             for step, node in enumerate(seq):
                 f.write(
                     f'  {node} [fillcolor=red, label="Node {node}\\nStep {step + 1}"];\n'
                 )
-            for i in range(n):
-                for j in range(i + 1, n):
-                    if (adj[i] >> j) & 1:
-                        f.write(f"  {i} -- {j};\n")
+
+            # Spine cluster: 4 rows of 8
+            f.write("  subgraph cluster_spine {\n")
+            f.write('    label="Spine (0–31)";\n')
+            f.write('    fontname="Helvetica";\n')
+            f.write("    style=rounded; color=gray80;\n")
+            for i in range(32):
+                if i not in burn_set:
+                    f.write(f'    {i} [label="{i}"];\n')
+            for row in range(4):
+                nodes = " ".join(str(row * 8 + c) for c in range(8))
+                f.write(f"    {{ rank=same; {nodes}; }}\n")
+            # Horizontal spine edges
+            for i in range(31):
+                f.write(f"    {i} -- {i + 1};\n")
+            # Vertical invisible chains for grid
+            for c in range(8):
+                for row in range(3):
+                    a = row * 8 + c
+                    b = (row + 1) * 8 + c
+                    f.write(f"    {a} -- {b} [style=invis];\n")
+            f.write("  }\n\n")
+
+            # Leaf cluster: 4 rows of 8
+            f.write("  subgraph cluster_leaves {\n")
+            f.write('    label="Leaves (32–63)";\n')
+            f.write('    fontname="Helvetica";\n')
+            f.write("    style=rounded; color=gray80;\n")
+            for i in range(32, 64):
+                if i not in burn_set:
+                    f.write(f'    {i} [label="{i}"];\n')
+            for row in range(4):
+                nodes = " ".join(str(32 + row * 8 + c) for c in range(8))
+                f.write(f"    {{ rank=same; {nodes}; }}\n")
+            for c in range(8):
+                for row in range(3):
+                    a = 32 + row * 8 + c
+                    b = 32 + (row + 1) * 8 + c
+                    f.write(f"    {a} -- {b} [style=invis];\n")
+            f.write("  }\n\n")
+
+            # Spine-to-leaf pendant edges
+            for i in range(32):
+                f.write(f"  {i} -- {i + 32} [style=dashed, color=gray60];\n")
+
             f.write("}\n")
 
     @staticmethod
@@ -184,6 +227,7 @@ graph Surveillance {{
     >
     labelloc=t
     fontname="Helvetica"
+    size="10,8!"
   ];
   node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
 

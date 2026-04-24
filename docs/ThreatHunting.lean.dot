@@ -9,6 +9,7 @@ graph Surveillance {
     >
     labelloc=t
     fontname="Helvetica"
+    size="10,8!"
   ];
   node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
 
