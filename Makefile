@@ -39,11 +39,12 @@ verify/epidemiology: build ##H Generate and certify Wolbachia deployment
 	@{ \
 		$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)]); \
 		./$(TARGET) epidemiology proofs/VectorDeployment.lean $(SCALE) $(ITER); \
-		printf "\033[1;36m==================================================\033[0m\n"; \
-		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
-		grep "deployment_sequence" proofs/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'; \
+		export DEP_SEQ=$$(grep "deployment_sequence" proofs/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
 		cd proofs && lake build VectorDeployment > /dev/null 2>&1; \
 		printf "\033[1;34m✓ Verified: policy_is_valid (native_decide evaluated to TRUE).\033[0m\n"; \
+		printf "\033[1;36m==================================================\033[0m\n"; \
+		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
+		printf "  %s\n" "$$DEP_SEQ"; \
 		printf "\033[1;36mMATHEMATICAL GUARANTEE: 100%% network saturation achieved.\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 	} | tee output.log
@@ -53,11 +54,12 @@ verify/surveillance: build ##H Generate and certify drone surveillance playbook
 	@{ \
 		$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)]); \
 		./$(TARGET) surveillance proofs/ThreatHunting.lean $(SCALE) $(ITER); \
-		printf "\033[1;36m==================================================\033[0m\n"; \
-		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n"; \
-		grep "drone_routing_playbook" proofs/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'; \
+		export DRONE_SEQ=$$(grep "drone_routing_playbook" proofs/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
 		cd proofs && lake build ThreatHunting > /dev/null 2>&1; \
 		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n"; \
+		printf "\033[1;36m==================================================\033[0m\n"; \
+		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n"; \
+		printf "  %s\n" "$$DRONE_SEQ"; \
 		printf "\033[1;36mMATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible.\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 	} | tee output.log
