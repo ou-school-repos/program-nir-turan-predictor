@@ -5,6 +5,7 @@ Generates formal Lean 4 witnesses verified via native_decide.
 Modules: epidemiology (BNC), surveillance (POMDP), spectrum (H-coloring), finance (Turán).
 """
 
+import os
 import sys
 import time
 
@@ -43,11 +44,13 @@ graph Epidemiology {{
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_burn [fillcolor=red, label="Burn Source"];
     leg_safe [fillcolor=lightgrey, label="Unburned"];
     leg_burn -- leg_safe [style=invis];
   }}
+
+  {{ rank=same; {' '.join(str(i) for i in range(32))}; }}
+  {{ rank=same; {' '.join(str(i) for i in range(32, 64))}; }}
 
 """)
             for step, node in enumerate(seq):
@@ -266,7 +269,8 @@ class EpidemiologyModule:
                 f"{elapsed_ms:.0f} ms."
             )
 
-        Visualizer.export_burning(fn + ".dot", adj, seq)
+        dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+        Visualizer.export_burning(dot_path, adj, seq)
 
         with open(fn, "w") as out:
             out.write("import Mathlib.Tactic\ndef grid_adj : Array UInt64 := #[\n")
@@ -285,7 +289,8 @@ class EpidemiologyModule:
                 "(spread_fire adj burned) ||| ((1 : UInt64) <<< "
                 "n.toUInt64))\n"
                 "theorem policy_is_valid : execute_burning grid_adj "
-                "deployment_sequence = 0xFFFFFFFFFFFFFFFF := by "
+                "deployment_sequence = 0xFFFFFFFFFFFFFFFF "
+                "\u2227 deployment_sequence.length \u2264 8 := by "
                 "native_decide\n"
             )
 
@@ -332,7 +337,8 @@ class SurveillanceModule:
             f"{GRN}  [Solver] Target mathematically trapped in " f"{steps} steps.{RST}"
         )
 
-        Visualizer.export_surveillance(fn + ".dot", adj, probes)
+        dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+        Visualizer.export_surveillance(dot_path, adj, probes)
 
         with open(fn, "w") as out:
             out.write("import Mathlib.Tactic\ndef cave_adj : Array UInt64 := #[\n")
@@ -407,7 +413,8 @@ class SpectrumModule:
                 f"fragility confirmed.{RST}"
             )
 
-        Visualizer.export_spectrum(fn + ".dot", N, l_adj, p_ans, l_ans)
+        dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+        Visualizer.export_spectrum(dot_path, N, l_adj, p_ans, l_ans)
 
         with open(fn, "w") as out:
             out.write(
@@ -468,7 +475,8 @@ class FinanceModule:
             f"{elapsed_us:.0f} us.{RST}"
         )
 
-        Visualizer.export_finance(fn + ".dot", adj, risk, fraud_set)
+        dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+        Visualizer.export_finance(dot_path, adj, risk, fraud_set)
 
         with open(fn, "w") as out:
             out.write(
