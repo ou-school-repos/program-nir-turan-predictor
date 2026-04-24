@@ -10,6 +10,9 @@ proofs/lean.log
 # C++ objects
 *.o
 
+# Simulation logs
+output.log
+
 # Editor junk
 *.swp
 .DS_Store

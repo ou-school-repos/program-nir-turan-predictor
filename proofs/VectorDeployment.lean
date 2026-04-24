@@ -1,6 +1,6 @@
 import Mathlib.Tactic
 
-def city_grid_adj : Array UInt64 := #[
+def grid_adj : Array UInt64 := #[
   30,
   61,
   123,
@@ -70,13 +70,9 @@ def city_grid_adj : Array UInt64 := #[
 def deployment_sequence : List Nat := [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 63, ]
 
 def spread_fire (adj : Array UInt64) (burned : UInt64) : UInt64 :=
-  (List.range 64).foldl (init := burned) (fun acc i =>
-    if (burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) else acc)
+  (List.range 64).foldl (init := burned) (fun acc i => if (burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) else acc)
 
 def execute_burning (adj : Array UInt64) (seq : List Nat) : UInt64 :=
-  seq.foldl (init := 0) (fun burned node_idx =>
-    let spread := spread_fire adj burned
-    spread ||| ((1 : UInt64) <<< node_idx.toUInt64))
+  seq.foldl (init := 0) (fun burned n => (spread_fire adj burned) ||| ((1 : UInt64) <<< n.toUInt64))
 
-theorem policy_is_valid : execute_burning city_grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF := by
-  native_decide
+theorem policy_is_valid : execute_burning grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF := by native_decide
