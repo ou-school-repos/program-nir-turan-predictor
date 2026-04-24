@@ -25,6 +25,10 @@ class Visualizer:
     def export_burning(fn, adj, seq):
         n = 64
         with open(fn, "w") as f:
+            # Wrap spine into rows of 8 for compact layout
+            spine_rows = [range(i, min(i + 8, 32)) for i in range(0, 32, 8)]
+            leaf_rows = [range(32 + i, min(32 + i + 8, 64)) for i in range(0, 32, 8)]
+
             f.write(f"""\
 graph Epidemiology {{
   graph [
@@ -37,6 +41,7 @@ graph Epidemiology {{
     >
     labelloc=t
     fontname="Helvetica"
+    rankdir=LR
   ];
   node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
 
@@ -48,9 +53,6 @@ graph Epidemiology {{
     leg_safe [fillcolor=lightgrey, label="Unburned"];
     leg_burn -- leg_safe [style=invis];
   }}
-
-  {{ rank=same; {' '.join(str(i) for i in range(32))}; }}
-  {{ rank=same; {' '.join(str(i) for i in range(32, 64))}; }}
 
 """)
             for step, node in enumerate(seq):
@@ -68,6 +70,11 @@ graph Epidemiology {{
         n = 64
         n_fraud = len(fraud)
         total_risk = sum(r for r in risk if r > 0)
+        # Collect nodes involved in fraud triangles
+        fraud_nodes = set()
+        for i, j in fraud:
+            fraud_nodes.add(i)
+            fraud_nodes.add(j)
         with open(fn, "w") as f:
             f.write(f"""\
 graph SystemicRisk {{
@@ -77,40 +84,53 @@ graph SystemicRisk {{
         <TR><TD><B><FONT POINT-SIZE="18">Turán Supersaturation &amp; Systemic Risk Audit</FONT></B></TD></TR>
         <TR><TD><FONT POINT-SIZE="12">Bipartite K(32,32) + {n_fraud} fraudulent edges</FONT></TD></TR>
         <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Mantel Limit: ex(64, K₃) = 1024 | Risk Score: {total_risk}</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">1024 bipartite edges suppressed — fraud triangles highlighted</FONT></TD></TR>
       </TABLE>
     >
     labelloc=t
     fontname="Helvetica"
+    rankdir=TB
   ];
-  node [fontname="Helvetica", style=filled, fillcolor=lightblue];
+  node [fontname="Helvetica", style=filled, fillcolor=lightblue, width=0.5, height=0.4, fontsize=10];
+  edge [style=invis];
 
   subgraph cluster_legend {{
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_safe [fillcolor=lightblue, label="Safe Node"];
     leg_risk [fillcolor=orange, label="Risk Node\\n(K₃ member)"];
-    leg_safe -- leg_risk [color=red, penwidth=3.0, label=" Fraud"];
+    leg_safe -- leg_risk [style=solid, color=red, penwidth=3.0, label=" Fraud"];
   }}
 
+  subgraph cluster_partition_a {{
+    label="Partition A (0–31)";
+    fontname="Helvetica";
+    style=rounded; color=gray80;
 """)
-            for i in range(n):
-                if risk[i] > 0:
-                    f.write(
-                        f'  {i} [fillcolor=orange, label="N{i}\\nRisk: {risk[i] // 2}"];\n'
-                    )
+            for i in range(32):
+                if i in fraud_nodes:
+                    f.write(f'    {i} [fillcolor=orange, label="N{i}"];\n')
                 else:
-                    f.write(f'  {i} [label="N{i}"];\n')
-            for i in range(n):
-                for j in range(i + 1, n):
-                    if (adj[i] >> j) & 1:
-                        if (i, j) in fraud:
-                            f.write(
-                                f'  {i} -- {j} [color=red, penwidth=3.0, label=" FRAUD"];\n'
-                            )
-                        else:
-                            f.write(f"  {i} -- {j} [color=grey, penwidth=0.5];\n")
+                    f.write(f'    {i} [label="N{i}"];\n')
+            f.write("  }\n\n")
+            f.write("  subgraph cluster_partition_b {\n")
+            f.write('    label="Partition B (32–63)";\n')
+            f.write('    fontname="Helvetica";\n')
+            f.write("    style=rounded; color=gray80;\n")
+            for i in range(32, 64):
+                if i in fraud_nodes:
+                    f.write(f'    {i} [fillcolor=orange, label="N{i}"];\n')
+                else:
+                    f.write(f'    {i} [label="N{i}"];\n')
+            f.write("  }\n\n")
+            # Force partitions to stack vertically
+            f.write("  0 -- 32 [style=invis];\n\n")
+            # Only render fraud edges visibly
+            for i, j in sorted(fraud):
+                f.write(
+                    f'  {i} -- {j} [style=solid, color=red, penwidth=3.0, label=" FRAUD"];\n'
+                )
             f.write("}\n")
 
     @staticmethod
@@ -135,7 +155,6 @@ graph Surveillance {{
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_probe [fillcolor=yellow, label="Probed"];
     leg_unvis [fillcolor=lightgrey, label="Unvisited"];
     leg_probe -- leg_unvis [style=invis];
@@ -176,7 +195,6 @@ graph Spectrum {{
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_hub [fillcolor=cyan, label="Hub Node"];
     leg_leaf [fillcolor=white, label="Leaf Node"];
     leg_hub -- leg_leaf [style=invis];

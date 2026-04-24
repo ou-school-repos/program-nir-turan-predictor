@@ -16,7 +16,6 @@ graph Surveillance {
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_probe [fillcolor=yellow, label="Probed"];
     leg_unvis [fillcolor=lightgrey, label="Unvisited"];
     leg_probe -- leg_unvis [style=invis];

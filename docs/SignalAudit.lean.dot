@@ -16,7 +16,6 @@ graph Spectrum {
     label="Legend";
     fontname="Helvetica";
     style=dashed; color=gray60;
-    rank=source;
     leg_hub [fillcolor=cyan, label="Hub Node"];
     leg_leaf [fillcolor=white, label="Leaf Node"];
     leg_hub -- leg_leaf [style=invis];
