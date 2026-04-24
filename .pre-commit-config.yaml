@@ -7,8 +7,10 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
 
-  - repo: https://github.com/pwc-pdm/pre-commit-clang-format
-    rev: v1.1.0
+  - repo: local
     hooks:
       - id: clang-format
-        args: [-i]
+        name: clang-format
+        entry: clang-format -i
+        language: system
+        files: \.(cpp|h|hpp|c)$

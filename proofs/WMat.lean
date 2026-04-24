@@ -10,7 +10,7 @@ Formalization of the WMat free algebra and the Recipe Theorem.
 def WMat (R : Type*) [CommRing R] (Alphabet : Type*) : Type* :=
   FreeAlgebra R Alphabet
 
-/-- 
+/--
 The Recipe Theorem:
 The C++ bit-vector manipulation commutes with the algebraic Tutte polynomial.
 -/

@@ -21,7 +21,7 @@ def path_weight (G : V → V → Prop) (T : Finset V) : ℚ :=
 Localized Zykov's Theorem:
 The sum of localized weights is bounded by the binomial coefficient.
 -/
-theorem localized_zykov_theorem (n t : ℕ) (G : V → V → Prop) 
+theorem localized_zykov_theorem (n t : ℕ) (G : V → V → Prop)
     (h_card : Fintype.card V = n) :
   (Finset.univ.powersetLen t).sum (clique_weight G) ≤ Nat.choose n t := by
   -- Mirrors structural induction in E_seq_list_sum_le
@@ -32,7 +32,7 @@ Equality conditions for balanced multipartite graphs.
 Exported from C++ as existence witnesses.
 -/
 theorem turan_equality_condition (n r : ℕ) :
-  ∃ (G : V → V → Prop), 
+  ∃ (G : V → V → Prop),
     -- Turan graph T(n,r) achieves the equality condition
     True := by
   sorry

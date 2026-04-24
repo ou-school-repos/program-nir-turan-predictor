@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -16,8 +17,13 @@ class BumpAllocator {
     size_t offset;
 
   public:
-    BumpAllocator(size_t sz) : size(sz), offset(0) { buffer = new char[sz]; }
+    explicit BumpAllocator(size_t sz)
+        : buffer(new char[sz]), size(sz), offset(0) {}
     ~BumpAllocator() { delete[] buffer; }
+
+    // Disable copy and assignment
+    BumpAllocator(const BumpAllocator &) = delete;
+    BumpAllocator &operator=(const BumpAllocator &) = delete;
 
     void *allocate(size_t sz) {
         if (offset + sz > size)
@@ -37,7 +43,6 @@ class BumpAllocator {
  */
 struct BitVectorMatroid {
     uint64_t ground_set_mask;
-    std::vector<uint64_t> bases; // Encoded as bit-vectors
 
     // Contraction of an element e
     void contract(uint32_t e) {

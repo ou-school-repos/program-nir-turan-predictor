@@ -31,13 +31,9 @@ class EvasionOracle {
     uint32_t num_vertices;
     uint32_t num_words;
 
-    // Global memoization of evaluated belief states (lock-free placeholder)
-    // In a full implementation, this would use a custom flat hash map with
-    // std::atomic
-    std::unordered_map<uint64_t, float> memo;
-
   public:
-    EvasionOracle(uint32_t n) : num_vertices(n) { num_words = (n + 63) / 64; }
+    explicit EvasionOracle(uint32_t n)
+        : num_vertices(n), num_words((n + 63) / 64) {}
 
     /**
      * Update the robber's belief state based on a cop probe.
@@ -45,7 +41,7 @@ class EvasionOracle {
      * probe_mask: bit-vector of vertices at a certain distance k from the cop.
      */
     void update_belief_state(uint64_t *belief_state,
-                             const uint64_t *probe_mask) {
+                             const uint64_t *probe_mask) const {
         for (uint32_t i = 0; i < num_words; ++i) {
             belief_state[i] &= probe_mask[i];
         }
@@ -55,7 +51,8 @@ class EvasionOracle {
      * Belief-State Monte Carlo Tree Search
      * Prunes branches where belief state density exceeds threshold.
      */
-    float mcts_evaluate(const uint64_t *belief_state, uint32_t depth) {
+    static float mcts_evaluate(const uint64_t * /*belief_state*/,
+                               uint32_t /*depth*/) {
         // Implementation of MCTS logic
         return 0.0f;
     }

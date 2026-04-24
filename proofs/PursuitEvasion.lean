@@ -8,7 +8,7 @@ Formalization of topological ends and visibility constraints.
 
 variable {V : Type*} [MetricSpace V]
 
-/-- 
+/--
 A graph has uncountably many topological "ends".
 Formalized using filter bases or sequences in the metric space.
 -/
@@ -21,7 +21,7 @@ Visibility Constraints:
 The localization number ζ_1(G) is bounded by the dominating number γ(G)
 and the maximum degree Δ(G) for C_4-free graphs.
 -/
-theorem localization_bound_c4_free (G : V → V → Prop) 
+theorem localization_bound_c4_free (G : V → V → Prop)
     (h_c4_free : ∀ (a b c d : V), True) : -- Placeholder for C4-free
   ∃ (cop_strategy : ℕ), True := -- Placeholder for zeta_1 bound
   sorry
