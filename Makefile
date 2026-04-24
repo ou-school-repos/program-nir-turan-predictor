@@ -1,11 +1,4 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -Wpedantic -fopenmp -mavx2
-LDFLAGS =
-
-TARGET_SOLVER = solver
-TARGET_PREDICT = predictor
-SRC_SOLVER = src/solver.cpp
-SRC_PREDICT = src/predictor.cpp
+PYTHON = python3
 
 .DEFAULT_GOAL := _help
 
@@ -17,24 +10,6 @@ define print_success
 	printf "\033[1;34m✓ %s\033[0m\n" "$(1)"
 endef
 
-.PHONY: all
-all: build
-
-.PHONY: build
-build: $(TARGET_SOLVER) $(TARGET_PREDICT) ##H Build the unified hybrid suite
-
-.PHONY: $(TARGET_SOLVER)
-$(TARGET_SOLVER): $(SRC_SOLVER)
-	@$(call print_info,Building unified solver)
-	$(CXX) $(CXXFLAGS) -o $@ $<
-	@$(call print_success,Build complete.)
-
-.PHONY: $(TARGET_PREDICT)
-$(TARGET_PREDICT): $(SRC_PREDICT)
-	@$(call print_info,Building interconnection predictor)
-	$(CXX) $(CXXFLAGS) -o $@ $<
-	@$(call print_success,Build complete.)
-
 # --- Simulation Scaling ---
 SCALE ?= 64
 ITER  ?= 1000
@@ -43,14 +18,14 @@ R     ?= 9
 # --- Unified Execution & Certification ---
 
 .PHONY: run/predict
-run/predict: build ##H Run the Arrangement Graph Interconnection Predictor
-	@./$(TARGET_PREDICT) $(R)
+run/predict: ##H Run the Arrangement Graph Interconnection Predictor
+	@$(PYTHON) src/predictor.py $(R)
 
 .PHONY: verify/epidemiology
-verify/epidemiology: build ##H Generate and certify Wolbachia deployment
+verify/epidemiology: ##H Generate and certify Wolbachia deployment
 	@{ \
 		$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)]); \
-		./$(TARGET_SOLVER) epidemiology proofs/VectorDeployment.lean $(SCALE) $(ITER); \
+		$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean; \
 		export DEP_SEQ=$$(grep "deployment_sequence" proofs/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
 		cd proofs && lake build VectorDeployment; \
 		printf "\033[1;34m✓ Verified: policy_is_valid (native_decide evaluated to TRUE).\033[0m\n"; \
@@ -62,10 +37,10 @@ verify/epidemiology: build ##H Generate and certify Wolbachia deployment
 	} | tee output.log
 
 .PHONY: verify/surveillance
-verify/surveillance: build ##H Generate and certify drone surveillance playbook
+verify/surveillance: ##H Generate and certify drone surveillance playbook
 	@{ \
 		$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)]); \
-		./$(TARGET_SOLVER) surveillance proofs/ThreatHunting.lean $(SCALE) $(ITER); \
+		$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean; \
 		export DRONE_SEQ=$$(grep "drone_routing_playbook" proofs/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
 		cd proofs && lake build ThreatHunting; \
 		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n"; \
@@ -77,21 +52,21 @@ verify/surveillance: build ##H Generate and certify drone surveillance playbook
 	} | tee output.log
 
 .PHONY: run/spectrum
-run/spectrum: build ##H Stress-test 6G frequency allocation
+run/spectrum: ##H Stress-test 6G frequency allocation
 	@{ \
 		$(call print_info,Running 6G Signal Audit [Iter: $(ITER)]); \
-		./$(TARGET_SOLVER) spectrum proofs/SignalAudit.lean $(SCALE) $(ITER); \
+		$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean; \
 	} | tee output.log
 
 .PHONY: run/finance
-run/finance: build ##H Audit financial network for systemic risk
+run/finance: ##H Audit financial network for systemic risk
 	@{ \
 		$(call print_info,Running Systemic Risk Audit [Scale: $(SCALE)]); \
-		./$(TARGET_SOLVER) finance proofs/RiskAudit.lean $(SCALE) $(ITER); \
+		$(PYTHON) src/solver.py finance proofs/RiskAudit.lean; \
 	} | tee output.log
 
 .PHONY: test/all
-test/all: build ##H Run all certification pipelines
+test/all: ##H Run all certification pipelines
 	@$(call print_info,Running all pipelines)
 	@{ \
 		$(MAKE) --no-print-directory verify/epidemiology; \
@@ -130,17 +105,21 @@ render: ##H Render all .dot visual proofs to .png (requires graphviz)
 		printf "  \033[1;34m✓ Rendered: $${f%.dot}.png\033[0m\n"; \
 	done
 
+
+LINT_LOCS_PY ?= $$(git ls-files '*.py')
+
 .PHONY: format
 format: ##H Format source files
-	clang-format -i src/*.cpp
+	-black $(LINT_LOCS_PY)
+	-isort $(LINT_LOCS_PY)
 	-prettier -w .
 	-pre-commit run --all-files
 
+
 .PHONY: lint
-lint: ##H Lint C++ sources
+lint: ##H Lint Python sources
 	@$(call print_info,Linting)
-	-cppcheck --std=c++17 --enable=warning,style,performance --quiet src/*.cpp
-	-clang-tidy src/*.cpp --checks='*,-llvmlibc-*,-fuchsia-*,-altera-*,-boost-*,-llvm-*' -- $(CXXFLAGS)
+	-flake8 --max-line-length=120 $(LINT_LOCS_PY)
 	@$(call print_success,Lint complete.)
 
 .PHONY: bundle
@@ -149,7 +128,8 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f $(TARGET_SOLVER) $(TARGET_PREDICT) *.o bundle.zip
+	rm -f *.o bundle.zip
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help
 _help: ##H Show this help

@@ -1,15 +1,12 @@
-# Binaries
-*oracle
-solver
-predictor
+# Python
+__pycache__/
+*.pyc
+*venv/
 
 # Lean build artifacts
 .lake/
 lake-manifest.json
 proofs/lean.log
-
-# C++ objects
-*.o
 
 # Simulation logs
 output.log
