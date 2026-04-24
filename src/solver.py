@@ -25,10 +25,6 @@ class Visualizer:
     def export_burning(fn, adj, seq):
         n = 64
         with open(fn, "w") as f:
-            # Wrap spine into rows of 8 for compact layout
-            spine_rows = [range(i, min(i + 8, 32)) for i in range(0, 32, 8)]
-            leaf_rows = [range(32 + i, min(32 + i + 8, 64)) for i in range(0, 32, 8)]
-
             f.write(f"""\
 graph Epidemiology {{
   graph [
@@ -70,66 +66,106 @@ graph Epidemiology {{
         n = 64
         n_fraud = len(fraud)
         total_risk = sum(r for r in risk if r > 0)
-        # Collect nodes involved in fraud triangles
         fraud_nodes = set()
         for i, j in fraud:
             fraud_nodes.add(i)
             fraud_nodes.add(j)
+
         with open(fn, "w") as f:
-            f.write(f"""\
-graph SystemicRisk {{
-  graph [
-    label=<
-      <TABLE BORDER="0" CELLSPACING="0">
-        <TR><TD><B><FONT POINT-SIZE="18">Turán Supersaturation &amp; Systemic Risk Audit</FONT></B></TD></TR>
-        <TR><TD><FONT POINT-SIZE="12">Bipartite K(32,32) + {n_fraud} fraudulent edges</FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Mantel Limit: ex(64, K₃) = 1024 | Risk Score: {total_risk}</FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">1024 bipartite edges suppressed — fraud triangles highlighted</FONT></TD></TR>
-      </TABLE>
-    >
-    labelloc=t
-    fontname="Helvetica"
-    rankdir=TB
-  ];
-  node [fontname="Helvetica", style=filled, fillcolor=lightblue, width=0.5, height=0.4, fontsize=10];
-  edge [style=invis];
+            # Header
+            f.write("graph SystemicRisk {\n")
+            f.write("  graph [\n")
+            f.write("    label=<\n")
+            f.write('      <TABLE BORDER="0" CELLSPACING="0">\n')
+            f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
+            f.write("Turán Supersaturation &amp; Systemic Risk Audit")
+            f.write("</FONT></B></TD></TR>\n")
+            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
+            f.write(f"Bipartite K(32,32) + {n_fraud} fraudulent edges")
+            f.write("</FONT></TD></TR>\n")
+            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
+            f.write(f"Mantel Limit: ex(64, K₃) = 1024 | Risk Score: {total_risk}")
+            f.write("</FONT></TD></TR>\n")
+            f.write('        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">')
+            f.write("1024 bipartite edges suppressed — fraud triangles shown")
+            f.write("</FONT></TD></TR>\n")
+            f.write("      </TABLE>\n")
+            f.write("    >\n")
+            f.write("    labelloc=t\n")
+            f.write('    fontname="Helvetica"\n')
+            f.write("  ];\n")
+            f.write('  node [fontname="Helvetica", style=filled, ')
+            f.write("fillcolor=lightblue, width=0.5, height=0.4, fontsize=10];\n\n")
 
-  subgraph cluster_legend {{
-    label="Legend";
-    fontname="Helvetica";
-    style=dashed; color=gray60;
-    leg_safe [fillcolor=lightblue, label="Safe Node"];
-    leg_risk [fillcolor=orange, label="Risk Node\\n(K₃ member)"];
-    leg_safe -- leg_risk [style=solid, color=red, penwidth=3.0, label=" Fraud"];
-  }}
-
-  subgraph cluster_partition_a {{
-    label="Partition A (0–31)";
-    fontname="Helvetica";
-    style=rounded; color=gray80;
-""")
-            for i in range(32):
-                if i in fraud_nodes:
-                    f.write(f'    {i} [fillcolor=orange, label="N{i}"];\n')
-                else:
-                    f.write(f'    {i} [label="N{i}"];\n')
+            # Legend
+            f.write("  subgraph cluster_legend {\n")
+            f.write('    label="Legend";\n')
+            f.write('    fontname="Helvetica";\n')
+            f.write("    style=dashed; color=gray60;\n")
+            f.write('    leg_safe [fillcolor=lightblue, label="Safe Node"];\n')
+            f.write(
+                '    leg_risk [fillcolor=orange, label="Risk Node\\n(K₃ member)"];\n'
+            )
+            f.write("    leg_safe -- leg_risk ")
+            f.write('[color=red, penwidth=3.0, label=" Fraud"];\n')
             f.write("  }\n\n")
+
+            # Partition A: 4 rows of 8 nodes
+            f.write("  subgraph cluster_partition_a {\n")
+            f.write('    label="Partition A (0–31)";\n')
+            f.write('    fontname="Helvetica";\n')
+            f.write("    style=rounded; color=gray80;\n")
+            for i in range(32):
+                color = "orange" if i in fraud_nodes else "lightblue"
+                f.write(f'    {i} [fillcolor={color}, label="N{i}"];\n')
+            # Rank rows of 8
+            for row in range(4):
+                nodes = " ".join(str(row * 8 + c) for c in range(8))
+                f.write(f"    {{ rank=same; {nodes}; }}\n")
+            # Invisible vertical chains to enforce grid
+            for c in range(8):
+                for row in range(3):
+                    a = row * 8 + c
+                    b = (row + 1) * 8 + c
+                    f.write(f"    {a} -- {b} [style=invis];\n")
+            f.write("  }\n\n")
+
+            # Partition B: 4 rows of 8 nodes
             f.write("  subgraph cluster_partition_b {\n")
             f.write('    label="Partition B (32–63)";\n')
             f.write('    fontname="Helvetica";\n')
             f.write("    style=rounded; color=gray80;\n")
             for i in range(32, 64):
-                if i in fraud_nodes:
-                    f.write(f'    {i} [fillcolor=orange, label="N{i}"];\n')
-                else:
-                    f.write(f'    {i} [label="N{i}"];\n')
+                color = "orange" if i in fraud_nodes else "lightblue"
+                f.write(f'    {i} [fillcolor={color}, label="N{i}"];\n')
+            for row in range(4):
+                nodes = " ".join(str(32 + row * 8 + c) for c in range(8))
+                f.write(f"    {{ rank=same; {nodes}; }}\n")
+            for c in range(8):
+                for row in range(3):
+                    a = 32 + row * 8 + c
+                    b = 32 + (row + 1) * 8 + c
+                    f.write(f"    {a} -- {b} [style=invis];\n")
             f.write("  }\n\n")
-            # Force partitions to stack vertically
-            f.write("  0 -- 32 [style=invis];\n\n")
-            # Only render fraud edges visibly
+
+            # Force A above B with invisible edges across all columns
+            for c in range(8):
+                f.write(f"  {24 + c} -- {32 + c} [style=invis];\n")
+            f.write("\n")
+
+            # Representative bipartite edges (dashed) to show K(32,32) structure
+            for a in range(0, 32, 8):
+                for b in range(32, 64, 8):
+                    f.write(
+                        f"  {a} -- {b} [style=dashed, "
+                        f"color=gray70, penwidth=0.5];\n"
+                    )
+            f.write("\n")
+
+            # Fraud edges (visible)
             for i, j in sorted(fraud):
                 f.write(
-                    f'  {i} -- {j} [style=solid, color=red, penwidth=3.0, label=" FRAUD"];\n'
+                    f"  {i} -- {j} [color=red, penwidth=3.0, " f'label=" FRAUD"];\n'
                 )
             f.write("}\n")
 

@@ -5,15 +5,13 @@ graph SystemicRisk {
         <TR><TD><B><FONT POINT-SIZE="18">Turán Supersaturation &amp; Systemic Risk Audit</FONT></B></TD></TR>
         <TR><TD><FONT POINT-SIZE="12">Bipartite K(32,32) + 6 fraudulent edges</FONT></TD></TR>
         <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Mantel Limit: ex(64, K₃) = 1024 | Risk Score: 1164</FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">1024 bipartite edges suppressed — fraud triangles highlighted</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">1024 bipartite edges suppressed — fraud triangles shown</FONT></TD></TR>
       </TABLE>
     >
     labelloc=t
     fontname="Helvetica"
-    rankdir=TB
   ];
   node [fontname="Helvetica", style=filled, fillcolor=lightblue, width=0.5, height=0.4, fontsize=10];
-  edge [style=invis];
 
   subgraph cluster_legend {
     label="Legend";
@@ -21,7 +19,7 @@ graph SystemicRisk {
     style=dashed; color=gray60;
     leg_safe [fillcolor=lightblue, label="Safe Node"];
     leg_risk [fillcolor=orange, label="Risk Node\n(K₃ member)"];
-    leg_safe -- leg_risk [style=solid, color=red, penwidth=3.0, label=" Fraud"];
+    leg_safe -- leg_risk [color=red, penwidth=3.0, label=" Fraud"];
   }
 
   subgraph cluster_partition_a {
@@ -31,81 +29,161 @@ graph SystemicRisk {
     0 [fillcolor=orange, label="N0"];
     1 [fillcolor=orange, label="N1"];
     2 [fillcolor=orange, label="N2"];
-    3 [label="N3"];
-    4 [label="N4"];
-    5 [label="N5"];
-    6 [label="N6"];
-    7 [label="N7"];
-    8 [label="N8"];
-    9 [label="N9"];
-    10 [label="N10"];
-    11 [label="N11"];
-    12 [label="N12"];
-    13 [label="N13"];
-    14 [label="N14"];
-    15 [label="N15"];
-    16 [label="N16"];
-    17 [label="N17"];
-    18 [label="N18"];
-    19 [label="N19"];
-    20 [label="N20"];
-    21 [label="N21"];
-    22 [label="N22"];
-    23 [label="N23"];
-    24 [label="N24"];
-    25 [label="N25"];
-    26 [label="N26"];
-    27 [label="N27"];
-    28 [label="N28"];
-    29 [label="N29"];
-    30 [label="N30"];
-    31 [label="N31"];
+    3 [fillcolor=lightblue, label="N3"];
+    4 [fillcolor=lightblue, label="N4"];
+    5 [fillcolor=lightblue, label="N5"];
+    6 [fillcolor=lightblue, label="N6"];
+    7 [fillcolor=lightblue, label="N7"];
+    8 [fillcolor=lightblue, label="N8"];
+    9 [fillcolor=lightblue, label="N9"];
+    10 [fillcolor=lightblue, label="N10"];
+    11 [fillcolor=lightblue, label="N11"];
+    12 [fillcolor=lightblue, label="N12"];
+    13 [fillcolor=lightblue, label="N13"];
+    14 [fillcolor=lightblue, label="N14"];
+    15 [fillcolor=lightblue, label="N15"];
+    16 [fillcolor=lightblue, label="N16"];
+    17 [fillcolor=lightblue, label="N17"];
+    18 [fillcolor=lightblue, label="N18"];
+    19 [fillcolor=lightblue, label="N19"];
+    20 [fillcolor=lightblue, label="N20"];
+    21 [fillcolor=lightblue, label="N21"];
+    22 [fillcolor=lightblue, label="N22"];
+    23 [fillcolor=lightblue, label="N23"];
+    24 [fillcolor=lightblue, label="N24"];
+    25 [fillcolor=lightblue, label="N25"];
+    26 [fillcolor=lightblue, label="N26"];
+    27 [fillcolor=lightblue, label="N27"];
+    28 [fillcolor=lightblue, label="N28"];
+    29 [fillcolor=lightblue, label="N29"];
+    30 [fillcolor=lightblue, label="N30"];
+    31 [fillcolor=lightblue, label="N31"];
+    { rank=same; 0 1 2 3 4 5 6 7; }
+    { rank=same; 8 9 10 11 12 13 14 15; }
+    { rank=same; 16 17 18 19 20 21 22 23; }
+    { rank=same; 24 25 26 27 28 29 30 31; }
+    0 -- 8 [style=invis];
+    8 -- 16 [style=invis];
+    16 -- 24 [style=invis];
+    1 -- 9 [style=invis];
+    9 -- 17 [style=invis];
+    17 -- 25 [style=invis];
+    2 -- 10 [style=invis];
+    10 -- 18 [style=invis];
+    18 -- 26 [style=invis];
+    3 -- 11 [style=invis];
+    11 -- 19 [style=invis];
+    19 -- 27 [style=invis];
+    4 -- 12 [style=invis];
+    12 -- 20 [style=invis];
+    20 -- 28 [style=invis];
+    5 -- 13 [style=invis];
+    13 -- 21 [style=invis];
+    21 -- 29 [style=invis];
+    6 -- 14 [style=invis];
+    14 -- 22 [style=invis];
+    22 -- 30 [style=invis];
+    7 -- 15 [style=invis];
+    15 -- 23 [style=invis];
+    23 -- 31 [style=invis];
   }
 
   subgraph cluster_partition_b {
     label="Partition B (32–63)";
     fontname="Helvetica";
     style=rounded; color=gray80;
-    32 [label="N32"];
+    32 [fillcolor=lightblue, label="N32"];
     33 [fillcolor=orange, label="N33"];
     34 [fillcolor=orange, label="N34"];
     35 [fillcolor=orange, label="N35"];
-    36 [label="N36"];
-    37 [label="N37"];
-    38 [label="N38"];
-    39 [label="N39"];
-    40 [label="N40"];
-    41 [label="N41"];
-    42 [label="N42"];
-    43 [label="N43"];
-    44 [label="N44"];
-    45 [label="N45"];
-    46 [label="N46"];
-    47 [label="N47"];
-    48 [label="N48"];
-    49 [label="N49"];
-    50 [label="N50"];
-    51 [label="N51"];
-    52 [label="N52"];
-    53 [label="N53"];
-    54 [label="N54"];
-    55 [label="N55"];
-    56 [label="N56"];
-    57 [label="N57"];
-    58 [label="N58"];
-    59 [label="N59"];
-    60 [label="N60"];
-    61 [label="N61"];
-    62 [label="N62"];
-    63 [label="N63"];
+    36 [fillcolor=lightblue, label="N36"];
+    37 [fillcolor=lightblue, label="N37"];
+    38 [fillcolor=lightblue, label="N38"];
+    39 [fillcolor=lightblue, label="N39"];
+    40 [fillcolor=lightblue, label="N40"];
+    41 [fillcolor=lightblue, label="N41"];
+    42 [fillcolor=lightblue, label="N42"];
+    43 [fillcolor=lightblue, label="N43"];
+    44 [fillcolor=lightblue, label="N44"];
+    45 [fillcolor=lightblue, label="N45"];
+    46 [fillcolor=lightblue, label="N46"];
+    47 [fillcolor=lightblue, label="N47"];
+    48 [fillcolor=lightblue, label="N48"];
+    49 [fillcolor=lightblue, label="N49"];
+    50 [fillcolor=lightblue, label="N50"];
+    51 [fillcolor=lightblue, label="N51"];
+    52 [fillcolor=lightblue, label="N52"];
+    53 [fillcolor=lightblue, label="N53"];
+    54 [fillcolor=lightblue, label="N54"];
+    55 [fillcolor=lightblue, label="N55"];
+    56 [fillcolor=lightblue, label="N56"];
+    57 [fillcolor=lightblue, label="N57"];
+    58 [fillcolor=lightblue, label="N58"];
+    59 [fillcolor=lightblue, label="N59"];
+    60 [fillcolor=lightblue, label="N60"];
+    61 [fillcolor=lightblue, label="N61"];
+    62 [fillcolor=lightblue, label="N62"];
+    63 [fillcolor=lightblue, label="N63"];
+    { rank=same; 32 33 34 35 36 37 38 39; }
+    { rank=same; 40 41 42 43 44 45 46 47; }
+    { rank=same; 48 49 50 51 52 53 54 55; }
+    { rank=same; 56 57 58 59 60 61 62 63; }
+    32 -- 40 [style=invis];
+    40 -- 48 [style=invis];
+    48 -- 56 [style=invis];
+    33 -- 41 [style=invis];
+    41 -- 49 [style=invis];
+    49 -- 57 [style=invis];
+    34 -- 42 [style=invis];
+    42 -- 50 [style=invis];
+    50 -- 58 [style=invis];
+    35 -- 43 [style=invis];
+    43 -- 51 [style=invis];
+    51 -- 59 [style=invis];
+    36 -- 44 [style=invis];
+    44 -- 52 [style=invis];
+    52 -- 60 [style=invis];
+    37 -- 45 [style=invis];
+    45 -- 53 [style=invis];
+    53 -- 61 [style=invis];
+    38 -- 46 [style=invis];
+    46 -- 54 [style=invis];
+    54 -- 62 [style=invis];
+    39 -- 47 [style=invis];
+    47 -- 55 [style=invis];
+    55 -- 63 [style=invis];
   }
 
-  0 -- 32 [style=invis];
+  24 -- 32 [style=invis];
+  25 -- 33 [style=invis];
+  26 -- 34 [style=invis];
+  27 -- 35 [style=invis];
+  28 -- 36 [style=invis];
+  29 -- 37 [style=invis];
+  30 -- 38 [style=invis];
+  31 -- 39 [style=invis];
 
-  0 -- 1 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
-  0 -- 2 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
-  1 -- 2 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
-  33 -- 34 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
-  33 -- 35 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
-  34 -- 35 [style=solid, color=red, penwidth=3.0, label=" FRAUD"];
+  0 -- 32 [style=dashed, color=gray70, penwidth=0.5];
+  0 -- 40 [style=dashed, color=gray70, penwidth=0.5];
+  0 -- 48 [style=dashed, color=gray70, penwidth=0.5];
+  0 -- 56 [style=dashed, color=gray70, penwidth=0.5];
+  8 -- 32 [style=dashed, color=gray70, penwidth=0.5];
+  8 -- 40 [style=dashed, color=gray70, penwidth=0.5];
+  8 -- 48 [style=dashed, color=gray70, penwidth=0.5];
+  8 -- 56 [style=dashed, color=gray70, penwidth=0.5];
+  16 -- 32 [style=dashed, color=gray70, penwidth=0.5];
+  16 -- 40 [style=dashed, color=gray70, penwidth=0.5];
+  16 -- 48 [style=dashed, color=gray70, penwidth=0.5];
+  16 -- 56 [style=dashed, color=gray70, penwidth=0.5];
+  24 -- 32 [style=dashed, color=gray70, penwidth=0.5];
+  24 -- 40 [style=dashed, color=gray70, penwidth=0.5];
+  24 -- 48 [style=dashed, color=gray70, penwidth=0.5];
+  24 -- 56 [style=dashed, color=gray70, penwidth=0.5];
+
+  0 -- 1 [color=red, penwidth=3.0, label=" FRAUD"];
+  0 -- 2 [color=red, penwidth=3.0, label=" FRAUD"];
+  1 -- 2 [color=red, penwidth=3.0, label=" FRAUD"];
+  33 -- 34 [color=red, penwidth=3.0, label=" FRAUD"];
+  33 -- 35 [color=red, penwidth=3.0, label=" FRAUD"];
+  34 -- 35 [color=red, penwidth=3.0, label=" FRAUD"];
 }
