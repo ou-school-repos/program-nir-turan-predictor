@@ -124,7 +124,7 @@ lint: ##H Lint Python sources
 
 .PHONY: bundle
 bundle: clean ##H Package project into bundle.zip
-	zip -r bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*"
+	zip -r bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*" "proofs/docbuild/*" ".tmp/*"
 
 .PHONY: clean
 clean: ##H Remove build artifacts
