@@ -11,5 +11,9 @@ require mathlib from git
 lean_lib «ProgramNir» where
   srcDir := "."
   roots := #[
-    `OracleVerification
+    `OracleVerification,
+    `VectorDeployment,
+    `ThreatHunting,
+    `SignalAudit,
+    `RiskAudit
   ]
