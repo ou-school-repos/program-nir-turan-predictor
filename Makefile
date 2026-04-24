@@ -20,5 +20,9 @@ wmat_oracle: src/wmat_oracle.cpp
 lean:
 	cd proofs && lake build
 
+format:
+	clang-format -i src/*.cpp
+	@echo "C++ formatting complete."
+
 clean:
 	rm -f $(TARGETS)

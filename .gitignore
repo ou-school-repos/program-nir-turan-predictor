@@ -1,56 +1,18 @@
-# ── C++ build artifacts ──────────────────────────────────────
-*.o
-*.obj
-*.a
-*.so
-*.so.*
-*.dylib
-*.lib
-*.d
-*.pch
-*.gch
-
-# Compiled binaries
-/arrangement
-/arrangementv5
-/arrangementoptimized
-/predict
+# Binaries
+/burning_oracle
 /turan_oracle
+/evasion_oracle
+/wmat_oracle
 
-# ── Java build artifacts ─────────────────────────────────────
-*.class
-*.jar
-
-# ── Build directories ────────────────────────────────────────
-build/
-cmake-build-*/
-out/
-
-# ── CMake ────────────────────────────────────────────────────
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-*.out
-
-# ── IDE / editor ─────────────────────────────────────────────
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.geminiignore
-
-# ── OS junk ──────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-.tmp/
-*.log
-*.pdf
-*.zip
-*.tar.*
-
-# Lean
+# Lean build artifacts
 .lake/
+lake-manifest.json
+proofs/lean.log
 
-# Generated graph previews
-docs/*.gif
+# C++ objects
+*.o
+
+# Editor junk
+*.swp
+.DS_Store
+.tmp/

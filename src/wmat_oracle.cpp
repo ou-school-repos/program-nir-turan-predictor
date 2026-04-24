@@ -4,26 +4,25 @@
 
 /**
  * Phase 4: Combinatorial Hopf Algebras (WMat) Oracle
- * 
+ *
  * Objective: Accelerate polynomial invariants (Tutte, Billera-Jia-Reiner).
  * Uses Bit-Vector Matroids and Custom Memory Arenas.
  */
 
 // Bump allocator for massive recursion trees in Hopf algebra calculations
 class BumpAllocator {
-    char* buffer;
+    char *buffer;
     size_t size;
     size_t offset;
 
-public:
-    BumpAllocator(size_t sz) : size(sz), offset(0) {
-        buffer = new char[sz];
-    }
+  public:
+    BumpAllocator(size_t sz) : size(sz), offset(0) { buffer = new char[sz]; }
     ~BumpAllocator() { delete[] buffer; }
 
-    void* allocate(size_t sz) {
-        if (offset + sz > size) return nullptr;
-        void* ptr = &buffer[offset];
+    void *allocate(size_t sz) {
+        if (offset + sz > size)
+            return nullptr;
+        void *ptr = &buffer[offset];
         offset += sz;
         return ptr;
     }
@@ -33,7 +32,8 @@ public:
 
 /**
  * Bit-Vector Matroid
- * Complex operations (restriction, contraction, deletion) map to hardware bitwise ops.
+ * Complex operations (restriction, contraction, deletion) map to hardware
+ * bitwise ops.
  */
 struct BitVectorMatroid {
     uint64_t ground_set_mask;
