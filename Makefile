@@ -119,7 +119,7 @@ format: ##H Format source files
 .PHONY: lint
 lint: ##H Lint Python sources
 	@$(call print_info,Linting)
-	-flake8 --max-line-length=120 $(LINT_LOCS_PY)
+	-flake8 $(LINT_LOCS_PY)
 	@$(call print_success,Lint complete.)
 
 .PHONY: bundle
