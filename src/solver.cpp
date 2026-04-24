@@ -124,6 +124,24 @@ class EpidemiologyModule {
                "burned) ||| ((1 : UInt64) <<< n.toUInt64))\n\n";
         out << "theorem policy_is_valid : execute_burning grid_adj "
                "deployment_sequence = 0xFFFFFFFFFFFFFFFF := by native_decide\n";
+
+        // Generate Graphviz Visual Proof
+        string dot_fn = fn + ".dot";
+        ofstream dot_out(dot_fn);
+        dot_out << "graph Epidemiology {\n  node [style=filled, "
+                   "fillcolor=white];\n";
+        for (uint32_t n : seq)
+            dot_out << "  " << n
+                    << " [fillcolor=red, fontcolor=white, label=\"Act " << n
+                    << "\"];\n";
+        for (uint32_t i = 0; i < 64; ++i) {
+            for (uint32_t j = i + 1; j < 64; ++j) {
+                if ((adj[i] >> j) & 1ULL)
+                    dot_out << "  " << i << " -- " << j << ";\n";
+            }
+        }
+        dot_out << "}\n";
+        cout << "  [Solver] Visual Proof Exported: " << dot_fn << "\n";
     }
 };
 
@@ -368,6 +386,32 @@ class FinanceModule {
         out << "theorem supersaturation_active : edges > mantel_limit := by "
                "decide\n";
         out << "theorem cycles_exist : exact_cycles > 0 := by decide\n";
+
+        // Generate Graphviz Visual Proof
+        string dot_fn = fn + ".dot";
+        ofstream dot_out(dot_fn);
+        dot_out << "graph Finance {\n  node [style=filled, fillcolor=white];\n";
+        for (int i = 0; i < N; i++) {
+            for (int j = i + 1; j < N; j++) {
+                if (j < 64 && (adj[i] & (1ULL << j))) {
+                    const bool is_fraud = std::any_of(
+                        fraud.begin(), fraud.end(), [&](const auto &p) {
+                            return (p.first == i && p.second == j) ||
+                                   (p.first == j && p.second == i);
+                        });
+                    if (is_fraud) {
+                        dot_out << "  " << i << " -- " << j
+                                << " [color=red, penwidth=3.0];\n";
+                    } else {
+                        // Regular bipartite edges
+                        dot_out << "  " << i << " -- " << j
+                                << " [color=blue, penwidth=0.1];\n";
+                    }
+                }
+            }
+        }
+        dot_out << "}\n";
+        cout << "  [Solver] Visual Proof Exported: " << dot_fn << "\n";
     }
 };
 
