@@ -1,13 +1,33 @@
 graph Epidemiology {
-  node [fontname="Helvetica", style=filled, color=lightgrey];
-  30 [fillcolor=red, label="Node 30 (Step 1)"];
-  24 [fillcolor=red, label="Node 24 (Step 2)"];
-  17 [fillcolor=red, label="Node 17 (Step 3)"];
-  11 [fillcolor=red, label="Node 11 (Step 4)"];
-  7 [fillcolor=red, label="Node 7 (Step 5)"];
-  3 [fillcolor=red, label="Node 3 (Step 6)"];
-  1 [fillcolor=red, label="Node 1 (Step 7)"];
-  32 [fillcolor=red, label="Node 32 (Step 8)"];
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Burning Number Conjecture Verification</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Comb Graph C(32,2) — N=64 vertices</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">BNC Limit: b(G) ≤ ⌈√64⌉ = 8 | Achieved: 8 steps via IDDFS</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
+
+  subgraph cluster_legend {
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    leg_burn [fillcolor=red, label="Burn Source"];
+    leg_safe [fillcolor=lightgrey, label="Unburned"];
+  }
+
+  30 [fillcolor=red, label="Node 30\nStep 1"];
+  24 [fillcolor=red, label="Node 24\nStep 2"];
+  17 [fillcolor=red, label="Node 17\nStep 3"];
+  11 [fillcolor=red, label="Node 11\nStep 4"];
+  7 [fillcolor=red, label="Node 7\nStep 5"];
+  3 [fillcolor=red, label="Node 3\nStep 6"];
+  1 [fillcolor=red, label="Node 1\nStep 7"];
+  32 [fillcolor=red, label="Node 32\nStep 8"];
   0 -- 1;
   0 -- 32;
   1 -- 2;

@@ -1,6 +1,27 @@
 graph Spectrum {
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Hoffman-London Spectrum Fragility Analysis</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Leontovich Tree L(21) — Independent Set Count</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Path P(21): 28657 | Leontovich L(21): 525313</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
   node [fontname="Helvetica", style=filled, fillcolor=white];
-  1 [fillcolor=cyan, label="Hub 1"]; 3 [fillcolor=cyan, label="Hub 3"];
+
+  subgraph cluster_legend {
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    leg_hub [fillcolor=cyan, label="Hub Node"];
+    leg_leaf [fillcolor=white, label="Leaf Node"];
+  }
+
+  1 [fillcolor=cyan, label="Hub 1\ndeg=10"];
+  3 [fillcolor=cyan, label="Hub 3\ndeg=10"];
   0 -- 1;
   1 -- 2;
   1 -- 5;

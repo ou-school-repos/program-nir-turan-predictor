@@ -1,38 +1,58 @@
 graph Surveillance {
-  node [fontname="Helvetica", style=filled, color=lightgrey];
-  15 [fillcolor=yellow, label="Probe 15 (Turn 1)"];
-  16 [fillcolor=yellow, label="Probe 16 (Turn 2)"];
-  3 [fillcolor=yellow, label="Probe 3 (Turn 3)"];
-  17 [fillcolor=yellow, label="Probe 17 (Turn 4)"];
-  18 [fillcolor=yellow, label="Probe 18 (Turn 5)"];
-  3 [fillcolor=yellow, label="Probe 3 (Turn 6)"];
-  19 [fillcolor=yellow, label="Probe 19 (Turn 7)"];
-  1 [fillcolor=yellow, label="Probe 1 (Turn 8)"];
-  9 [fillcolor=yellow, label="Probe 9 (Turn 9)"];
-  20 [fillcolor=yellow, label="Probe 20 (Turn 10)"];
-  1 [fillcolor=yellow, label="Probe 1 (Turn 11)"];
-  9 [fillcolor=yellow, label="Probe 9 (Turn 12)"];
-  1 [fillcolor=yellow, label="Probe 1 (Turn 13)"];
-  10 [fillcolor=yellow, label="Probe 10 (Turn 14)"];
-  0 [fillcolor=yellow, label="Probe 0 (Turn 15)"];
-  21 [fillcolor=yellow, label="Probe 21 (Turn 16)"];
-  22 [fillcolor=yellow, label="Probe 22 (Turn 17)"];
-  0 [fillcolor=yellow, label="Probe 0 (Turn 18)"];
-  23 [fillcolor=yellow, label="Probe 23 (Turn 19)"];
-  24 [fillcolor=yellow, label="Probe 24 (Turn 20)"];
-  0 [fillcolor=yellow, label="Probe 0 (Turn 21)"];
-  11 [fillcolor=yellow, label="Probe 11 (Turn 22)"];
-  2 [fillcolor=yellow, label="Probe 2 (Turn 23)"];
-  12 [fillcolor=yellow, label="Probe 12 (Turn 24)"];
-  6 [fillcolor=yellow, label="Probe 6 (Turn 25)"];
-  25 [fillcolor=yellow, label="Probe 25 (Turn 26)"];
-  26 [fillcolor=yellow, label="Probe 26 (Turn 27)"];
-  6 [fillcolor=yellow, label="Probe 6 (Turn 28)"];
-  27 [fillcolor=yellow, label="Probe 27 (Turn 29)"];
-  28 [fillcolor=yellow, label="Probe 28 (Turn 30)"];
-  6 [fillcolor=yellow, label="Probe 6 (Turn 31)"];
-  29 [fillcolor=yellow, label="Probe 29 (Turn 32)"];
-  30 [fillcolor=yellow, label="Probe 30 (Turn 33)"];
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">1-Visibility Localization POMDP</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Binary Tree (N=63) — Min-Entropy Belief Reduction</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Capture guaranteed in 33 probes | 0 blind spots</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
+
+  subgraph cluster_legend {
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    leg_probe [fillcolor=yellow, label="Probed"];
+    leg_unvis [fillcolor=lightgrey, label="Unvisited"];
+  }
+
+  15 [fillcolor=yellow, label="Probe 15\nTurn 1"];
+  16 [fillcolor=yellow, label="Probe 16\nTurn 2"];
+  3 [fillcolor=yellow, label="Probe 3\nTurn 3"];
+  17 [fillcolor=yellow, label="Probe 17\nTurn 4"];
+  18 [fillcolor=yellow, label="Probe 18\nTurn 5"];
+  3 [fillcolor=yellow, label="Probe 3\nTurn 6"];
+  19 [fillcolor=yellow, label="Probe 19\nTurn 7"];
+  1 [fillcolor=yellow, label="Probe 1\nTurn 8"];
+  9 [fillcolor=yellow, label="Probe 9\nTurn 9"];
+  20 [fillcolor=yellow, label="Probe 20\nTurn 10"];
+  1 [fillcolor=yellow, label="Probe 1\nTurn 11"];
+  9 [fillcolor=yellow, label="Probe 9\nTurn 12"];
+  1 [fillcolor=yellow, label="Probe 1\nTurn 13"];
+  10 [fillcolor=yellow, label="Probe 10\nTurn 14"];
+  0 [fillcolor=yellow, label="Probe 0\nTurn 15"];
+  21 [fillcolor=yellow, label="Probe 21\nTurn 16"];
+  22 [fillcolor=yellow, label="Probe 22\nTurn 17"];
+  0 [fillcolor=yellow, label="Probe 0\nTurn 18"];
+  23 [fillcolor=yellow, label="Probe 23\nTurn 19"];
+  24 [fillcolor=yellow, label="Probe 24\nTurn 20"];
+  0 [fillcolor=yellow, label="Probe 0\nTurn 21"];
+  11 [fillcolor=yellow, label="Probe 11\nTurn 22"];
+  2 [fillcolor=yellow, label="Probe 2\nTurn 23"];
+  12 [fillcolor=yellow, label="Probe 12\nTurn 24"];
+  6 [fillcolor=yellow, label="Probe 6\nTurn 25"];
+  25 [fillcolor=yellow, label="Probe 25\nTurn 26"];
+  26 [fillcolor=yellow, label="Probe 26\nTurn 27"];
+  6 [fillcolor=yellow, label="Probe 6\nTurn 28"];
+  27 [fillcolor=yellow, label="Probe 27\nTurn 29"];
+  28 [fillcolor=yellow, label="Probe 28\nTurn 30"];
+  6 [fillcolor=yellow, label="Probe 6\nTurn 31"];
+  29 [fillcolor=yellow, label="Probe 29\nTurn 32"];
+  30 [fillcolor=yellow, label="Probe 30\nTurn 33"];
   0 -- 1;
   0 -- 2;
   1 -- 3;

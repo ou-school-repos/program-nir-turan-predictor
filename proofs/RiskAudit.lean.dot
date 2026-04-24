@@ -1,69 +1,90 @@
 graph SystemicRisk {
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Turán Supersaturation &amp; Systemic Risk Audit</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">Bipartite K(32,32) + 6 fraudulent edges</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Mantel Limit: ex(64, K₃) = 1024 | Risk Score: 1164</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+  ];
   node [fontname="Helvetica", style=filled, fillcolor=lightblue];
-  0 [fillcolor=orange, label="N0 (Risk: 68)"];
-  1 [fillcolor=orange, label="N1 (Risk: 68)"];
-  2 [fillcolor=orange, label="N2 (Risk: 68)"];
-  3 [fillcolor=orange, label="N3 (Risk: 3)"];
-  4 [fillcolor=orange, label="N4 (Risk: 3)"];
-  5 [fillcolor=orange, label="N5 (Risk: 3)"];
-  6 [fillcolor=orange, label="N6 (Risk: 3)"];
-  7 [fillcolor=orange, label="N7 (Risk: 3)"];
-  8 [fillcolor=orange, label="N8 (Risk: 3)"];
-  9 [fillcolor=orange, label="N9 (Risk: 3)"];
-  10 [fillcolor=orange, label="N10 (Risk: 3)"];
-  11 [fillcolor=orange, label="N11 (Risk: 3)"];
-  12 [fillcolor=orange, label="N12 (Risk: 3)"];
-  13 [fillcolor=orange, label="N13 (Risk: 3)"];
-  14 [fillcolor=orange, label="N14 (Risk: 3)"];
-  15 [fillcolor=orange, label="N15 (Risk: 3)"];
-  16 [fillcolor=orange, label="N16 (Risk: 3)"];
-  17 [fillcolor=orange, label="N17 (Risk: 3)"];
-  18 [fillcolor=orange, label="N18 (Risk: 3)"];
-  19 [fillcolor=orange, label="N19 (Risk: 3)"];
-  20 [fillcolor=orange, label="N20 (Risk: 3)"];
-  21 [fillcolor=orange, label="N21 (Risk: 3)"];
-  22 [fillcolor=orange, label="N22 (Risk: 3)"];
-  23 [fillcolor=orange, label="N23 (Risk: 3)"];
-  24 [fillcolor=orange, label="N24 (Risk: 3)"];
-  25 [fillcolor=orange, label="N25 (Risk: 3)"];
-  26 [fillcolor=orange, label="N26 (Risk: 3)"];
-  27 [fillcolor=orange, label="N27 (Risk: 3)"];
-  28 [fillcolor=orange, label="N28 (Risk: 3)"];
-  29 [fillcolor=orange, label="N29 (Risk: 3)"];
-  30 [fillcolor=orange, label="N30 (Risk: 3)"];
-  31 [fillcolor=orange, label="N31 (Risk: 3)"];
-  32 [fillcolor=orange, label="N32 (Risk: 3)"];
-  33 [fillcolor=orange, label="N33 (Risk: 68)"];
-  34 [fillcolor=orange, label="N34 (Risk: 68)"];
-  35 [fillcolor=orange, label="N35 (Risk: 68)"];
-  36 [fillcolor=orange, label="N36 (Risk: 3)"];
-  37 [fillcolor=orange, label="N37 (Risk: 3)"];
-  38 [fillcolor=orange, label="N38 (Risk: 3)"];
-  39 [fillcolor=orange, label="N39 (Risk: 3)"];
-  40 [fillcolor=orange, label="N40 (Risk: 3)"];
-  41 [fillcolor=orange, label="N41 (Risk: 3)"];
-  42 [fillcolor=orange, label="N42 (Risk: 3)"];
-  43 [fillcolor=orange, label="N43 (Risk: 3)"];
-  44 [fillcolor=orange, label="N44 (Risk: 3)"];
-  45 [fillcolor=orange, label="N45 (Risk: 3)"];
-  46 [fillcolor=orange, label="N46 (Risk: 3)"];
-  47 [fillcolor=orange, label="N47 (Risk: 3)"];
-  48 [fillcolor=orange, label="N48 (Risk: 3)"];
-  49 [fillcolor=orange, label="N49 (Risk: 3)"];
-  50 [fillcolor=orange, label="N50 (Risk: 3)"];
-  51 [fillcolor=orange, label="N51 (Risk: 3)"];
-  52 [fillcolor=orange, label="N52 (Risk: 3)"];
-  53 [fillcolor=orange, label="N53 (Risk: 3)"];
-  54 [fillcolor=orange, label="N54 (Risk: 3)"];
-  55 [fillcolor=orange, label="N55 (Risk: 3)"];
-  56 [fillcolor=orange, label="N56 (Risk: 3)"];
-  57 [fillcolor=orange, label="N57 (Risk: 3)"];
-  58 [fillcolor=orange, label="N58 (Risk: 3)"];
-  59 [fillcolor=orange, label="N59 (Risk: 3)"];
-  60 [fillcolor=orange, label="N60 (Risk: 3)"];
-  61 [fillcolor=orange, label="N61 (Risk: 3)"];
-  62 [fillcolor=orange, label="N62 (Risk: 3)"];
-  63 [fillcolor=orange, label="N63 (Risk: 3)"];
+
+  subgraph cluster_legend {
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    leg_safe [fillcolor=lightblue, label="Safe Node"];
+    leg_risk [fillcolor=orange, label="Risk Node\n(K₃ member)"];
+    leg_safe -- leg_risk [color=red, penwidth=3.0, label=" Fraud"];
+  }
+
+  0 [fillcolor=orange, label="N0\nRisk: 68"];
+  1 [fillcolor=orange, label="N1\nRisk: 68"];
+  2 [fillcolor=orange, label="N2\nRisk: 68"];
+  3 [fillcolor=orange, label="N3\nRisk: 3"];
+  4 [fillcolor=orange, label="N4\nRisk: 3"];
+  5 [fillcolor=orange, label="N5\nRisk: 3"];
+  6 [fillcolor=orange, label="N6\nRisk: 3"];
+  7 [fillcolor=orange, label="N7\nRisk: 3"];
+  8 [fillcolor=orange, label="N8\nRisk: 3"];
+  9 [fillcolor=orange, label="N9\nRisk: 3"];
+  10 [fillcolor=orange, label="N10\nRisk: 3"];
+  11 [fillcolor=orange, label="N11\nRisk: 3"];
+  12 [fillcolor=orange, label="N12\nRisk: 3"];
+  13 [fillcolor=orange, label="N13\nRisk: 3"];
+  14 [fillcolor=orange, label="N14\nRisk: 3"];
+  15 [fillcolor=orange, label="N15\nRisk: 3"];
+  16 [fillcolor=orange, label="N16\nRisk: 3"];
+  17 [fillcolor=orange, label="N17\nRisk: 3"];
+  18 [fillcolor=orange, label="N18\nRisk: 3"];
+  19 [fillcolor=orange, label="N19\nRisk: 3"];
+  20 [fillcolor=orange, label="N20\nRisk: 3"];
+  21 [fillcolor=orange, label="N21\nRisk: 3"];
+  22 [fillcolor=orange, label="N22\nRisk: 3"];
+  23 [fillcolor=orange, label="N23\nRisk: 3"];
+  24 [fillcolor=orange, label="N24\nRisk: 3"];
+  25 [fillcolor=orange, label="N25\nRisk: 3"];
+  26 [fillcolor=orange, label="N26\nRisk: 3"];
+  27 [fillcolor=orange, label="N27\nRisk: 3"];
+  28 [fillcolor=orange, label="N28\nRisk: 3"];
+  29 [fillcolor=orange, label="N29\nRisk: 3"];
+  30 [fillcolor=orange, label="N30\nRisk: 3"];
+  31 [fillcolor=orange, label="N31\nRisk: 3"];
+  32 [fillcolor=orange, label="N32\nRisk: 3"];
+  33 [fillcolor=orange, label="N33\nRisk: 68"];
+  34 [fillcolor=orange, label="N34\nRisk: 68"];
+  35 [fillcolor=orange, label="N35\nRisk: 68"];
+  36 [fillcolor=orange, label="N36\nRisk: 3"];
+  37 [fillcolor=orange, label="N37\nRisk: 3"];
+  38 [fillcolor=orange, label="N38\nRisk: 3"];
+  39 [fillcolor=orange, label="N39\nRisk: 3"];
+  40 [fillcolor=orange, label="N40\nRisk: 3"];
+  41 [fillcolor=orange, label="N41\nRisk: 3"];
+  42 [fillcolor=orange, label="N42\nRisk: 3"];
+  43 [fillcolor=orange, label="N43\nRisk: 3"];
+  44 [fillcolor=orange, label="N44\nRisk: 3"];
+  45 [fillcolor=orange, label="N45\nRisk: 3"];
+  46 [fillcolor=orange, label="N46\nRisk: 3"];
+  47 [fillcolor=orange, label="N47\nRisk: 3"];
+  48 [fillcolor=orange, label="N48\nRisk: 3"];
+  49 [fillcolor=orange, label="N49\nRisk: 3"];
+  50 [fillcolor=orange, label="N50\nRisk: 3"];
+  51 [fillcolor=orange, label="N51\nRisk: 3"];
+  52 [fillcolor=orange, label="N52\nRisk: 3"];
+  53 [fillcolor=orange, label="N53\nRisk: 3"];
+  54 [fillcolor=orange, label="N54\nRisk: 3"];
+  55 [fillcolor=orange, label="N55\nRisk: 3"];
+  56 [fillcolor=orange, label="N56\nRisk: 3"];
+  57 [fillcolor=orange, label="N57\nRisk: 3"];
+  58 [fillcolor=orange, label="N58\nRisk: 3"];
+  59 [fillcolor=orange, label="N59\nRisk: 3"];
+  60 [fillcolor=orange, label="N60\nRisk: 3"];
+  61 [fillcolor=orange, label="N61\nRisk: 3"];
+  62 [fillcolor=orange, label="N62\nRisk: 3"];
+  63 [fillcolor=orange, label="N63\nRisk: 3"];
   0 -- 1 [color=red, penwidth=3.0, label=" FRAUD"];
   0 -- 2 [color=red, penwidth=3.0, label=" FRAUD"];
   0 -- 32 [color=grey, penwidth=0.5];
