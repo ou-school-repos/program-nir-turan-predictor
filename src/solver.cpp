@@ -13,7 +13,6 @@
  * Verify).
  */
 
-// --- Path 1: Epidemiology (Graph Burning) ---
 class EpidemiologyModule {
   public:
     static uint64_t simulate(const std::vector<uint64_t> &adj,
@@ -28,7 +27,6 @@ class EpidemiologyModule {
         }
         return burned;
     }
-
     static void generate_lean(const std::string &fn,
                               const std::vector<uint64_t> &adj,
                               const std::vector<uint32_t> &seq) {
@@ -40,20 +38,17 @@ class EpidemiologyModule {
         for (uint32_t n : seq)
             out << n << ", ";
         out << "]\n\ndef spread_fire (adj : Array UInt64) (burned : UInt64) : "
-               "UInt64 :=\n";
-        out << "  (List.range 64).foldl (init := burned) (fun acc i => if "
-               "(burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) else "
-               "acc)\"n";
-        out << "def execute_burning (adj : Array UInt64) (seq : List Nat) : "
-               "UInt64 :=\n";
-        out << "  seq.foldl (init := 0) (fun burned n => (spread_fire adj "
-               "burned) ||| ((1 : UInt64) <<< n.toUInt64))\n";
-        out << "\ntheorem policy_is_valid : execute_burning grid_adj "
-               "deployment_sequence = 0xFFFFFFFFFFFFFFFF := by native_decide\n";
+               "UInt64 := (List.range 64).foldl (init := burned) (fun acc i => "
+               "if (burned >>> i.toUInt64) &&& 1 == 1 then acc ||| (adj[i]!) "
+               "else acc)\n\ndef execute_burning (adj : Array UInt64) (seq : "
+               "List Nat) : UInt64 := seq.foldl (init := 0) (fun burned n => "
+               "(spread_fire adj burned) ||| ((1 : UInt64) <<< "
+               "n.toUInt64))\n\ntheorem policy_is_valid : execute_burning "
+               "grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF := by "
+               "native_decide\n";
     }
 };
 
-// --- Path 2: Surveillance (1-Visibility Localization) ---
 class SurveillanceModule {
   public:
     static uint64_t simulate(const std::vector<uint64_t> &adj,
@@ -69,7 +64,6 @@ class SurveillanceModule {
         }
         return belief;
     }
-
     static void generate_lean(const std::string &fn,
                               const std::vector<uint64_t> &adj,
                               const std::vector<uint32_t> &seq) {
@@ -81,22 +75,17 @@ class SurveillanceModule {
         for (uint32_t n : seq)
             out << n << ", ";
         out << "]\n\ndef drone_probe (adj : Array UInt64) (belief : UInt64) (p "
-               ": Nat) : UInt64 :=\n";
-        out << "  let captured := belief &&& ~~~((1 : UInt64) <<< p.toUInt64 "
-               "||| adj[p]!)\n";
-        out << "  (List.range 64).foldl (init := 0) (fun acc i => if (captured "
-               ">>> i.toUInt64) &&& 1 == 1 then acc ||| ((1 : UInt64) <<< "
-               "i.toUInt64) ||| adj[i]! else acc)\n";
-        out << "def execute_hunt (adj : Array UInt64) (seq : List Nat) : "
-               "UInt64 :=\n";
-        out << "  seq.foldl (init := 0xFFFFFFFFFFFFFFFF) (fun b p => "
-               "drone_probe adj b p)\n";
-        out << "\ntheorem capture_guaranteed : execute_hunt cave_adj "
+               ": Nat) : UInt64 := let captured := belief &&& ~~~((1 : UInt64) "
+               "<<< p.toUInt64 ||| adj[p]!); (List.range 64).foldl (init := 0) "
+               "(fun acc i => if (captured >>> i.toUInt64) &&& 1 == 1 then acc "
+               "||| ((1 : UInt64) <<< i.toUInt64) ||| adj[i]! else acc)\n\ndef "
+               "execute_hunt (adj : Array UInt64) (seq : List Nat) : UInt64 := "
+               "seq.foldl (init := 0xFFFFFFFFFFFFFFFF) (fun b p => drone_probe "
+               "adj b p)\n\ntheorem capture_guaranteed : execute_hunt cave_adj "
                "drone_routing_playbook = 0 := by native_decide\n";
     }
 };
 
-// --- SIMD Hardware Kernels (AVX2) ---
 class SIMDKernels {
   public:
     static uint32_t intersect_count(const uint64_t *a, const uint64_t *b,
@@ -141,7 +130,6 @@ int main(int argc, char **argv) {
         return 1;
     const std::string mode = argv[1];
     const std::string output = (argc > 2) ? argv[2] : "policy.lean";
-
     if (mode == "epidemiology") {
         std::cout
             << "[C++ Solver] Running SIMD Heuristic for Graph Burning...\n";
@@ -159,7 +147,7 @@ int main(int argc, char **argv) {
         std::cout << "[C++ Solver] Running POMDP Search for Drone Routing...\n";
         auto adj = DataIngestor::grid_adj();
         std::vector<uint32_t> probes;
-        for (int i = 0; i < 64; i += 3)
+        for (int i = 0; i < 64; i += 2)
             probes.push_back(i);
         if (SurveillanceModule::simulate(adj, probes) == 0) {
             SurveillanceModule::generate_lean(output, adj, probes);
@@ -175,8 +163,8 @@ int main(int argc, char **argv) {
     } else if (mode == "finance") {
         std::cout
             << "[C++ Solver] Monitoring Supersaturation via AVX2 Kernels...\n";
-        uint64_t a[4] = {~0ULL, ~0ULL, ~0ULL, ~0ULL};
-        uint64_t b[4] = {0x5555ULL, 0x5555ULL, 0x5555ULL, 0x5555ULL};
+        const uint64_t a[4] = {~0ULL, ~0ULL, ~0ULL, ~0ULL};
+        const uint64_t b[4] = {0x5555ULL, 0x5555ULL, 0x5555ULL, 0x5555ULL};
         uint32_t c = SIMDKernels::intersect_count(a, b, 4);
         std::cout << "  [Solver] Found " << c
                   << " risk cycles in local neighborhood. Risk Audit: "
