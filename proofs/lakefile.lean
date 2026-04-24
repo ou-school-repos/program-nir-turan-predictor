@@ -11,8 +11,5 @@ require mathlib from git
 lean_lib «ProgramNir» where
   srcDir := "."
   roots := #[
-    `BurningConjecture,
-    `TuranBounds,
-    `PursuitEvasion,
-    `WMat
+    `OracleVerification
   ]

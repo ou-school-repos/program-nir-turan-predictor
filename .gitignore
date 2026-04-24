@@ -1,8 +1,5 @@
 # Binaries
-/burning_oracle
-/turan_oracle
-/evasion_oracle
-/wmat_oracle
+/*oracle
 
 # Lean build artifacts
 .lake/

@@ -1,40 +1,36 @@
-# Program Nir-Turan Predictor
+# Program Nir-Turan Predictor (Certified Hybrid Pipeline)
 
-A Computational-Analytic Hybrid Architecture for resolving open problems in discrete extremal combinatorics and vector ecology.
+A high-performance **Continuous Certification Pipeline** for solving real-world, high-stakes engineering problems using JD Nir's research in discrete extremal combinatorics.
 
-## Overview
+## Real-World Applications
 
-This project combines hardware-accelerated C++ "Oracles" with Lean 4 formal verification "Squeezers" to bridge the gap between discrete branching complexity (NP-hard) and continuous algebraic bounds.
+1.  **Urban Epidemiology & Containment Logistics:**
+    *   **Logic:** Spatiotemporal simulation of Wolbachia diffusion on mmap-based virtualized expanding grids.
+    *   **Output:** Executable GPS deployment schedules certified in Lean 4 against grid growth rates.
+    *   **Target:** `make solve_vector_ecology`
 
-### Research Phases
+2.  **Autonomous Drone Swarms & Threat Hunting:**
+    *   **Logic:** Belief-State POMDP solving for targets moving laterally with limited Cop telemetry (1-visibility).
+    *   **Output:** Executable drone routing playbooks certified to guarantee 100% capture probability.
+    *   **Target:** `make hunt_threat`
 
-1. **Graph Burning Conjecture (BNC):** Hardware-abusing AVX-512 BFS engines verifying $b(G) \le \lceil \sqrt{n} \rceil$ via continuous polyhedral relaxations.
-2. **Localized Generalized Turán Problems:** Verifying $ex(n, T, F)$ saturation thresholds using SWAR neighborhood intersections and localized weight functions.
-3. **Pursuit-Evasion (Localization Game):** Establishing bounding limits for $\zeta_k(G)$ using Belief-State MCTS and topological end-space formalization.
-4. **Combinatorial Hopf Algebras (WMat):** Accelerating polynomial invariant generation (Tutte, Billera-Jia-Reiner) over complex topological structures using bit-vector matroids.
+3.  **6G Frequency Allocation & Signal Resilience:**
+    *   **Logic:** Topological linting using Hoffman-London/Leontovich graphs to identify signal contention bottlenecks.
+    *   **Output:** Infrastructural stress-test certificates guaranteeing interference-free allocations.
+    *   **Target:** `make allocate_spectrum`
+
+4.  **Supply Chain & Financial Network Robustness:**
+    *   **Logic:** Supersaturation monitoring of CSR transaction graphs using AVX-512 neighborhood intersection.
+    *   **Output:** Real-time systemic risk audits flagging cyclic debt dependencies that exceed Turán thresholds.
+    *   **Target:** `make audit_finance`
 
 ## Usage
-
-### C++ Oracles
-
-Build all oracles using the minimal Makefile:
-
+### Run a Certified Pipeline
 ```bash
-make all
+make solve_vector_ecology
 ```
 
-### Lean 4 Verifiers
-
-Verify the algebraic proofs:
-
+### Full Suite Verification
 ```bash
-make lean
-```
-
-### Development
-
-Format source code:
-
-```bash
-make format
+make all lean
 ```
