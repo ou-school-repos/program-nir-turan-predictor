@@ -110,6 +110,14 @@ lean: ##H Build Lean 4 verifiers
 lean-cache: ##H Download mathlib cache
 	cd proofs && lake exe cache get
 
+.PHONY: render
+render: ##H Render all .dot visual proofs to .png (requires graphviz)
+	@$(call print_info,Rendering visual proofs)
+	@for f in proofs/*.dot; do \
+		dot -Tpng $$f -o $${f%.dot}.png; \
+		printf "  \033[1;34m✓ Rendered: $${f%.dot}.png\033[0m\n"; \
+	done
+
 .PHONY: format
 format: ##H Format source files
 	clang-format -i $(SRC)
