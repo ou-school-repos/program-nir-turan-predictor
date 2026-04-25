@@ -492,8 +492,8 @@ int main(int argc, const char* argv[]) {
     }
 
     int n = atoi(argv[1]);
-    if (n < 3 || n > MAX_N) {
-        fprintf(stderr, "N must be in [3, %d]\n", MAX_N);
+    if (n < 1 || n > MAX_N) {
+        fprintf(stderr, "N must be in [1, %d]\n", MAX_N);
         return 1;
     }
 
