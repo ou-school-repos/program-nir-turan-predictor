@@ -36,8 +36,8 @@ struct DPResult {
     uint64_t incl;  // #IS including u
 };
 
-static DPResult dp_count(int u, int parent,
-                         const std::vector<int> adj[], int n) {
+static DPResult dp_count(int u, int parent, const std::vector<int> adj[],
+                         int n) {
     uint64_t excl = 1, incl = 1;
     for (int v : adj[u]) {
         if (v == parent) continue;
@@ -75,11 +75,10 @@ struct Anomaly {
     bool operator>(const Anomaly& o) const { return score > o.score; }
 };
 
-static void record_anomaly(std::priority_queue<Anomaly,
-                           std::vector<Anomaly>,
-                           std::greater<Anomaly>>& pq,
-                           const std::vector<int> adj[], int n,
-                           uint64_t sc, int top_k) {
+static void record_anomaly(std::priority_queue<Anomaly, std::vector<Anomaly>,
+                                               std::greater<Anomaly>>& pq,
+                           const std::vector<int> adj[], int n, uint64_t sc,
+                           int top_k) {
     Anomaly a;
     a.score = sc;
     a.adj.resize(n);
@@ -93,25 +92,30 @@ static void record_anomaly(std::priority_queue<Anomaly,
 }
 
 // =====================================================================
-// Canonical tree hash for deduplication
+// Canonical tree hash for deduplication (fast numeric version)
 // =====================================================================
-// Compute a canonical hash by rooting at the center and hashing the
-// subtree structure via DFS. Two isomorphic trees get the same hash.
+// Hash subtrees by combining sorted children hashes with a mixing
+// function. Two isomorphic trees get the same hash. No string allocs.
 
-static std::string canon_subtree(int u, int parent,
-                                 const std::vector<int> adj[]) {
-    std::vector<std::string> child_hashes;
+static uint64_t hash_mix(uint64_t h, uint64_t val) {
+    h ^= val * 0x9e3779b97f4a7c15ULL;
+    h = (h << 31) | (h >> 33);
+    h *= 0xbf58476d1ce4e5b9ULL;
+    return h;
+}
+
+static uint64_t canon_hash_subtree(int u, int parent,
+                                   const std::vector<int> adj[]) {
+    uint64_t child_hashes[MAX_N];
+    int nc = 0;
     for (int v : adj[u]) {
-        if (v == parent)
-            continue;
-        child_hashes.push_back(canon_subtree(v, u, adj));
+        if (v != parent) child_hashes[nc++] = canon_hash_subtree(v, u, adj);
     }
-    std::sort(child_hashes.begin(), child_hashes.end());
-    std::string result = "(";
-    for (const auto& h : child_hashes)
-        result += h;
-    result += ")";
-    return result;
+    std::sort(child_hashes, child_hashes + nc);
+    uint64_t h = 0x517cc1b727220a95ULL;  // seed
+    h = hash_mix(h, (uint64_t)nc);
+    for (int i = 0; i < nc; i++) h = hash_mix(h, child_hashes[i]);
+    return h;
 }
 
 static size_t tree_hash(const std::vector<int> adj[], int n) {
@@ -131,24 +135,20 @@ static size_t tree_hash(const std::vector<int> adj[], int n) {
             removed[v] = true;
             remaining--;
             for (int u : adj[v]) {
-                if (!removed[u] && --degree[u] == 1)
-                    next.push_back(u);
+                if (!removed[u] && --degree[u] == 1) next.push_back(u);
             }
         }
         leaves = next;
     }
 
-    // Root at center, compute canonical string
-    std::string canon;
+    // Root at center, compute canonical hash
     if (leaves.size() == 1) {
-        canon = canon_subtree(leaves[0], -1, adj);
+        return canon_hash_subtree(leaves[0], -1, adj);
     } else {
-        // Bicentral: try both roots, take lexicographically smaller
-        std::string c0 = canon_subtree(leaves[0], -1, adj);
-        std::string c1 = canon_subtree(leaves[1], -1, adj);
-        canon = std::min(c0, c1);
+        uint64_t c0 = canon_hash_subtree(leaves[0], -1, adj);
+        uint64_t c1 = canon_hash_subtree(leaves[1], -1, adj);
+        return std::min(c0, c1) ^ (std::max(c0, c1) * 0x94d049bb133111ebULL);
     }
-    return std::hash<std::string>{}(canon);
 }
 
 // =====================================================================
@@ -162,8 +162,7 @@ static size_t tree_hash(const std::vector<int> adj[], int n) {
 // The tree edges are: for each i > 0, parent[i] = the last node j < i
 // with L[j] = L[i] - 1.
 
-static void level_seq_to_adj(const int L[], int n,
-                             std::vector<int> adj[]) {
+static void level_seq_to_adj(const int L[], int n, std::vector<int> adj[]) {
     for (int i = 0; i < n; i++) adj[i].clear();
 
     // Stack-based parent reconstruction
@@ -232,9 +231,8 @@ static bool is_canonical_free_tree(const int L[], int n) {
 
 // Generate all non-isomorphic free trees using the WROM successor.
 static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
-                              std::priority_queue<Anomaly,
-                              std::vector<Anomaly>,
-                              std::greater<Anomaly>>& pq,
+                              std::priority_queue<Anomaly, std::vector<Anomaly>,
+                                                  std::greater<Anomaly>>& pq,
                               uint64_t& anomaly_count) {
     // We use the Beyer-Hedetniemi successor for rooted trees,
     // then filter for canonical free trees.
@@ -248,14 +246,14 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
     std::vector<int> adj[MAX_N];
     std::unordered_set<size_t> seen;
     auto t_start = std::chrono::high_resolution_clock::now();
-    uint64_t next_report = 500000;
 
     // Process the initial tree (path)
     level_seq_to_adj(L, n, adj);
     size_t h = tree_hash(adj, n);
     seen.insert(h);
     uint64_t sc = score_tree(adj, n);
-    count++; unique++;
+    count++;
+    unique++;
     if (sc > p_score) {
         anomaly_count++;
         record_anomaly(pq, adj, n, sc, top_k);
@@ -265,14 +263,20 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
         // Find p = rightmost index with L[p] != 1
         int p = -1;
         for (int i = n - 1; i >= 1; i--) {
-            if (L[i] != 1) { p = i; break; }
+            if (L[i] != 1) {
+                p = i;
+                break;
+            }
         }
         if (p == -1) break;  // We've reached [0, 1, 1, ..., 1]
 
         // Find q = rightmost index < p with L[q] = L[p] - 1
         int q = -1;
         for (int i = p - 1; i >= 0; i--) {
-            if (L[i] == L[p] - 1) { q = i; break; }
+            if (L[i] == L[p] - 1) {
+                q = i;
+                break;
+            }
         }
 
         // Successor: copy L[q..q+(n-p)-1] over L[p..n-1]
@@ -291,20 +295,19 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
         unique++;
 
         sc = score_tree(adj, n);
-        if (sc > p_score) {
-            anomaly_count++;
-            record_anomaly(pq, adj, n, sc, top_k);
-        }
+        // Always record top-K (the "anomaly" concept doesn't apply for IS —
+        // every tree beats the path. We just want the ranking.)
+        record_anomaly(pq, adj, n, sc, top_k);
 
-        // Progress reporting
+        // Progress reporting with ETA
         if (unique % 100000 == 0) {
             auto now = std::chrono::high_resolution_clock::now();
-            double ms = std::chrono::duration<double, std::milli>(
-                now - t_start).count();
-            fprintf(stderr, "  [Progress] %luK unique / %luM total | "
-                    "%.1fs | %lu anomalies\n",
-                    unique / 1000, count / 1000000,
-                    ms / 1000.0, anomaly_count);
+            double ms = std::chrono::duration<double, std::milli>(now - t_start)
+                            .count();
+            double rate = unique / (ms / 1000.0);
+
+            fprintf(stderr, "  [c++] %luK trees | %.1fs | %.0fK/s\n",
+                    unique / 1000, ms / 1000.0, rate / 1000.0);
         }
     }
 
@@ -321,17 +324,13 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
 struct CanonTree {
     std::vector<CanonTree> children;
 
-    bool operator<(const CanonTree& o) const {
-        return children < o.children;
-    }
-    bool operator==(const CanonTree& o) const {
-        return children == o.children;
-    }
+    bool operator<(const CanonTree& o) const { return children < o.children; }
+    bool operator==(const CanonTree& o) const { return children == o.children; }
 };
 
 // Convert a canonical tree to adjacency list
-static void canon_to_adj(const CanonTree& t, int& next_id,
-                         int parent_id, std::vector<int> adj[]) {
+static void canon_to_adj(const CanonTree& t, int& next_id, int parent_id,
+                         std::vector<int> adj[]) {
     int my_id = next_id++;
     if (parent_id >= 0) {
         adj[my_id].push_back(parent_id);
@@ -367,8 +366,7 @@ static const std::vector<CanonTree>& gen_rooted_trees(int n) {
 
     // Helper: add children using remaining vertices
     std::function<void(int, const CanonTree*, CanonTree&)> build;
-    build = [&](int remaining, const CanonTree* min_child,
-                CanonTree& current) {
+    build = [&](int remaining, const CanonTree* min_child, CanonTree& current) {
         if (remaining == 0) {
             result.push_back(current);
             return;
@@ -395,11 +393,11 @@ static const std::vector<CanonTree>& gen_rooted_trees(int n) {
 // A free tree is either:
 //   1. A rooted tree at its center (unicentral)
 //   2. Two rooted trees joined at an edge (bicentral)
-static uint64_t generate_parent(int n, uint64_t p_score, int top_k,
-                                std::priority_queue<Anomaly,
-                                std::vector<Anomaly>,
-                                std::greater<Anomaly>>& pq,
-                                uint64_t& anomaly_count) {
+static uint64_t generate_parent(
+    int n, uint64_t p_score, int top_k,
+    std::priority_queue<Anomaly, std::vector<Anomaly>, std::greater<Anomaly>>&
+        pq,
+    uint64_t& anomaly_count) {
     uint64_t count = 0;
     std::vector<int> adj[MAX_N];
 
@@ -436,28 +434,25 @@ static uint64_t generate_parent(int n, uint64_t p_score, int top_k,
 // JSON Output
 // =====================================================================
 static void emit_json(int n, uint64_t trees_scanned, uint64_t p_sc,
-                      uint64_t anomaly_count, double elapsed_ms,
-                      const char* method,
-                      std::priority_queue<Anomaly,
-                      std::vector<Anomaly>,
-                      std::greater<Anomaly>>& pq) {
+                      double elapsed_ms, const char* method,
+                      std::priority_queue<Anomaly, std::vector<Anomaly>,
+                                          std::greater<Anomaly>>& pq) {
     // Drain PQ into sorted vector (highest score last in PQ)
     std::vector<Anomaly> anomalies;
     while (!pq.empty()) {
         anomalies.push_back(pq.top());
         pq.pop();
     }
-    std::sort(anomalies.begin(), anomalies.end(),
-              [](const Anomaly& a, const Anomaly& b) {
-                  return a.score > b.score;
-              });
+    std::sort(
+        anomalies.begin(), anomalies.end(),
+        [](const Anomaly& a, const Anomaly& b) { return a.score > b.score; });
 
     printf("{\n");
     printf("  \"n\": %d,\n", n);
     printf("  \"method\": \"%s\",\n", method);
     printf("  \"trees_scanned\": %lu,\n", trees_scanned);
     printf("  \"path_score\": %lu,\n", p_sc);
-    printf("  \"anomalies_found\": %lu,\n", anomaly_count);
+
     printf("  \"elapsed_ms\": %.1f,\n", elapsed_ms);
     printf("  \"trees_per_sec\": %.0f,\n",
            trees_scanned / (elapsed_ms / 1000.0));
@@ -525,15 +520,16 @@ int main(int argc, char* argv[]) {
     }
 
     // Telemetry to stderr (so JSON on stdout stays clean)
-    fprintf(stderr, "[Synthesizer] Enumerating trees on N=%d "
-            "(method=%s, top_k=%d)\n", n, method, top_k);
+    fprintf(stderr,
+            "[c++ synthesizer] Enumerating trees on N=%d "
+            "(method=%s, top_k=%d)\n",
+            n, method, top_k);
 
     uint64_t p_sc = path_score(n);
-    fprintf(stderr, "  Path P(%d) baseline: %lu independent sets\n",
-            n, p_sc);
+    fprintf(stderr, "  Path P(%d) baseline: %lu independent sets\n", n, p_sc);
 
-    std::priority_queue<Anomaly, std::vector<Anomaly>,
-                        std::greater<Anomaly>> pq;
+    std::priority_queue<Anomaly, std::vector<Anomaly>, std::greater<Anomaly>>
+        pq;
     uint64_t anomaly_count = 0;
 
     auto t0 = std::chrono::high_resolution_clock::now();
@@ -541,7 +537,8 @@ int main(int argc, char* argv[]) {
 
     if (strcmp(method, "parent") == 0) {
         if (n > 12) {
-            fprintf(stderr, "  [WARN] Parent method unstable for N>12, "
+            fprintf(stderr,
+                    "  [WARN] Parent method unstable for N>12, "
                     "falling back to level.\n");
             method = "level";
             count = generate_wrom(n, p_sc, top_k, pq, anomaly_count);
@@ -553,13 +550,11 @@ int main(int argc, char* argv[]) {
     }
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    double elapsed_ms = std::chrono::duration<double, std::milli>(
-        t1 - t0).count();
+    double elapsed_ms =
+        std::chrono::duration<double, std::milli>(t1 - t0).count();
 
-    fprintf(stderr, "  Scanned %lu trees in %.1f ms (%.0f trees/sec)\n",
-            count, elapsed_ms, count / (elapsed_ms / 1000.0));
-    fprintf(stderr, "  Anomalies found: %lu\n", anomaly_count);
-
-    emit_json(n, count, p_sc, anomaly_count, elapsed_ms, method, pq);
+    fprintf(stderr, "  Scanned %lu trees in %.1f ms (%.0f trees/sec)\n", count,
+            elapsed_ms, count / (elapsed_ms / 1000.0));
+    emit_json(n, count, p_sc, elapsed_ms, method, pq);
     return 0;
 }

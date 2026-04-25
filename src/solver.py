@@ -106,7 +106,7 @@ graph Epidemiology {{
 
     @staticmethod
     def export_finance(fn, adj, risk, fraud):
-        n = 64
+        # N=64 implicit in adj bitmask layout
         n_fraud = len(fraud)
         total_risk = sum(r for r in risk if r > 0)
         fraud_nodes = set()
@@ -123,10 +123,10 @@ graph Epidemiology {{
             f.write('        <TR><TD><B><FONT POINT-SIZE="18">')
             f.write("Turán Supersaturation &amp; Systemic Risk Audit")
             f.write("</FONT></B></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="12">')
+            f.write('        <TR><TD><FONT POINT-SIZE="12">')
             f.write(f"Bipartite K(32,32) + {n_fraud} fraudulent edges")
             f.write("</FONT></TD></TR>\n")
-            f.write(f'        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
+            f.write('        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">')
             f.write(f"Mantel Limit: ex(64, K₃) = 1024 | Risk Score: {total_risk}")
             f.write("</FONT></TD></TR>\n")
             f.write('        <TR><TD><FONT POINT-SIZE="10" COLOR="gray55">')
@@ -661,7 +661,7 @@ class SynthesizerModule:
         )
         if not os.path.isfile(synth_bin):
             print(f"{RED}  [Error] C++ binary not found: {synth_bin}{RST}")
-            print(f"  Build it with: make synthesizer")
+            print("  Build it with: make synthesizer")
             sys.exit(1)
 
         import json
@@ -677,7 +677,7 @@ class SynthesizerModule:
         data = json.loads(result.stdout)
         trees = data["trees_scanned"]
         p_score = data["path_score"]
-        anomaly_count = data["anomalies_found"]
+
         elapsed = data["elapsed_ms"]
         tps = data["trees_per_sec"]
 
@@ -711,7 +711,7 @@ class SynthesizerModule:
                     f":= by decide\n"
                 )
         else:
-            print(f"  [Result] No anomalies found.")
+            print("  [Result] No anomalies found.")
             with open(fn, "w") as out:
                 out.write(
                     f"import Mathlib.Tactic\n"

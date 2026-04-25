@@ -131,14 +131,16 @@ LINT_LOCS_PY ?= $$(git ls-files '*.py')
 format: ##H Format source files
 	-black $(LINT_LOCS_PY)
 	-isort $(LINT_LOCS_PY)
+	-clang-format -i $$(git ls-files '*.cpp' '*.hpp' '*.h')
 	-prettier -w .
 	-pre-commit run --all-files
 
 
 .PHONY: lint
-lint: ##H Lint Python sources
+lint: ##H Lint sources
 	@$(call print_info,Linting)
 	-flake8 $(LINT_LOCS_PY)
+	-cppcheck --enable=warning,style --std=c++17 --quiet $$(git ls-files '*.cpp')
 	@$(call print_success,Lint complete.)
 
 .PHONY: bundle
