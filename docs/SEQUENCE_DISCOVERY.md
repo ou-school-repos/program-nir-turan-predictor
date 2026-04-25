@@ -16,6 +16,7 @@ For each $N \ge 3$, let $a(N)$ denote the maximum number of independent sets (in
 
 | $N$ | $a(N)$ ($\Delta \le 3$) | $a(N)$ ($\Delta \le 4$) | Star $2^{N-1}+1$ | Path (Fibonacci) |
 | --- | ----------------------- | ----------------------- | ---------------- | ---------------- |
+| 0   | 1                       | 1                       | 1                | 1                |
 | 1   | 2                       | 2                       | 2                | 2                |
 | 2   | 3                       | 3                       | 3                | 3                |
 | 3   | 5                       | 5                       | 5                | 5                |
@@ -42,17 +43,17 @@ For each $N \ge 3$, let $a(N)$ denote the maximum number of independent sets (in
 | 24  | 231,117                 | 432,234                 | 8,388,609        | 121,393          |
 | 25  | 386,222                 | 778,829                 | 16,777,217       | 196,418          |
 
-**Raw sequence $\Delta \leq 3$ (N=1..25):**
+**Raw sequence $\Delta \leq 3$ (N=0..25):**
 
 ```text
-2, 3, 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987,
+1, 2, 3, 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987,
 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117, 386222
 ```
 
-**Raw sequence $\Delta \leq 4$ (N=1..25):**
+**Raw sequence $\Delta \leq 4$ (N=0..25):**
 
 ```text
-2, 3, 5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868,
+1, 2, 3, 5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868,
 10657, 17001, 28674, 50508, 90949, 147177, 247698, 432234, 778829
 ```
 
@@ -171,9 +172,9 @@ python3 scripts/analyze_sequence.py
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 3.
 
-**Data:** 2, 3, 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117, 386222
+**Data:** 1, 2, 3, 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117, 386222
 
-**Offset:** 1
+**Offset:** 0
 
 **Comments:** The path graph P*n minimizes independent sets among trees (giving Fibonacci numbers, A000045) and the star graph K*{1,n-1} maximizes them (giving 2^{n-1}+1). When the maximum degree is restricted to at most 3 ("boron trees," cf. A000672), the star is forbidden for n >= 5 and the maximum defines this sequence. The extremal trees resemble balanced dendrimers. The asymptotic growth rate is approximately 1.669, strictly between the golden ratio (1.618...) and sqrt(3). The number of trees searched at each n matches A000672.
 
@@ -183,9 +184,9 @@ python3 scripts/analyze_sequence.py
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 4.
 
-**Data:** 2, 3, 5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868, 10657, 17001, 28674, 50508, 90949, 147177, 247698, 432234, 778829
+**Data:** 1, 2, 3, 5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868, 10657, 17001, 28674, 50508, 90949, 147177, 247698, 432234, 778829
 
-**Offset:** 1
+**Offset:** 0
 
 **Comments:** Maximum of the Merrifield-Simmons index (number of independent sets including the empty set) over all trees on n vertices with maximum degree at most 4 ("alkane trees," cf. A000602). For n <= 4, the star K\_{1,n-1} is admissible and achieves the maximum. For n >= 5, the extremal trees exhibit a hub-spoke pattern with degree-4 hubs connected to binary sub-dendrimers. Growth rate approximately 1.72.
 

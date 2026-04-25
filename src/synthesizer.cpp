@@ -215,6 +215,15 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     seen.init(expected);
     top_k_init(top_k);
 
+    // N=0: empty graph has exactly 1 independent set (the empty set)
+    if (n == 0) {
+        printf(
+            "{\n  \"n\": 0,\n  \"trees_scanned\": 1,\n"
+            "  \"path_score\": 1,\n  \"top_k\": []\n}\n");
+        fprintf(stderr, "  N=0 | 1 tree | IS=1 (empty set)\n");
+        return 1;
+    }
+
     // Max degree constraint for hard pruning (opt-in via --prune [D])
     // Trees with degree > D are never competitive for d3/d4 tracking,
     // so pruning them is safe — but it breaks the A000055 total count.
@@ -491,7 +500,7 @@ int main(int argc, const char* argv[]) {
         fprintf(stderr,
                 "Usage: %s N [--top K] [--prune [D]]\n"
                 "\n"
-                "  N          Number of vertices (1..%d)\n"
+                "  N          Number of vertices (0..%d)\n"
                 "  --top K    Track top-K extremal trees (default: 10)\n"
                 "  --prune    Hard-prune trees with degree > D (default D=4)\n"
                 "             --prune 3  prune degree > 3 (fastest for d3)\n"
@@ -503,8 +512,8 @@ int main(int argc, const char* argv[]) {
     }
 
     int n = atoi(argv[1]);
-    if (n < 1 || n > MAX_N) {
-        fprintf(stderr, "N must be in [1, %d]\n", MAX_N);
+    if (n < 0 || n > MAX_N) {
+        fprintf(stderr, "N must be in [0, %d]\n", MAX_N);
         return 1;
     }
 

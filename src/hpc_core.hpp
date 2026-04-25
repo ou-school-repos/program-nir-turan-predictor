@@ -86,7 +86,7 @@ static int adj_nxt[MAX_EDGES];
 static int adj_ecnt;
 
 static inline void adj_clear(int n) {
-    memset(adj_head, -1, n * sizeof(int));
+    for (int i = 0; i < n; i++) adj_head[i] = -1;
     adj_ecnt = 0;
 }
 
