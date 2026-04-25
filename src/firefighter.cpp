@@ -78,7 +78,7 @@ class CaterpillarGame {
 };
 
 int main() {
-    cout << "Caterpillar Nash Sweep (ideas-07 model: spread-after-cut)\n";
+    cout << "Caterpillar Nash Sweep (firefighter model: spread-after-cut)\n";
     cout << "---------------------------------------------------------\n";
     cout << "  S \\ K |   0   |   1   |   2   |   3   |   4   |   5   |   6   "
             "|   7   |   8   |\n";
@@ -89,16 +89,17 @@ int main() {
         cout << "   " << s << "    |";
         for (int k = 0; k <= 8; k++) {
             if (s * (k + 1) > 56) {
-                cout << "  --  |";
+                cout << "   --  |";
                 continue;
             }
             CaterpillarGame game(s, k);
             int nash = game.solve();
-            cout << setw(4) << nash << "  |";
+            cout << setw(5) << nash << "  |";
         }
         cout << "\n";
     }
-    cout << "---------------------------------------------------------\n";
+    cout << "--------+-------+-------+-------+-------+-------+-------+-------+"
+            "-------+-------+\n";
     cout << "Compare: K+2 conjecture vs 2K+2 conjecture\n";
     return 0;
 }

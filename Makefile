@@ -117,20 +117,20 @@ lean-cache: ##H Download mathlib cache
 
 N ?= 21
 
-.PHONY: synthesizer build
-synthesizer build: ##H Build the C++ tree synthesizer
+.PHONY: build
+build: synthesizer dendro firefighter ##H Build all C++ binaries
+
+synthesizer: src/synthesizer.cpp src/hpc_core.hpp ##H Build the C++ tree synthesizer
 	@$(call print_info,Building synthesizer)
 	g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 	@$(call print_success,synthesizer built.)
 
-.PHONY: dendro
-dendro: ##H Build the C++ Dendro engine
+dendro: src/dendro.cpp ##H Build the C++ Dendro engine
 	@$(call print_info,Building dendro)
 	g++ -O3 -march=native -std=c++17 -o dendro src/dendro.cpp
 	@$(call print_success,dendro built.)
 
-.PHONY: firefighter
-firefighter: ##H Build the single-ignition firefighter solver (Model B)
+firefighter: src/firefighter.cpp ##H Build the single-ignition firefighter solver (Model B)
 	@$(call print_info,Building firefighter)
 	g++ -O3 -march=native -std=c++17 -o firefighter src/firefighter.cpp
 	@$(call print_success,firefighter built.)
@@ -197,7 +197,7 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f *.o bundle.zip
+	rm -f *.o bundle.zip synthesizer dendro firefighter
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help

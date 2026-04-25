@@ -164,7 +164,7 @@ python3 scripts/analyze_sequence.py
 **Engine:** `src/synthesizer.cpp` — C++17, compiled with `-O3 -march=native`
 **Data:** `docs/runs/sequence.jsonl` — append-only JSONL log with timestamps, scores, and extremal tree edge lists
 
----
+\newpage
 
 ## OEIS Submission Drafts
 
