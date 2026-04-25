@@ -345,6 +345,50 @@ static uint64_t generate(int n, int top_k) {
         }
     }
 
+    // Auto-append JSONL to docs/runs/sequence.jsonl (one line per N)
+    {
+        FILE* jl = fopen("docs/runs/sequence.jsonl", "a");
+        if (jl) {
+            char line[4096];
+            auto now = std::chrono::system_clock::now();
+            auto t = std::chrono::system_clock::to_time_t(now);
+            char ts[32];
+            strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S", localtime(&t));
+
+            int par[MAX_N], ds_arr[MAX_N];
+            par[0] = -1;
+            ds_arr[0] = 0;
+            if (best_d3.n > 0) {
+                for (int i = 1; i < best_d3.n; i++) {
+                    par[i] = ds_arr[best_d3.level_seq[i] - 1];
+                    ds_arr[best_d3.level_seq[i]] = i;
+                }
+            }
+
+            // Build edge list string
+            char edges_buf[2048] = {};
+            int pos = 0;
+            for (int i = 1; i < best_d3.n; i++) {
+                if (i > 1)
+                    pos +=
+                        snprintf(edges_buf + pos, sizeof(edges_buf) - pos, ",");
+                pos += snprintf(edges_buf + pos, sizeof(edges_buf) - pos,
+                                "[%d,%d]", par[i], i);
+            }
+
+            snprintf(line, sizeof(line),
+                     "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
+                     "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
+                     "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
+                     "\"d3_edges\":[%s],\"ms\":%.0f}\n",
+                     ts, n, unique, p_sc, best_d3.score, best_d4.score,
+                     best_any.score, best_d3.max_degree, best_d3.leaves,
+                     best_d3.diameter, edges_buf, elapsed_ms);
+            fputs(line, jl);
+            fclose(jl);
+        }
+    }
+
     // JSON output with constrained extremals
     auto print_tree = [&](const ConstrainedBest& t, const char* label) {
         int par[MAX_N], ds[MAX_N];
