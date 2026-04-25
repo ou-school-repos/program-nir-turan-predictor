@@ -193,7 +193,7 @@ lint: ##H Lint sources
 
 .PHONY: bundle
 bundle: clean ##H Package project into bundle.zip
-	zip -r bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*" "proofs/docbuild/*" ".tmp/*"
+	zip -rv9 bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*" "proofs/docbuild/*" ".tmp/*"
 
 .PHONY: clean
 clean: ##H Remove build artifacts
