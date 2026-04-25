@@ -486,8 +486,19 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
 // Main
 // =====================================================================
 int main(int argc, const char* argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s N [--top K]\n", argv[0]);
+    if (argc < 2 || strcmp(argv[1], "-h") == 0 ||
+        strcmp(argv[1], "--help") == 0) {
+        fprintf(stderr,
+                "Usage: %s N [--top K] [--prune [D]]\n"
+                "\n"
+                "  N          Number of vertices (1..%d)\n"
+                "  --top K    Track top-K extremal trees (default: 10)\n"
+                "  --prune    Hard-prune trees with degree > D (default D=4)\n"
+                "             --prune 3  prune degree > 3 (fastest for d3)\n"
+                "\n"
+                "Output: JSON to stdout, telemetry to stderr,\n"
+                "        auto-appends to docs/runs/sequence.jsonl\n",
+                argv[0], MAX_N);
         return 1;
     }
 
