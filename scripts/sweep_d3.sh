@@ -10,18 +10,18 @@ cd "$(dirname "$0")/.."
 MAX=${1:-23}
 OUTFILE="docs/runs/sequence_d3.csv"
 
-echo "N,max_d3,max_d4,max_any,path_score" > "$OUTFILE"
+echo "N,max_d3,max_d4,max_any,path_score" >"$OUTFILE"
 
 # N=1,2 are trivial
-echo "1,1,1,1,2" >> "$OUTFILE"
-echo "2,2,2,2,3" >> "$OUTFILE"
+echo "1,1,1,1,2" >>"$OUTFILE"
+echo "2,2,2,2,3" >>"$OUTFILE"
 
 for N in $(seq 3 "$MAX"); do
-    echo "=== N=$N ===" >&2
-    JSON=$(./synthesizer "$N" --top 1 2>>"docs/runs/sweep.log")
+  echo "=== N=$N ===" >&2
+  JSON=$(./synthesizer "$N" --top 1 2>>"docs/runs/sweep.log")
 
-    # Extract scores from JSON using python
-    ROW=$(echo "$JSON" | python3 -c "
+  # Extract scores from JSON using python
+  ROW=$(echo "$JSON" | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 ps = d['path_score']
@@ -34,8 +34,8 @@ for t in tk:
     elif 'Unconstrained' in c: dany = t['score']
 print(f'{d[\"n\"]},{d3},{d4},{dany},{ps}')
 ")
-    echo "$ROW" >> "$OUTFILE"
-    echo "$ROW" >&2
+  echo "$ROW" >>"$OUTFILE"
+  echo "$ROW" >&2
 done
 
 echo "" >&2

@@ -379,6 +379,7 @@ struct TTEntry {
 
 struct GameConfig {
     int gw, gh, nodes, depth;
+    int cat_spine, cat_legs;  // caterpillar params (0 = not a caterpillar)
     string label;
 };
 
@@ -390,15 +391,38 @@ static TTEntry* tt;
 static int burner_order[MAX_N];
 
 static GameConfig parse_preset(const string& name) {
-    if (name == "path16") return {1, 16, 16, 12, "Path P(16)"};
-    if (name == "path20") return {1, 20, 20, 10, "Path P(20)"};
-    if (name == "path24") return {1, 24, 24, 10, "Path P(24)"};
-    if (name == "tree15") return {0, 0, 15, 12, "Binary Tree (15)"};
-    if (name == "campus") return {0, 0, 16, 14, "Campus Network"};
-    if (name == "grid3x5") return {3, 5, 15, 10, "Grid 3x5"};
-    if (name == "grid4x4") return {4, 4, 16, 8, "Grid 4x4"};
-    if (name == "grid5x5") return {5, 5, 25, 8, "Grid 5x5"};
-    return {1, 16, 16, 12, "Path P(16)"};
+    if (name == "path16") return {1, 16, 16, 12, 0, 0, "Path P(16)"};
+    if (name == "path20") return {1, 20, 20, 10, 0, 0, "Path P(20)"};
+    if (name == "path24") return {1, 24, 24, 10, 0, 0, "Path P(24)"};
+    if (name == "tree15") return {0, 0, 15, 12, 0, 0, "Binary Tree (15)"};
+    if (name == "campus") return {0, 0, 16, 14, 0, 0, "Campus Network"};
+    if (name == "grid3x5") return {3, 5, 15, 10, 0, 0, "Grid 3x5"};
+    if (name == "grid4x4") return {4, 4, 16, 8, 0, 0, "Grid 4x4"};
+    if (name == "grid5x5") return {5, 5, 25, 8, 0, 0, "Grid 5x5"};
+    // Caterpillar presets: catS[xK] where S=spine length, K=legs per node
+    // Default K=1 (simple caterpillar = backbone + access points)
+    if (name.substr(0, 3) == "cat") {
+        int spine = 0, legs = 1;
+        string params = name.substr(3);
+        size_t x = params.find('x');
+        if (x != string::npos) {
+            spine = stoi(params.substr(0, x));
+            legs = stoi(params.substr(x + 1));
+        } else {
+            spine = stoi(params);
+        }
+        int n = spine + spine * legs;
+        int depth = min(n, 16);  // cap depth for feasibility
+        return {
+            0,
+            0,
+            n,
+            depth,
+            spine,
+            legs,
+            "Caterpillar C(" + to_string(spine) + "," + to_string(legs) + ")"};
+    }
+    return {1, 16, 16, 12, 0, 0, "Path P(16)"};
 }
 
 static void init_tree15() {
@@ -422,12 +446,23 @@ static void init_campus() {
         edges[num_edges++] = {campus_edges[i][0], campus_edges[i][1]};
 }
 
+static void init_caterpillar(int spine, int legs) {
+    // Spine: nodes 0..spine-1 form a path (backbone / patrol corridor)
+    for (int i = 0; i < spine - 1; i++) edges[num_edges++] = {i, i + 1};
+    // Legs: nodes spine..spine+spine*legs-1 are pendants (access points)
+    int next = spine;
+    for (int i = 0; i < spine; i++)
+        for (int k = 0; k < legs; k++) edges[num_edges++] = {i, next++};
+}
+
 static void init_graph(const GameConfig& cfg) {
     num_edges = 0;
     num_nodes = cfg.nodes;
     if (cfg.gw == 0) {
         // Custom topology
-        if (cfg.label.find("Tree") != string::npos)
+        if (cfg.cat_spine > 0)
+            init_caterpillar(cfg.cat_spine, cfg.cat_legs);
+        else if (cfg.label.find("Tree") != string::npos)
             init_tree15();
         else
             init_campus();
@@ -704,7 +739,7 @@ void run_adversarial(const string& lean_fn, const string& preset) {
 int main(int argc, char** argv) {
     if (argc < 3) {
         cerr << "Usage: oracle <module> <lean_output> [preset|dot_output]\n"
-             << "  Adversarial presets: path16 tree15 campus\n";
+             << "  Adversarial presets: path16 tree15 campus cat8 cat8x2\n";
         return 1;
     }
     string mode = argv[1];

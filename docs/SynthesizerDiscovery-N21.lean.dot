@@ -1,66 +1,161 @@
 graph SynthDiscovery {
+  bgcolor="#0d1117"; layout=twopi; ranksep=1.5;
+  splines=true; overlap=false;
   graph [
     label=<
       <TABLE BORDER="0" CELLSPACING="0">
-        <TR><TD><B><FONT POINT-SIZE="18">Unsupervised Anomaly Discovery</FONT></B></TD></TR>
-        <TR><TD><FONT POINT-SIZE="12">N=21 — Exhaustive Tree Enumeration</FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Path P(21): 28,657 IS | Discovered: 1,048,577 IS (×36.6)</FONT></TD></TR>
+        <TR><TD><B><FONT POINT-SIZE="20" COLOR="#e6edf3">Topology Discovery (N=21)</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12" COLOR="#8b949e">Path: 28,657 IS | Top: 49,913 IS (1.74x)</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="#58a6ff">λ_max=2.4060 | Wiener=844</FONT></TD></TR>
       </TABLE>
-    >
-    labelloc=t
-    fontname="Helvetica"
-    size="10,8!"
+    > labelloc=t fontname="Helvetica"
   ];
-  node [fontname="Helvetica", style=filled, fillcolor=white, width=0.4, height=0.3, fontsize=10];
+  node [shape=none, fontname="Helvetica"];
 
-  subgraph cluster_legend {
-    label="Legend";
-    fontname="Helvetica";
-    style=dashed; color=gray60;
-    leg_hub [fillcolor=cyan, label="Hub (deg ≥ 3)"];
-    leg_leaf [fillcolor=white, label="Leaf"];
-    leg_hub -- leg_leaf [style=invis];
-  }
-
-  0 [label="0"];
-  1 [fillcolor=cyan, label="1\ndeg=20", width=1.2];
-  2 [label="2"];
-  3 [label="3"];
-  4 [label="4"];
-  5 [label="5"];
-  6 [label="6"];
-  7 [label="7"];
-  8 [label="8"];
-  9 [label="9"];
-  10 [label="10"];
-  11 [label="11"];
-  12 [label="12"];
-  13 [label="13"];
-  14 [label="14"];
-  15 [label="15"];
-  16 [label="16"];
-  17 [label="17"];
-  18 [label="18"];
-  19 [label="19"];
-  20 [label="20"];
-  0 -- 1;
-  1 -- 2;
-  1 -- 3;
-  1 -- 4;
-  1 -- 5;
-  1 -- 6;
-  1 -- 7;
-  1 -- 8;
-  1 -- 9;
-  1 -- 10;
-  1 -- 11;
-  1 -- 12;
-  1 -- 13;
-  1 -- 14;
-  1 -- 15;
-  1 -- 16;
-  1 -- 17;
-  1 -- 18;
-  1 -- 19;
-  1 -- 20;
+  0 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N0</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  1 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#218ddb">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N1</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">3</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">37</font></td></tr>
+    </table>>];
+  2 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#61781e">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N2</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">2</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">51</font></td></tr>
+    </table>>];
+  3 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#974f14">
+      <tr><td colspan="2"><font color="#000000"><b>N3</b></font></td></tr>
+      <tr><td><font color="#000000">Deg</font></td><td><font color="#000000">3</font></td></tr>
+      <tr><td><font color="#000000">BC</font></td><td><font color="#000000">79</font></td></tr>
+    </table>>];
+  4 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff0000">
+      <tr><td colspan="2"><font color="#000000"><b>N4</b></font></td></tr>
+      <tr><td><font color="#000000">Deg</font></td><td><font color="#000000">3</font></td></tr>
+      <tr><td><font color="#000000">BC</font></td><td><font color="#000000">133</font></td></tr>
+    </table>>];
+  5 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#b23a0f">
+      <tr><td colspan="2"><font color="#000000"><b>N5</b></font></td></tr>
+      <tr><td><font color="#000000">Deg</font></td><td><font color="#000000">3</font></td></tr>
+      <tr><td><font color="#000000">BC</font></td><td><font color="#000000">93</font></td></tr>
+    </table>>];
+  6 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#218ddb">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N6</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">3</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">37</font></td></tr>
+    </table>>];
+  7 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N7</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  8 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N8</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  9 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#218ddb">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N9</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">3</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">37</font></td></tr>
+    </table>>];
+  10 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N10</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  11 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N11</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  12 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#b23a0f">
+      <tr><td colspan="2"><font color="#000000"><b>N12</b></font></td></tr>
+      <tr><td><font color="#000000">Deg</font></td><td><font color="#000000">3</font></td></tr>
+      <tr><td><font color="#000000">BC</font></td><td><font color="#000000">93</font></td></tr>
+    </table>>];
+  13 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#218ddb">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N13</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">3</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">37</font></td></tr>
+    </table>>];
+  14 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N14</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  15 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N15</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  16 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#218ddb">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N16</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">3</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">37</font></td></tr>
+    </table>>];
+  17 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N17</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  18 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N18</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  19 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N19</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  20 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N20</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  0 -- 1 [penwidth=2.0, color="#495057"];
+  1 -- 2 [penwidth=2.5, color="#495057"];
+  2 -- 3 [penwidth=2.5, color="#495057"];
+  3 -- 4 [penwidth=3.0, color="#495057"];
+  4 -- 5 [penwidth=3.0, color="#495057"];
+  5 -- 6 [penwidth=3.0, color="#495057"];
+  6 -- 7 [penwidth=2.0, color="#495057"];
+  6 -- 8 [penwidth=2.0, color="#495057"];
+  5 -- 9 [penwidth=3.0, color="#495057"];
+  9 -- 10 [penwidth=2.0, color="#495057"];
+  9 -- 11 [penwidth=2.0, color="#495057"];
+  4 -- 12 [penwidth=3.0, color="#495057"];
+  12 -- 13 [penwidth=3.0, color="#495057"];
+  13 -- 14 [penwidth=2.0, color="#495057"];
+  13 -- 15 [penwidth=2.0, color="#495057"];
+  12 -- 16 [penwidth=3.0, color="#495057"];
+  16 -- 17 [penwidth=2.0, color="#495057"];
+  16 -- 18 [penwidth=2.0, color="#495057"];
+  3 -- 19 [penwidth=2.0, color="#495057"];
+  1 -- 20 [penwidth=2.0, color="#495057"];
 }

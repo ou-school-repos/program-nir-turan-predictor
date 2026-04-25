@@ -162,6 +162,7 @@ LINT_LOCS_PY ?= $$(git ls-files '*.py')
 
 .PHONY: format
 format: ##H Format source files
+	-shfmt -w $$(git ls-files '*.sh')
 	-black $(LINT_LOCS_PY)
 	-isort $(LINT_LOCS_PY)
 	-clang-format -i $$(git ls-files '*.cpp' '*.hpp' '*.h')

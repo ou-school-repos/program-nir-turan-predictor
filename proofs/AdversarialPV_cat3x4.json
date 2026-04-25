@@ -1,0 +1,40 @@
+{
+  "grid_w": 0,
+  "grid_h": 0,
+  "depth": 15,
+  "preset": "cat3x4",
+  "label": "Caterpillar C(3,4)",
+  "edges": [
+    [0, 1],
+    [1, 2],
+    [0, 3],
+    [0, 4],
+    [0, 5],
+    [0, 6],
+    [1, 7],
+    [1, 8],
+    [1, 9],
+    [1, 10],
+    [2, 11],
+    [2, 12],
+    [2, 13],
+    [2, 14]
+  ],
+  "states": [
+    { "b": 0, "e": 16383, "move": -1, "actor": "Init" },
+    { "b": 0, "e": 16382, "move": 0, "actor": "Builder" },
+    { "b": 4, "e": 16382, "move": 2, "actor": "Burner" },
+    { "b": 4, "e": 16380, "move": 1, "actor": "Builder" },
+    { "b": 2052, "e": 16380, "move": 11, "actor": "Burner" },
+    { "b": 2052, "e": 14332, "move": 11, "actor": "Builder" },
+    { "b": 10244, "e": 14332, "move": 13, "actor": "Burner" },
+    { "b": 10244, "e": 6140, "move": 13, "actor": "Builder" },
+    { "b": 10244, "e": 5116, "move": 10, "actor": "Builder" },
+    { "b": 10244, "e": 1020, "move": 12, "actor": "Builder" },
+    { "b": 10244, "e": 1016, "move": 2, "actor": "Builder" },
+    { "b": 10244, "e": 1008, "move": 3, "actor": "Builder" }
+  ],
+  "nash_value": 3,
+  "nodes_searched": 646977,
+  "time_ms": 67
+}
