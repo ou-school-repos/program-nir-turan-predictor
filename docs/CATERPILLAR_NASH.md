@@ -77,7 +77,7 @@ Computed via single-ignition recursive Minimax with memoization
 | 4               | 2   | 3   | 5   | 7   | 9   | 11  | 13  | 15  | 17  |
 | 5               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | 16  | 18  |
 | 6               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | 16  | 18  |
-| 7               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | 16  | --  |
+| 7               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | 16  | 18  |
 | 8               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | --  | --  |
 
 Short-spine phase ($S \leq 4$): $2K+1$. Asymptotic phase ($S \geq 5$): $2K+2$.
