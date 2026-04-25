@@ -653,7 +653,6 @@ void run_adversarial(const string& lean_fn, const string& preset) {
                  << " burned)\n";
         } else {
             if (best_move != -1) alive_edges &= ~(1ULL << best_move);
-            burned = spread_fire(burned, alive_edges);
             json_out << ",\n    {\"b\": " << burned
                      << ", \"e\": " << alive_edges
                      << ", \"move\": " << best_move

@@ -55,7 +55,7 @@ verify/surveillance: ##H Generate and certify drone surveillance playbook
 run/adversarial: ##H Run adversarial Maker-Breaker game (all presets)
 	@{ \
 		$(call print_info,Running Adversarial Burning); \
-		./oracle adversarial proofs/Adversarial.lean path16; \
+		./oracle adversarial proofs/Adversarial.lean grid4x4; \
 		./oracle adversarial proofs/Adversarial.lean tree15; \
 		./oracle adversarial proofs/Adversarial.lean campus; \
 	} | tee output.log
@@ -118,7 +118,7 @@ dots: oracle ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
 	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
 	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
-	@./oracle adversarial proofs/Adversarial.lean path16
+	@./oracle adversarial proofs/Adversarial.lean grid4x4
 	@./oracle adversarial proofs/Adversarial.lean tree15
 	@./oracle adversarial proofs/Adversarial.lean campus
 	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean

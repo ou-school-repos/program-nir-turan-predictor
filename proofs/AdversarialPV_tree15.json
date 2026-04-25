@@ -22,20 +22,18 @@
   ],
   "states": [
     { "b": 0, "e": 16383, "move": -1, "actor": "Init" },
-    { "b": 128, "e": 16383, "move": 7, "actor": "Burner" },
-    { "b": 128, "e": 16319, "move": 6, "actor": "Builder" },
-    { "b": 132, "e": 16319, "move": 2, "actor": "Burner" },
-    { "b": 228, "e": 16317, "move": 1, "actor": "Builder" },
-    { "b": 244, "e": 16317, "move": 4, "actor": "Burner" },
-    { "b": 32500, "e": 16309, "move": 3, "actor": "Builder" },
-    { "b": 32756, "e": 16309, "move": 8, "actor": "Burner" },
-    { "b": 32764, "e": 16293, "move": 4, "actor": "Builder" },
-    { "b": 32766, "e": 16293, "move": 1, "actor": "Burner" },
-    { "b": 32766, "e": 16292, "move": 0, "actor": "Builder" },
-    { "b": 32767, "e": 16292, "move": 0, "actor": "Burner" },
-    { "b": 32767, "e": 16292, "move": -1, "actor": "Builder" }
+    { "b": 1, "e": 16383, "move": 0, "actor": "Burner" },
+    { "b": 1, "e": 16382, "move": 0, "actor": "Builder" },
+    { "b": 5, "e": 16382, "move": 2, "actor": "Burner" },
+    { "b": 5, "e": 16380, "move": 1, "actor": "Builder" },
+    { "b": 69, "e": 16380, "move": 6, "actor": "Burner" },
+    { "b": 69, "e": 16364, "move": 4, "actor": "Builder" },
+    { "b": 8261, "e": 16364, "move": 13, "actor": "Burner" },
+    { "b": 8261, "e": 8172, "move": 13, "actor": "Builder" },
+    { "b": 8261, "e": 8140, "move": 5, "actor": "Builder" },
+    { "b": 8261, "e": 4044, "move": 12, "actor": "Builder" }
   ],
-  "nash_value": 15,
-  "nodes_searched": 370930,
-  "time_ms": 40
+  "nash_value": 4,
+  "nodes_searched": 239145,
+  "time_ms": 26
 }

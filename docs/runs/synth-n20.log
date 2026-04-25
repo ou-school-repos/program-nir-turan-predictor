@@ -1,0 +1,47 @@
+[c++ synthesizer] Enumerating trees on N=20 (top_k=10)
+  Path P(20) baseline: 17711 independent sets
+  [c++] 100K / 823K (12%) | 0.3s | 398K/s | ETA 2s     [c++] 200K / 823K (24%) | 0.6s | 274K/s | ETA 2s     [c++] 300K / 823K (36%) | 0.9s | 386K/s | ETA 1s     [c++] 400K / 823K (49%) | 1.4s | 185K/s | ETA 2s     [c++] 500K / 823K (61%) | 1.9s | 217K/s | ETA 1s     [c++] 600K / 823K (73%) | 2.7s | 119K/s | ETA 2s     [c++] 700K / 823K (85%) | 4.2s | 69K/s | ETA 2s     [c++] 800K / 823K (97%) | 6.3s | 46K/s | ETA 1s
+  ═══════════════════════════════════════════════
+  N=20 | 823065 unique / 12826228 rooted | 9.7s
+  Throughput: 84484 trees/sec | Dedup ratio: 15.6x
+  Hash load: 39.2% (823065 / 2097152 slots)
+  Top-1 (any): 524289 (29.60x vs path)
+  Top-1 (d≤3): 30135 | Top-1 (d≤4): 50508
+  ═══════════════════════════════════════════════
+{
+  "n": 20,
+  "trees_scanned": 823065,
+  "rooted_processed": 12826228,
+  "path_score": 17711,
+  "elapsed_ms": 9742.3,
+  "trees_per_sec": 84484,
+  "top_k": [
+    {
+      "constraint": "Delta <= 3 (Chemical / 6G Routing)",
+      "score": 30135,
+      "ratio": 1.70,
+      "max_degree": 3,
+      "diameter": 7,
+      "leaves": 11,
+      "edges": [[0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,7], [6,8], [5,9], [9,10], [9,11], [4,12], [12,13], [12,14], [3,15], [2,16], [16,17], [16,18], [1,19]]
+    },
+    {
+      "constraint": "Delta <= 4 (Telecom Hubs)",
+      "score": 50508,
+      "ratio": 2.85,
+      "max_degree": 4,
+      "diameter": 5,
+      "leaves": 14,
+      "edges": [[0,1], [1,2], [2,3], [3,4], [4,5], [4,6], [4,7], [3,8], [8,9], [8,10], [8,11], [3,12], [12,13], [12,14], [12,15], [2,16], [2,17], [1,18], [1,19]]
+    },
+    {
+      "constraint": "Unconstrained",
+      "score": 524289,
+      "ratio": 29.60,
+      "max_degree": 19,
+      "diameter": 2,
+      "leaves": 19,
+      "edges": [[0,1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10], [1,11], [1,12], [1,13], [1,14], [1,15], [1,16], [1,17], [1,18], [1,19]]
+    }
+  ]
+}

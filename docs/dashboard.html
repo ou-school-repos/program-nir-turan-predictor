@@ -3,64 +3,38 @@
   <head>
     <title>Topology Oracle Dashboard</title>
     <style>
-      body {
-        background: #0d1117;
-        color: #c9d1d9;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-          sans-serif;
-        margin: 0;
-        padding: 20px;
-      }
-      h1 {
-        text-align: center;
-        color: #58a6ff;
-        font-weight: 300;
-        letter-spacing: 1px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-      .card {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      }
-      .wide {
-        grid-column: span 2;
-        border-left: 4px solid #d73a49;
-      }
-      img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 4px;
-      }
-      .bar {
-        padding: 10px 20px;
-        background: #21262d;
-        border-radius: 6px;
-        margin-bottom: 20px;
+      body {{
+        background: #0d1117; color: #c9d1d9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                     Helvetica, Arial, sans-serif;
+        margin: 0; padding: 20px;
+      }}
+      h1 {{
+        text-align: center; color: #58a6ff;
+        font-weight: 300; letter-spacing: 1px;
+      }}
+      .grid {{
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 20px; max-width: 1400px; margin: 0 auto;
+      }}
+      .card {{
+        background: #161b22; border: 1px solid #30363d;
+        border-radius: 8px; padding: 15px; text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      }}
+      .wide {{ grid-column: span 2; border-left: 4px solid #d73a49; }}
+      img {{ max-width: 100%; height: auto; border-radius: 4px; }}
+      .bar {{
+        padding: 10px 20px; background: #21262d;
+        border-radius: 6px; margin-bottom: 20px;
         border-left: 4px solid #58a6ff;
-      }
-      button {
-        background: #21262d;
-        border: 1px solid #30363d;
-        color: #c9d1d9;
-        padding: 8px 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        margin: 0 4px;
-      }
-      button:hover {
-        background: #30363d;
-      }
+      }}
+      button {{
+        background: #21262d; border: 1px solid #30363d;
+        color: #c9d1d9; padding: 8px 16px; cursor: pointer;
+        border-radius: 4px; margin: 0 4px;
+      }}
+      button:hover {{ background: #30363d; }}
     </style>
   </head>
   <body>
@@ -90,46 +64,51 @@
         <script>
           const PRESETS = [
             {
-              grid_w: 1,
-              grid_h: 16,
-              depth: 12,
-              preset: "path16",
-              label: "Path P(16)",
+              grid_w: 4,
+              grid_h: 4,
+              depth: 8,
+              preset: "grid4x4",
+              label: "Grid 4x4",
               edges: [
                 [0, 1],
+                [0, 4],
                 [1, 2],
+                [1, 5],
                 [2, 3],
-                [3, 4],
+                [2, 6],
+                [3, 7],
                 [4, 5],
+                [4, 8],
                 [5, 6],
+                [5, 9],
                 [6, 7],
-                [7, 8],
+                [6, 10],
+                [7, 11],
                 [8, 9],
+                [8, 12],
                 [9, 10],
+                [9, 13],
                 [10, 11],
-                [11, 12],
+                [10, 14],
+                [11, 15],
                 [12, 13],
                 [13, 14],
                 [14, 15],
               ],
               states: [
-                { b: 0, e: 32767, move: -1, actor: "Init" },
-                { b: 128, e: 32767, move: 7, actor: "Burner" },
-                { b: 384, e: 32703, move: 6, actor: "Builder" },
-                { b: 416, e: 32703, move: 5, actor: "Burner" },
-                { b: 992, e: 32687, move: 4, actor: "Builder" },
-                { b: 1000, e: 32687, move: 3, actor: "Burner" },
-                { b: 2040, e: 32683, move: 2, actor: "Builder" },
-                { b: 2042, e: 32683, move: 1, actor: "Burner" },
-                { b: 4094, e: 32682, move: 0, actor: "Builder" },
-                { b: 20478, e: 32682, move: 14, actor: "Burner" },
-                { b: 61438, e: 30634, move: 11, actor: "Builder" },
-                { b: 65534, e: 30634, move: 12, actor: "Burner" },
-                { b: 65534, e: 30632, move: 1, actor: "Builder" },
+                { b: 0, e: 16777215, move: -1, actor: "Init" },
+                { b: 8192, e: 16777215, move: 13, actor: "Burner" },
+                { b: 8192, e: 16646143, move: 17, actor: "Builder" },
+                { b: 24576, e: 16646143, move: 14, actor: "Burner" },
+                { b: 24576, e: 16121855, move: 19, actor: "Builder" },
+                { b: 28672, e: 16121855, move: 12, actor: "Burner" },
+                { b: 28672, e: 16089087, move: 15, actor: "Builder" },
+                { b: 61440, e: 16089087, move: 15, actor: "Burner" },
+                { b: 61440, e: 15040511, move: 20, actor: "Builder" },
               ],
-              nash_value: 15,
-              nodes_searched: 2361850,
-              time_ms: 196,
+              nash_value: 4,
+              nodes_searched: 55196,
+              time_ms: 7,
             },
             {
               grid_w: 0,
@@ -155,22 +134,20 @@
               ],
               states: [
                 { b: 0, e: 16383, move: -1, actor: "Init" },
-                { b: 128, e: 16383, move: 7, actor: "Burner" },
-                { b: 128, e: 16319, move: 6, actor: "Builder" },
-                { b: 132, e: 16319, move: 2, actor: "Burner" },
-                { b: 228, e: 16317, move: 1, actor: "Builder" },
-                { b: 244, e: 16317, move: 4, actor: "Burner" },
-                { b: 32500, e: 16309, move: 3, actor: "Builder" },
-                { b: 32756, e: 16309, move: 8, actor: "Burner" },
-                { b: 32764, e: 16293, move: 4, actor: "Builder" },
-                { b: 32766, e: 16293, move: 1, actor: "Burner" },
-                { b: 32766, e: 16292, move: 0, actor: "Builder" },
-                { b: 32767, e: 16292, move: 0, actor: "Burner" },
-                { b: 32767, e: 16292, move: -1, actor: "Builder" },
+                { b: 1, e: 16383, move: 0, actor: "Burner" },
+                { b: 1, e: 16382, move: 0, actor: "Builder" },
+                { b: 5, e: 16382, move: 2, actor: "Burner" },
+                { b: 5, e: 16380, move: 1, actor: "Builder" },
+                { b: 69, e: 16380, move: 6, actor: "Burner" },
+                { b: 69, e: 16364, move: 4, actor: "Builder" },
+                { b: 8261, e: 16364, move: 13, actor: "Burner" },
+                { b: 8261, e: 8172, move: 13, actor: "Builder" },
+                { b: 8261, e: 8140, move: 5, actor: "Builder" },
+                { b: 8261, e: 4044, move: 12, actor: "Builder" },
               ],
-              nash_value: 15,
-              nodes_searched: 370930,
-              time_ms: 40,
+              nash_value: 4,
+              nodes_searched: 239145,
+              time_ms: 26,
             },
             {
               grid_w: 0,
@@ -199,23 +176,24 @@
               ],
               states: [
                 { b: 0, e: 131071, move: -1, actor: "Init" },
-                { b: 128, e: 131071, move: 7, actor: "Burner" },
-                { b: 128, e: 131007, move: 6, actor: "Builder" },
-                { b: 384, e: 131007, move: 8, actor: "Burner" },
-                { b: 384, e: 130879, move: 7, actor: "Builder" },
-                { b: 448, e: 130879, move: 6, actor: "Burner" },
-                { b: 448, e: 130847, move: 5, actor: "Builder" },
-                { b: 960, e: 130847, move: 9, actor: "Burner" },
-                { b: 960, e: 130591, move: 8, actor: "Builder" },
-                { b: 964, e: 130591, move: 2, actor: "Burner" },
-                { b: 4046, e: 130589, move: 1, actor: "Builder" },
-                { b: 4078, e: 130589, move: 5, actor: "Burner" },
-                { b: 65535, e: 130588, move: 0, actor: "Builder" },
-                { b: 65535, e: 130588, move: -1, actor: "Builder" },
+                { b: 8, e: 131071, move: 3, actor: "Burner" },
+                { b: 8, e: 131067, move: 2, actor: "Builder" },
+                { b: 12, e: 131067, move: 2, actor: "Burner" },
+                { b: 12, e: 131065, move: 1, actor: "Builder" },
+                { b: 268, e: 131065, move: 8, actor: "Burner" },
+                { b: 268, e: 130937, move: 7, actor: "Builder" },
+                { b: 780, e: 130937, move: 9, actor: "Burner" },
+                { b: 780, e: 130681, move: 8, actor: "Builder" },
+                { b: 1804, e: 130681, move: 10, actor: "Burner" },
+                { b: 1804, e: 130169, move: 9, actor: "Builder" },
+                { b: 3852, e: 130169, move: 11, actor: "Burner" },
+                { b: 3852, e: 129145, move: 10, actor: "Builder" },
+                { b: 7948, e: 129145, move: 12, actor: "Burner" },
+                { b: 7948, e: 127097, move: 11, actor: "Builder" },
               ],
-              nash_value: 16,
-              nodes_searched: 331838,
-              time_ms: 36,
+              nash_value: 7,
+              nodes_searched: 2379372,
+              time_ms: 137,
             },
           ];
           const SPC = 50;

@@ -975,7 +975,7 @@ def generate_dashboard():
 
     # Load all adversarial replay data (multiple presets)
     adv_presets = []
-    for preset in ["path16", "tree15", "campus"]:
+    for preset in ["grid4x4", "tree15", "campus"]:
         path = f"proofs/AdversarialPV_{preset}.json"
         try:
             with open(path, "r") as f:
