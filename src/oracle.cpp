@@ -56,31 +56,36 @@ void run_epidemiology(const string& lean_fn, const string& dot_fn) {
     vector<int> seq;
     uint64_t burned = 0;
 
-    // Decreasing Radius Heuristic: Avoids the greedy local-minimum trap.
-    for (int r = k_limit - 1; r >= 0; r--) {
-        int best_node = -1, max_cov = -1;
-        uint64_t best_mask = 0;
+    // Spread-then-drop simulation matching Lean's execute_burning semantics:
+    //   Each step: (1) spread existing fire one hop, then (2) ignite drop node.
+    // Greedy: pick the node that maximizes coverage after this step's spread.
+    auto spread = [&](uint64_t b) -> uint64_t {
+        uint64_t out = b;
+        for (int i = 0; i < N; i++)
+            if ((b >> i) & 1) out |= adj[i];
+        return out;
+    };
+
+    for (int step = 0; step < k_limit && burned != ~0ULL; step++) {
+        uint64_t after_spread = spread(burned);
+        int best_node = 0;
+        int max_cov = -1;
+        int remaining_steps = k_limit - step - 1;
         for (int i = 0; i < N; i++) {
-            uint64_t mask = 0;
-            for (int j = 0; j < N; j++)
-                if (dist[i][j] <= r && !((burned >> j) & 1))
-                    mask |= (1ULL << j);
-            int cov = __builtin_popcountll(mask);
+            // Simulate: drop at i, then let fire spread for remaining steps
+            uint64_t trial = after_spread | (1ULL << i);
+            for (int s = 0; s < remaining_steps; s++) trial = spread(trial);
+            int cov = __builtin_popcountll(trial);
             if (cov > max_cov) {
                 max_cov = cov;
                 best_node = i;
-                best_mask = mask;
             }
         }
-        if (best_node != -1) {
-            seq.push_back(best_node);
-            burned |= best_mask;
-            cout << "  [Step " << seq.size() << "] Radius " << r
-                 << " Drop at Node " << best_node << " | Saturation: " << fixed
-                 << setprecision(1)
-                 << (__builtin_popcountll(burned) * 100.0) / 64.0 << "%\n";
-        }
-        if (burned == ~0ULL) break;
+        burned = after_spread | (1ULL << best_node);
+        seq.push_back(best_node);
+        cout << "  [Step " << seq.size() << "] Drop at Node " << best_node
+             << " | Saturation: " << fixed << setprecision(1)
+             << (__builtin_popcountll(burned) * 100.0) / N << "%\n";
     }
 
     if (burned == ~0ULL && seq.size() <= (size_t)k_limit) {

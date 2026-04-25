@@ -320,7 +320,8 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                 t_last_progress = now;
 
                 uint64_t target = (n <= 30) ? A000055[n] : 0;
-                if (target > 0) {
+                if (target > 0 && prune_deg == 0) {
+                    // Unpruned: show accurate progress vs A000055
                     double pct = 100.0 * unique / target;
                     double eta_s = (target - unique) / inst_rate;
                     fprintf(stderr,
@@ -329,6 +330,13 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                             unique / 1000, target / 1000, pct,
                             ms_total / 1000.0, inst_rate / 1000.0, eta_s,
                             pruned / 1e6);
+                } else if (target > 0) {
+                    // Pruned: show found count / total + skipped
+                    fprintf(stderr,
+                            "\r  [c++] %luK / %luK found | %.1fs | "
+                            "%.0fK/s | skipped %.1fM   ",
+                            unique / 1000, target / 1000, ms_total / 1000.0,
+                            inst_rate / 1000.0, pruned / 1e6);
                 } else {
                     fprintf(
                         stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
