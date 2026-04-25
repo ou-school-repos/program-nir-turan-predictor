@@ -25,7 +25,7 @@ using namespace std::chrono;
 // ============================================================================
 void run_epidemiology(const string& lean_fn, const string& dot_fn) {
     int N = 64;
-    cout << CYN << "[Oracle] Initializing Spatial Comb Graph (N=" << N
+    cout << CYN << "[Dendro] Initializing Spatial Comb Graph (N=" << N
          << ") for BNC Verification.\n"
          << RST;
 
@@ -152,7 +152,7 @@ void run_epidemiology(const string& lean_fn, const string& dot_fn) {
 // ============================================================================
 void run_surveillance(const string& lean_fn, const string& dot_fn) {
     int N = 63;
-    cout << CYN << "[Oracle] 1-Visibility POMDP Tracker on Binary Tree.\n"
+    cout << CYN << "[Dendro] 1-Visibility POMDP Tracker on Binary Tree.\n"
          << RST;
     vector<uint64_t> adj(64, 0);
     for (int i = 0; i <= 30; i++) {
@@ -251,7 +251,7 @@ void run_surveillance(const string& lean_fn, const string& dot_fn) {
 // ============================================================================
 void run_finance(const string& lean_fn, const string& dot_fn) {
     int N = 64;
-    cout << CYN << "[Oracle] Turan Limits & Systemic Risk Centrality (N=" << N
+    cout << CYN << "[Dendro] Turan Limits & Systemic Risk Centrality (N=" << N
          << ").\n"
          << RST;
 
@@ -636,7 +636,7 @@ void run_adversarial(const string& lean_fn, const string& preset) {
     using namespace adversarial;
 
     auto cfg = parse_preset(preset);
-    cout << CYN << "[Oracle] Adversarial: " << cfg.label << " (" << cfg.nodes
+    cout << CYN << "[Dendro] Adversarial: " << cfg.label << " (" << cfg.nodes
          << "N, depth " << cfg.depth << ").\n"
          << RST;
     cout << MAG
@@ -738,7 +738,7 @@ void run_adversarial(const string& lean_fn, const string& preset) {
 // ============================================================================
 int main(int argc, char** argv) {
     if (argc < 3) {
-        cerr << "Usage: oracle <module> <lean_output> [preset|dot_output]\n"
+        cerr << "Usage: dendro <module> <lean_output> [preset|dot_output]\n"
              << "  Adversarial presets: path16 tree15 campus cat8 cat8x2\n";
         return 1;
     }

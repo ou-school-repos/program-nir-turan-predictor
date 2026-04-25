@@ -4,7 +4,7 @@
 # Output: CSV to stdout, telemetry to stderr.
 set -euo pipefail
 
-ORACLE="./oracle"
+DENDRO="./dendro"
 CSV_OUT="docs/runs/caterpillar_nash.csv"
 
 echo "spine,legs,N,depth,nash,states,time_ms" | tee "$CSV_OUT"
@@ -22,7 +22,7 @@ for k in 0 1 2 3 4; do
     fi
 
     # Run adversarial and capture output
-    output=$($ORACLE adversarial /dev/null "$preset" 2>&1)
+    output=$($DENDRO adversarial /dev/null "$preset" 2>&1)
     nash=$(echo "$output" | grep -oP 'destruction to \K\d+')
     states=$(echo "$output" | grep -oP '\K\d+(?= states)')
     time_ms=$(echo "$output" | grep -oP '\K\d+(?= ms)')

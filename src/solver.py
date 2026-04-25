@@ -920,39 +920,39 @@ class SynthesizerModule:
             )
 
 
-class OracleModule:
-    """Delegates to the C++ oracle binary for high-performance computation."""
+class DendroModule:
+    """Delegates to the C++ dendro binary for high-performance computation."""
 
     @staticmethod
     def execute(module_name, fn):
         import subprocess
 
-        oracle_bin = os.path.join(
+        dendro_bin = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "..",
-            "oracle",
+            "dendro",
         )
-        if not os.path.isfile(oracle_bin):
-            print(f"{RED}  [Error] Oracle binary not found: {oracle_bin}{RST}")
-            print("  Build it with: make oracle")
+        if not os.path.isfile(dendro_bin):
+            print(f"{RED}  [Error] Dendro binary not found: {dendro_bin}{RST}")
+            print("  Build it with: make dendro")
             sys.exit(1)
 
         result = subprocess.run(
-            [oracle_bin, module_name, fn],
+            [dendro_bin, module_name, fn],
             stderr=None,
         )
         if result.returncode != 0:
             print(
-                f"{RED}  [Error] Oracle exited with code " f"{result.returncode}{RST}"
+                f"{RED}  [Error] Dendro exited with code " f"{result.returncode}{RST}"
             )
             sys.exit(1)
 
 
 MODULES = {
-    "epidemiology": lambda fn: OracleModule.execute("epidemiology", fn),
-    "surveillance": lambda fn: OracleModule.execute("surveillance", fn),
-    "finance": lambda fn: OracleModule.execute("finance", fn),
-    "adversarial": lambda fn: OracleModule.execute("adversarial", fn),
+    "epidemiology": lambda fn: DendroModule.execute("epidemiology", fn),
+    "surveillance": lambda fn: DendroModule.execute("surveillance", fn),
+    "finance": lambda fn: DendroModule.execute("finance", fn),
+    "adversarial": lambda fn: DendroModule.execute("adversarial", fn),
     "synthesize": SynthesizerModule.execute,
 }
 
@@ -989,7 +989,7 @@ def generate_dashboard():
         """<!DOCTYPE html>
 <html>
 <head>
-<title>Topology Oracle Dashboard</title>
+<title>Topology Dendro Dashboard</title>
 <style>
 body {{
   background: #0d1117; color: #c9d1d9;
@@ -1029,7 +1029,7 @@ button:hover {{ background: #30363d; }}
 <div class="bar">
   <h1>Computational Combinatorics Dashboard</h1>
   <p style="text-align:center;color:#8b949e">
-    Live telemetry from the C++ Oracle &amp; Synthesizer engines.
+    Live telemetry from the C++ Dendro &amp; Synthesizer engines.
   </p>
 </div>
 <div class="grid">

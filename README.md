@@ -73,3 +73,32 @@ CERTIFIED DRONE FLIGHT PLAYBOOK:
 MATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible.
 ==================================================
 ```
+
+---
+
+## Recent Discovery: Caterpillar Nash Equilibrium
+
+We discovered a novel structural invariant in the adversarial Maker-Breaker burning game on caterpillar trees $C(S,K)$. Two game models yield two clean formulas, both independent of backbone length:
+
+| Model                       | Fire Timing           | Nash Value ($S$ large) |
+| --------------------------- | --------------------- | ---------------------- |
+| Async (fast response)       | Between builder turns | $K + 2$                |
+| Sync (standard firefighter) | Same turn as cut      | $2K + 2$               |
+
+**Key insight**: Network vulnerability scales with hub degree, not backbone length.
+
+See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for the full analysis, proof sketches, and telecom/drone warfare applications.
+
+---
+
+### Epidemiology: Comb Graph BNC Deployment
+
+![Burning Number Conjecture — Comb Graph Deployment](docs/epidemiology.svg)
+
+### Autonomous Surveillance: POMDP Drone Playbook
+
+![1-Visibility Localization — Binary Tree](docs/surveillance.svg)
+
+### Financial Network: Supersaturation Risk Audit
+
+![Turan Risk Centrality — Triangle Counting](docs/finance.svg)

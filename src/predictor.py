@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Arrangement Graph Extraconnectivity Oracle.
+"""Arrangement Graph Extraconnectivity Predictor.
 
 Computes isoperimetric sandwich bounds for A(n,k) datacenter topologies
 using A000788 cumulative popcount and Kruskal-Katona shadow overlap theory.
@@ -51,7 +51,7 @@ def audit(R):
 
     bar = "=" * 89
     print(f"\n{MAG}{BOLD}{bar}{RST}")
-    print(f"{BOLD}[ SYSTEM ] ARRANGEMENT GRAPH EXTRACONNECTIVITY ORACLE{RST}")
+    print(f"{BOLD}[ SYSTEM ] ARRANGEMENT GRAPH EXTRACONNECTIVITY PREDICTOR{RST}")
     print(
         "[ SYSTEM ] Evaluating Supercomputer Datacenter " "Interconnection Topologies"
     )
@@ -140,7 +140,7 @@ def audit(R):
     print(f"\n{MAG}{BOLD}{bar}{RST}")
     print(f"{GRN}[SUCCESS]{RST} Algebraic Defect Squeeze bounds " f"strictly isolated.")
     print(
-        f"{GRAY}[SYSTEM]  Oracle executed O(R^4) structural derivation "
+        f"{GRAY}[SYSTEM]  Engine executed O(R^4) structural derivation "
         f"in {elapsed_us:.0f} µs.{RST}"
     )
     print(f"{MAG}{BOLD}{bar}{RST}\n")

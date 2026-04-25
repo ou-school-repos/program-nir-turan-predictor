@@ -55,9 +55,9 @@ verify/surveillance: ##H Generate and certify drone surveillance playbook
 run/adversarial: ##H Run adversarial Maker-Breaker game (all presets)
 	@{ \
 		$(call print_info,Running Adversarial Burning); \
-		./oracle adversarial proofs/Adversarial.lean grid4x4; \
-		./oracle adversarial proofs/Adversarial.lean tree15; \
-		./oracle adversarial proofs/Adversarial.lean campus; \
+		./dendro adversarial proofs/Adversarial.lean grid4x4; \
+		./dendro adversarial proofs/Adversarial.lean tree15; \
+		./dendro adversarial proofs/Adversarial.lean campus; \
 	} | tee output.log
 
 .PHONY: run/finance
@@ -115,20 +115,20 @@ synthesizer build: ##H Build the C++ tree synthesizer
 	g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 	@$(call print_success,synthesizer built.)
 
-.PHONY: oracle
-oracle: ##H Build the C++ oracle engine
-	@$(call print_info,Building oracle)
-	g++ -O3 -march=native -std=c++17 -o oracle src/oracle.cpp
-	@$(call print_success,oracle built.)
+.PHONY: dendro
+dendro: ##H Build the C++ Dendro engine
+	@$(call print_info,Building dendro)
+	g++ -O3 -march=native -std=c++17 -o dendro src/dendro.cpp
+	@$(call print_success,dendro built.)
 
 .PHONY: dots
-dots: oracle ##H Regenerate all .dot visual proofs and .lean witnesses
+dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
 	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
 	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
-	@./oracle adversarial proofs/Adversarial.lean grid4x4
-	@./oracle adversarial proofs/Adversarial.lean tree15
-	@./oracle adversarial proofs/Adversarial.lean campus
+	@./dendro adversarial proofs/Adversarial.lean grid4x4
+	@./dendro adversarial proofs/Adversarial.lean tree15
+	@./dendro adversarial proofs/Adversarial.lean campus
 	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize proofs/SynthesizerDiscovery.lean
 
