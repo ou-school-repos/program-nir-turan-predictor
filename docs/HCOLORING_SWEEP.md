@@ -282,13 +282,28 @@ There are exactly $\lfloor n/2 \rfloor$ distinct values, exhausting all trees.
 - **$P_k$ for $k \ge 5$**: Path is the **unique** minimizer at every $n$ (always 1 tree at #1)
 - **$P_3$**: Degenerate — only $\lfloor n/2 \rfloor$ distinct scores, determined by bipartition balance
 
-### Transfer Matrix for $\hom(P_n, P_5)$
+### Transfer Matrices for $\hom(P_n, P_k)$
 
-The path baseline can be computed via the recurrence $\mathbf{v}_n = A_{P_5} \cdot \mathbf{v}_{n-1}$, where:
+The path baseline is computed via $\hom(P_n, P_k) = \mathbf{1}^T A_{P_k}^{n-1} \mathbf{1}$,
+where $A_{P_k}$ is the $k \times k$ tridiagonal adjacency matrix of $P_k$.
+Eigenvalues: $\lambda_j = 2\cos(j\pi/(k{+}1))$ for $j = 1, \ldots, k$.
 
-$$A_{P_5} = \begin{pmatrix} 0&1&0&0&0 \\ 1&0&1&0&0 \\ 0&1&0&1&0 \\ 0&0&1&0&1 \\ 0&0&0&1&0 \end{pmatrix}, \quad \mathbf{v}_1 = (1,1,1,1,1)^T$$
+The characteristic polynomial $p_k(x) = \det(xI - A_{P_k})$ is the Chebyshev-$U$ polynomial $U_k(x/2)$:
 
-$\hom(P_n, P_5) = \mathbf{1}^T \cdot \mathbf{v}_n$. The eigenvalues of $A_{P_5}$ are $2\cos(\pi j/6)$ for $j=1,\ldots,5$, giving dominant growth rate $\sqrt{3} \approx 1.732$.
+$$p_k(x) = x \cdot p_{k-1}(x) - p_{k-2}(x), \quad p_0 = 1,\; p_1 = x$$
+
+$$p_k(x) = \prod_{j=1}^{k} \left(x - 2\cos\frac{j\pi}{k+1}\right)$$
+
+| target | char. polynomial                  | $\lambda_1$             | $\lambda_1^2$ (two-step growth)  |
+| ------ | --------------------------------- | ----------------------- | -------------------------------- |
+| $P_3$  | $x^3 - 2x$                        | $\sqrt{2}$              | $2$                              |
+| $P_5$  | $x^5 - 4x^3 + 3x$                 | $\sqrt{3}$              | $3$                              |
+| $P_7$  | $x^7 - 6x^5 + 10x^3 - 4x$         | $\sqrt{2+\sqrt{2}}$     | $2 + \sqrt{2} \approx 3.414$     |
+| $P_9$  | $x^9 - 8x^7 + 21x^5 - 20x^3 + 5x$ | $\sqrt{(5+\sqrt{5})/2}$ | $(5{+}\sqrt{5})/2 \approx 3.618$ |
+
+Since paths are bipartite, homomorphisms alternate parity, so $\lambda_1^2 = 4\cos^2(\pi/(k{+}1))$
+gives the exact scaling per two steps. $P_9$ contains the golden ratio $\varphi$ as an eigenvalue.
+As $k \to \infty$, $\lambda_1^2 \to 4$.
 
 ## Reproduction
 
@@ -300,5 +315,5 @@ g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 bash scripts/sweep_hcolor.sh
 
 # Extend to larger n
-bash scripts/sweep_hcolor.sh 21 25
+bash scripts/sweep_hcolor.sh 21 22
 ```
