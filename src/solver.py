@@ -912,10 +912,210 @@ MODULES = {
     "surveillance": lambda fn: OracleModule.execute("surveillance", fn),
     "spectrum": lambda fn: OracleModule.execute("spectrum", fn),
     "finance": lambda fn: OracleModule.execute("finance", fn),
+    "adversarial": lambda fn: OracleModule.execute("adversarial", fn),
     "synthesize": SynthesizerModule.execute,
 }
 
+
+def generate_dashboard():
+    """Generate interactive dark-mode HTML dashboard."""
+    import json
+
+    os.makedirs("docs", exist_ok=True)
+    print(f"\n{CYN}[Dashboard] Compiling assets...{RST}")
+
+    # Render SVGs from existing DOTs
+    dot_cmds = [
+        "fdp -Tsvg docs/VectorDeployment.lean.dot" " -o docs/epidemiology.svg",
+        "dot -Tsvg docs/ThreatHunting.lean.dot" " -o docs/surveillance.svg",
+        "sfdp -Tsvg docs/RiskAudit.lean.dot" " -o docs/finance.svg",
+    ]
+    for cmd in dot_cmds:
+        os.system(cmd)
+
+    # Load adversarial replay data
+    adv_states = "[]"
+    adv_edges = "[]"
+    adv_grid = 5
+    try:
+        with open("proofs/AdversarialPV.json", "r") as f:
+            adv = json.load(f)
+            adv_states = json.dumps(adv["states"])
+            adv_edges = json.dumps(adv["edges"])
+            adv_grid = adv["grid"]
+    except FileNotFoundError:
+        pass
+
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+<title>Topology Oracle Dashboard</title>
+<style>
+body {{
+  background: #0d1117; color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Helvetica, Arial, sans-serif;
+  margin: 0; padding: 20px;
+}}
+h1 {{
+  text-align: center; color: #58a6ff;
+  font-weight: 300; letter-spacing: 1px;
+}}
+.grid {{
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; max-width: 1400px; margin: 0 auto;
+}}
+.card {{
+  background: #161b22; border: 1px solid #30363d;
+  border-radius: 8px; padding: 15px; text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}}
+.wide {{ grid-column: span 2; border-left: 4px solid #d73a49; }}
+img {{ max-width: 100%; height: auto; border-radius: 4px; }}
+.bar {{
+  padding: 10px 20px; background: #21262d;
+  border-radius: 6px; margin-bottom: 20px;
+  border-left: 4px solid #58a6ff;
+}}
+button {{
+  background: #21262d; border: 1px solid #30363d;
+  color: #c9d1d9; padding: 8px 16px; cursor: pointer;
+  border-radius: 4px; margin: 0 4px;
+}}
+button:hover {{ background: #30363d; }}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Computational Combinatorics Dashboard</h1>
+  <p style="text-align:center;color:#8b949e">
+    Live telemetry from the C++ Oracle &amp; Synthesizer engines.
+  </p>
+</div>
+<div class="grid">
+  <div class="card wide">
+    <h3 style="color:#ff7b72;margin-top:0">
+      Adversarial Burning: Maker-Breaker Minimax
+    </h3>
+    <p style="font-size:13px;color:#8b949e">
+      Burner (red) vs Builder (scissors). Click to replay.
+    </p>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div style="margin:10px 0">
+        <button onclick="changeTurn(-1)">◄ Prev</button>
+        <button onclick="changeTurn(1)">Next ►</button>
+      </div>
+      <div id="board"
+           style="position:relative;width:400px;height:400px;
+                  margin:20px"></div>
+      <div id="info"
+           style="margin-top:15px;font-size:15px;color:#8b949e;
+                  text-align:center;height:50px"></div>
+    </div>
+    <script>
+const states = {adv_states};
+const edgeList = {adv_edges};
+const G = {adv_grid};
+let turn = 0;
+function render() {{
+  if (!states.length) return;
+  const s = states[turn], board = document.getElementById('board');
+  board.innerHTML = '';
+  const eM = BigInt(s.e);
+  for (let i = 0; i < edgeList.length; i++) {{
+    const [u, v] = edgeList[i];
+    const ux = (u%G)*80, uy = Math.floor(u/G)*80;
+    const ln = document.createElement('div');
+    ln.style.position = 'absolute';
+    const alive = (eM >> BigInt(i)) & 1n;
+    ln.style.background = alive ? '#484f58' : '#d73a49';
+    ln.style.zIndex = '1';
+    if (u + 1 === v) {{
+      ln.style.left = (ux+40)+'px'; ln.style.top = (uy+18)+'px';
+      ln.style.width = '40px'; ln.style.height = alive ? '4px' : '8px';
+    }} else {{
+      ln.style.left = (ux+18)+'px'; ln.style.top = (uy+40)+'px';
+      ln.style.width = alive ? '4px' : '8px'; ln.style.height = '40px';
+    }}
+    board.appendChild(ln);
+    if (!alive) {{
+      const ic = document.createElement('div');
+      ic.style.position = 'absolute';
+      ic.style.zIndex = '3'; ic.innerHTML = '&#9986;';
+      ic.style.fontSize = '18px';
+      if (u+1===v) {{ ic.style.left=(ux+45)+'px'; ic.style.top=(uy+5)+'px'; }}
+      else {{ ic.style.left=(ux+5)+'px'; ic.style.top=(uy+48)+'px'; }}
+      board.appendChild(ic);
+    }}
+  }}
+  const bM = BigInt(s.b);
+  for (let i = 0; i < G*G; i++) {{
+    const x = (i%G)*80, y = Math.floor(i/G)*80;
+    const d = document.createElement('div');
+    d.style.position = 'absolute';
+    d.style.left = x+'px'; d.style.top = y+'px';
+    d.style.width = '40px'; d.style.height = '40px';
+    d.style.borderRadius = '50%';
+    d.style.display = 'flex'; d.style.justifyContent = 'center';
+    d.style.alignItems = 'center';
+    d.style.fontWeight = 'bold'; d.style.zIndex = '2';
+    d.innerText = i;
+    if ((bM >> BigInt(i)) & 1n) {{
+      d.style.background = '#d73a49'; d.style.color = '#fff';
+      d.style.boxShadow = '0 0 15px #d73a49';
+    }} else {{
+      d.style.background = '#21262d'; d.style.color = '#c9d1d9';
+      d.style.border = '2px solid #30363d';
+    }}
+    board.appendChild(d);
+  }}
+  let txt = 'Initial State';
+  if (turn > 0) {{
+    if (s.actor === 'Burner')
+      txt = '<span style="color:#ff4d4d">Burner drops N'
+            + s.move + '</span>';
+    else if (s.move >= 0)
+      txt = '<span style="color:#58a6ff">Builder severs edge '
+            + edgeList[s.move][0] + '-' + edgeList[s.move][1]
+            + '</span>';
+  }}
+  document.getElementById('info').innerHTML =
+    'Ply ' + turn + '/' + (states.length-1) + '<br/>' + txt;
+}}
+function changeTurn(dir) {{
+  turn = Math.max(0, Math.min(states.length-1, turn+dir));
+  render();
+}}
+render();
+    </script>
+  </div>
+
+  <div class="card">
+    <h3>Epidemiology: BNC Decreasing Radius</h3>
+    <img src="epidemiology.svg" alt="Epidemiology">
+  </div>
+  <div class="card">
+    <h3>Surveillance: Min-Max Entropy POMDP</h3>
+    <img src="surveillance.svg" alt="Surveillance">
+  </div>
+  <div class="card">
+    <h3>Finance: Systemic Risk Centrality</h3>
+    <img src="finance.svg" alt="Finance">
+  </div>
+</div>
+</body>
+</html>"""
+
+    with open("docs/dashboard.html", "w") as f:
+        f.write(html)
+    print(f"{GRN}  Dashboard written to docs/dashboard.html{RST}\n")
+
+
 if __name__ == "__main__":
+    if len(sys.argv) >= 2 and sys.argv[1] == "dashboard":
+        generate_dashboard()
+        sys.exit(0)
+
     if len(sys.argv) < 3:
         print(
             f"Usage: {sys.argv[0]} <module> <output.lean>",

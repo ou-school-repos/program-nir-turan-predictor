@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Topology Oracle Dashboard</title>
+    <style>
+      body {
+        background: #0d1117;
+        color: #c9d1d9;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        color: #58a6ff;
+        font-weight: 300;
+        letter-spacing: 1px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+      .wide {
+        grid-column: span 2;
+        border-left: 4px solid #d73a49;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      .bar {
+        padding: 10px 20px;
+        background: #21262d;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #58a6ff;
+      }
+      button {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin: 0 4px;
+      }
+      button:hover {
+        background: #30363d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <h1>Computational Combinatorics Dashboard</h1>
+      <p style="text-align: center; color: #8b949e">
+        Live telemetry from the C++ Oracle &amp; Synthesizer engines.
+      </p>
+    </div>
+    <div class="grid">
+      <div class="card wide">
+        <h3 style="color: #ff7b72; margin-top: 0">
+          Adversarial Burning: Maker-Breaker Minimax
+        </h3>
+        <p style="font-size: 13px; color: #8b949e">
+          Burner (red) vs Builder (scissors). Click to replay.
+        </p>
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <div style="margin: 10px 0">
+            <button onclick="changeTurn(-1)">◄ Prev</button>
+            <button onclick="changeTurn(1)">Next ►</button>
+          </div>
+          <div
+            id="board"
+            style="
+              position: relative;
+              width: 400px;
+              height: 400px;
+              margin: 20px;
+            "
+          ></div>
+          <div
+            id="info"
+            style="
+              margin-top: 15px;
+              font-size: 15px;
+              color: #8b949e;
+              text-align: center;
+              height: 50px;
+            "
+          ></div>
+        </div>
+        <script>
+          const states = [
+            { b: 0, e: 1099511627775, move: -1, actor: "Init" },
+            { b: 4096, e: 1099511627775, move: 12, actor: "Burner" },
+            { b: 145408, e: 1099511611391, move: 14, actor: "Builder" },
+            { b: 145536, e: 1099511611391, move: 7, actor: "Burner" },
+            { b: 4685248, e: 1099511611359, move: 5, actor: "Builder" },
+            { b: 4685252, e: 1099511611359, move: 2, actor: "Burner" },
+            { b: 15728622, e: 1099511611355, move: 2, actor: "Builder" },
+            { b: 15728623, e: 1099511611355, move: 0, actor: "Burner" },
+            { b: 33554431, e: 1099511611354, move: 0, actor: "Builder" },
+          ];
+          const edgeList = [
+            [0, 1],
+            [0, 5],
+            [1, 2],
+            [1, 6],
+            [2, 3],
+            [2, 7],
+            [3, 4],
+            [3, 8],
+            [4, 9],
+            [5, 6],
+            [5, 10],
+            [6, 7],
+            [6, 11],
+            [7, 8],
+            [7, 12],
+            [8, 9],
+            [8, 13],
+            [9, 14],
+            [10, 11],
+            [10, 15],
+            [11, 12],
+            [11, 16],
+            [12, 13],
+            [12, 17],
+            [13, 14],
+            [13, 18],
+            [14, 19],
+            [15, 16],
+            [15, 20],
+            [16, 17],
+            [16, 21],
+            [17, 18],
+            [17, 22],
+            [18, 19],
+            [18, 23],
+            [19, 24],
+            [20, 21],
+            [21, 22],
+            [22, 23],
+            [23, 24],
+          ];
+          const G = 5;
+          let turn = 0;
+          function render() {
+            if (!states.length) return;
+            const s = states[turn],
+              board = document.getElementById("board");
+            board.innerHTML = "";
+            const eM = BigInt(s.e);
+            for (let i = 0; i < edgeList.length; i++) {
+              const [u, v] = edgeList[i];
+              const ux = (u % G) * 80,
+                uy = Math.floor(u / G) * 80;
+              const ln = document.createElement("div");
+              ln.style.position = "absolute";
+              const alive = (eM >> BigInt(i)) & 1n;
+              ln.style.background = alive ? "#484f58" : "#d73a49";
+              ln.style.zIndex = "1";
+              if (u + 1 === v) {
+                ln.style.left = ux + 40 + "px";
+                ln.style.top = uy + 18 + "px";
+                ln.style.width = "40px";
+                ln.style.height = alive ? "4px" : "8px";
+              } else {
+                ln.style.left = ux + 18 + "px";
+                ln.style.top = uy + 40 + "px";
+                ln.style.width = alive ? "4px" : "8px";
+                ln.style.height = "40px";
+              }
+              board.appendChild(ln);
+              if (!alive) {
+                const ic = document.createElement("div");
+                ic.style.position = "absolute";
+                ic.style.zIndex = "3";
+                ic.innerHTML = "&#9986;";
+                ic.style.fontSize = "18px";
+                if (u + 1 === v) {
+                  ic.style.left = ux + 45 + "px";
+                  ic.style.top = uy + 5 + "px";
+                } else {
+                  ic.style.left = ux + 5 + "px";
+                  ic.style.top = uy + 48 + "px";
+                }
+                board.appendChild(ic);
+              }
+            }
+            const bM = BigInt(s.b);
+            for (let i = 0; i < G * G; i++) {
+              const x = (i % G) * 80,
+                y = Math.floor(i / G) * 80;
+              const d = document.createElement("div");
+              d.style.position = "absolute";
+              d.style.left = x + "px";
+              d.style.top = y + "px";
+              d.style.width = "40px";
+              d.style.height = "40px";
+              d.style.borderRadius = "50%";
+              d.style.display = "flex";
+              d.style.justifyContent = "center";
+              d.style.alignItems = "center";
+              d.style.fontWeight = "bold";
+              d.style.zIndex = "2";
+              d.innerText = i;
+              if ((bM >> BigInt(i)) & 1n) {
+                d.style.background = "#d73a49";
+                d.style.color = "#fff";
+                d.style.boxShadow = "0 0 15px #d73a49";
+              } else {
+                d.style.background = "#21262d";
+                d.style.color = "#c9d1d9";
+                d.style.border = "2px solid #30363d";
+              }
+              board.appendChild(d);
+            }
+            let txt = "Initial State";
+            if (turn > 0) {
+              if (s.actor === "Burner")
+                txt =
+                  '<span style="color:#ff4d4d">Burner drops N' +
+                  s.move +
+                  "</span>";
+              else if (s.move >= 0)
+                txt =
+                  '<span style="color:#58a6ff">Builder severs edge ' +
+                  edgeList[s.move][0] +
+                  "-" +
+                  edgeList[s.move][1] +
+                  "</span>";
+            }
+            document.getElementById("info").innerHTML =
+              "Ply " + turn + "/" + (states.length - 1) + "<br/>" + txt;
+          }
+          function changeTurn(dir) {
+            turn = Math.max(0, Math.min(states.length - 1, turn + dir));
+            render();
+          }
+          render();
+        </script>
+      </div>
+
+      <div class="card">
+        <h3>Epidemiology: BNC Decreasing Radius</h3>
+        <img src="epidemiology.svg" alt="Epidemiology" />
+      </div>
+      <div class="card">
+        <h3>Surveillance: Min-Max Entropy POMDP</h3>
+        <img src="surveillance.svg" alt="Surveillance" />
+      </div>
+      <div class="card">
+        <h3>Finance: Systemic Risk Centrality</h3>
+        <img src="finance.svg" alt="Finance" />
+      </div>
+    </div>
+  </body>
+</html>
