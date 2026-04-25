@@ -124,3 +124,6 @@
 2026-04-25T01:18:09 | N=2 | 1 trees | 1 rooted | 0.0s | 194742/s | dedup 1.0x | load 50.0% | top1 3 | d3 3 | d4 3
 2026-04-25T01:22:12 | N=1 | 1 trees | 1 rooted | 0.0s | 127796/s | dedup 1.0x | load 50.0% | top1 2 | d3 2 | d4 2
 2026-04-25T01:22:47 | N=1 | 1 trees | 1 rooted | 0.0s | 46217/s | dedup 1.0x | load 50.0% | top1 2 | d3 2 | d4 2
+2026-04-25T01:29:59 | N=10 | 37 trees | 432 rooted | 0.0s | 251318/s | dedup 11.7x | load 14.5% | top1 513 | d3 189 | d4 189
+2026-04-25T01:29:59 | N=10 | 37 trees | 432 rooted | 0.0s | 255659/s | dedup 11.7x | load 14.5% | top1 513 | d3 189 | d4 189
+2026-04-25T01:30:41 | N=25 | 2841632 trees | 110936096 rooted | 62.8s | 45267/s | dedup 39.0x | load 1.1% | top1 16777217 | d3 386222 | d4 386222

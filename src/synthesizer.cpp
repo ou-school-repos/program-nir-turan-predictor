@@ -325,10 +325,10 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                     double eta_s = (target - unique) / inst_rate;
                     fprintf(stderr,
                             "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
-                            "%.0fK/s | ETA %.0fs | pruned %luM   ",
+                            "%.0fK/s | ETA %.0fs | pruned %.1fM   ",
                             unique / 1000, target / 1000, pct,
                             ms_total / 1000.0, inst_rate / 1000.0, eta_s,
-                            pruned / 1000000);
+                            pruned / 1e6);
                 } else {
                     fprintf(
                         stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
@@ -511,24 +511,26 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
-    int n = atoi(argv[1]);
-    if (n < 0 || n > MAX_N) {
-        fprintf(stderr, "N must be in [0, %d]\n", MAX_N);
-        return 1;
-    }
-
+    int n = -1;
     int top_k = 10;
     int prune_deg = 0;  // 0 = no pruning
-    for (int i = 2; i < argc; i++) {
-        if (strcmp(argv[i], "--top") == 0 && i + 1 < argc)
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--top") == 0 && i + 1 < argc) {
             top_k = atoi(argv[++i]);
-        if (strcmp(argv[i], "--prune") == 0) {
+        } else if (strcmp(argv[i], "--prune") == 0) {
             // --prune alone defaults to 4, --prune 3 prunes at degree 3
             if (i + 1 < argc && argv[i + 1][0] >= '2' && argv[i + 1][0] <= '9')
                 prune_deg = atoi(argv[++i]);
             else
                 prune_deg = 4;
+        } else if (argv[i][0] != '-' && n < 0) {
+            n = atoi(argv[i]);
         }
+    }
+
+    if (n < 0 || n > MAX_N) {
+        fprintf(stderr, "N must be in [0, %d]\n", MAX_N);
+        return 1;
     }
 
     fprintf(
