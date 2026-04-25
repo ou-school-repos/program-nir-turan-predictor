@@ -15,5 +15,6 @@ lean_lib «ProgramNir» where
     `VectorDeployment,
     `ThreatHunting,
     `SignalAudit,
-    `RiskAudit
+    `RiskAudit,
+    `CaterpillarLemma
   ]

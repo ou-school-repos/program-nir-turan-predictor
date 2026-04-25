@@ -82,25 +82,55 @@ Computed via single-ignition recursive Minimax with memoization
 
 Short-spine phase ($S \leq 4$): $2K+1$. Asymptotic phase ($S \geq 5$): $2K+2$.
 
-## Proof Sketch
+## Proof
 
-### Model A: Why $K+2$?
+### Model A (Alternating Plies): Why $K+2$?
 
 The burner drops on a spine node $v$ with degree $K+1$ ($K$ legs + 1 spine
 neighbor). The builder severs one spine edge, isolating the fire to $v$, its
-$K$ legs, and one spine neighbor. The builder always has a free action to cut
-the remaining spine edge before the next spread cycle.
+$K$ legs, and one spine neighbor. Since fire does not spread on the builder's
+turn, the builder always has a free action to cut the remaining spine edge
+before the next propagation cycle. Total: $1 + K + 1 = K + 2$.
 
-### Model B: Why $2K+2$?
+### Model B (Spread-After-Cut): The Firefront Cascade
 
-The burner drops on a central spine node $v_i$. The builder cuts
-$(v_i, v_{i+1})$. Fire simultaneously spreads to $v_{i-1}$ and $K$ legs
-of $v_i$. On turn 2, the builder _must_ cut $(v_{i-1}, v_{i-2})$ to prevent
-longitudinal escape, but fire simultaneously reaches the $K$ legs of
-$v_{i-1}$. Total: $v_i + v_{i-1} + 2K$ legs $= 2K + 2$.
+The intuitive guess $K+2$ is a **1-ply myopia trap**. It holds for short
+spines ($S \leq 4$) but fails for $S \geq 5$ because the builder cannot
+build two firewalls without sacrificing a second set of leaves.
 
-For $S \leq 4$, the fire hits the spine endpoint, relieving the builder from
-one spine cut. The saved action severs a leaf edge, reducing damage to $2K+1$.
+**Step-by-step ($K=2$, $S=6$):**
+
+1. **Turn 1 (Burner):** Drops on central spine node $v_3$.
+2. **Turn 1 (Builder):** Severs $(v_3, v_4)$ to prevent rightward escape.
+3. **Turn 1 (Spread):** Fire reaches $v_2$ and $K$ legs of $v_3$.
+   Damage so far: $v_3 + K\text{ legs} + v_2 = K+2$. _(Myopic guess holds here.)_
+4. **Turn 2 (Builder):** Fire at $v_2$ threatens $v_1$ _and_ $K$ legs of
+   $v_2$. Builder gets **one** cut. Cutting a leaf lets fire escape to $v_1$
+   and the rest of the network. **Builder is forced** to cut $(v_2, v_1)$.
+5. **Turn 2 (Spread):** Fire freely consumes $K$ legs of $v_2$.
+6. **Turn 3:** Fire exists solely on degree-1 leaves. No propagation paths.
+   Game terminates.
+
+**Total:** $v_3 + v_2 + 2K\text{ legs} = 2K + 2$.
+
+### Formal Lemma
+
+For caterpillar $C(S,K)$ with $S \geq 3$, $K \geq 1$, the single-ignition
+Maker-Breaker containment game satisfies:
+
+$$
+\text{nash}(C(S,K)) =
+\begin{cases}
+2K + 1 & \text{if } S \in \{3, 4\} \\
+2K + 2 & \text{if } S \geq 5
+\end{cases}
+$$
+
+**Phase transition at $S = 5$:** For $S \leq 4$, the burner cannot select a
+node with distance $\geq 2$ from both endpoints. The fire collides with the
+terminal spine node at $t=2$, relieving the builder from a second spine cut.
+The builder uses this saved action to sever one leaf edge, reducing total
+damage to $2K + 1$.
 
 ## Applications
 

@@ -87,7 +87,7 @@ We discovered a novel structural invariant in the adversarial Maker-Breaker burn
 
 **Key insight**: Network vulnerability scales with hub degree, not backbone length.
 
-See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for the full analysis, proof sketches, and telecom/drone warfare applications.
+See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for more details.
 
 ---
 
