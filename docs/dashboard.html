@@ -76,153 +76,269 @@
           Adversarial Burning: Maker-Breaker Minimax
         </h3>
         <p style="font-size: 13px; color: #8b949e">
-          Burner (red) vs Builder (scissors). Click to replay.
+          Burner (red) vs Builder (scissors). Three topologies compared.
         </p>
-        <div style="display: flex; flex-direction: column; align-items: center">
-          <div style="margin: 10px 0">
-            <button onclick="changeTurn(-1)">◄ Prev</button>
-            <button onclick="changeTurn(1)">Next ►</button>
-          </div>
-          <div
-            id="board"
-            style="
-              position: relative;
-              width: 400px;
-              height: 400px;
-              margin: 20px;
-            "
-          ></div>
-          <div
-            id="info"
-            style="
-              margin-top: 15px;
-              font-size: 15px;
-              color: #8b949e;
-              text-align: center;
-              height: 50px;
-            "
-          ></div>
-        </div>
+        <div
+          id="games"
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+          "
+        ></div>
         <script>
-          const states = [
-            { b: 0, e: 1099511627775, move: -1, actor: "Init" },
-            { b: 4096, e: 1099511627775, move: 12, actor: "Burner" },
-            { b: 145408, e: 1099511611391, move: 14, actor: "Builder" },
-            { b: 145536, e: 1099511611391, move: 7, actor: "Burner" },
-            { b: 4685248, e: 1099511611359, move: 5, actor: "Builder" },
-            { b: 4685252, e: 1099511611359, move: 2, actor: "Burner" },
-            { b: 15728622, e: 1099511611355, move: 2, actor: "Builder" },
-            { b: 15728623, e: 1099511611355, move: 0, actor: "Burner" },
-            { b: 33554431, e: 1099511611354, move: 0, actor: "Builder" },
+          const PRESETS = [
+            {
+              grid_w: 1,
+              grid_h: 16,
+              depth: 12,
+              preset: "path16",
+              label: "Path P(16)",
+              edges: [
+                [0, 1],
+                [1, 2],
+                [2, 3],
+                [3, 4],
+                [4, 5],
+                [5, 6],
+                [6, 7],
+                [7, 8],
+                [8, 9],
+                [9, 10],
+                [10, 11],
+                [11, 12],
+                [12, 13],
+                [13, 14],
+                [14, 15],
+              ],
+              states: [
+                { b: 0, e: 32767, move: -1, actor: "Init" },
+                { b: 128, e: 32767, move: 7, actor: "Burner" },
+                { b: 384, e: 32703, move: 6, actor: "Builder" },
+                { b: 416, e: 32703, move: 5, actor: "Burner" },
+                { b: 992, e: 32687, move: 4, actor: "Builder" },
+                { b: 1000, e: 32687, move: 3, actor: "Burner" },
+                { b: 2040, e: 32683, move: 2, actor: "Builder" },
+                { b: 2042, e: 32683, move: 1, actor: "Burner" },
+                { b: 4094, e: 32682, move: 0, actor: "Builder" },
+                { b: 20478, e: 32682, move: 14, actor: "Burner" },
+                { b: 61438, e: 30634, move: 11, actor: "Builder" },
+                { b: 65534, e: 30634, move: 12, actor: "Burner" },
+                { b: 65534, e: 30632, move: 1, actor: "Builder" },
+              ],
+              nash_value: 15,
+              nodes_searched: 2361850,
+              time_ms: 196,
+            },
+            {
+              grid_w: 0,
+              grid_h: 0,
+              depth: 12,
+              preset: "tree15",
+              label: "Binary Tree (15)",
+              edges: [
+                [0, 1],
+                [0, 2],
+                [1, 3],
+                [1, 4],
+                [2, 5],
+                [2, 6],
+                [3, 7],
+                [3, 8],
+                [4, 9],
+                [4, 10],
+                [5, 11],
+                [5, 12],
+                [6, 13],
+                [6, 14],
+              ],
+              states: [
+                { b: 0, e: 16383, move: -1, actor: "Init" },
+                { b: 128, e: 16383, move: 7, actor: "Burner" },
+                { b: 128, e: 16319, move: 6, actor: "Builder" },
+                { b: 132, e: 16319, move: 2, actor: "Burner" },
+                { b: 228, e: 16317, move: 1, actor: "Builder" },
+                { b: 244, e: 16317, move: 4, actor: "Burner" },
+                { b: 32500, e: 16309, move: 3, actor: "Builder" },
+                { b: 32756, e: 16309, move: 8, actor: "Burner" },
+                { b: 32764, e: 16293, move: 4, actor: "Builder" },
+                { b: 32766, e: 16293, move: 1, actor: "Burner" },
+                { b: 32766, e: 16292, move: 0, actor: "Builder" },
+                { b: 32767, e: 16292, move: 0, actor: "Burner" },
+                { b: 32767, e: 16292, move: -1, actor: "Builder" },
+              ],
+              nash_value: 15,
+              nodes_searched: 370930,
+              time_ms: 40,
+            },
+            {
+              grid_w: 0,
+              grid_h: 0,
+              depth: 14,
+              preset: "campus",
+              label: "Campus Network",
+              edges: [
+                [0, 1],
+                [0, 2],
+                [0, 3],
+                [1, 4],
+                [1, 5],
+                [1, 6],
+                [1, 7],
+                [2, 8],
+                [2, 9],
+                [2, 10],
+                [2, 11],
+                [3, 12],
+                [3, 13],
+                [3, 14],
+                [3, 15],
+                [1, 2],
+                [2, 3],
+              ],
+              states: [
+                { b: 0, e: 131071, move: -1, actor: "Init" },
+                { b: 128, e: 131071, move: 7, actor: "Burner" },
+                { b: 128, e: 131007, move: 6, actor: "Builder" },
+                { b: 384, e: 131007, move: 8, actor: "Burner" },
+                { b: 384, e: 130879, move: 7, actor: "Builder" },
+                { b: 448, e: 130879, move: 6, actor: "Burner" },
+                { b: 448, e: 130847, move: 5, actor: "Builder" },
+                { b: 960, e: 130847, move: 9, actor: "Burner" },
+                { b: 960, e: 130591, move: 8, actor: "Builder" },
+                { b: 964, e: 130591, move: 2, actor: "Burner" },
+                { b: 4046, e: 130589, move: 1, actor: "Builder" },
+                { b: 4078, e: 130589, move: 5, actor: "Burner" },
+                { b: 65535, e: 130588, move: 0, actor: "Builder" },
+                { b: 65535, e: 130588, move: -1, actor: "Builder" },
+              ],
+              nash_value: 16,
+              nodes_searched: 331838,
+              time_ms: 36,
+            },
           ];
-          const edgeList = [
-            [0, 1],
-            [0, 5],
-            [1, 2],
-            [1, 6],
-            [2, 3],
-            [2, 7],
-            [3, 4],
-            [3, 8],
-            [4, 9],
-            [5, 6],
-            [5, 10],
-            [6, 7],
-            [6, 11],
-            [7, 8],
-            [7, 12],
-            [8, 9],
-            [8, 13],
-            [9, 14],
-            [10, 11],
-            [10, 15],
-            [11, 12],
-            [11, 16],
-            [12, 13],
-            [12, 17],
-            [13, 14],
-            [13, 18],
-            [14, 19],
-            [15, 16],
-            [15, 20],
-            [16, 17],
-            [16, 21],
-            [17, 18],
-            [17, 22],
-            [18, 19],
-            [18, 23],
-            [19, 24],
-            [20, 21],
-            [21, 22],
-            [22, 23],
-            [23, 24],
-          ];
-          const G = 5;
-          let turn = 0;
-          function render() {
-            if (!states.length) return;
-            const s = states[turn],
-              board = document.getElementById("board");
+          const SPC = 50;
+          const TREE_POS = {
+            0: [180, 10],
+            1: [90, 70],
+            2: [270, 70],
+            3: [45, 130],
+            4: [135, 130],
+            5: [225, 130],
+            6: [315, 130],
+            7: [20, 190],
+            8: [65, 190],
+            9: [110, 190],
+            10: [155, 190],
+            11: [200, 190],
+            12: [245, 190],
+            13: [290, 190],
+            14: [335, 190],
+          };
+          const CAMPUS_POS = {
+            0: [200, 100],
+            1: [80, 100],
+            2: [200, 200],
+            3: [320, 100],
+            4: [20, 30],
+            5: [20, 100],
+            6: [20, 170],
+            7: [80, 30],
+            8: [140, 250],
+            9: [200, 280],
+            10: [260, 250],
+            11: [200, 330],
+            12: [380, 30],
+            13: [380, 100],
+            14: [380, 170],
+            15: [320, 30],
+          };
+          function nPos(i, p) {
+            if (p.preset === "tree15") return TREE_POS[i] || [0, 0];
+            if (p.preset === "campus") return CAMPUS_POS[i] || [0, 0];
+            const gw = p.grid_w || 1;
+            if (gw <= 1) return [i * SPC, 0];
+            return [(i % gw) * SPC, Math.floor(i / gw) * SPC];
+          }
+          function bSize(p) {
+            if (p.preset === "tree15") return [370, 230];
+            if (p.preset === "campus") return [420, 370];
+            const gw = p.grid_w || 1,
+              gh = p.grid_h || 16;
+            if (gw <= 1) return [gh * SPC + 10, 50];
+            return [gw * SPC + 10, gh * SPC + 10];
+          }
+          function nCount(p) {
+            return p.edges.reduce((s, e) => Math.max(s, e[0], e[1]), 0) + 1;
+          }
+          function renderB(idx) {
+            const p = PRESETS[idx];
+            if (!p || !p.states) return;
+            const turn = p._t || 0,
+              s = p.states[turn];
+            const board = document.getElementById("b_" + idx);
             board.innerHTML = "";
-            const eM = BigInt(s.e);
-            for (let i = 0; i < edgeList.length; i++) {
-              const [u, v] = edgeList[i];
-              const ux = (u % G) * 80,
-                uy = Math.floor(u / G) * 80;
-              const ln = document.createElement("div");
-              ln.style.position = "absolute";
+            const eM = BigInt(s.e),
+              nc = nCount(p);
+            for (let i = 0; i < p.edges.length; i++) {
+              const [u, v] = p.edges[i];
+              const [ux, uy] = nPos(u, p),
+                [vx, vy] = nPos(v, p);
               const alive = (eM >> BigInt(i)) & 1n;
-              ln.style.background = alive ? "#484f58" : "#d73a49";
-              ln.style.zIndex = "1";
-              if (u + 1 === v) {
-                ln.style.left = ux + 40 + "px";
-                ln.style.top = uy + 18 + "px";
-                ln.style.width = "40px";
-                ln.style.height = alive ? "4px" : "8px";
+              const dx = Math.abs(vx - ux),
+                dy = Math.abs(vy - uy);
+              if (dx > 5 && dy > 5) {
+                const svg = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "svg",
+                );
+                svg.style.cssText =
+                  "position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;overflow:visible";
+                const ln = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "line",
+                );
+                ln.setAttribute("x1", ux + 18);
+                ln.setAttribute("y1", uy + 18);
+                ln.setAttribute("x2", vx + 18);
+                ln.setAttribute("y2", vy + 18);
+                ln.setAttribute("stroke", alive ? "#484f58" : "#d73a49");
+                ln.setAttribute("stroke-width", alive ? "2" : "4");
+                svg.appendChild(ln);
+                board.appendChild(svg);
               } else {
-                ln.style.left = ux + 18 + "px";
-                ln.style.top = uy + 40 + "px";
-                ln.style.width = alive ? "4px" : "8px";
-                ln.style.height = "40px";
-              }
-              board.appendChild(ln);
-              if (!alive) {
-                const ic = document.createElement("div");
-                ic.style.position = "absolute";
-                ic.style.zIndex = "3";
-                ic.innerHTML = "&#9986;";
-                ic.style.fontSize = "18px";
-                if (u + 1 === v) {
-                  ic.style.left = ux + 45 + "px";
-                  ic.style.top = uy + 5 + "px";
+                const ln = document.createElement("div");
+                ln.style.position = "absolute";
+                ln.style.zIndex = "1";
+                ln.style.background = alive ? "#484f58" : "#d73a49";
+                if (dy < 5) {
+                  ln.style.left = Math.min(ux, vx) + 36 + "px";
+                  ln.style.top = uy + 16 + "px";
+                  ln.style.width = Math.max(dx - 32, 4) + "px";
+                  ln.style.height = alive ? "3px" : "6px";
                 } else {
-                  ic.style.left = ux + 5 + "px";
-                  ic.style.top = uy + 48 + "px";
+                  ln.style.left = ux + 16 + "px";
+                  ln.style.top = Math.min(uy, vy) + 36 + "px";
+                  ln.style.width = alive ? "3px" : "6px";
+                  ln.style.height = Math.max(dy - 32, 4) + "px";
                 }
-                board.appendChild(ic);
+                board.appendChild(ln);
               }
             }
             const bM = BigInt(s.b);
-            for (let i = 0; i < G * G; i++) {
-              const x = (i % G) * 80,
-                y = Math.floor(i / G) * 80;
+            for (let i = 0; i < nc; i++) {
+              const [x, y] = nPos(i, p);
               const d = document.createElement("div");
-              d.style.position = "absolute";
+              d.style.cssText =
+                "position:absolute;width:36px;height:36px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:bold;z-index:2;font-size:11px";
               d.style.left = x + "px";
               d.style.top = y + "px";
-              d.style.width = "40px";
-              d.style.height = "40px";
-              d.style.borderRadius = "50%";
-              d.style.display = "flex";
-              d.style.justifyContent = "center";
-              d.style.alignItems = "center";
-              d.style.fontWeight = "bold";
-              d.style.zIndex = "2";
               d.innerText = i;
               if ((bM >> BigInt(i)) & 1n) {
                 d.style.background = "#d73a49";
                 d.style.color = "#fff";
-                d.style.boxShadow = "0 0 15px #d73a49";
+                d.style.boxShadow = "0 0 10px #d73a49";
               } else {
                 d.style.background = "#21262d";
                 d.style.color = "#c9d1d9";
@@ -234,25 +350,63 @@
             if (turn > 0) {
               if (s.actor === "Burner")
                 txt =
-                  '<span style="color:#ff4d4d">Burner drops N' +
+                  '<span style="color:#ff4d4d">Burner \u{1f525} N' +
                   s.move +
                   "</span>";
               else if (s.move >= 0)
                 txt =
-                  '<span style="color:#58a6ff">Builder severs edge ' +
-                  edgeList[s.move][0] +
+                  '<span style="color:#58a6ff">Builder \u2702 ' +
+                  p.edges[s.move][0] +
                   "-" +
-                  edgeList[s.move][1] +
+                  p.edges[s.move][1] +
                   "</span>";
             }
-            document.getElementById("info").innerHTML =
-              "Ply " + turn + "/" + (states.length - 1) + "<br/>" + txt;
+            document.getElementById("i_" + idx).innerHTML =
+              "<b>" +
+              (p.label || p.preset) +
+              "</b> &mdash; Nash: " +
+              (p.nash_value || "?") +
+              "/" +
+              nc +
+              "<br/>Ply " +
+              turn +
+              "/" +
+              (p.states.length - 1) +
+              " &nbsp; " +
+              txt;
           }
-          function changeTurn(dir) {
-            turn = Math.max(0, Math.min(states.length - 1, turn + dir));
-            render();
+          function chT(idx, dir) {
+            const p = PRESETS[idx];
+            if (!p) return;
+            p._t = Math.max(
+              0,
+              Math.min(p.states.length - 1, (p._t || 0) + dir),
+            );
+            renderB(idx);
           }
-          render();
+          const gD = document.getElementById("games");
+          PRESETS.forEach((p, idx) => {
+            p._t = 0;
+            const [bw, bh] = bSize(p);
+            const w = document.createElement("div");
+            w.style.textAlign = "center";
+            w.innerHTML =
+              '<div style="margin:6px 0"><button onclick="chT(' +
+              idx +
+              ',-1)">\u25c4</button> <button onclick="chT(' +
+              idx +
+              ',1)">\u25ba</button></div><div id="b_' +
+              idx +
+              '" style="position:relative;width:' +
+              bw +
+              "px;height:" +
+              bh +
+              'px;margin:10px auto"></div><div id="i_' +
+              idx +
+              '" style="font-size:13px;color:#8b949e;height:50px;margin-top:8px"></div>';
+            gD.appendChild(w);
+            renderB(idx);
+          });
         </script>
       </div>
 

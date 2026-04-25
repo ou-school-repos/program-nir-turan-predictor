@@ -1,0 +1,41 @@
+{
+  "grid_w": 0,
+  "grid_h": 0,
+  "depth": 12,
+  "preset": "tree15",
+  "label": "Binary Tree (15)",
+  "edges": [
+    [0, 1],
+    [0, 2],
+    [1, 3],
+    [1, 4],
+    [2, 5],
+    [2, 6],
+    [3, 7],
+    [3, 8],
+    [4, 9],
+    [4, 10],
+    [5, 11],
+    [5, 12],
+    [6, 13],
+    [6, 14]
+  ],
+  "states": [
+    { "b": 0, "e": 16383, "move": -1, "actor": "Init" },
+    { "b": 128, "e": 16383, "move": 7, "actor": "Burner" },
+    { "b": 128, "e": 16319, "move": 6, "actor": "Builder" },
+    { "b": 132, "e": 16319, "move": 2, "actor": "Burner" },
+    { "b": 228, "e": 16317, "move": 1, "actor": "Builder" },
+    { "b": 244, "e": 16317, "move": 4, "actor": "Burner" },
+    { "b": 32500, "e": 16309, "move": 3, "actor": "Builder" },
+    { "b": 32756, "e": 16309, "move": 8, "actor": "Burner" },
+    { "b": 32764, "e": 16293, "move": 4, "actor": "Builder" },
+    { "b": 32766, "e": 16293, "move": 1, "actor": "Burner" },
+    { "b": 32766, "e": 16292, "move": 0, "actor": "Builder" },
+    { "b": 32767, "e": 16292, "move": 0, "actor": "Burner" },
+    { "b": 32767, "e": 16292, "move": -1, "actor": "Builder" }
+  ],
+  "nash_value": 15,
+  "nodes_searched": 370930,
+  "time_ms": 40
+}

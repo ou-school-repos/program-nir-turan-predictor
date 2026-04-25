@@ -2,6 +2,8 @@
   "grid_w": 1,
   "grid_h": 16,
   "depth": 12,
+  "preset": "path16",
+  "label": "Path P(16)",
   "edges": [
     [0, 1],
     [1, 2],
@@ -36,5 +38,5 @@
   ],
   "nash_value": 15,
   "nodes_searched": 2361850,
-  "time_ms": 189
+  "time_ms": 196
 }

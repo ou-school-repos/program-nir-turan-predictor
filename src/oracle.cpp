@@ -354,9 +354,8 @@ void run_finance(const string& lean_fn, const string& dot_fn) {
 // ============================================================================
 namespace adversarial {
 
-constexpr int GRID = 5;
-constexpr int NODES = GRID * GRID;
-constexpr int MAX_EDGES = 40;
+constexpr int MAX_N = 32;  // bitmask limit
+constexpr int MAX_E = 64;  // uint64_t edge mask limit
 constexpr int TT_BITS = 22;
 constexpr int TT_SIZE = 1 << TT_BITS;
 constexpr int TT_MASK = TT_SIZE - 1;
@@ -373,25 +372,89 @@ struct TTEntry {
     int best_move;
 };
 
-static Edge edges[MAX_EDGES];
-static int num_edges;
-static uint64_t z_node[NODES], z_edge[MAX_EDGES], z_turn;
-static TTEntry* tt;
+struct GameConfig {
+    int gw, gh, nodes, depth;
+    string label;
+};
 
-static void init_grid() {
+static Edge edges[MAX_E];
+static int num_edges;
+static int num_nodes;
+static uint64_t z_node[MAX_N], z_edge[MAX_E], z_turn;
+static TTEntry* tt;
+static int burner_order[MAX_N];
+
+static GameConfig parse_preset(const string& name) {
+    if (name == "path16") return {1, 16, 16, 12, "Path P(16)"};
+    if (name == "path20") return {1, 20, 20, 10, "Path P(20)"};
+    if (name == "path24") return {1, 24, 24, 10, "Path P(24)"};
+    if (name == "tree15") return {0, 0, 15, 12, "Binary Tree (15)"};
+    if (name == "campus") return {0, 0, 16, 14, "Campus Network"};
+    if (name == "grid3x5") return {3, 5, 15, 10, "Grid 3x5"};
+    if (name == "grid4x4") return {4, 4, 16, 8, "Grid 4x4"};
+    if (name == "grid5x5") return {5, 5, 25, 8, "Grid 5x5"};
+    return {1, 16, 16, 12, "Path P(16)"};
+}
+
+static void init_tree15() {
+    // Balanced binary tree: 0->{1,2}, 1->{3,4}, 2->{5,6}, 3->{7,8}, ...
+    const int parent[] = {-1, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6};
+    for (int i = 1; i < 15; i++) edges[num_edges++] = {parent[i], i};
+}
+
+static void init_campus() {
+    // Hub-spoke with bridges: central router (0) connects to 3 switches
+    // Each switch connects to 4 endpoints. Bridges between switches.
+    // 0: core, 1-3: switches, 4-7: wing A, 8-11: wing B, 12-15: wing C
+    int campus_edges[][2] = {
+        {0, 1},  {0, 2},  {0, 3},            // core -> switches
+        {1, 4},  {1, 5},  {1, 6},  {1, 7},   // switch 1 -> wing A
+        {2, 8},  {2, 9},  {2, 10}, {2, 11},  // switch 2 -> wing B
+        {3, 12}, {3, 13}, {3, 14}, {3, 15},  // switch 3 -> wing C
+        {1, 2},  {2, 3},                     // bridge links between switches
+    };
+    for (auto& e : campus_edges) edges[num_edges++] = {e[0], e[1]};
+}
+
+static void init_graph(const GameConfig& cfg) {
     num_edges = 0;
-    for (int y = 0; y < GRID; y++)
-        for (int x = 0; x < GRID; x++) {
-            int u = y * GRID + x;
-            if (x < GRID - 1) edges[num_edges++] = {u, u + 1};
-            if (y < GRID - 1) edges[num_edges++] = {u, u + GRID};
-        }
+    num_nodes = cfg.nodes;
+    if (cfg.gw == 0) {
+        // Custom topology
+        if (cfg.label.find("Tree") != string::npos)
+            init_tree15();
+        else
+            init_campus();
+    } else if (cfg.gw == 1) {
+        for (int i = 0; i < cfg.nodes - 1; i++) edges[num_edges++] = {i, i + 1};
+    } else {
+        for (int y = 0; y < cfg.gh; y++)
+            for (int x = 0; x < cfg.gw; x++) {
+                int u = y * cfg.gw + x;
+                if (x < cfg.gw - 1) edges[num_edges++] = {u, u + 1};
+                if (y < cfg.gh - 1) edges[num_edges++] = {u, u + cfg.gw};
+            }
+    }
+}
+
+static void init_move_order(const GameConfig& cfg) {
+    for (int i = 0; i < cfg.nodes; i++) burner_order[i] = i;
+    int w = max(cfg.gw, 1);  // avoid div-by-zero for custom topologies
+    int h = max(cfg.gh, cfg.nodes);
+    double cx = (w - 1) / 2.0, cy = (h - 1) / 2.0;
+    sort(burner_order, burner_order + cfg.nodes, [&](int a, int b) {
+        double ax = (w <= 1) ? 0.0 : double(a % w);
+        double ay = (w <= 1) ? double(a) : double(a / w);
+        double bx = (w <= 1) ? 0.0 : double(b % w);
+        double by = (w <= 1) ? double(b) : double(b / w);
+        return abs(ax - cx) + abs(ay - cy) < abs(bx - cx) + abs(by - cy);
+    });
 }
 
 static void init_zobrist() {
     mt19937_64 rng(42);
-    for (int i = 0; i < NODES; i++) z_node[i] = rng();
-    for (int i = 0; i < MAX_EDGES; i++) z_edge[i] = rng();
+    for (int i = 0; i < num_nodes; i++) z_node[i] = rng();
+    for (int i = 0; i < num_edges; i++) z_edge[i] = rng();
     z_turn = rng();
     tt = static_cast<TTEntry*>(calloc(TT_SIZE, sizeof(TTEntry)));
 }
@@ -399,7 +462,7 @@ static void init_zobrist() {
 static uint64_t get_hash(uint32_t burned, uint64_t alive_edges,
                          bool is_burner) {
     uint64_t h = 0;
-    for (int i = 0; i < NODES; i++)
+    for (int i = 0; i < num_nodes; i++)
         if ((burned >> i) & 1) h ^= z_node[i];
     for (int i = 0; i < num_edges; i++)
         if ((alive_edges >> i) & 1ULL) h ^= z_edge[i];
@@ -418,16 +481,13 @@ static uint32_t spread_fire(uint32_t burned, uint64_t alive_edges) {
     return nb;
 }
 
-// Move ordering: center-first for burner (triggers more beta cutoffs)
-static const int burner_order[] = {12, 7,  11, 13, 17, 6,  8, 16, 18,
-                                   2,  10, 14, 22, 1,  3,  5, 9,  15,
-                                   19, 21, 23, 0,  4,  20, 24};
+// burner_order[] is populated dynamically by init_move_order()
 
 static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                      int alpha, int beta, bool is_burner, int& best_move_out,
                      uint64_t& nodes) {
     nodes++;
-    if (depth == 0 || __builtin_popcount(burned) == NODES)
+    if (depth == 0 || __builtin_popcount(burned) == num_nodes)
         return __builtin_popcount(burned);
 
     uint64_t h = get_hash(burned, alive_edges, is_burner);
@@ -445,9 +505,26 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
     int orig_alpha = alpha;
 
     if (is_burner) {
+        // Burner: place fire on an unburned node adjacent to existing fire
+        // (or any node if nothing is burning yet)
         int max_val = -100;
-        for (int i : burner_order) {
+        bool has_fire = (burned != 0);
+        for (int k = 0; k < num_nodes; k++) {
+            int i = burner_order[k];
             if ((burned >> i) & 1) continue;
+            // Adjacency check: must be next to a burning node (via alive edge)
+            if (has_fire) {
+                bool adj = false;
+                for (int e = 0; e < num_edges; e++) {
+                    if (!((alive_edges >> e) & 1ULL)) continue;
+                    if ((edges[e].u == i && ((burned >> edges[e].v) & 1)) ||
+                        (edges[e].v == i && ((burned >> edges[e].u) & 1))) {
+                        adj = true;
+                        break;
+                    }
+                }
+                if (!adj) continue;
+            }
             int dummy = -1;
             int val = alphabeta(burned | (1U << i), alive_edges, depth - 1,
                                 alpha, beta, false, dummy, nodes);
@@ -458,14 +535,19 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
             alpha = max(alpha, val);
             if (beta <= alpha) break;
         }
+        if (max_val == -100) {
+            // Burner has no valid moves (completely contained!)
+            best_move_out = -1;
+            return __builtin_popcount(burned);
+        }
         int flag = (max_val <= orig_alpha) ? 2 : (max_val >= beta) ? 1 : 0;
         tt[idx] = {h, depth, max_val, flag, best_move};
         best_move_out = best_move;
         return max_val;
     } else {
+        // Builder: cut one alive edge. No fire spread.
         int min_val = 100;
-        // Move ordering: prioritize edges touching the firefront
-        int front[MAX_EDGES], back[MAX_EDGES];
+        int front[MAX_E], back[MAX_E];
         int nf = 0, nb_count = 0;
         for (int i = 0; i < num_edges; i++) {
             if (!((alive_edges >> i) & 1ULL)) continue;
@@ -475,25 +557,23 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
             else
                 back[nb_count++] = i;
         }
-        // Merge: front-first
-        int cands[MAX_EDGES];
+        int cands[MAX_E];
         int nc = 0;
         for (int i = 0; i < nf; i++) cands[nc++] = front[i];
         for (int i = 0; i < nb_count; i++) cands[nc++] = back[i];
 
         if (nc == 0) {
-            uint32_t nb = spread_fire(burned, alive_edges);
+            // No edges to cut — pass turn
             int dummy = -1;
-            min_val = alphabeta(nb, alive_edges, depth - 1, alpha, beta, true,
-                                dummy, nodes);
+            min_val = alphabeta(burned, alive_edges, depth - 1, alpha, beta,
+                                true, dummy, nodes);
         } else {
             for (int k = 0; k < nc; k++) {
                 int ei = cands[k];
                 uint64_t ne = alive_edges & ~(1ULL << ei);
-                uint32_t nb = spread_fire(burned, ne);
                 int dummy = -1;
-                int val = alphabeta(nb, ne, depth - 1, alpha, beta, true, dummy,
-                                    nodes);
+                int val = alphabeta(burned, ne, depth - 1, alpha, beta, true,
+                                    dummy, nodes);
                 if (val < min_val) {
                     min_val = val;
                     best_move = ei;
@@ -511,32 +591,38 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
 
 }  // namespace adversarial
 
-void run_adversarial(const string& lean_fn) {
+void run_adversarial(const string& lean_fn, const string& preset) {
     using namespace adversarial;
 
-    cout << CYN << "[Oracle] Adversarial Maker-Breaker Game (5x5 Grid).\n"
+    auto cfg = parse_preset(preset);
+    cout << CYN << "[Oracle] Adversarial: " << cfg.label << " (" << cfg.nodes
+         << "N, depth " << cfg.depth << ").\n"
          << RST;
     cout << MAG
          << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
             "Zobrist TT.\n"
          << RST;
 
-    init_grid();
+    init_graph(cfg);
+    init_move_order(cfg);
     init_zobrist();
 
     uint32_t burned = 0;
     uint64_t alive_edges = (1ULL << num_edges) - 1;
     uint64_t total_nodes = 0;
-    int depth_limit = 8;
+    int depth_limit = cfg.depth;
 
     cout << "  [Search] Alpha-Beta pruning (depth=" << depth_limit
          << " plies)...\n";
     auto start = high_resolution_clock::now();
 
     // JSON state log for interactive replay
-    ofstream json_out("proofs/AdversarialPV.json");
-    json_out << "{\n  \"grid\": " << GRID << ",\n  \"depth\": " << depth_limit
-             << ",\n  \"edges\": [\n";
+    string json_path = "proofs/AdversarialPV_" + preset + ".json";
+    ofstream json_out(json_path);
+    json_out << "{\n  \"grid_w\": " << cfg.gw << ",\n  \"grid_h\": " << cfg.gh
+             << ",\n  \"depth\": " << depth_limit << ",\n  \"preset\": \""
+             << preset << "\",\n  \"label\": \"" << cfg.label
+             << "\",\n  \"edges\": [\n";
     for (int i = 0; i < num_edges; i++)
         json_out << "    [" << edges[i].u << "," << edges[i].v << "]"
                  << (i < num_edges - 1 ? "," : "") << "\n";
@@ -556,6 +642,7 @@ void run_adversarial(const string& lean_fn) {
         if (d == depth_limit) nash_val = val;
 
         if (is_burner) {
+            if (best_move < 0) continue;
             burned |= (1U << best_move);
             json_out << ",\n    {\"b\": " << burned
                      << ", \"e\": " << alive_edges
@@ -588,7 +675,7 @@ void run_adversarial(const string& lean_fn) {
     json_out.close();
 
     cout << GRN << "  [Nash Equilibrium] Builder limits destruction to "
-         << nash_val << "/" << NODES << " nodes.\n"
+         << nash_val << "/" << cfg.nodes << " nodes.\n"
          << RST;
     cout << "  [Telemetry] " << total_nodes << " states searched in " << ms
          << " ms\n";
@@ -596,7 +683,7 @@ void run_adversarial(const string& lean_fn) {
     // Lean witness
     ofstream out(lean_fn);
     out << "import Mathlib.Tactic\n\n"
-        << "def grid_size : Nat := " << NODES << "\n"
+        << "def grid_size : Nat := " << cfg.nodes << "\n"
         << "def nash_value : Nat := " << nash_val << "\n"
         << "def search_depth : Nat := " << depth_limit << "\n\n"
         << "theorem optimal_defense : nash_value < grid_size "
@@ -611,7 +698,8 @@ void run_adversarial(const string& lean_fn) {
 // ============================================================================
 int main(int argc, char** argv) {
     if (argc < 3) {
-        cerr << "Usage: oracle <module> <lean_output> [dot_output]\n";
+        cerr << "Usage: oracle <module> <lean_output> [preset|dot_output]\n"
+             << "  Adversarial presets: path16 tree15 campus\n";
         return 1;
     }
     string mode = argv[1];
@@ -619,10 +707,9 @@ int main(int argc, char** argv) {
 
     // Derive dot filename: proofs/Foo.lean -> docs/Foo.lean.dot
     string dot_fn;
-    if (argc >= 4) {
+    if (argc >= 4 && mode != "adversarial") {
         dot_fn = argv[3];
     } else {
-        // Auto-derive: proofs/X.lean -> docs/X.lean.dot
         string base = lean_fn;
         size_t slash = base.rfind('/');
         if (slash != string::npos) base = base.substr(slash + 1);
@@ -635,9 +722,10 @@ int main(int argc, char** argv) {
         run_surveillance(lean_fn, dot_fn);
     else if (mode == "finance")
         run_finance(lean_fn, dot_fn);
-    else if (mode == "adversarial")
-        run_adversarial(lean_fn);
-    else {
+    else if (mode == "adversarial") {
+        string preset = (argc >= 4) ? argv[3] : "path16";
+        run_adversarial(lean_fn, preset);
+    } else {
         cerr << RED << "Unknown module: " << mode << RST << "\n";
         return 1;
     }

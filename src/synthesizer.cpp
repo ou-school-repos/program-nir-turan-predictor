@@ -105,39 +105,34 @@ static Hash128 tree_hash_128(int n) {
 }
 
 // =====================================================================
-// Top-K Tracking
+// Constrained Extremal Tracking
 // =====================================================================
-struct TopKEntry {
-    uint64_t score;
-    int diameter;
-    int leaves;
-    int max_degree;
+struct ConstrainedBest {
+    uint64_t score = 0;
+    int max_degree = 0, leaves = 0, diameter = 0, n = 0;
     int level_seq[MAX_N];
-    int n;
 };
 
-static std::vector<TopKEntry> top_k_vec;
-static int top_k_limit;
-static uint64_t top_k_min_score;
+static ConstrainedBest best_d3, best_d4, best_any;
 
-static void top_k_init(int k) {
-    top_k_vec.clear();
-    top_k_vec.reserve(k + 1);
-    top_k_limit = k;
-    top_k_min_score = 0;
+static void top_k_init(int) {
+    best_d3 = {};
+    best_d4 = {};
+    best_any = {};
 }
 
 static void top_k_add(uint64_t score, const int L[], int n) {
-    if ((int)top_k_vec.size() >= top_k_limit && score <= top_k_min_score)
+    // Fast-fail: skip if it can't beat any category
+    if (score <= best_d3.score && score <= best_d4.score &&
+        score <= best_any.score)
         return;
 
-    // Lazy invariant computation — only for top-K candidates
     int deg[MAX_N] = {};
     for (int i = 1; i < n; i++) {
         deg[i]++;
         deg[parent_arr[i]]++;
     }
-    int lf = 0, md = 0;
+    int md = 0, lf = 0;
     for (int i = 0; i < n; i++) {
         if (deg[i] == 1 || (i == 0 && n == 1)) lf++;
         if (deg[i] > md) md = deg[i];
@@ -145,34 +140,30 @@ static void top_k_add(uint64_t score, const int L[], int n) {
 
     // Diameter via two-height DP
     int max_h1[MAX_N] = {}, max_h2[MAX_N] = {};
-    int diam = 0;
     for (int i = n - 1; i > 0; i--) {
         int p = parent_arr[i];
         int h = max_h1[i] + 1;
         if (h > max_h1[p]) {
             max_h2[p] = max_h1[p];
             max_h1[p] = h;
-        } else if (h > max_h2[p]) {
+        } else if (h > max_h2[p])
             max_h2[p] = h;
-        }
     }
+    int diam = 0;
     for (int i = 0; i < n; i++) diam = std::max(diam, max_h1[i] + max_h2[i]);
 
-    TopKEntry e;
-    e.score = score;
-    e.diameter = diam;
-    e.leaves = lf;
-    e.max_degree = md;
-    e.n = n;
-    memcpy(e.level_seq, L, n * sizeof(int));
+    auto store = [&](ConstrainedBest& b) {
+        b.score = score;
+        b.max_degree = md;
+        b.leaves = lf;
+        b.diameter = diam;
+        b.n = n;
+        memcpy(b.level_seq, L, n * sizeof(int));
+    };
 
-    top_k_vec.push_back(e);
-    std::sort(top_k_vec.begin(), top_k_vec.end(),
-              [](const TopKEntry& a, const TopKEntry& b) {
-                  return a.score > b.score;
-              });
-    if ((int)top_k_vec.size() > top_k_limit) top_k_vec.pop_back();
-    top_k_min_score = top_k_vec.back().score;
+    if (md <= 3 && score > best_d3.score) store(best_d3);
+    if (md <= 4 && score > best_d4.score) store(best_d4);
+    if (score > best_any.score) store(best_any);
 }
 
 // =====================================================================
@@ -265,31 +256,38 @@ static uint64_t generate(int n, int top_k) {
             top_k_add(score, L, n);
         }
 
-        // Progress (in-place overwrite)
-        if (unique >= last_reported + 100000) {
+        // Progress: update every 100K unique OR every 5s (whichever first)
+        {
             auto now = std::chrono::high_resolution_clock::now();
-            double ms_total =
-                std::chrono::duration<double, std::milli>(now - t_start)
-                    .count();
-            double ms_delta =
+            double ms_since =
                 std::chrono::duration<double, std::milli>(now - t_last_progress)
                     .count();
-            double inst_rate = (unique - last_reported) / (ms_delta / 1000.0);
-            last_reported = unique;
-            t_last_progress = now;
+            bool count_trigger = (unique >= last_reported + 100000);
+            bool time_trigger = (ms_since >= 5000.0 && unique > last_reported);
 
-            uint64_t target = (n <= 30) ? A000055[n] : 0;
-            if (target > 0) {
-                double pct = 100.0 * unique / target;
-                double eta_s = (target - unique) / inst_rate;
-                fprintf(stderr,
-                        "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
-                        "%.0fK/s | ETA %.0fs   ",
-                        unique / 1000, target / 1000, pct, ms_total / 1000.0,
-                        inst_rate / 1000.0, eta_s);
-            } else {
-                fprintf(stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
+            if (count_trigger || time_trigger) {
+                double ms_total =
+                    std::chrono::duration<double, std::milli>(now - t_start)
+                        .count();
+                double inst_rate =
+                    (unique - last_reported) / (ms_since / 1000.0);
+                last_reported = unique;
+                t_last_progress = now;
+
+                uint64_t target = (n <= 30) ? A000055[n] : 0;
+                if (target > 0) {
+                    double pct = 100.0 * unique / target;
+                    double eta_s = (target - unique) / inst_rate;
+                    fprintf(stderr,
+                            "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
+                            "%.0fK/s | ETA %.0fs   ",
+                            unique / 1000, target / 1000, pct,
+                            ms_total / 1000.0, inst_rate / 1000.0, eta_s);
+                } else {
+                    fprintf(
+                        stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
                         unique / 1000, ms_total / 1000.0, inst_rate / 1000.0);
+                }
             }
         }
 
@@ -312,18 +310,20 @@ static uint64_t generate(int n, int top_k) {
     // End-of-run summary
     double dedup_ratio = (double)rooted / unique;
     double load = (double)seen.size() / seen.cap;
-    uint64_t top1 = top_k_vec.empty() ? 0 : top_k_vec[0].score;
+    uint64_t top1 = best_any.score;
     uint64_t p_sc = path_score(n);
     fprintf(stderr,
             "\n  ═══════════════════════════════════════════════\n"
             "  N=%d | %lu unique / %lu rooted | %.1fs\n"
             "  Throughput: %.0f trees/sec | Dedup ratio: %.1fx\n"
             "  Hash load: %.1f%% (%lu / %lu slots)\n"
-            "  Top-1: %lu (%.2fx vs path)\n"
+            "  Top-1 (any): %lu (%.2fx vs path)\n"
+            "  Top-1 (d≤3): %lu | Top-1 (d≤4): %lu\n"
             "  ═══════════════════════════════════════════════\n",
             n, unique, rooted, elapsed_ms / 1000.0,
             unique / (elapsed_ms / 1000.0), dedup_ratio, load * 100.0,
-            seen.size(), seen.cap, top1, (double)top1 / p_sc);
+            seen.size(), seen.cap, top1, (double)top1 / p_sc, best_d3.score,
+            best_d4.score);
 
     // Auto-log to docs/runs/benchmark.log
     {
@@ -336,14 +336,41 @@ static uint64_t generate(int n, int top_k) {
             strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S", localtime(&t));
             fprintf(log,
                     "%s | N=%d | %lu trees | %lu rooted | %.1fs | "
-                    "%.0f trees/sec\n",
+                    "%.0f/s | dedup %.1fx | load %.1f%% | top1 %lu"
+                    " | d3 %lu | d4 %lu\n",
                     ts, n, unique, rooted, elapsed_ms / 1000.0,
-                    unique / (elapsed_ms / 1000.0));
+                    unique / (elapsed_ms / 1000.0), dedup_ratio, load * 100.0,
+                    top1, best_d3.score, best_d4.score);
             fclose(log);
         }
     }
 
-    // JSON output
+    // JSON output with constrained extremals
+    auto print_tree = [&](const ConstrainedBest& t, const char* label) {
+        int par[MAX_N], ds[MAX_N];
+        par[0] = -1;
+        ds[0] = 0;
+        for (int i = 1; i < t.n; i++) {
+            par[i] = ds[t.level_seq[i] - 1];
+            ds[t.level_seq[i]] = i;
+        }
+        printf("    {\n");
+        printf("      \"constraint\": \"%s\",\n", label);
+        printf("      \"score\": %lu,\n", t.score);
+        printf("      \"ratio\": %.2f,\n", (double)t.score / p_sc);
+        printf("      \"max_degree\": %d,\n", t.max_degree);
+        printf("      \"diameter\": %d,\n", t.diameter);
+        printf("      \"leaves\": %d,\n", t.leaves);
+        printf("      \"edges\": [");
+        bool first = true;
+        for (int i = 1; i < t.n; i++) {
+            if (!first) printf(", ");
+            printf("[%d,%d]", par[i], i);
+            first = false;
+        }
+        printf("]\n    }");
+    };
+
     printf("{\n");
     printf("  \"n\": %d,\n", n);
     printf("  \"trees_scanned\": %lu,\n", unique);
@@ -352,38 +379,16 @@ static uint64_t generate(int n, int top_k) {
     printf("  \"elapsed_ms\": %.1f,\n", elapsed_ms);
     printf("  \"trees_per_sec\": %.0f,\n", unique / (elapsed_ms / 1000.0));
     printf("  \"top_k\": [\n");
-
-    for (int r = 0; r < (int)top_k_vec.size(); r++) {
-        const auto& e = top_k_vec[r];
-        int par[MAX_N], ds[MAX_N];
-        par[0] = -1;
-        ds[0] = 0;
-        for (int i = 1; i < e.n; i++) {
-            par[i] = ds[e.level_seq[i] - 1];
-            ds[e.level_seq[i]] = i;
-        }
-
-        printf("    {\n");
-        printf("      \"rank\": %d,\n", r + 1);
-        printf("      \"score\": %lu,\n", e.score);
-        printf("      \"ratio\": %.2f,\n", (double)e.score / p_sc);
-        printf("      \"diameter\": %d,\n", e.diameter);
-        printf("      \"leaves\": %d,\n", e.leaves);
-        printf("      \"max_degree\": %d,\n", e.max_degree);
-
-        // Edge list
-        printf("      \"edges\": [");
-        bool first = true;
-        for (int i = 1; i < e.n; i++) {
-            if (!first) printf(", ");
-            printf("[%d,%d]", par[i], i);
-            first = false;
-        }
-        printf("]\n");
-        printf("    }%s\n", (r + 1 < (int)top_k_vec.size()) ? "," : "");
+    if (best_d3.score > 0) {
+        print_tree(best_d3, "Delta <= 3 (Chemical / 6G Routing)");
+        printf(",\n");
     }
-    printf("  ]\n");
-    printf("}\n");
+    if (best_d4.score > 0) {
+        print_tree(best_d4, "Delta <= 4 (Telecom Hubs)");
+        printf(",\n");
+    }
+    print_tree(best_any, "Unconstrained");
+    printf("\n  ]\n}\n");
 
     return unique;
 }

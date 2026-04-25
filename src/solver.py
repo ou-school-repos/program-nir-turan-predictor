@@ -715,6 +715,41 @@ class GraphInvariants:
             cb[i] /= 2.0
         return cb
 
+    @staticmethod
+    def bipartite_skew(n, adj_list):
+        """Calculates the |U| - |V| imbalance of the tree."""
+        color = [-1] * n
+        color[0] = 0
+        q = [0]
+        while q:
+            u = q.pop(0)
+            for v in adj_list[u]:
+                if color[v] == -1:
+                    color[v] = 1 - color[u]
+                    q.append(v)
+        c0 = sum(1 for c in color if c == 0)
+        return abs(c0 - (n - c0))
+
+    @staticmethod
+    def degree_assortativity(n, adj_list):
+        """Pearson correlation of degrees across edges."""
+        m, sum_degs, sum_degs_sq, sum_edges = 0, 0, 0, 0
+        for u in range(n):
+            du = len(adj_list[u])
+            for v in adj_list[u]:
+                if u < v:
+                    dv = len(adj_list[v])
+                    m += 1
+                    sum_degs += du + dv
+                    sum_degs_sq += du**2 + dv**2
+                    sum_edges += du * dv
+        if m == 0:
+            return 0.0
+        term1 = m * sum_edges
+        term2 = (sum_degs / 2.0) ** 2
+        term3 = m * (sum_degs_sq / 2.0)
+        return (term1 - term2) / (term3 - term2) if term3 != term2 else 0.0
+
 
 # =========================================================================
 # MODULE 5: SYNTHESIZER (Unsupervised Topology Discovery)
@@ -794,17 +829,23 @@ class SynthesizerModule:
             f"MaxBetweenness={max_cent:.1f}"
         )
 
-        # Print top-K table
+        # Print constrained extremals table with physics metrics
         print(
-            f"\n  {YEL}{'Rank':<5} {'Score':<10} {'Ratio':<8} "
-            f"{'Dia':<5} {'Leaves':<7} {'MaxDeg':<7}{RST}"
+            f"\n  {YEL}{'Constraint':<30} | {'Score':<12} | "
+            f"{'Assort (r)':<10} | {'Skew':<5} | {'MaxDeg':<6}{RST}"
         )
-        print(f"  {'-' * 45}")
+        print(f"  {'-' * 75}")
         for t in top_list:
+            adj = {i: [] for i in range(N)}
+            for u, v in t["edges"]:
+                adj[u].append(v)
+                adj[v].append(u)
+            skew = GraphInvariants.bipartite_skew(N, adj)
+            assort = GraphInvariants.degree_assortativity(N, adj)
+            label = t.get("constraint", f"Rank {t.get('rank', '?')}")
             print(
-                f"  {t['rank']:<5} {t['score']:<10} "
-                f"{t['ratio']:>5.2f}x  {t['diameter']:<5} "
-                f"{t['leaves']:<7} {t['max_degree']:<7}"
+                f"  {label:<30} | {t['score']:<12,} | "
+                f"{assort:>+10.4f} | {skew:<5} | {t['max_degree']:<6}"
             )
 
         # Visualize top anomaly with thermal centrality heatmap
@@ -932,20 +973,20 @@ def generate_dashboard():
     for cmd in dot_cmds:
         os.system(cmd)
 
-    # Load adversarial replay data
-    adv_states = "[]"
-    adv_edges = "[]"
-    adv_grid = 5
-    try:
-        with open("proofs/AdversarialPV.json", "r") as f:
-            adv = json.load(f)
-            adv_states = json.dumps(adv["states"])
-            adv_edges = json.dumps(adv["edges"])
-            adv_grid = adv["grid"]
-    except FileNotFoundError:
-        pass
+    # Load all adversarial replay data (multiple presets)
+    adv_presets = []
+    for preset in ["path16", "tree15", "campus"]:
+        path = f"proofs/AdversarialPV_{preset}.json"
+        try:
+            with open(path, "r") as f:
+                adv = json.load(f)
+                adv_presets.append(adv)
+        except FileNotFoundError:
+            pass
+    adv_presets_json = json.dumps(adv_presets)
 
-    html = f"""<!DOCTYPE html>
+    html = (
+        """<!DOCTYPE html>
 <html>
 <head>
 <title>Topology Oracle Dashboard</title>
@@ -997,95 +1038,100 @@ button:hover {{ background: #30363d; }}
       Adversarial Burning: Maker-Breaker Minimax
     </h3>
     <p style="font-size:13px;color:#8b949e">
-      Burner (red) vs Builder (scissors). Click to replay.
+      Burner (red) vs Builder (scissors). Three topologies compared.
     </p>
-    <div style="display:flex;flex-direction:column;align-items:center">
-      <div style="margin:10px 0">
-        <button onclick="changeTurn(-1)">◄ Prev</button>
-        <button onclick="changeTurn(1)">Next ►</button>
-      </div>
-      <div id="board"
-           style="position:relative;width:400px;height:400px;
-                  margin:20px"></div>
-      <div id="info"
-           style="margin-top:15px;font-size:15px;color:#8b949e;
-                  text-align:center;height:50px"></div>
-    </div>
+    <div id="games" style="display:flex;flex-wrap:wrap;justify-content:center;gap:30px"></div>
     <script>
-const states = {adv_states};
-const edgeList = {adv_edges};
-const G = {adv_grid};
-let turn = 0;
-function render() {{
-  if (!states.length) return;
-  const s = states[turn], board = document.getElementById('board');
-  board.innerHTML = '';
-  const eM = BigInt(s.e);
-  for (let i = 0; i < edgeList.length; i++) {{
-    const [u, v] = edgeList[i];
-    const ux = (u%G)*80, uy = Math.floor(u/G)*80;
-    const ln = document.createElement('div');
-    ln.style.position = 'absolute';
-    const alive = (eM >> BigInt(i)) & 1n;
-    ln.style.background = alive ? '#484f58' : '#d73a49';
-    ln.style.zIndex = '1';
-    if (u + 1 === v) {{
-      ln.style.left = (ux+40)+'px'; ln.style.top = (uy+18)+'px';
-      ln.style.width = '40px'; ln.style.height = alive ? '4px' : '8px';
-    }} else {{
-      ln.style.left = (ux+18)+'px'; ln.style.top = (uy+40)+'px';
-      ln.style.width = alive ? '4px' : '8px'; ln.style.height = '40px';
-    }}
-    board.appendChild(ln);
-    if (!alive) {{
-      const ic = document.createElement('div');
-      ic.style.position = 'absolute';
-      ic.style.zIndex = '3'; ic.innerHTML = '&#9986;';
-      ic.style.fontSize = '18px';
-      if (u+1===v) {{ ic.style.left=(ux+45)+'px'; ic.style.top=(uy+5)+'px'; }}
-      else {{ ic.style.left=(ux+5)+'px'; ic.style.top=(uy+48)+'px'; }}
-      board.appendChild(ic);
-    }}
-  }}
-  const bM = BigInt(s.b);
-  for (let i = 0; i < G*G; i++) {{
-    const x = (i%G)*80, y = Math.floor(i/G)*80;
-    const d = document.createElement('div');
-    d.style.position = 'absolute';
-    d.style.left = x+'px'; d.style.top = y+'px';
-    d.style.width = '40px'; d.style.height = '40px';
-    d.style.borderRadius = '50%';
-    d.style.display = 'flex'; d.style.justifyContent = 'center';
-    d.style.alignItems = 'center';
-    d.style.fontWeight = 'bold'; d.style.zIndex = '2';
-    d.innerText = i;
-    if ((bM >> BigInt(i)) & 1n) {{
-      d.style.background = '#d73a49'; d.style.color = '#fff';
-      d.style.boxShadow = '0 0 15px #d73a49';
-    }} else {{
-      d.style.background = '#21262d'; d.style.color = '#c9d1d9';
-      d.style.border = '2px solid #30363d';
-    }}
+"""
+        + "const PRESETS="
+        + adv_presets_json
+        + """;
+const SPC=50;
+const TREE_POS={0:[180,10],1:[90,70],2:[270,70],3:[45,130],4:[135,130],5:[225,130],6:[315,130],7:[20,190],8:[65,190],9:[110,190],10:[155,190],11:[200,190],12:[245,190],13:[290,190],14:[335,190]};
+const CAMPUS_POS={0:[200,100],1:[80,100],2:[200,200],3:[320,100],4:[20,30],5:[20,100],6:[20,170],7:[80,30],8:[140,250],9:[200,280],10:[260,250],11:[200,330],12:[380,30],13:[380,100],14:[380,170],15:[320,30]};
+function nPos(i,p){
+  if(p.preset==='tree15')return TREE_POS[i]||[0,0];
+  if(p.preset==='campus')return CAMPUS_POS[i]||[0,0];
+  const gw=p.grid_w||1;
+  if(gw<=1)return[i*SPC,0];
+  return[(i%gw)*SPC,Math.floor(i/gw)*SPC];
+}
+function bSize(p){
+  if(p.preset==='tree15')return[370,230];
+  if(p.preset==='campus')return[420,370];
+  const gw=p.grid_w||1,gh=p.grid_h||16;
+  if(gw<=1)return[gh*SPC+10,50];
+  return[gw*SPC+10,gh*SPC+10];
+}
+function nCount(p){return p.edges.reduce((s,e)=>Math.max(s,e[0],e[1]),0)+1;}
+function renderB(idx){
+  const p=PRESETS[idx];if(!p||!p.states)return;
+  const turn=p._t||0,s=p.states[turn];
+  const board=document.getElementById('b_'+idx);board.innerHTML='';
+  const eM=BigInt(s.e),nc=nCount(p);
+  for(let i=0;i<p.edges.length;i++){
+    const[u,v]=p.edges[i];
+    const[ux,uy]=nPos(u,p),[vx,vy]=nPos(v,p);
+    const alive=(eM>>BigInt(i))&1n;
+    const dx=Math.abs(vx-ux),dy=Math.abs(vy-uy);
+    if(dx>5&&dy>5){
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;overflow:visible';
+      const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+      ln.setAttribute('x1',ux+18);ln.setAttribute('y1',uy+18);
+      ln.setAttribute('x2',vx+18);ln.setAttribute('y2',vy+18);
+      ln.setAttribute('stroke',alive?'#484f58':'#d73a49');
+      ln.setAttribute('stroke-width',alive?'2':'4');
+      svg.appendChild(ln);board.appendChild(svg);
+    }else{
+      const ln=document.createElement('div');
+      ln.style.position='absolute';ln.style.zIndex='1';
+      ln.style.background=alive?'#484f58':'#d73a49';
+      if(dy<5){
+        ln.style.left=(Math.min(ux,vx)+36)+'px';ln.style.top=(uy+16)+'px';
+        ln.style.width=Math.max(dx-32,4)+'px';ln.style.height=alive?'3px':'6px';
+      }else{
+        ln.style.left=(ux+16)+'px';ln.style.top=(Math.min(uy,vy)+36)+'px';
+        ln.style.width=alive?'3px':'6px';ln.style.height=Math.max(dy-32,4)+'px';
+      }
+      board.appendChild(ln);
+    }
+  }
+  const bM=BigInt(s.b);
+  for(let i=0;i<nc;i++){
+    const[x,y]=nPos(i,p);
+    const d=document.createElement('div');
+    d.style.cssText='position:absolute;width:36px;height:36px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:bold;z-index:2;font-size:11px';
+    d.style.left=x+'px';d.style.top=y+'px';
+    d.innerText=i;
+    if((bM>>BigInt(i))&1n){
+      d.style.background='#d73a49';d.style.color='#fff';d.style.boxShadow='0 0 10px #d73a49';
+    }else{
+      d.style.background='#21262d';d.style.color='#c9d1d9';d.style.border='2px solid #30363d';
+    }
     board.appendChild(d);
-  }}
-  let txt = 'Initial State';
-  if (turn > 0) {{
-    if (s.actor === 'Burner')
-      txt = '<span style="color:#ff4d4d">Burner drops N'
-            + s.move + '</span>';
-    else if (s.move >= 0)
-      txt = '<span style="color:#58a6ff">Builder severs edge '
-            + edgeList[s.move][0] + '-' + edgeList[s.move][1]
-            + '</span>';
-  }}
-  document.getElementById('info').innerHTML =
-    'Ply ' + turn + '/' + (states.length-1) + '<br/>' + txt;
-}}
-function changeTurn(dir) {{
-  turn = Math.max(0, Math.min(states.length-1, turn+dir));
-  render();
-}}
-render();
+  }
+  let txt='Initial State';
+  if(turn>0){
+    if(s.actor==='Burner')txt='<span style="color:#ff4d4d">Burner \\u{1f525} N'+s.move+'</span>';
+    else if(s.move>=0)txt='<span style="color:#58a6ff">Builder \\u2702 '+p.edges[s.move][0]+'-'+p.edges[s.move][1]+'</span>';
+  }
+  document.getElementById('i_'+idx).innerHTML=
+    '<b>'+(p.label||p.preset)+'</b> &mdash; Nash: '+(p.nash_value||'?')+'/'+nc
+    +'<br/>Ply '+turn+'/'+(p.states.length-1)+' &nbsp; '+txt;
+}
+function chT(idx,dir){
+  const p=PRESETS[idx];if(!p)return;
+  p._t=Math.max(0,Math.min(p.states.length-1,(p._t||0)+dir));
+  renderB(idx);
+}
+const gD=document.getElementById('games');
+PRESETS.forEach((p,idx)=>{
+  p._t=0;const[bw,bh]=bSize(p);
+  const w=document.createElement('div');w.style.textAlign='center';
+  w.innerHTML='<div style="margin:6px 0"><button onclick="chT('+idx+',-1)">\\u25c4</button> <button onclick="chT('+idx+',1)">\\u25ba</button></div><div id="b_'+idx+'" style="position:relative;width:'+bw+'px;height:'+bh+'px;margin:10px auto"></div><div id="i_'+idx+'" style="font-size:13px;color:#8b949e;height:50px;margin-top:8px"></div>';
+  gD.appendChild(w);renderB(idx);
+});
     </script>
   </div>
 
@@ -1104,6 +1150,7 @@ render();
 </div>
 </body>
 </html>"""
+    )
 
     with open("docs/dashboard.html", "w") as f:
         f.write(html)
