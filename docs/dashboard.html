@@ -50,7 +50,8 @@
           Adversarial Burning: Maker-Breaker Minimax
         </h3>
         <p style="font-size: 13px; color: #8b949e">
-          Burner (red) vs Builder (scissors). Three topologies compared.
+          Burner (red) vs Builder (scissors). Caterpillar phase transitions and
+          campus network.
         </p>
         <div
           id="games"
@@ -64,90 +65,55 @@
         <script>
           const PRESETS = [
             {
-              grid_w: 4,
-              grid_h: 4,
-              depth: 8,
-              preset: "grid4x4",
-              label: "Grid 4x4",
-              edges: [
-                [0, 1],
-                [0, 4],
-                [1, 2],
-                [1, 5],
-                [2, 3],
-                [2, 6],
-                [3, 7],
-                [4, 5],
-                [4, 8],
-                [5, 6],
-                [5, 9],
-                [6, 7],
-                [6, 10],
-                [7, 11],
-                [8, 9],
-                [8, 12],
-                [9, 10],
-                [9, 13],
-                [10, 11],
-                [10, 14],
-                [11, 15],
-                [12, 13],
-                [13, 14],
-                [14, 15],
-              ],
-              states: [
-                { b: 0, e: 16777215, move: -1, actor: "Init" },
-                { b: 8192, e: 16777215, move: 13, actor: "Burner" },
-                { b: 8192, e: 16646143, move: 17, actor: "Builder" },
-                { b: 24576, e: 16646143, move: 14, actor: "Burner" },
-                { b: 24576, e: 16121855, move: 19, actor: "Builder" },
-                { b: 28672, e: 16121855, move: 12, actor: "Burner" },
-                { b: 28672, e: 16089087, move: 15, actor: "Builder" },
-                { b: 61440, e: 16089087, move: 15, actor: "Burner" },
-                { b: 61440, e: 15040511, move: 20, actor: "Builder" },
-              ],
-              nash_value: 4,
-              nodes_searched: 55196,
-              time_ms: 7,
-            },
-            {
               grid_w: 0,
               grid_h: 0,
-              depth: 12,
-              preset: "tree15",
-              label: "Binary Tree (15)",
+              depth: 16,
+              preset: "cat6x3",
+              label: "Caterpillar C(6,3)",
               edges: [
                 [0, 1],
-                [0, 2],
-                [1, 3],
-                [1, 4],
-                [2, 5],
-                [2, 6],
-                [3, 7],
-                [3, 8],
-                [4, 9],
-                [4, 10],
-                [5, 11],
-                [5, 12],
-                [6, 13],
-                [6, 14],
+                [1, 2],
+                [2, 3],
+                [3, 4],
+                [4, 5],
+                [0, 6],
+                [0, 7],
+                [0, 8],
+                [1, 9],
+                [1, 10],
+                [1, 11],
+                [2, 12],
+                [2, 13],
+                [2, 14],
+                [3, 15],
+                [3, 16],
+                [3, 17],
+                [4, 18],
+                [4, 19],
+                [4, 20],
+                [5, 21],
+                [5, 22],
+                [5, 23],
               ],
               states: [
-                { b: 0, e: 16383, move: -1, actor: "Init" },
-                { b: 1, e: 16383, move: 0, actor: "Burner" },
-                { b: 1, e: 16382, move: 0, actor: "Builder" },
-                { b: 5, e: 16382, move: 2, actor: "Burner" },
-                { b: 5, e: 16380, move: 1, actor: "Builder" },
-                { b: 69, e: 16380, move: 6, actor: "Burner" },
-                { b: 69, e: 16364, move: 4, actor: "Builder" },
-                { b: 8261, e: 16364, move: 13, actor: "Burner" },
-                { b: 8261, e: 8172, move: 13, actor: "Builder" },
-                { b: 8261, e: 8140, move: 5, actor: "Builder" },
-                { b: 8261, e: 4044, move: 12, actor: "Builder" },
+                { b: 0, e: 8388607, move: -1, actor: "Init" },
+                { b: 16, e: 8388607, move: 4, actor: "Burner" },
+                { b: 16, e: 8388599, move: 3, actor: "Builder" },
+                { b: 48, e: 8388599, move: 5, actor: "Burner" },
+                { b: 48, e: 8388583, move: 4, actor: "Builder" },
+                { b: 262192, e: 8388583, move: 18, actor: "Burner" },
+                { b: 262192, e: 8126439, move: 18, actor: "Builder" },
+                { b: 1310768, e: 8126439, move: 20, actor: "Burner" },
+                { b: 1310768, e: 7077863, move: 20, actor: "Builder" },
+                { b: 5505072, e: 7077863, move: 22, actor: "Burner" },
+                { b: 5505072, e: 2883559, move: 22, actor: "Builder" },
+                { b: 5505072, e: 2752487, move: 17, actor: "Builder" },
+                { b: 5505072, e: 2228199, move: 19, actor: "Builder" },
+                { b: 5505072, e: 131047, move: 21, actor: "Builder" },
               ],
-              nash_value: 4,
-              nodes_searched: 239145,
-              time_ms: 26,
+              nash_value: 5,
+              nodes_searched: 69264735,
+              time_ms: 6249,
             },
             {
               grid_w: 0,
@@ -197,23 +163,17 @@
             },
           ];
           const SPC = 50;
-          const TREE_POS = {
-            0: [180, 10],
-            1: [90, 70],
-            2: [270, 70],
-            3: [45, 130],
-            4: [135, 130],
-            5: [225, 130],
-            6: [315, 130],
-            7: [20, 190],
-            8: [65, 190],
-            9: [110, 190],
-            10: [155, 190],
-            11: [200, 190],
-            12: [245, 190],
-            13: [290, 190],
-            14: [335, 190],
-          };
+          /* Caterpillar layout: spine horizontal, leaves dangling below */
+          const CAT6X3_POS = {};
+          (function () {
+            const sx = 90;
+            for (let i = 0; i < 6; i++) CAT6X3_POS[i] = [i * sx + 10, 20];
+            for (let i = 0; i < 6; i++) {
+              CAT6X3_POS[6 + i * 3] = [i * sx - 18, 100];
+              CAT6X3_POS[6 + i * 3 + 1] = [i * sx + 10, 100];
+              CAT6X3_POS[6 + i * 3 + 2] = [i * sx + 38, 100];
+            }
+          })();
           const CAMPUS_POS = {
             0: [200, 100],
             1: [80, 100],
@@ -233,14 +193,14 @@
             15: [320, 30],
           };
           function nPos(i, p) {
-            if (p.preset === "tree15") return TREE_POS[i] || [0, 0];
+            if (p.preset === "cat6x3") return CAT6X3_POS[i] || [0, 0];
             if (p.preset === "campus") return CAMPUS_POS[i] || [0, 0];
             const gw = p.grid_w || 1;
             if (gw <= 1) return [i * SPC, 0];
             return [(i % gw) * SPC, Math.floor(i / gw) * SPC];
           }
           function bSize(p) {
-            if (p.preset === "tree15") return [370, 230];
+            if (p.preset === "cat6x3") return [500, 170];
             if (p.preset === "campus") return [420, 370];
             const gw = p.grid_w || 1,
               gh = p.grid_h || 16;

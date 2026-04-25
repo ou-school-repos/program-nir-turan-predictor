@@ -18,25 +18,25 @@ By treating extremal graph theory not as abstract mathematics, but as the underl
 
 ## Operational Modules & Theoretical Physics
 
-### 1. Urban Epidemiology & Containment Logistics
+### Urban Epidemiology & Containment Logistics
 
 - **Math Basis:** _Achievable Burning Densities of Growing Grids (Gunderson, Nir, Pralat 2026)_
 - **The Physics:** Simulating the spread of _Wolbachia_ vectors or wildfire retardant on rapidly expanding spatial grids.
 - **The Engine:** A greedy C++ Look-Ahead heuristic operating on a pathological Comb Graph. It identifies topological bottlenecks that defy standard Burning Number Conjecture (BNC) limits. Lean 4 mechanically verifies the saturation sequence.
 
-### 2. Autonomous Drone Swarms & Cyber-Threat Hunting
+### Autonomous Drone Swarms & Cyber-Threat Hunting
 
 - **Math Basis:** _The one-visibility localization game (Bonato, Marbach, Molnar, Nir 2024)_
 - **The Physics:** Trapping an invisible, laterally moving target (APT malware or a physical evader) using strictly limited ($1$-visibility) telemetry.
 - **The Engine:** A Bit-State POMDP solver utilizing Min-Max Entropy reduction. The engine iteratively drives the target's quantum belief state down to exactly 0, generating a mathematically certified, 0-blind-spot flight playbook.
 
-### 3. 6G Frequency Allocation & Signal Resilience
+### 6G Frequency Allocation & Signal Resilience
 
 - **Math Basis:** _Hoffman-London graphs: When paths minimize q-colorings among trees (Galvin, McMillon, Nir 2026)_
 - **The Physics:** Graph $q$-coloring maps directly to frequency channel allocation in IoT/6G networks.
 - **The Engine:** A deep Dynamic Programming (DP) algorithm calculating exact valid 3-colorings. It computationally proves that specific "Leontovich" star-hub topologies are fundamentally more fragile and prone to signal contention than standard linear paths.
 
-### 4. Supply Chain & Financial Network Robustness
+### Supply Chain & Financial Network Robustness
 
 - **Math Basis:** _A localized approach to generalized Turán problems (Kirsch, Nir 2023)_
 - **The Physics:** Systemic collapse occurs when a bipartite financial or supply-chain network exceeds its Turán limit, causing cyclic risk dependencies to non-linearly explode (Supersaturation).

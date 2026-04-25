@@ -59,7 +59,7 @@ For each $N \ge 3$, let $a(N)$ denote the maximum number of independent sets (in
 
 ---
 
-## Verification Method
+## Verification Method and Algorithmic Engineering
 
 All values are **exhaustively verified** — not sampled, not heuristic. For each $N$:
 
@@ -178,7 +178,7 @@ python3 scripts/analyze_sequence.py
 
 **Comments:** The path graph P*n minimizes independent sets among trees (giving Fibonacci numbers, A000045) and the star graph K*{1,n-1} maximizes them (giving 2^{n-1}+1). When the maximum degree is restricted to at most 3 ("boron trees," cf. A000672), the star is forbidden for n >= 5 and the maximum defines this sequence. The extremal trees resemble balanced dendrimers. The asymptotic growth rate is approximately 1.669, strictly between the golden ratio (1.618...) and sqrt(3). The number of trees searched at each n matches A000672.
 
-**Author:** Shane Jaroch and JD Nir, 2026
+**Author:** Shane Jaroch, 2026
 
 ## Sequence 2: $\Delta \leq 4$
 
@@ -190,7 +190,7 @@ python3 scripts/analyze_sequence.py
 
 **Comments:** Maximum of the Merrifield-Simmons index (number of independent sets including the empty set) over all trees on n vertices with maximum degree at most 4 ("alkane trees," cf. A000602). For n <= 4, the star K\_{1,n-1} is admissible and achieves the maximum. For n >= 5, the extremal trees exhibit a hub-spoke pattern with degree-4 hubs connected to binary sub-dendrimers. Growth rate approximately 1.72.
 
-**Author:** Shane Jaroch and JD Nir, 2026
+**Author:** Shane Jaroch, 2026
 
 **Program (Python verification):**
 
