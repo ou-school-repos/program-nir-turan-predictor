@@ -67,7 +67,7 @@ static int next_q[MAX_N];
 static Hash128 tree_hash_128(int n) {
     int leaf_count = 0;
     int remaining = n;
-    memset(removed, 0, n);
+    for (int i = 0; i < n; i++) removed[i] = false;
 
     for (int i = 0; i < n; i++) {
         cur_deg[i] = 0;
