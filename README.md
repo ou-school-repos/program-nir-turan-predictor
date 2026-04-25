@@ -91,11 +91,11 @@ See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for the full analysis, 
 
 ---
 
-## Computer output
+## Computer output (C++ and Lean 4)
 
 \footnotesize
 
-````log
+```log
 Generating Epidemiology Policy [Scale: 64]
 [Dendro] Initializing Spatial Comb Graph (N=64) for BNC Verification.
   -> Burning Number Conjecture Limit: b(G) <= 8 steps.
@@ -131,7 +131,6 @@ theorem capture_guaranteed : execute_hunt cave_adj drone_routing_playbook = 0 :=
 MATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible
 ==================================================
 
-```log
 Running Adversarial Burning
 [Dendro] Adversarial: Grid 4x4 (16N, depth 8).
   -> Burner (Max) vs Builder (Min). Alpha-Beta with Zobrist TT.
@@ -185,18 +184,12 @@ Running Systemic Risk Audit [Scale: 64]
   -> Found 1032 edges (Mantel Limit = 1024). Supersaturation Triggered!
   -> Exact Triangles (K3): 258
 ✓ All pipelines verified.
-````
+```
 
 ---
 
-### Epidemiology: Comb Graph BNC Deployment
+![Epidemiology: Comb Graph BNC Deployment](docs/epidemiology.svg)
 
-![Burning Number Conjecture — Comb Graph Deployment](docs/epidemiology.svg)
+![Autonomous Surveillance: POMDP Drone Playbook](docs/surveillance.svg)
 
-### Autonomous Surveillance: POMDP Drone Playbook
-
-![1-Visibility Localization — Binary Tree](docs/surveillance.svg)
-
-### Financial Network: Supersaturation Risk Audit
-
-![Turan Risk Centrality — Triangle Counting](docs/finance.svg)
+![Financial Network: Supersaturation Risk Audit](docs/finance.svg)
