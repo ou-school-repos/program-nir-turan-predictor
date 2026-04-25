@@ -21,6 +21,7 @@
 #include <functional>
 #include <queue>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 static constexpr int MAX_N = 64;
@@ -89,6 +90,65 @@ static void record_anomaly(std::priority_queue<Anomaly,
     }
     pq.push(std::move(a));
     if ((int)pq.size() > top_k) pq.pop();
+}
+
+// =====================================================================
+// Canonical tree hash for deduplication
+// =====================================================================
+// Compute a canonical hash by rooting at the center and hashing the
+// subtree structure via DFS. Two isomorphic trees get the same hash.
+
+static std::string canon_subtree(int u, int parent,
+                                 const std::vector<int> adj[]) {
+    std::vector<std::string> child_hashes;
+    for (int v : adj[u]) {
+        if (v == parent)
+            continue;
+        child_hashes.push_back(canon_subtree(v, u, adj));
+    }
+    std::sort(child_hashes.begin(), child_hashes.end());
+    std::string result = "(";
+    for (const auto& h : child_hashes)
+        result += h;
+    result += ")";
+    return result;
+}
+
+static size_t tree_hash(const std::vector<int> adj[], int n) {
+    // Find center(s) via leaf peeling
+    int degree[MAX_N];
+    bool removed[MAX_N] = {};
+    std::vector<int> leaves;
+    int remaining = n;
+
+    for (int i = 0; i < n; i++) {
+        degree[i] = (int)adj[i].size();
+        if (degree[i] <= 1) leaves.push_back(i);
+    }
+    while (remaining > 2) {
+        std::vector<int> next;
+        for (int v : leaves) {
+            removed[v] = true;
+            remaining--;
+            for (int u : adj[v]) {
+                if (!removed[u] && --degree[u] == 1)
+                    next.push_back(u);
+            }
+        }
+        leaves = next;
+    }
+
+    // Root at center, compute canonical string
+    std::string canon;
+    if (leaves.size() == 1) {
+        canon = canon_subtree(leaves[0], -1, adj);
+    } else {
+        // Bicentral: try both roots, take lexicographically smaller
+        std::string c0 = canon_subtree(leaves[0], -1, adj);
+        std::string c1 = canon_subtree(leaves[1], -1, adj);
+        canon = std::min(c0, c1);
+    }
+    return std::hash<std::string>{}(canon);
 }
 
 // =====================================================================
@@ -184,15 +244,18 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
     int L[MAX_N];
     for (int i = 0; i < n; i++) L[i] = i;
 
-    uint64_t count = 0;
+    uint64_t count = 0, unique = 0;
     std::vector<int> adj[MAX_N];
+    std::unordered_set<size_t> seen;
     auto t_start = std::chrono::high_resolution_clock::now();
-    uint64_t next_report = 1000000;
+    uint64_t next_report = 500000;
 
     // Process the initial tree (path)
     level_seq_to_adj(L, n, adj);
+    size_t h = tree_hash(adj, n);
+    seen.insert(h);
     uint64_t sc = score_tree(adj, n);
-    count++;
+    count++; unique++;
     if (sc > p_score) {
         anomaly_count++;
         record_anomaly(pq, adj, n, sc, top_k);
@@ -218,30 +281,34 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
             L[i] = L[i - period];
         }
 
-        // Convert and score
-        level_seq_to_adj(L, n, adj);
-        sc = score_tree(adj, n);
         count++;
 
+        // Convert, dedup, score
+        level_seq_to_adj(L, n, adj);
+        h = tree_hash(adj, n);
+        if (seen.count(h)) continue;
+        seen.insert(h);
+        unique++;
+
+        sc = score_tree(adj, n);
         if (sc > p_score) {
             anomaly_count++;
             record_anomaly(pq, adj, n, sc, top_k);
         }
 
         // Progress reporting
-        if (count >= next_report) {
+        if (unique % 100000 == 0) {
             auto now = std::chrono::high_resolution_clock::now();
             double ms = std::chrono::duration<double, std::milli>(
                 now - t_start).count();
-            fprintf(stderr, "  [Progress] %luM trees | %.1fs | "
-                    "%lu anomalies | %.1fM trees/sec\n",
-                    count / 1000000, ms / 1000.0, anomaly_count,
-                    count / ms * 1000.0 / 1000000.0);
-            next_report += 1000000;
+            fprintf(stderr, "  [Progress] %luK unique / %luM total | "
+                    "%.1fs | %lu anomalies\n",
+                    unique / 1000, count / 1000000,
+                    ms / 1000.0, anomaly_count);
         }
     }
 
-    return count;
+    return unique;
 }
 
 // =====================================================================

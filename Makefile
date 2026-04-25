@@ -99,8 +99,8 @@ lean-cache: ##H Download mathlib cache
 
 N ?= 21
 
-.PHONY: synthesizer
-synthesizer: ##H Build the C++ tree synthesizer
+.PHONY: synthesizer build
+synthesizer build: ##H Build the C++ tree synthesizer
 	@$(call print_info,Building synthesizer)
 	g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 	@$(call print_success,synthesizer built.)
