@@ -1,0 +1,39 @@
+graph T15 {
+  label="N=15, i(T)=2,345, leaves=8, diam=6";
+  labelloc=t;
+  fontname="Inter";
+  fontsize=14;
+  node [shape=circle, style=filled, width=0.35, fontsize=10, fontname="Inter"];
+  edge [color="#555555"];
+
+  0 [fillcolor="#a8e6cf", label="0"];
+  1 [fillcolor="#ffd3b6", label="1"];
+  2 [fillcolor="#dcedc1", label="2"];
+  3 [fillcolor="#ffd3b6", label="3"];
+  4 [fillcolor="#ffd3b6", label="4"];
+  5 [fillcolor="#ffd3b6", label="5"];
+  6 [fillcolor="#a8e6cf", label="6"];
+  7 [fillcolor="#a8e6cf", label="7"];
+  8 [fillcolor="#ffd3b6", label="8"];
+  9 [fillcolor="#a8e6cf", label="9"];
+  10 [fillcolor="#a8e6cf", label="10"];
+  11 [fillcolor="#ffd3b6", label="11"];
+  12 [fillcolor="#a8e6cf", label="12"];
+  13 [fillcolor="#a8e6cf", label="13"];
+  14 [fillcolor="#a8e6cf", label="14"];
+
+  0 -- 1;
+  1 -- 2;
+  2 -- 3;
+  3 -- 4;
+  4 -- 5;
+  5 -- 6;
+  5 -- 7;
+  4 -- 8;
+  8 -- 9;
+  8 -- 10;
+  3 -- 11;
+  11 -- 12;
+  11 -- 13;
+  1 -- 14;
+}

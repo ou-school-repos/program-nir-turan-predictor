@@ -1,0 +1,29 @@
+graph T10 {
+  label="N=10, i(T)=189, leaves=6, diam=4";
+  labelloc=t;
+  fontname="Inter";
+  fontsize=14;
+  node [shape=circle, style=filled, width=0.35, fontsize=10, fontname="Inter"];
+  edge [color="#555555"];
+
+  0 [fillcolor="#a8e6cf", label="0"];
+  1 [fillcolor="#ffd3b6", label="1"];
+  2 [fillcolor="#ffd3b6", label="2"];
+  3 [fillcolor="#ffd3b6", label="3"];
+  4 [fillcolor="#a8e6cf", label="4"];
+  5 [fillcolor="#a8e6cf", label="5"];
+  6 [fillcolor="#ffd3b6", label="6"];
+  7 [fillcolor="#a8e6cf", label="7"];
+  8 [fillcolor="#a8e6cf", label="8"];
+  9 [fillcolor="#a8e6cf", label="9"];
+
+  0 -- 1;
+  1 -- 2;
+  2 -- 3;
+  3 -- 4;
+  3 -- 5;
+  2 -- 6;
+  6 -- 7;
+  6 -- 8;
+  1 -- 9;
+}

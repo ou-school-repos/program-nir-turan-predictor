@@ -139,7 +139,7 @@ python3 scripts/analyze_sequence.py
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 3.
 
-**Data:** 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515,10905, 18254, 30135, 49913, 84546, 139593, 231117
+**Data:** 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117
 
 **Offset:** 3
 
