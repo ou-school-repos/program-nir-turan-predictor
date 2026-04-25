@@ -119,20 +119,3 @@ one spine cut. The saved action severs a leaf edge, reducing damage to $2K+1$.
 - **Implication**: a saboteur cutting communication links can contain
   any intrusion to $K+2$ (fast response) or $2K+2$ (standard response)
   sectors, regardless of corridor length
-
-## Reproduction
-
-```bash
-# Model A sweep (alternating plies)
-make dendro
-bash scripts/sweep_caterpillar.sh
-python3 scripts/analyze_caterpillar.py
-
-# Model B (single-ignition firefighter)
-make firefighter
-./firefighter
-```
-
-## Data
-
-Raw sweep data: `docs/runs/caterpillar_nash.csv`

@@ -168,7 +168,7 @@ python3 scripts/analyze_sequence.py
 
 ## OEIS Submission Drafts
 
-### Sequence 1: $\Delta \leq 3$ (Primary)
+## Sequence 1: $\Delta \leq 3$ (Primary)
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 3.
 
@@ -180,7 +180,7 @@ python3 scripts/analyze_sequence.py
 
 **Author:** Shane Jaroch and JD Nir, 2026
 
-### Sequence 2: $\Delta \leq 4$
+## Sequence 2: $\Delta \leq 4$
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 4.
 

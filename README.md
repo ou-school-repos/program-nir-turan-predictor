@@ -109,12 +109,12 @@ Generating Epidemiology Policy [Scale: 64]
   [Step 8] Drop at Node 0 | Saturation: 100.0%
   [Success] Decreasing Radius Heuristic defeated local minima! Saturation in 8 steps.
 Build completed successfully (3299 jobs).
-✓ Verified: policy_is_valid (native_decide evaluated to TRUE)
+[OK] Verified: policy_is_valid (native_decide evaluated to TRUE)
 ==================================================
 
 CERTIFIED DEPLOYMENT LOGISTIC MAP:
   [7, 21, 27, 12, 0, 0, 0, 0, ]
-theorem policy_satisfies_bnc : execute_burning grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF ∧ deployment_sequence.length ≤ 8 := by native_decide
+theorem policy_satisfies_bnc : execute_burning grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF /\ deployment_sequence.length <= 8 := by native_decide
 MATHEMATICAL GUARANTEE: 100% network saturation achieved
 ==================================================
 
@@ -122,7 +122,7 @@ Generating Threat Hunting Playbook [Iter: 1000]
 [Dendro] 1-Visibility POMDP Tracker on Binary Tree.
   [Success] Target isolated and captured in 33 deterministic probes.
 Build completed successfully (3299 jobs).
-✓ Verified: capture_guaranteed (native_decide evaluated to TRUE)
+[OK] Verified: capture_guaranteed (native_decide evaluated to TRUE)
 ==================================================
 
 CERTIFIED DRONE FLIGHT PLAYBOOK:
@@ -183,7 +183,7 @@ Running Systemic Risk Audit [Scale: 64]
 [Dendro] Turan Limits & Systemic Risk Centrality (N=64).
   -> Found 1032 edges (Mantel Limit = 1024). Supersaturation Triggered!
   -> Exact Triangles (K3): 258
-✓ All pipelines verified.
+[OK] All pipelines verified.
 ```
 
 ---
