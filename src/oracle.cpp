@@ -406,14 +406,14 @@ static void init_campus() {
     // Hub-spoke with bridges: central router (0) connects to 3 switches
     // Each switch connects to 4 endpoints. Bridges between switches.
     // 0: core, 1-3: switches, 4-7: wing A, 8-11: wing B, 12-15: wing C
-    int campus_edges[][2] = {
+    const int campus_edges[][2] = {
         {0, 1},  {0, 2},  {0, 3},            // core -> switches
         {1, 4},  {1, 5},  {1, 6},  {1, 7},   // switch 1 -> wing A
         {2, 8},  {2, 9},  {2, 10}, {2, 11},  // switch 2 -> wing B
         {3, 12}, {3, 13}, {3, 14}, {3, 15},  // switch 3 -> wing C
         {1, 2},  {2, 3},                     // bridge links between switches
     };
-    for (auto& e : campus_edges) edges[num_edges++] = {e[0], e[1]};
+    for (const auto& e : campus_edges) edges[num_edges++] = {e[0], e[1]};
 }
 
 static void init_graph(const GameConfig& cfg) {

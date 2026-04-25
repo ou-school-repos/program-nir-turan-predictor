@@ -229,6 +229,7 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     uint64_t unique = 0;
     uint64_t rooted = 0;
     uint64_t pruned = 0;
+    uint64_t trees_d3 = 0, trees_d4 = 0;  // A000672, A000602 counters
     uint64_t last_reported = 0;
 
     while (true) {
@@ -257,6 +258,11 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
         }
 
         if (prune_idx == -1) {
+            // Compute max degree for this tree
+            int max_deg = 0;
+            for (int i = 0; i < n; i++)
+                if (deg[i] > max_deg) max_deg = deg[i];
+
             // 2. Build flat adj list (O(N))
             parent_to_adj(n);
 
@@ -266,6 +272,8 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             // 4. Dedup — only score UNIQUE trees
             if (seen.insert(h)) {
                 unique++;
+                if (max_deg <= 3) trees_d3++;
+                if (max_deg <= 4) trees_d4++;
 
                 // 5. Bottom-up DP (O(N))
                 for (int i = 0; i < n; i++) {
@@ -350,13 +358,14 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             "  N=%d | %lu unique / %lu rooted | %.1fs\n"
             "  Throughput: %.0f trees/sec | Dedup ratio: %.1fx\n"
             "  Hash load: %.1f%% (%lu / %lu slots)\n"
+            "  Trees: %lu (d≤3: %lu, d≤4: %lu)\n"
             "  Top-1 (any): %lu (%.2fx vs path)\n"
             "  Top-1 (d≤3): %lu | Top-1 (d≤4): %lu\n"
             "  ═══════════════════════════════════════════════\n",
             n, unique, rooted, elapsed_ms / 1000.0,
             unique / (elapsed_ms / 1000.0), dedup_ratio, load * 100.0,
-            seen.size(), seen.cap, top1, (double)top1 / p_sc, best_d3.score,
-            best_d4.score);
+            seen.size(), seen.cap, unique, trees_d3, trees_d4, top1,
+            (double)top1 / p_sc, best_d3.score, best_d4.score);
 
     // Auto-log to docs/runs/benchmark.log
     {
@@ -411,13 +420,15 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
 
             snprintf(line, sizeof(line),
                      "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
+                     "\"trees_d3\":%lu,\"trees_d4\":%lu,"
                      "\"rooted\":%lu,\"pruned\":%lu,"
                      "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
                      "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
                      "\"d3_edges\":[%s],\"ms\":%.0f}\n",
-                     ts, n, unique, rooted, pruned, p_sc, best_d3.score,
-                     best_d4.score, best_any.score, best_d3.max_degree,
-                     best_d3.leaves, best_d3.diameter, edges_buf, elapsed_ms);
+                     ts, n, unique, trees_d3, trees_d4, rooted, pruned, p_sc,
+                     best_d3.score, best_d4.score, best_any.score,
+                     best_d3.max_degree, best_d3.leaves, best_d3.diameter,
+                     edges_buf, elapsed_ms);
             fputs(line, jl);
             fclose(jl);
         }
