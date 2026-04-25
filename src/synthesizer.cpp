@@ -40,7 +40,7 @@ static uint64_t path_hom(int n, int h) {
     if (n <= 0) return 1;
     if (n == 1) return (uint64_t)h;
     // dp_prev[c] = #hom from P_{i} with endpoint colored c
-    uint64_t dp_prev[32], dp_cur[32];
+    uint64_t dp_prev[32], dp_cur[32] = {};
     for (int c = 0; c < h; c++) dp_prev[c] = 1;
     for (int step = 1; step < n; step++) {
         for (int c = 0; c < h; c++) {
@@ -176,18 +176,45 @@ struct ConstrainedBest {
 static ConstrainedBest best_d3, best_d4, best_any;
 
 // H-coloring minimizer tracking
-static ConstrainedBest hc_min_tree;  // tree that minimizes hom(T, H)
-static uint64_t hc_min_score;        // minimum hom(T, H) found
-static uint64_t hc_path_score;       // hom(P_n, H) baseline
-static bool hc_violation_found;      // true if any tree beats the path
+struct HcRank {
+    uint64_t score = UINT64_MAX;
+    uint64_t tie_count = 0;
+};
+static constexpr int HC_PODIUM = 3;
+static HcRank hc_top[HC_PODIUM];  // top-3 distinct min scores + counts
+static uint64_t hc_path_score;    // hom(P_n, H) baseline
+static uint64_t hc_star_score;    // hom(K_{1,n-1}, H)
+static __uint128_t hc_sum;        // sum of hom(T, H) over all trees
+static int hc_best_seq[MAX_N];    // level sequence of #1 minimizer
+static int hc_best_n = 0;         // vertex count of #1 minimizer
+static int hc_best_deg = 0;       // max degree of #1 minimizer
+static bool hc_violation_found;
+
+static void hc_podium_add(uint64_t val) {
+    for (int i = 0; i < HC_PODIUM; i++) {
+        if (val == hc_top[i].score) {
+            hc_top[i].tie_count++;
+            return;
+        }
+        if (val < hc_top[i].score) {
+            // Shift down
+            for (int j = HC_PODIUM - 1; j > i; j--) hc_top[j] = hc_top[j - 1];
+            hc_top[i] = {val, 1};
+            return;
+        }
+    }
+}
 
 static void top_k_init(int) {
     best_d3 = {};
     best_d4 = {};
     best_any = {};
-    hc_min_tree = {};
-    hc_min_score = UINT64_MAX;
+    for (int i = 0; i < HC_PODIUM; i++) hc_top[i] = {};
     hc_path_score = 0;
+    hc_star_score = 0;
+    hc_sum = 0;
+    hc_best_n = 0;
+    hc_best_deg = 0;
     hc_violation_found = false;
 }
 
@@ -287,6 +314,20 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     // Set H-coloring path baseline (must be after top_k_init resets it)
     if (hcolor_h > 0) {
         hc_path_score = path_hom(n, hcolor_h);
+        // Star K_{1,n-1}: center maps to c, each leaf to a neighbor of c
+        if (n >= 2) {
+            hc_star_score = 0;
+            for (int c = 0; c < hcolor_h; c++) {
+                int nbrs = 0;
+                for (int j = 0; j < hcolor_h; j++)
+                    if (adj_H[c][j]) nbrs++;
+                uint64_t contrib = 1;
+                for (int i = 0; i < n - 1; i++) contrib *= nbrs;
+                hc_star_score += contrib;
+            }
+        } else {
+            hc_star_score = (n == 1) ? (uint64_t)hcolor_h : 1;
+        }
     }
 
     // N=0: empty graph has exactly 1 independent set (the empty set)
@@ -376,12 +417,12 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                 // H-coloring minimizer (if --hcolor active)
                 if (hcolor_h > 0) {
                     uint64_t hc = tree_hom(n, hcolor_h);
-                    if (hc < hc_min_score) {
-                        hc_min_score = hc;
-                        hc_min_tree.score = hc;
-                        hc_min_tree.max_degree = max_deg;
-                        hc_min_tree.n = n;
-                        memcpy(hc_min_tree.level_seq, L, n * sizeof(int));
+                    hc_sum += hc;
+                    hc_podium_add(hc);
+                    if (hc <= hc_top[0].score) {
+                        hc_best_deg = max_deg;
+                        hc_best_n = n;
+                        memcpy(hc_best_seq, L, n * sizeof(int));
                     }
                     if (hc < hc_path_score && !hc_violation_found) {
                         hc_violation_found = true;
@@ -479,15 +520,34 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
 
     // H-coloring summary
     if (hcolor_h > 0) {
+        uint64_t sum_hi = (uint64_t)(hc_sum >> 64);
+        uint64_t sum_lo = (uint64_t)hc_sum;
         fprintf(stderr,
                 "  ── H-coloring (P_%d target) ──\n"
                 "  hom(P_%d, P_%d) = %lu (path baseline)\n"
-                "  min hom(T, P_%d)  = %lu (minimizer)\n"
-                "  ratio: %.6f\n"
+                "  hom(K_1_%d, P_%d) = %lu (star)\n",
+                hcolor_h, n, hcolor_h, hc_path_score, n - 1, hcolor_h,
+                hc_star_score);
+        uint64_t rank = 1;
+        for (int i = 0; i < HC_PODIUM && hc_top[i].tie_count > 0; i++) {
+            fprintf(stderr, "  #%-3lu hom(T, P_%d) = %lu (%lu trees)\n", rank,
+                    hcolor_h, hc_top[i].score, hc_top[i].tie_count);
+            rank += hc_top[i].tie_count;
+        }
+        fprintf(stderr, "  sum hom(T, P_%d)  = ", hcolor_h);
+        if (sum_hi > 0)
+            fprintf(stderr, "%lu%019lu", sum_hi, sum_lo);
+        else
+            fprintf(stderr, "%lu", sum_lo);
+        fprintf(stderr,
+                " (checksum)\n"
+                "  trees: %lu | ratio: %.6f\n"
                 "  Path is %s\n"
                 "  ═══════════════════════════════════════════════\n",
-                hcolor_h, n, hcolor_h, hc_path_score, hcolor_h, hc_min_score,
-                (double)hc_min_score / hc_path_score,
+                unique,
+                hc_top[0].tie_count > 0
+                    ? (double)hc_top[0].score / hc_path_score
+                    : 0.0,
                 hc_violation_found ? "NOT MINIMAL — violation found!"
                                    : "minimal (no violation)");
     }
@@ -502,9 +562,9 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             char ts[32];
             strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S", localtime(&t));
             fprintf(log,
-                    "%s | N=%d | %lu trees | %lu rooted | %.1fs | "
-                    "%.0f/s | dedup %.1fx | load %.1f%% | top1 %lu"
-                    " | d3 %lu | d4 %lu\n",
+                    "%s | N=%-2d | %7lu trees | %8lu rooted | %5.1fs | "
+                    "%7.0f/s | dedup %5.1fx | load %5.1f%% | top1 %7lu"
+                    " | d3 %7lu | d4 %7lu\n",
                     ts, n, unique, rooted, elapsed_ms / 1000.0,
                     unique / (elapsed_ms / 1000.0), dedup_ratio, load * 100.0,
                     top1, best_d3.score, best_d4.score);
@@ -545,16 +605,16 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
 
             // Build H-coloring minimizer edges if active
             char hc_edges_buf[2048] = {};
-            if (hcolor_h > 0 && hc_min_tree.n > 0) {
+            if (hcolor_h > 0 && hc_best_n > 0) {
                 int hpar[MAX_N], hds[MAX_N];
                 hpar[0] = -1;
                 hds[0] = 0;
-                for (int i = 1; i < hc_min_tree.n; i++) {
-                    hpar[i] = hds[hc_min_tree.level_seq[i] - 1];
-                    hds[hc_min_tree.level_seq[i]] = i;
+                for (int i = 1; i < hc_best_n; i++) {
+                    hpar[i] = hds[hc_best_seq[i] - 1];
+                    hds[hc_best_seq[i]] = i;
                 }
                 int hp = 0;
-                for (int i = 1; i < hc_min_tree.n; i++) {
+                for (int i = 1; i < hc_best_n; i++) {
                     if (i > 1)
                         hp += snprintf(hc_edges_buf + hp,
                                        sizeof(hc_edges_buf) - hp, ",");
@@ -572,17 +632,25 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                          "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
                          "\"d3_edges\":[%s],"
                          "\"hc_target\":\"P%d\",\"hc_path\":%lu,"
-                         "\"hc_min\":%lu,\"hc_ratio\":%.6f,"
+                         "\"hc_min\":%lu,\"hc_min_ties\":%lu,"
+                         "\"hc_2nd\":%lu,\"hc_2nd_ties\":%lu,"
+                         "\"hc_3rd\":%lu,\"hc_3rd_ties\":%lu,"
+                         "\"hc_ratio\":%.6f,"
                          "\"hc_violation\":%s,"
                          "\"hc_min_deg\":%d,\"hc_min_edges\":[%s],"
                          "\"ms\":%.0f}\n",
                          ts, n, unique, trees_d3, trees_d4, rooted, pruned,
                          p_sc, best_d3.score, best_d4.score, best_any.score,
                          best_d3.max_degree, best_d3.leaves, best_d3.diameter,
-                         edges_buf, hcolor_h, hc_path_score, hc_min_score,
-                         (double)hc_min_score / hc_path_score,
-                         hc_violation_found ? "true" : "false",
-                         hc_min_tree.max_degree, hc_edges_buf, elapsed_ms);
+                         edges_buf, hcolor_h, hc_path_score, hc_top[0].score,
+                         hc_top[0].tie_count, hc_top[1].score,
+                         hc_top[1].tie_count, hc_top[2].score,
+                         hc_top[2].tie_count,
+                         hc_top[0].tie_count > 0
+                             ? (double)hc_top[0].score / hc_path_score
+                             : 0.0,
+                         hc_violation_found ? "true" : "false", hc_best_deg,
+                         hc_edges_buf, elapsed_ms);
             } else {
                 snprintf(line, sizeof(line),
                          "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"

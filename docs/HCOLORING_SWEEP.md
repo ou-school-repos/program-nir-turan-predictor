@@ -155,6 +155,101 @@ $$\hom(T, P_{2m+1}) \geq \hom(P_n, P_{2m+1})$$
 
 Verified exhaustively for $m \in \{1, 2, 3, 4\}$ and $n \leq 22$ (5,623,756 trees at $n=22$).
 
+## Independent Verification
+
+The following data enables hand-verification of our results.
+
+### Tree Counts (OEIS A000055)
+
+The number of non-isomorphic trees on $n$ vertices matches the well-known sequence:
+
+| $n$ | Trees (A000055) |
+| --- | --------------- |
+| 5   | 3               |
+| 10  | 106             |
+| 15  | 7,741           |
+| 20  | 823,065         |
+| 22  | 5,623,756       |
+
+### Star Upper Bound: $\hom(K_{1,n-1}, P_k)$
+
+For $P_k$ a path on $k$ vertices, the star $K_{1,n-1}$ gives:
+$\hom(K_{1,n-1}, P_k) = \sum_{c=0}^{k-1} (\deg_{P_k}(c))^{n-1}$.
+
+These values can be computed by hand and should match our engine output.
+
+| $n$ | $\hom(K_{1,n-1}, P_3)$ | $\hom(K_{1,n-1}, P_5)$ | $\hom(K_{1,n-1}, P_7)$ | $\hom(K_{1,n-1}, P_9)$ |
+| --- | ---------------------- | ---------------------- | ---------------------- | ---------------------- |
+| 5   | 18                     | 50                     | 82                     | 114                    |
+| 10  | 514                    | 1,538                  | 2,562                  | 3,586                  |
+| 15  | 16,386                 | 49,154                 | 81,922                 | 114,690                |
+| 20  | 524,290                | 1,572,866              | 2,621,442              | 3,670,018              |
+
+### Aggregate Checksum: $\sum_T \hom(T, P_k)$
+
+Sum over all trees $T$ on $n$ vertices. Impossible to forge without enumerating every tree.
+
+| $n$ | $\sum_T \hom(T, P_3)$ | $\sum_T \hom(T, P_5)$ | $\sum_T \hom(T, P_7)$ | $\sum_T \hom(T, P_9)$ |
+| --- | --------------------- | --------------------- | --------------------- | --------------------- |
+| 5   | 42                    | 136                   | 232                   | 328                   |
+| 10  | 10,106                | 89,684                | 196,526               | 305,044               |
+| 15  | 4,848,990             | 120,740,218           | 351,626,300           | 603,788,228           |
+| 20  | 3,358,401,446         | 236,529,883,790       | 923,473,405,780       | 1,764,733,470,872     |
+
+### Podium (Top-3 Distinct Scores + Tie Counts)
+
+Shows the 3 smallest distinct values of $\hom(T, P_k)$ and how many trees achieve each.
+If path is the unique minimizer, the #1 tie count should be 1.
+
+#### $P_3$ (ties expected)
+
+| $n$ | total   | #1 score | #1 ties           | #2 score | #2 ties | #3 score | #3 ties |
+| --- | ------- | -------- | ----------------- | -------- | ------- | -------- | ------- |
+| 5   | 3       | 12       | **2** (67%)       | 18       | 1       | --       | --      |
+| 10  | 106     | 64       | **37** (35%)      | 80       | 45      | 136      | 19      |
+| 15  | 7,741   | 384      | **3,927** (51%)   | 576      | 2,472   | 1,056    | 1,008   |
+| 20  | 823,065 | 2,048    | **196,096** (24%) | 2,560    | 326,893 | 4,352    | 191,045 |
+
+#### $P_5$
+
+| $n$ | total   | #1 score | #1 ties | #2 score | #2 ties | #3 score | #3 ties |
+| --- | ------- | -------- | ------- | -------- | ------- | -------- | ------- |
+| 5   | 3       | 42       | 1       | 44       | 1       | 50       | 1       |
+| 10  | 106     | 648      | 1       | 684      | 4       | 702      | 3       |
+| 15  | 7,741   | 10,206   | 1       | 10,692   | 12      | 10,854   | 4       |
+| 20  | 823,065 | 157,464  | 1       | 166,212  | 20      | 170,586  | 10      |
+
+#### $P_7$
+
+| $n$ | total   | #1 score | #1 ties | #2 score | #2 ties | #3 score | #3 ties |
+| --- | ------- | -------- | ------- | -------- | ------- | -------- | ------- |
+| 5   | 3       | 74       | 1       | 76       | 1       | 82       | 1       |
+| 10  | 106     | 1,584    | 1       | 1,640    | 1       | 1,648    | 1       |
+| 15  | 7,741   | 34,224   | 1       | 35,344   | 2       | 35,536   | 2       |
+| 20  | 823,065 | 734,848  | 1       | 760,960  | 1       | 765,440  | 1       |
+
+#### $P_9$
+
+| $n$ | total   | #1 score  | #1 ties | #2 score  | #2 ties | #3 score  | #3 ties |
+| --- | ------- | --------- | ------- | --------- | ------- | --------- | ------- |
+| 5   | 3       | 106       | 1       | 108       | 1       | 114       | 1       |
+| 10  | 106     | 2,600     | 1       | 2,660     | 1       | 2,668     | 1       |
+| 15  | 7,741   | 64,750    | 1       | 66,200    | 2       | 66,500    | 2       |
+| 20  | 823,065 | 1,610,000 | 1       | 1,648,000 | 1       | 1,652,500 | 1       |
+
+**Key findings:**
+
+- **$P_k$ for $k \ge 5$**: Path is the **unique** minimizer at every $n$ (always 1 tree at #1)
+- **$P_3$**: Path is **far from unique** -- at $n=20$, 196,096 of 823,065 trees (24%) tie for #1
+
+### Transfer Matrix for $\hom(P_n, P_5)$
+
+The path baseline can be computed via the recurrence $\mathbf{v}_n = A_{P_5} \cdot \mathbf{v}_{n-1}$, where:
+
+$$A_{P_5} = \begin{pmatrix} 0&1&0&0&0 \\ 1&0&1&0&0 \\ 0&1&0&1&0 \\ 0&0&1&0&1 \\ 0&0&0&1&0 \end{pmatrix}, \quad \mathbf{v}_1 = (1,1,1,1,1)^T$$
+
+$\hom(P_n, P_5) = \mathbf{1}^T \cdot \mathbf{v}_n$. The eigenvalues of $A_{P_5}$ are $2\cos(\pi j/6)$ for $j=1,\ldots,5$, giving dominant growth rate $\sqrt{3} \approx 1.732$.
+
 ## Reproduction
 
 ```bash
@@ -167,7 +262,3 @@ bash scripts/sweep_hcolor.sh
 # Extend to larger n
 bash scripts/sweep_hcolor.sh 21 25
 ```
-
-## Raw Data
-
-JSONL records with `hc_*` fields are appended to `docs/runs/sequence.jsonl`.

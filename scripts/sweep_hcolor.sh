@@ -20,8 +20,8 @@ echo ""
 # echo "── Phase 1: Even paths P2,P4,P6 (known: path minimizes) ──"
 # for h in P2 P4 P6; do
 #   for n in $(seq $LO $HI); do
-#     echo -n "[$h n=$n] "
-#     ./synthesizer $n --hcolor $h 2>&1 | grep -E '(min hom|Path is|VIOLATION)' | tr '\n' ' '
+#     echo "[$h n=$n]"
+#     ./synthesizer $n --hcolor $h 2>&1
 #     echo ""
 #   done
 #   echo "--- $h complete ---"
@@ -33,8 +33,8 @@ echo ""
 echo "── Phase 2: Odd paths P3,P5,P7,P9 (Problem 6.3: open) ──"
 for h in P3 P5 P7 P9; do
   for n in $(seq $LO $HI); do
-    echo -n "[$h n=$n] "
-    ./synthesizer $n --hcolor $h 2>&1 | grep -E '(min hom|Path is|VIOLATION)' | tr '\n' ' '
+    echo "[$h n=$n]"
+    ./synthesizer $n --hcolor $h 2>&1
     echo ""
   done
   echo "--- $h complete ---"
