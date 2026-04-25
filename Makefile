@@ -105,22 +105,45 @@ synthesizer build: ##H Build the C++ tree synthesizer
 	g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 	@$(call print_success,synthesizer built.)
 
+.PHONY: oracle
+oracle: ##H Build the C++ oracle engine
+	@$(call print_info,Building oracle)
+	g++ -O3 -march=native -std=c++17 -o oracle src/oracle.cpp
+	@$(call print_success,oracle built.)
+
 .PHONY: dots
-dots: ##H Regenerate all .dot visual proofs and .lean witnesses
+dots: oracle ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
-	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
-	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
-	@$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean
-	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
+	@./oracle epidemiology proofs/VectorDeployment.lean
+	@./oracle surveillance proofs/ThreatHunting.lean
+	@./oracle spectrum proofs/SignalAudit.lean
+	@./oracle finance proofs/RiskAudit.lean
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize proofs/SynthesizerDiscovery.lean
 
+# Layout engine map: module -> engine
+# Epidemiology (fdp), Surveillance (dot), Spectrum (sfdp), Finance (sfdp), others (dot)
+DOT_ENGINE = dot
+define render_dot
+	$(eval ENGINE := $(if $(findstring RiskAudit,$1),sfdp,\
+		$(if $(findstring SignalAudit,$1),sfdp,\
+		$(if $(findstring VectorDeployment,$1),fdp,\
+		dot))))
+	$(ENGINE) -Gdpi=150 -Tgif "$1" -o "$2"
+endef
+
 .PHONY: render
-render: dots ##H Render all .dot visual proofs to SVG+PNG (requires graphviz)
+render: dots ##H Render all .dot visual proofs (requires graphviz)
 	@$(call print_info,Rendering visual proofs)
 	@mkdir -p docs/out
 	@for f in docs/*.dot; do \
 		base=$$(basename "$$f" .dot); \
-		dot -Gdpi=150 -Tgif "$$f" -o "docs/out/$${base}.gif"; \
+		engine=dot; \
+		case "$$base" in \
+			*RiskAudit*) engine=sfdp ;; \
+			*SignalAudit*) engine=sfdp ;; \
+			*VectorDeployment*) engine=fdp ;; \
+		esac; \
+		$$engine -Gdpi=150 -Tgif "$$f" -o "docs/out/$${base}.gif"; \
 		printf "  \033[1;34m✓ Rendered: docs/out/$${base}.gif\033[0m\n"; \
 	done
 
