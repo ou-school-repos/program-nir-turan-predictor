@@ -724,11 +724,37 @@ class SynthesizerModule:
                 )
 
 
+class OracleModule:
+    """Delegates to the C++ oracle binary for high-performance computation."""
+
+    @staticmethod
+    def execute(module_name, fn):
+        import subprocess
+
+        oracle_bin = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "oracle",
+        )
+        if not os.path.isfile(oracle_bin):
+            print(f"{RED}  [Error] Oracle binary not found: {oracle_bin}{RST}")
+            print("  Build it with: make oracle")
+            sys.exit(1)
+
+        result = subprocess.run(
+            [oracle_bin, module_name, fn],
+            stderr=None,  # inherit — streams live to terminal
+        )
+        if result.returncode != 0:
+            print(f"{RED}  [Error] Oracle exited with code {result.returncode}{RST}")
+            sys.exit(1)
+
+
 MODULES = {
-    "epidemiology": EpidemiologyModule.execute,
-    "surveillance": SurveillanceModule.execute,
-    "spectrum": SpectrumModule.execute,
-    "finance": FinanceModule.execute,
+    "epidemiology": lambda fn: OracleModule.execute("epidemiology", fn),
+    "surveillance": lambda fn: OracleModule.execute("surveillance", fn),
+    "spectrum": lambda fn: OracleModule.execute("spectrum", fn),
+    "finance": lambda fn: OracleModule.execute("finance", fn),
     "synthesize": SynthesizerModule.execute,
 }
 

@@ -20,3 +20,4 @@ output.log
 *.png
 *.svg
 synthesizer
+oracle

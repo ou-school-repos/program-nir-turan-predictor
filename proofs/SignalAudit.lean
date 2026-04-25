@@ -1,4 +1,6 @@
 import Mathlib.Tactic
-def path_allocations : Nat := 28657
-def leontovich_allocations : Nat := 525313
-theorem anomaly_verified : leontovich_allocations < path_allocations := by decide
+
+def path_allocations : Nat := 196418
+def discovered_allocations : Nat := 729216
+
+theorem anomaly_verified : discovered_allocations > path_allocations := by decide

@@ -1,6 +1,8 @@
 import Mathlib.Tactic
-def edges : Nat := 1030
-def mantel : Nat := 1024
-def cycles : Nat := 194
-theorem supersaturation : edges > mantel := by decide
-theorem risky : cycles > 0 := by decide
+
+def edges : Nat := 1032
+def mantel_limit : Nat := 1024
+def exact_cycles : Nat := 258
+
+theorem supersaturation_active : edges > mantel_limit := by decide
+theorem cycles_exist : exact_cycles > 0 := by decide

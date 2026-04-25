@@ -1,60 +1,385 @@
 graph Surveillance {
-  graph [
-    label=<
-      <TABLE BORDER="0" CELLSPACING="0">
-        <TR><TD><B><FONT POINT-SIZE="18">1-Visibility Localization POMDP</FONT></B></TD></TR>
-        <TR><TD><FONT POINT-SIZE="12">Binary Tree (N=63) — Min-Entropy Belief Reduction</FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Capture guaranteed in 33 probes | 0 blind spots</FONT></TD></TR>
-      </TABLE>
-    >
-    labelloc=t
-    fontname="Helvetica"
-    size="10,8!"
-  ];
-  node [fontname="Helvetica", style=filled, fillcolor=lightgrey];
-
-  subgraph cluster_legend {
-    label="Legend";
-    fontname="Helvetica";
-    style=dashed; color=gray60;
-    leg_probe [fillcolor=yellow, label="Probed"];
-    leg_unvis [fillcolor=lightgrey, label="Unvisited"];
-    leg_probe -- leg_unvis [style=invis];
-  }
-
-  15 [fillcolor=yellow, label="Probe 15\nTurn 1"];
-  16 [fillcolor=yellow, label="Probe 16\nTurn 2"];
-  3 [fillcolor=yellow, label="Probe 3\nTurn 3"];
-  17 [fillcolor=yellow, label="Probe 17\nTurn 4"];
-  18 [fillcolor=yellow, label="Probe 18\nTurn 5"];
-  3 [fillcolor=yellow, label="Probe 3\nTurn 6"];
-  19 [fillcolor=yellow, label="Probe 19\nTurn 7"];
-  1 [fillcolor=yellow, label="Probe 1\nTurn 8"];
-  9 [fillcolor=yellow, label="Probe 9\nTurn 9"];
-  20 [fillcolor=yellow, label="Probe 20\nTurn 10"];
-  1 [fillcolor=yellow, label="Probe 1\nTurn 11"];
-  9 [fillcolor=yellow, label="Probe 9\nTurn 12"];
-  1 [fillcolor=yellow, label="Probe 1\nTurn 13"];
-  10 [fillcolor=yellow, label="Probe 10\nTurn 14"];
-  0 [fillcolor=yellow, label="Probe 0\nTurn 15"];
-  21 [fillcolor=yellow, label="Probe 21\nTurn 16"];
-  22 [fillcolor=yellow, label="Probe 22\nTurn 17"];
-  0 [fillcolor=yellow, label="Probe 0\nTurn 18"];
-  23 [fillcolor=yellow, label="Probe 23\nTurn 19"];
-  24 [fillcolor=yellow, label="Probe 24\nTurn 20"];
-  0 [fillcolor=yellow, label="Probe 0\nTurn 21"];
-  11 [fillcolor=yellow, label="Probe 11\nTurn 22"];
-  2 [fillcolor=yellow, label="Probe 2\nTurn 23"];
-  12 [fillcolor=yellow, label="Probe 12\nTurn 24"];
-  6 [fillcolor=yellow, label="Probe 6\nTurn 25"];
-  25 [fillcolor=yellow, label="Probe 25\nTurn 26"];
-  26 [fillcolor=yellow, label="Probe 26\nTurn 27"];
-  6 [fillcolor=yellow, label="Probe 6\nTurn 28"];
-  27 [fillcolor=yellow, label="Probe 27\nTurn 29"];
-  28 [fillcolor=yellow, label="Probe 28\nTurn 30"];
-  6 [fillcolor=yellow, label="Probe 6\nTurn 31"];
-  29 [fillcolor=yellow, label="Probe 29\nTurn 32"];
-  30 [fillcolor=yellow, label="Probe 30\nTurn 33"];
+  layout=dot; splines=ortho; rankdir=TB;
+  graph [label="1-Visibility POMDP Min-Max Search\nTemporal Heatmap: Red (Early) -> Green (Late)", fontname="Helvetica", labelloc=t];
+  node [shape=none, fontname="Helvetica"];
+  0 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#c8ff32">
+      <tr><td><b>N0</b></td></tr>
+      <tr><td>Probe 0</td></tr>
+      <tr><td>Turn 21</td></tr>
+    </table>>];
+  1 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ffb932">
+      <tr><td><b>N1</b></td></tr>
+      <tr><td>Probe 1</td></tr>
+      <tr><td>Turn 13</td></tr>
+    </table>>];
+  2 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#aaff32">
+      <tr><td><b>N2</b></td></tr>
+      <tr><td>Probe 2</td></tr>
+      <tr><td>Turn 23</td></tr>
+    </table>>];
+  3 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff4d32">
+      <tr><td><b>N3</b></td></tr>
+      <tr><td>Probe 3</td></tr>
+      <tr><td>Turn 6</td></tr>
+    </table>>];
+  4 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N4</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  5 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N5</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  6 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#2eff32">
+      <tr><td><b>N6</b></td></tr>
+      <tr><td>Probe 6</td></tr>
+      <tr><td>Turn 31</td></tr>
+    </table>>];
+  7 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N7</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  8 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N8</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  9 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ffaa32">
+      <tr><td><b>N9</b></td></tr>
+      <tr><td>Probe 9</td></tr>
+      <tr><td>Turn 12</td></tr>
+    </table>>];
+  10 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ffc832">
+      <tr><td><b>N10</b></td></tr>
+      <tr><td>Probe 10</td></tr>
+      <tr><td>Turn 14</td></tr>
+    </table>>];
+  11 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#b9ff32">
+      <tr><td><b>N11</b></td></tr>
+      <tr><td>Probe 11</td></tr>
+      <tr><td>Turn 22</td></tr>
+    </table>>];
+  12 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#9aff32">
+      <tr><td><b>N12</b></td></tr>
+      <tr><td>Probe 12</td></tr>
+      <tr><td>Turn 24</td></tr>
+    </table>>];
+  13 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N13</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  14 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N14</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  15 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff0032">
+      <tr><td><b>N15</b></td></tr>
+      <tr><td>Probe 15</td></tr>
+      <tr><td>Turn 1</td></tr>
+    </table>>];
+  16 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff0f32">
+      <tr><td><b>N16</b></td></tr>
+      <tr><td>Probe 16</td></tr>
+      <tr><td>Turn 2</td></tr>
+    </table>>];
+  17 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff2e32">
+      <tr><td><b>N17</b></td></tr>
+      <tr><td>Probe 17</td></tr>
+      <tr><td>Turn 4</td></tr>
+    </table>>];
+  18 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff3d32">
+      <tr><td><b>N18</b></td></tr>
+      <tr><td>Probe 18</td></tr>
+      <tr><td>Turn 5</td></tr>
+    </table>>];
+  19 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff5c32">
+      <tr><td><b>N19</b></td></tr>
+      <tr><td>Probe 19</td></tr>
+      <tr><td>Turn 7</td></tr>
+    </table>>];
+  20 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff8b32">
+      <tr><td><b>N20</b></td></tr>
+      <tr><td>Probe 20</td></tr>
+      <tr><td>Turn 10</td></tr>
+    </table>>];
+  21 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ffe732">
+      <tr><td><b>N21</b></td></tr>
+      <tr><td>Probe 21</td></tr>
+      <tr><td>Turn 16</td></tr>
+    </table>>];
+  22 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#fff732">
+      <tr><td><b>N22</b></td></tr>
+      <tr><td>Probe 22</td></tr>
+      <tr><td>Turn 17</td></tr>
+    </table>>];
+  23 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e7ff32">
+      <tr><td><b>N23</b></td></tr>
+      <tr><td>Probe 23</td></tr>
+      <tr><td>Turn 19</td></tr>
+    </table>>];
+  24 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#d8ff32">
+      <tr><td><b>N24</b></td></tr>
+      <tr><td>Probe 24</td></tr>
+      <tr><td>Turn 20</td></tr>
+    </table>>];
+  25 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#7bff32">
+      <tr><td><b>N25</b></td></tr>
+      <tr><td>Probe 25</td></tr>
+      <tr><td>Turn 26</td></tr>
+    </table>>];
+  26 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#6cff32">
+      <tr><td><b>N26</b></td></tr>
+      <tr><td>Probe 26</td></tr>
+      <tr><td>Turn 27</td></tr>
+    </table>>];
+  27 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#4dff32">
+      <tr><td><b>N27</b></td></tr>
+      <tr><td>Probe 27</td></tr>
+      <tr><td>Turn 29</td></tr>
+    </table>>];
+  28 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#3dff32">
+      <tr><td><b>N28</b></td></tr>
+      <tr><td>Probe 28</td></tr>
+      <tr><td>Turn 30</td></tr>
+    </table>>];
+  29 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#1eff32">
+      <tr><td><b>N29</b></td></tr>
+      <tr><td>Probe 29</td></tr>
+      <tr><td>Turn 32</td></tr>
+    </table>>];
+  30 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#0fff32">
+      <tr><td><b>N30</b></td></tr>
+      <tr><td>Probe 30</td></tr>
+      <tr><td>Turn 33</td></tr>
+    </table>>];
+  31 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N31</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  32 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N32</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  33 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N33</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  34 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N34</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  35 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N35</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  36 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N36</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  37 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N37</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  38 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N38</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  39 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N39</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  40 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N40</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  41 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N41</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  42 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N42</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  43 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N43</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  44 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N44</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  45 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N45</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  46 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N46</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  47 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N47</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  48 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N48</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  49 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N49</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  50 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N50</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  51 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N51</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  52 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N52</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  53 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N53</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  54 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N54</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  55 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N55</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  56 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N56</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  57 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N57</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  58 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N58</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  59 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N59</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  60 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N60</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  61 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N61</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
+  62 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#e9ecef">
+      <tr><td><b>N62</b></td></tr>
+      <tr><td>Unvisited</td></tr>
+      <tr><td></td></tr>
+    </table>>];
   0 -- 1;
   0 -- 2;
   1 -- 3;

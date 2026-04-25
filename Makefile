@@ -114,10 +114,10 @@ oracle: ##H Build the C++ oracle engine
 .PHONY: dots
 dots: oracle ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
-	@./oracle epidemiology proofs/VectorDeployment.lean
-	@./oracle surveillance proofs/ThreatHunting.lean
-	@./oracle spectrum proofs/SignalAudit.lean
-	@./oracle finance proofs/RiskAudit.lean
+	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
+	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
+	@$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean
+	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize proofs/SynthesizerDiscovery.lean
 
 # Layout engine map: module -> engine

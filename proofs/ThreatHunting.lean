@@ -64,9 +64,11 @@ def cave_adj : Array UInt64 := #[
   1073741824,
   1073741824,
   0,
-
 ]
 def drone_routing_playbook : List Nat := [15, 16, 3, 17, 18, 3, 19, 1, 9, 20, 1, 9, 1, 10, 0, 21, 22, 0, 23, 24, 0, 11, 2, 12, 6, 25, 26, 6, 27, 28, 6, 29, 30, ]
-def drone_probe (adj : Array UInt64) (belief : UInt64) (p : Nat) : UInt64 := let captured := belief &&& ~~~((1 : UInt64) <<< p.toUInt64 ||| adj[p]!); (List.range 64).foldl (init := 0) (fun acc i => if (captured >>> i.toUInt64) &&& 1 == 1 then acc ||| ((1 : UInt64) <<< i.toUInt64) ||| adj[i]! else acc)
-def execute_hunt (adj : Array UInt64) (seq : List Nat) : UInt64 := seq.foldl (init := 0x7FFFFFFFFFFFFFFF) (fun b p => drone_probe adj b p)
+def drone_probe (adj : Array UInt64) (belief : UInt64) (p : Nat) : UInt64 :=
+  let captured := belief &&& ~~~((1 : UInt64) <<< p.toUInt64 ||| adj[p]!)
+  (List.range 64).foldl (init := 0) (fun acc i => if (captured >>> i.toUInt64) &&& 1 == 1 then acc ||| ((1 : UInt64) <<< i.toUInt64) ||| adj[i]! else acc)
+def execute_hunt (adj : Array UInt64) (seq : List Nat) : UInt64 :=
+  seq.foldl (init := 0x7FFFFFFFFFFFFFFF) (fun b p => drone_probe adj b p)
 theorem capture_guaranteed : execute_hunt cave_adj drone_routing_playbook = 0 := by native_decide
