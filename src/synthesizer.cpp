@@ -12,9 +12,68 @@
 #include <chrono>
 #include <cstdio>
 #include <string>
-#include <vector>
 
 #include "hpc_core.hpp"
+
+// =====================================================================
+// H-Coloring Target Graph (for --hcolor mode)
+// =====================================================================
+// H is a small graph on h vertices. adj_H[u][v] = 1 iff u~v in H.
+// hom(T, H) counts graph homomorphisms from tree T to H.
+static int hcolor_h = 0;    // 0 = disabled, >0 = |V(H)|
+static bool adj_H[32][32];  // adjacency matrix of H
+static uint64_t
+    hc_dp[MAX_N][32];  // DP table: hc_dp[v][c] = #hom from subtree(v) with v→c
+
+// Build a path graph P_k as the target H
+static void build_path_target(int k) {
+    hcolor_h = k;
+    memset(adj_H, 0, sizeof(adj_H));
+    for (int i = 0; i < k - 1; i++) {
+        adj_H[i][i + 1] = true;
+        adj_H[i + 1][i] = true;
+    }
+}
+
+// Compute hom(P_n, H) for the path graph on n vertices (transfer matrix)
+static uint64_t path_hom(int n, int h) {
+    if (n <= 0) return 1;
+    if (n == 1) return (uint64_t)h;
+    // dp_prev[c] = #hom from P_{i} with endpoint colored c
+    uint64_t dp_prev[32], dp_cur[32];
+    for (int c = 0; c < h; c++) dp_prev[c] = 1;
+    for (int step = 1; step < n; step++) {
+        for (int c = 0; c < h; c++) {
+            dp_cur[c] = 0;
+            for (int c2 = 0; c2 < h; c2++)
+                if (adj_H[c][c2]) dp_cur[c] += dp_prev[c2];
+        }
+        memcpy(dp_prev, dp_cur, h * sizeof(uint64_t));
+    }
+    uint64_t total = 0;
+    for (int c = 0; c < h; c++) total += dp_prev[c];
+    return total;
+}
+
+// Compute hom(T, H) for the current tree (rooted, parent_arr set)
+static uint64_t tree_hom(int n, int h) {
+    // Initialize all leaves: hc_dp[v][c] = 1 for all c
+    for (int v = 0; v < n; v++)
+        for (int c = 0; c < h; c++) hc_dp[v][c] = 1;
+    // Bottom-up: multiply child contributions
+    for (int i = n - 1; i > 0; i--) {
+        int p = parent_arr[i];
+        for (int cp = 0; cp < h; cp++) {
+            uint64_t child_sum = 0;
+            for (int ci = 0; ci < h; ci++)
+                if (adj_H[cp][ci]) child_sum += hc_dp[i][ci];
+            hc_dp[p][cp] *= child_sum;
+        }
+    }
+    uint64_t total = 0;
+    for (int c = 0; c < h; c++) total += hc_dp[0][c];
+    return total;
+}
 
 // =====================================================================
 // Canonical 128-bit Hash (center-rooted DFS, insertion-sorted children)
@@ -116,10 +175,20 @@ struct ConstrainedBest {
 
 static ConstrainedBest best_d3, best_d4, best_any;
 
+// H-coloring minimizer tracking
+static ConstrainedBest hc_min_tree;  // tree that minimizes hom(T, H)
+static uint64_t hc_min_score;        // minimum hom(T, H) found
+static uint64_t hc_path_score;       // hom(P_n, H) baseline
+static bool hc_violation_found;      // true if any tree beats the path
+
 static void top_k_init(int) {
     best_d3 = {};
     best_d4 = {};
     best_any = {};
+    hc_min_tree = {};
+    hc_min_score = UINT64_MAX;
+    hc_path_score = 0;
+    hc_violation_found = false;
 }
 
 static void top_k_add(uint64_t score, const int L[], int n) {
@@ -215,6 +284,11 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     seen.init(expected);
     top_k_init(top_k);
 
+    // Set H-coloring path baseline (must be after top_k_init resets it)
+    if (hcolor_h > 0) {
+        hc_path_score = path_hom(n, hcolor_h);
+    }
+
     // N=0: empty graph has exactly 1 independent set (the empty set)
     if (n == 0) {
         printf(
@@ -244,7 +318,7 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     while (true) {
         rooted++;
 
-        // 1. Inline parent array + HARD DEGREE PRUNE
+        // Inline parent array + HARD DEGREE PRUNE
         //    Track degree during construction. If any vertex exceeds
         //    MAX_ALLOWED_DEG, record prune_idx and skip everything.
         int prune_idx = -1;
@@ -272,19 +346,19 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             for (int i = 0; i < n; i++)
                 if (deg[i] > max_deg) max_deg = deg[i];
 
-            // 2. Build flat adj list (O(N))
+            // Build flat adj list (O(N))
             parent_to_adj(n);
 
-            // 3. Canonical hash + center finding (O(N))
+            // Canonical hash + center finding (O(N))
             Hash128 h = tree_hash_128(n);
 
-            // 4. Dedup — only score UNIQUE trees
+            // Dedup — only score UNIQUE trees
             if (seen.insert(h)) {
                 unique++;
                 if (max_deg <= 3) trees_d3++;
                 if (max_deg <= 4) trees_d4++;
 
-                // 5. Bottom-up DP (O(N))
+                // Bottom-up DP (O(N))
                 for (int i = 0; i < n; i++) {
                     dp_excl[i] = 1;
                     dp_incl[i] = 1;
@@ -296,8 +370,27 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                 }
                 uint64_t score = dp_excl[0] + dp_incl[0];
 
-                // 6. Lazy top-K (invariants only for candidates)
+                // Lazy top-K (invariants only for candidates)
                 top_k_add(score, L, n);
+
+                // H-coloring minimizer (if --hcolor active)
+                if (hcolor_h > 0) {
+                    uint64_t hc = tree_hom(n, hcolor_h);
+                    if (hc < hc_min_score) {
+                        hc_min_score = hc;
+                        hc_min_tree.score = hc;
+                        hc_min_tree.max_degree = max_deg;
+                        hc_min_tree.n = n;
+                        memcpy(hc_min_tree.level_seq, L, n * sizeof(int));
+                    }
+                    if (hc < hc_path_score && !hc_violation_found) {
+                        hc_violation_found = true;
+                        fprintf(stderr,
+                                "\n  *** VIOLATION: tree beats path! "
+                                "hom(T,H)=%lu < hom(P_%d,H)=%lu ***\n",
+                                hc, n, hc_path_score);
+                    }
+                }
             }
         }
 
@@ -384,6 +477,21 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             seen.size(), seen.cap, unique, trees_d3, trees_d4, top1,
             (double)top1 / p_sc, best_d3.score, best_d4.score);
 
+    // H-coloring summary
+    if (hcolor_h > 0) {
+        fprintf(stderr,
+                "  ── H-coloring (P_%d target) ──\n"
+                "  hom(P_%d, P_%d) = %lu (path baseline)\n"
+                "  min hom(T, P_%d)  = %lu (minimizer)\n"
+                "  ratio: %.6f\n"
+                "  Path is %s\n"
+                "  ═══════════════════════════════════════════════\n",
+                hcolor_h, n, hcolor_h, hc_path_score, hcolor_h, hc_min_score,
+                (double)hc_min_score / hc_path_score,
+                hc_violation_found ? "NOT MINIMAL — violation found!"
+                                   : "minimal (no violation)");
+    }
+
     // Auto-log to docs/runs/benchmark.log
     {
         system("mkdir -p docs/runs");
@@ -435,17 +543,59 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                                 "[%d,%d]", par[i], i);
             }
 
-            snprintf(line, sizeof(line),
-                     "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
-                     "\"trees_d3\":%lu,\"trees_d4\":%lu,"
-                     "\"rooted\":%lu,\"pruned\":%lu,"
-                     "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
-                     "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
-                     "\"d3_edges\":[%s],\"ms\":%.0f}\n",
-                     ts, n, unique, trees_d3, trees_d4, rooted, pruned, p_sc,
-                     best_d3.score, best_d4.score, best_any.score,
-                     best_d3.max_degree, best_d3.leaves, best_d3.diameter,
-                     edges_buf, elapsed_ms);
+            // Build H-coloring minimizer edges if active
+            char hc_edges_buf[2048] = {};
+            if (hcolor_h > 0 && hc_min_tree.n > 0) {
+                int hpar[MAX_N], hds[MAX_N];
+                hpar[0] = -1;
+                hds[0] = 0;
+                for (int i = 1; i < hc_min_tree.n; i++) {
+                    hpar[i] = hds[hc_min_tree.level_seq[i] - 1];
+                    hds[hc_min_tree.level_seq[i]] = i;
+                }
+                int hp = 0;
+                for (int i = 1; i < hc_min_tree.n; i++) {
+                    if (i > 1)
+                        hp += snprintf(hc_edges_buf + hp,
+                                       sizeof(hc_edges_buf) - hp, ",");
+                    hp += snprintf(hc_edges_buf + hp, sizeof(hc_edges_buf) - hp,
+                                   "[%d,%d]", hpar[i], i);
+                }
+            }
+
+            if (hcolor_h > 0) {
+                snprintf(line, sizeof(line),
+                         "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
+                         "\"trees_d3\":%lu,\"trees_d4\":%lu,"
+                         "\"rooted\":%lu,\"pruned\":%lu,"
+                         "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
+                         "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
+                         "\"d3_edges\":[%s],"
+                         "\"hc_target\":\"P%d\",\"hc_path\":%lu,"
+                         "\"hc_min\":%lu,\"hc_ratio\":%.6f,"
+                         "\"hc_violation\":%s,"
+                         "\"hc_min_deg\":%d,\"hc_min_edges\":[%s],"
+                         "\"ms\":%.0f}\n",
+                         ts, n, unique, trees_d3, trees_d4, rooted, pruned,
+                         p_sc, best_d3.score, best_d4.score, best_any.score,
+                         best_d3.max_degree, best_d3.leaves, best_d3.diameter,
+                         edges_buf, hcolor_h, hc_path_score, hc_min_score,
+                         (double)hc_min_score / hc_path_score,
+                         hc_violation_found ? "true" : "false",
+                         hc_min_tree.max_degree, hc_edges_buf, elapsed_ms);
+            } else {
+                snprintf(line, sizeof(line),
+                         "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
+                         "\"trees_d3\":%lu,\"trees_d4\":%lu,"
+                         "\"rooted\":%lu,\"pruned\":%lu,"
+                         "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
+                         "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
+                         "\"d3_edges\":[%s],\"ms\":%.0f}\n",
+                         ts, n, unique, trees_d3, trees_d4, rooted, pruned,
+                         p_sc, best_d3.score, best_d4.score, best_any.score,
+                         best_d3.max_degree, best_d3.leaves, best_d3.diameter,
+                         edges_buf, elapsed_ms);
+            }
             fputs(line, jl);
             fclose(jl);
         }
@@ -506,12 +656,14 @@ int main(int argc, const char* argv[]) {
     if (argc < 2 || strcmp(argv[1], "-h") == 0 ||
         strcmp(argv[1], "--help") == 0) {
         fprintf(stderr,
-                "Usage: %s N [--top K] [--prune [D]]\n"
+                "Usage: %s N [--top K] [--prune [D]] [--hcolor PK]\n"
                 "\n"
                 "  N          Number of vertices (0..%d)\n"
                 "  --top K    Track top-K extremal trees (default: 10)\n"
                 "  --prune    Hard-prune trees with degree > D (default D=4)\n"
                 "             --prune 3  prune degree > 3 (fastest for d3)\n"
+                "  --hcolor PK  Find tree minimizing hom(T, P_K)\n"
+                "               e.g. --hcolor P5 for odd path P_5\n"
                 "\n"
                 "Output: JSON to stdout, telemetry to stderr,\n"
                 "        auto-appends to docs/runs/sequence.jsonl\n",
@@ -531,6 +683,23 @@ int main(int argc, const char* argv[]) {
                 prune_deg = atoi(argv[++i]);
             else
                 prune_deg = 4;
+        } else if (strcmp(argv[i], "--hcolor") == 0 && i + 1 < argc) {
+            i++;
+            // Parse "P5", "P7", etc.
+            if (argv[i][0] == 'P' || argv[i][0] == 'p') {
+                int k = atoi(argv[i] + 1);
+                if (k >= 2 && k <= 30) {
+                    build_path_target(k);
+                    fprintf(stderr, "  H-coloring mode: target = P_%d\n", k);
+                } else {
+                    fprintf(stderr, "Invalid path size: %s\n", argv[i]);
+                    return 1;
+                }
+            } else {
+                fprintf(stderr, "Unknown target: %s (use P5, P7, etc.)\n",
+                        argv[i]);
+                return 1;
+            }
         } else if (argv[i][0] != '-' && n < 0) {
             n = atoi(argv[i]);
         }
@@ -550,6 +719,13 @@ int main(int argc, const char* argv[]) {
 
     uint64_t p_sc = path_score(n);
     fprintf(stderr, "  Path P(%d) baseline: %lu independent sets\n", n, p_sc);
+
+    // Precompute H-coloring path baseline
+    if (hcolor_h > 0) {
+        hc_path_score = path_hom(n, hcolor_h);
+        fprintf(stderr, "  hom(P_%d, P_%d) baseline: %lu\n", n, hcolor_h,
+                hc_path_score);
+    }
 
     generate(n, top_k, prune_deg);
     return 0;
