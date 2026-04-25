@@ -180,14 +180,14 @@ struct HcRank {
     uint64_t score = UINT64_MAX;
     uint64_t tie_count = 0;
 };
-static constexpr int HC_PODIUM = 3;
-static HcRank hc_top[HC_PODIUM];  // top-3 distinct min scores + counts
-static uint64_t hc_path_score;    // hom(P_n, H) baseline
-static uint64_t hc_star_score;    // hom(K_{1,n-1}, H)
-static __uint128_t hc_sum;        // sum of hom(T, H) over all trees
-static int hc_best_seq[MAX_N];    // level sequence of #1 minimizer
-static int hc_best_n = 0;         // vertex count of #1 minimizer
-static int hc_best_deg = 0;       // max degree of #1 minimizer
+static constexpr int HC_PODIUM = 32;  // max distinct tiers; output auto-trims
+static HcRank hc_top[HC_PODIUM];      // top-32 distinct min scores + counts
+static uint64_t hc_path_score;        // hom(P_n, H) baseline
+static uint64_t hc_star_score;        // hom(K_{1,n-1}, H)
+static __uint128_t hc_sum;            // sum of hom(T, H) over all trees
+static int hc_best_seq[MAX_N];        // level sequence of #1 minimizer
+static int hc_best_n = 0;             // vertex count of #1 minimizer
+static int hc_best_deg = 0;           // max degree of #1 minimizer
 static bool hc_violation_found;
 
 static void hc_podium_add(uint64_t val) {
