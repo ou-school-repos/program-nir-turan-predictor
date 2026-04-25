@@ -290,6 +290,59 @@ graph Spectrum {{
                         f.write(f"  {u} -- {v};\n")
             f.write("}\n")
 
+    @staticmethod
+    def export_synthesized(fn, n, adj, p_score, s_score):
+        # Auto-detect hubs (degree >= 3)
+        hubs = set()
+        for i in range(n):
+            if len(adj[i]) >= 3:
+                hubs.add(i)
+
+        with open(fn, "w") as f:
+            f.write(f"""\
+graph SynthDiscovery {{
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="18">Unsupervised Anomaly Discovery</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">N={n} — Exhaustive Tree Enumeration</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="gray40">Path P({n}): {p_score:,} IS | Discovered: {s_score:,} IS (×{s_score / p_score:.1f})</FONT></TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontname="Helvetica"
+    size="10,8!"
+  ];
+  node [fontname="Helvetica", style=filled, fillcolor=white, width=0.4, height=0.3, fontsize=10];
+
+  subgraph cluster_legend {{
+    label="Legend";
+    fontname="Helvetica";
+    style=dashed; color=gray60;
+    leg_hub [fillcolor=cyan, label="Hub (deg ≥ 3)"];
+    leg_leaf [fillcolor=white, label="Leaf"];
+    leg_hub -- leg_leaf [style=invis];
+  }}
+
+""")
+            for i in range(n):
+                deg = len(adj[i])
+                if i in hubs:
+                    w = min(0.4 + deg * 0.05, 1.2)
+                    f.write(
+                        f"  {i} [fillcolor=cyan, "
+                        f'label="{i}\\ndeg={deg}", '
+                        f"width={w:.1f}];\n"
+                    )
+                else:
+                    f.write(f'  {i} [label="{i}"];\n')
+
+            for i in range(n):
+                for j in adj[i]:
+                    if i < j:
+                        f.write(f"  {i} -- {j};\n")
+            f.write("}\n")
+
 
 def popcount(x):
     return bin(x).count("1")
@@ -588,11 +641,92 @@ class FinanceModule:
             )
 
 
+# =========================================================================
+# MODULE 5: SYNTHESIZER (Unsupervised Topology Discovery)
+# =========================================================================
+class SynthesizerModule:
+    @staticmethod
+    def execute(fn):
+        N = int(os.environ.get("SYNTH_N", "21"))
+        method = os.environ.get("SYNTH_METHOD", "level")
+        top_k = int(os.environ.get("SYNTH_TOP", "10"))
+        print(
+            f"{CYN}[Synthesizer] Unsupervised Tree Enumeration "
+            f"(N={N}, method={method}).{RST}"
+        )
+
+        synth_bin = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "synthesizer",
+        )
+        if not os.path.isfile(synth_bin):
+            print(f"{RED}  [Error] C++ binary not found: {synth_bin}{RST}")
+            print(f"  Build it with: make synthesizer")
+            sys.exit(1)
+
+        import json
+        import subprocess
+
+        result = subprocess.run(
+            [synth_bin, str(N), "--method", method, "--top", str(top_k)],
+            stdout=subprocess.PIPE,
+            stderr=None,  # inherit — streams live to terminal
+            text=True,
+        )
+
+        data = json.loads(result.stdout)
+        trees = data["trees_scanned"]
+        p_score = data["path_score"]
+        anomaly_count = data["anomalies_found"]
+        elapsed = data["elapsed_ms"]
+        tps = data["trees_per_sec"]
+
+        print(
+            f"  [Telemetry] {trees:,} trees in {elapsed:.0f} ms "
+            f"({tps:,.0f} trees/sec)"
+        )
+
+        top = data.get("top_anomaly")
+        if top:
+            print(
+                f"{GRN}  [Discovery] Top anomaly: score={top['score']:,} "
+                f"(path={p_score:,}, ratio={top['ratio']:.2f}){RST}"
+            )
+            print(f"  [Structure] Degree sequence: {top['degree_sequence']}")
+
+            # Build adjacency list for visualizer
+            adj = [row for row in top["adj"]]
+            dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+            Visualizer.export_synthesized(dot_path, N, adj, p_score, top["score"])
+
+            with open(fn, "w") as out:
+                out.write(
+                    f"import Mathlib.Tactic\n"
+                    f"def synth_n : Nat := {N}\n"
+                    f"def path_score : Nat := {p_score}\n"
+                    f"def synth_score : Nat := {top['score']}\n"
+                    f"def trees_scanned : Nat := {trees}\n"
+                    f"theorem anomaly_discovered : "
+                    f"synth_score > path_score "
+                    f":= by decide\n"
+                )
+        else:
+            print(f"  [Result] No anomalies found.")
+            with open(fn, "w") as out:
+                out.write(
+                    f"import Mathlib.Tactic\n"
+                    f"-- No anomaly found for N={N}\n"
+                    f"def synth_n : Nat := {N}\n"
+                    f"def path_score : Nat := {p_score}\n"
+                )
+
+
 MODULES = {
     "epidemiology": EpidemiologyModule.execute,
     "surveillance": SurveillanceModule.execute,
     "spectrum": SpectrumModule.execute,
     "finance": FinanceModule.execute,
+    "synthesize": SynthesizerModule.execute,
 }
 
 if __name__ == "__main__":
