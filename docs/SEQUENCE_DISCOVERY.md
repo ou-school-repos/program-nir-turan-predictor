@@ -80,7 +80,9 @@ Tree counts match the following OEIS sequences exactly, confirming completeness:
 | 10  | 106           | 37                        | 75                        |
 | 15  | 7,741         | 1,132                     | 4,347                     |
 | 20  | 823,065       | 52,233                    | 366,319                   |
-| 25  | 104,636,890   | —                         | —                         |
+| 25  | 104,636,890   | 2,841,632                 | 36,797,588                |
+
+### Roots, runtime, and throughput
 
 | $N$ | Trees Enumerated | Rooted Processed | Time    | Throughput |
 | --- | ---------------- | ---------------- | ------- | ---------- |
