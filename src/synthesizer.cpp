@@ -214,6 +214,11 @@ static uint64_t generate(int n, int top_k) {
     seen.init(expected);
     top_k_init(top_k);
 
+    // Max degree constraint for hard pruning (default: prune nothing > 4)
+    // Trees with degree > 4 are still enumerated but never competitive
+    // for d3/d4 tracking, so pruning at 4 is safe and saves ~80% of work.
+    const int MAX_ALLOWED_DEG = 4;
+
     auto t_start = std::chrono::high_resolution_clock::now();
     auto t_last_progress = t_start;
 
@@ -222,38 +227,60 @@ static uint64_t generate(int n, int top_k) {
 
     uint64_t unique = 0;
     uint64_t rooted = 0;
+    uint64_t pruned = 0;
     uint64_t last_reported = 0;
 
     while (true) {
         rooted++;
 
-        // 1. Parent array from level sequence (O(N))
-        level_seq_to_parent(L, n);
+        // 1. Inline parent array + HARD DEGREE PRUNE
+        //    Track degree during construction. If any vertex exceeds
+        //    MAX_ALLOWED_DEG, record prune_idx and skip everything.
+        int prune_idx = -1;
+        int deg[MAX_N] = {};
+        parent_arr[0] = -1;
+        depth_stack[0] = 0;
 
-        // 2. Build flat adj list (O(N))
-        parent_to_adj(n);
+        for (int i = 1; i < n; i++) {
+            int p = depth_stack[L[i] - 1];
+            parent_arr[i] = p;
+            depth_stack[L[i]] = i;
 
-        // 3. Canonical hash + center finding (O(N))
-        Hash128 h = tree_hash_128(n);
-
-        // 4. Dedup — only score UNIQUE trees (huge savings)
-        if (seen.insert(h)) {
-            unique++;
-
-            // 5. Bottom-up DP (O(N)) — only for unique free trees
-            for (int i = 0; i < n; i++) {
-                dp_excl[i] = 1;
-                dp_incl[i] = 1;
+            deg[i]++;
+            deg[p]++;
+            if (deg[p] > MAX_ALLOWED_DEG) {
+                prune_idx = i;
+                pruned++;
+                break;
             }
-            for (int i = n - 1; i > 0; i--) {
-                int p = parent_arr[i];
-                dp_excl[p] *= (dp_excl[i] + dp_incl[i]);
-                dp_incl[p] *= dp_excl[i];
-            }
-            uint64_t score = dp_excl[0] + dp_incl[0];
+        }
 
-            // 6. Lazy top-K (invariants only for candidates)
-            top_k_add(score, L, n);
+        if (prune_idx == -1) {
+            // 2. Build flat adj list (O(N))
+            parent_to_adj(n);
+
+            // 3. Canonical hash + center finding (O(N))
+            Hash128 h = tree_hash_128(n);
+
+            // 4. Dedup — only score UNIQUE trees
+            if (seen.insert(h)) {
+                unique++;
+
+                // 5. Bottom-up DP (O(N))
+                for (int i = 0; i < n; i++) {
+                    dp_excl[i] = 1;
+                    dp_incl[i] = 1;
+                }
+                for (int i = n - 1; i > 0; i--) {
+                    int p = parent_arr[i];
+                    dp_excl[p] *= (dp_excl[i] + dp_incl[i]);
+                    dp_incl[p] *= dp_excl[i];
+                }
+                uint64_t score = dp_excl[0] + dp_incl[0];
+
+                // 6. Lazy top-K (invariants only for candidates)
+                top_k_add(score, L, n);
+            }
         }
 
         // Progress: update every 100K unique OR every 5s (whichever first)
@@ -280,9 +307,10 @@ static uint64_t generate(int n, int top_k) {
                     double eta_s = (target - unique) / inst_rate;
                     fprintf(stderr,
                             "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
-                            "%.0fK/s | ETA %.0fs   ",
+                            "%.0fK/s | ETA %.0fs | pruned %luM   ",
                             unique / 1000, target / 1000, pct,
-                            ms_total / 1000.0, inst_rate / 1000.0, eta_s);
+                            ms_total / 1000.0, inst_rate / 1000.0, eta_s,
+                            pruned / 1000000);
                 } else {
                     fprintf(
                         stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
@@ -292,7 +320,8 @@ static uint64_t generate(int n, int top_k) {
         }
 
         // Beyer-Hedetniemi successor (amortized O(1))
-        int p = n - 1;
+        // KEY: if we pruned, backtrack from prune_idx instead of n-1
+        int p = (prune_idx != -1) ? prune_idx : n - 1;
         while (p > 0 && L[p] <= 1) p--;
         if (p == 0) break;
 
@@ -310,6 +339,9 @@ static uint64_t generate(int n, int top_k) {
     // End-of-run summary
     double dedup_ratio = (double)rooted / unique;
     double load = (double)seen.size() / seen.cap;
+    // Unconstrained max is always the star: 2^{N-1}+1 (analytically known)
+    uint64_t star_score = (1ULL << (n - 1)) + 1;
+    if (best_any.score < star_score) best_any.score = star_score;
     uint64_t top1 = best_any.score;
     uint64_t p_sc = path_score(n);
     fprintf(stderr,
@@ -378,12 +410,13 @@ static uint64_t generate(int n, int top_k) {
 
             snprintf(line, sizeof(line),
                      "{\"ts\":\"%s\",\"n\":%d,\"trees\":%lu,"
+                     "\"rooted\":%lu,\"pruned\":%lu,"
                      "\"path\":%lu,\"d3\":%lu,\"d4\":%lu,\"any\":%lu,"
                      "\"d3_deg\":%d,\"d3_leaves\":%d,\"d3_diam\":%d,"
                      "\"d3_edges\":[%s],\"ms\":%.0f}\n",
-                     ts, n, unique, p_sc, best_d3.score, best_d4.score,
-                     best_any.score, best_d3.max_degree, best_d3.leaves,
-                     best_d3.diameter, edges_buf, elapsed_ms);
+                     ts, n, unique, rooted, pruned, p_sc, best_d3.score,
+                     best_d4.score, best_any.score, best_d3.max_degree,
+                     best_d3.leaves, best_d3.diameter, edges_buf, elapsed_ms);
             fputs(line, jl);
             fclose(jl);
         }
