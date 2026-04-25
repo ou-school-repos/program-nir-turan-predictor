@@ -696,10 +696,12 @@ class SynthesizerModule:
 
             # Build adjacency list for visualizer
             adj = [row for row in top["adj"]]
-            dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
+            base = os.path.basename(fn).replace(".lean", f"-N{N}.lean")
+            dot_path = os.path.join("docs", base + ".dot")
+            lean_path = fn.replace(".lean", f"-N{N}.lean")
             Visualizer.export_synthesized(dot_path, N, adj, p_score, top["score"])
 
-            with open(fn, "w") as out:
+            with open(lean_path, "w") as out:
                 out.write(
                     f"import Mathlib.Tactic\n"
                     f"def synth_n : Nat := {N}\n"
@@ -712,7 +714,8 @@ class SynthesizerModule:
                 )
         else:
             print("  [Result] No anomalies found.")
-            with open(fn, "w") as out:
+            lean_path = fn.replace(".lean", f"-N{N}.lean")
+            with open(lean_path, "w") as out:
                 out.write(
                     f"import Mathlib.Tactic\n"
                     f"-- No anomaly found for N={N}\n"

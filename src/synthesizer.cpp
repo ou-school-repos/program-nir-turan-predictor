@@ -306,8 +306,47 @@ static uint64_t generate_wrom(int n, uint64_t p_score, int top_k,
                             .count();
             double rate = unique / (ms / 1000.0);
 
-            fprintf(stderr, "  [c++] %luK trees | %.1fs | %.0fK/s\n",
-                    unique / 1000, ms / 1000.0, rate / 1000.0);
+            static const uint64_t a000055[] = {0,
+                                               1,
+                                               1,
+                                               1,
+                                               2,
+                                               3,
+                                               6,
+                                               11,
+                                               23,
+                                               47,
+                                               106,
+                                               235,
+                                               551,
+                                               1301,
+                                               3159,
+                                               7741,
+                                               19320,
+                                               48629,
+                                               123867,
+                                               317955,
+                                               823065,
+                                               2144505,
+                                               5623756,
+                                               14828074,
+                                               39299897,
+                                               104636890,
+                                               279793450,
+                                               751065460,
+                                               2023443032ULL,
+                                               5469566585ULL,
+                                               14830871802ULL};
+            uint64_t target = (n <= 30) ? a000055[n] : 0;
+
+            if (target > 0) {
+                fprintf(stderr, "  [c++] %luK / %luK trees | %.1fs | %.0fK/s\n",
+                        unique / 1000, target / 1000, ms / 1000.0,
+                        rate / 1000.0);
+            } else {
+                fprintf(stderr, "  [c++] %luK trees | %.1fs | %.0fK/s\n",
+                        unique / 1000, ms / 1000.0, rate / 1000.0);
+            }
         }
     }
 
