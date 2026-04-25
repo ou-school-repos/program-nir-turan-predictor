@@ -21,3 +21,4 @@ output.log
 *.svg
 synthesizer
 oracle
+*.pdf
