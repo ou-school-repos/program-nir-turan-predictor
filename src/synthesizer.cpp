@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <string>
 #include <vector>
 
 #include "hpc_core.hpp"
@@ -207,17 +208,17 @@ static const uint64_t A000055[] = {0,
 static uint64_t dp_excl[MAX_N];
 static uint64_t dp_incl[MAX_N];
 
-static uint64_t generate(int n, int top_k) {
+static uint64_t generate(int n, int top_k, int prune_deg) {
     uint64_t expected = (n <= 30) ? A000055[n] : A000055[30];
 
     FlatHashSet seen;
     seen.init(expected);
     top_k_init(top_k);
 
-    // Max degree constraint for hard pruning (default: prune nothing > 4)
-    // Trees with degree > 4 are still enumerated but never competitive
-    // for d3/d4 tracking, so pruning at 4 is safe and saves ~80% of work.
-    const int MAX_ALLOWED_DEG = 4;
+    // Max degree constraint for hard pruning (opt-in via --prune [D])
+    // Trees with degree > D are never competitive for d3/d4 tracking,
+    // so pruning them is safe — but it breaks the A000055 total count.
+    const int MAX_ALLOWED_DEG = (prune_deg > 0) ? prune_deg : MAX_N;
 
     auto t_start = std::chrono::high_resolution_clock::now();
     auto t_last_progress = t_start;
@@ -486,17 +487,29 @@ int main(int argc, const char* argv[]) {
     }
 
     int top_k = 10;
+    int prune_deg = 0;  // 0 = no pruning
     for (int i = 2; i < argc; i++) {
         if (strcmp(argv[i], "--top") == 0 && i + 1 < argc)
             top_k = atoi(argv[++i]);
+        if (strcmp(argv[i], "--prune") == 0) {
+            // --prune alone defaults to 4, --prune 3 prunes at degree 3
+            if (i + 1 < argc && argv[i + 1][0] >= '2' && argv[i + 1][0] <= '9')
+                prune_deg = atoi(argv[++i]);
+            else
+                prune_deg = 4;
+        }
     }
 
-    fprintf(stderr, "[c++ synthesizer] Enumerating trees on N=%d (top_k=%d)\n",
-            n, top_k);
+    fprintf(
+        stderr, "[c++ synthesizer] Enumerating trees on N=%d (top_k=%d%s)\n", n,
+        top_k,
+        prune_deg > 0
+            ? (std::string(", PRUNING d>") + std::to_string(prune_deg)).c_str()
+            : "");
 
     uint64_t p_sc = path_score(n);
     fprintf(stderr, "  Path P(%d) baseline: %lu independent sets\n", n, p_sc);
 
-    generate(n, top_k);
+    generate(n, top_k, prune_deg);
     return 0;
 }
