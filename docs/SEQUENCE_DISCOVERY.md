@@ -1,8 +1,12 @@
-# Novel Integer Sequence: Maximum Independent Sets on Degree-Constrained Trees
+# Novel Integer Sequences: Maximum Independent Sets on Degree-Constrained Trees
 
-**Status:** Not found in OEIS as of 2026-04-24
-**OEIS Query:** `seq:5,9,14,24,41,66,110,189,305,510,863` → **0 results**
-**Proposed Title:** _Maximum number of independent sets among all trees on n vertices with maximum degree at most 3_
+**Status:** Not found in OEIS as of 2026-04-25
+**OEIS Query ($\Delta \leq 3$):** `seq:5,9,14,24,41,66,110,189,305,510,863` → **0 results**
+**OEIS Query ($\Delta \leq 4$):** `seq:5,9,17,26,44,80,145,226,388,684` → **0 results**
+**Proposed Titles:**
+
+1. _Maximum number of independent sets among all trees on n vertices with maximum degree at most 3_
+2. _Maximum number of independent sets among all trees on n vertices with maximum degree at most 4_
 
 ---
 
@@ -36,11 +40,18 @@ For each $N \ge 3$, let $a(N)$ denote the maximum number of independent sets (in
 | 24  | 231,117                 | 432,234                 | 8,388,609        | 121,393          |
 | 25  | 386,222                 | 778,829                 | 16,777,217       | 196,418          |
 
-**Raw sequence (N=3..25):**
+**Raw sequence $\Delta \leq 3$ (N=3..25):**
 
 ```text
 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515,
 10905, 18254, 30135, 49913, 84546, 138170, 231117, 386222
+```
+
+**Raw sequence $\Delta \leq 4$ (N=3..25):**
+
+```text
+5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868, 10657,
+17001, 28674, 50508, 90949, 147177, 247698, 432234, 778829
 ```
 
 ---
@@ -54,7 +65,22 @@ All values are **exhaustively verified** — not sampled, not heuristic. For eac
 3. **Bottom-up DP** computes the exact independent set count $i(T) = \prod_{v} (1 + \prod_{u \in \text{children}(v)} i_{\text{excl}}(u))$ in $O(N)$ per tree.
 4. The maximum over all trees with $\Delta(T) \le 3$ is recorded.
 
-Tree counts match OEIS [A000055](https://oeis.org/A000055) exactly at every $N$, confirming completeness.
+Tree counts match the following OEIS sequences exactly, confirming completeness:
+
+- **A000055** (all trees): 1, 1, 1, 2, 3, 6, 11, 23, 47, 106, …
+- **A000672** ($\Delta \leq 3$ trees / "boron trees"): 1, 2, 2, 4, 6, 11, 18, 37, 66, …
+- **A000602** ($\Delta \leq 4$ trees / "alkane isomers"): 1, 2, 3, 5, 9, 18, 35, 75, 159, …
+
+### Tree Count Cross-Validation (N=3..20)
+
+| $N$ | A000055 (all) | A000672 ($\Delta \leq 3$) | A000602 ($\Delta \leq 4$) |
+| --- | ------------- | ------------------------- | ------------------------- |
+| 3   | 1             | 1                         | 1                         |
+| 5   | 3             | 2                         | 3                         |
+| 10  | 106           | 37                        | 75                        |
+| 15  | 7,741         | 1,132                     | 4,347                     |
+| 20  | 823,065       | 52,233                    | 366,319                   |
+| 25  | 104,636,890   | —                         | —                         |
 
 | $N$ | Trees Enumerated | Rooted Processed | Time    | Throughput |
 | --- | ---------------- | ---------------- | ------- | ---------- |
@@ -135,15 +161,29 @@ python3 scripts/analyze_sequence.py
 
 ---
 
-## OEIS Submission Draft
+## OEIS Submission Drafts
+
+### Sequence 1: $\Delta \leq 3$ (Primary)
 
 **Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 3.
 
-**Data:** 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117
+**Data:** 5, 9, 14, 24, 41, 66, 110, 189, 305, 510, 863, 1425, 2345, 3987, 6515, 10905, 18254, 30135, 49913, 84546, 138170, 231117, 386222
 
 **Offset:** 3
 
-**Comments:** The path graph P*n minimizes independent sets (giving Fibonacci numbers) and the star graph K*{1,n-1} maximizes them (giving 2^{n-1}+1). When the maximum degree is restricted to at most 3, the star is forbidden for n >= 5 and the maximum defines this sequence. The extremal trees resemble balanced dendrimers. The asymptotic growth rate is approximately 1.669, strictly between the golden ratio (1.618...) and sqrt(3).
+**Comments:** The path graph P*n minimizes independent sets among trees (giving Fibonacci numbers, A000045) and the star graph K*{1,n-1} maximizes them (giving 2^{n-1}+1). When the maximum degree is restricted to at most 3 ("boron trees," cf. A000672), the star is forbidden for n >= 5 and the maximum defines this sequence. The extremal trees resemble balanced dendrimers. The asymptotic growth rate is approximately 1.669, strictly between the golden ratio (1.618...) and sqrt(3). The number of trees searched at each n matches A000672.
+
+**Author:** Shane Jaroch and JD Nir, 2026
+
+### Sequence 2: $\Delta \leq 4$
+
+**Name:** Maximum number of independent sets in a tree on n vertices with maximum degree at most 4.
+
+**Data:** 5, 9, 17, 26, 44, 80, 145, 226, 388, 684, 1241, 1970, 3330, 5868, 10657, 17001, 28674, 50508, 90949, 147177, 247698, 432234, 778829
+
+**Offset:** 3
+
+**Comments:** Maximum of the Merrifield-Simmons index (number of independent sets including the empty set) over all trees on n vertices with maximum degree at most 4 ("alkane trees," cf. A000602). For n <= 4, the star K\_{1,n-1} is admissible and achieves the maximum. For n >= 5, the extremal trees exhibit a hub-spoke pattern with degree-4 hubs connected to binary sub-dendrimers. Growth rate approximately 1.72.
 
 **Author:** Shane Jaroch and JD Nir, 2026
 

@@ -3,6 +3,7 @@
 
 import json
 import os
+import shutil
 
 JSONL = "docs/runs/sequence.jsonl"
 OUTDIR = "docs/extremal_trees"
@@ -60,8 +61,6 @@ for n in SHOW_N:
         f.write(dot)
     print(f"  {outpath}")
 
-# Render if graphviz available
-import shutil
 
 if shutil.which("dot"):
     print("\nRendering PNGs...")

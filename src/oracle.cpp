@@ -413,7 +413,8 @@ static void init_campus() {
         {3, 12}, {3, 13}, {3, 14}, {3, 15},  // switch 3 -> wing C
         {1, 2},  {2, 3},                     // bridge links between switches
     };
-    for (const auto& e : campus_edges) edges[num_edges++] = {e[0], e[1]};
+    for (int i = 0; i < 17; i++)
+        edges[num_edges++] = {campus_edges[i][0], campus_edges[i][1]};
 }
 
 static void init_graph(const GameConfig& cfg) {

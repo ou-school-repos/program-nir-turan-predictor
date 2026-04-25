@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Analyze the Δ≤3 constrained extremal sequence for recurrence relations."""
+"""Analyze the d<=3 constrained extremal sequence for recurrence relations."""
+
+import math
+
+import numpy as np
 
 # Verified values from exhaustive enumeration
 seq = [
@@ -38,7 +42,6 @@ for i in range(1, len(seq)):
 
 # Check for linear recurrence of order k
 print("\n--- Recurrence Hunting ---")
-import numpy as np
 
 for order in range(2, 7):
     # Build system: a(n) = c1*a(n-1) + c2*a(n-2) + ... + ck*a(n-k)
@@ -81,16 +84,14 @@ for order in range(2, 7):
 print("\n--- Parity Analysis (Even vs Odd N) ---")
 even = [(i + 3, seq[i]) for i in range(len(seq)) if (i + 3) % 2 == 0]
 odd = [(i + 3, seq[i]) for i in range(len(seq)) if (i + 3) % 2 == 1]
-print(f"  Even N: {', '.join(f'{n}:{v}' for n,v in even)}")
-print(f"  Odd  N: {', '.join(f'{n}:{v}' for n,v in odd)}")
+print(f"  Even N: {', '.join(f'{n}:{v}' for n, v in even)}")
+print(f"  Odd  N: {', '.join(f'{n}:{v}' for n, v in odd)}")
 
 # Asymptotic growth
-import math
-
 if len(seq) >= 4:
     growth = seq[-1] / seq[-2]
     base = math.pow(seq[-1] / seq[0], 1.0 / (len(seq) - 1))
-    print(f"\n--- Asymptotic ---")
+    print("\n--- Asymptotic ---")
     print(f"  Last ratio: {growth:.6f}")
     print(f"  Geometric mean base: {base:.6f}")
     print(f"  (Compare: golden ratio = {(1+math.sqrt(5))/2:.6f})")
