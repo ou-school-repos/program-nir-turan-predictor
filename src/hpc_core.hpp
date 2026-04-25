@@ -45,12 +45,14 @@ struct FlatHashSet {
     uint64_t count;
 
     FlatHashSet() : keys(nullptr), cap(0), mask(0), count(0) {}
+    FlatHashSet(const FlatHashSet&) = delete;
+    FlatHashSet& operator=(const FlatHashSet&) = delete;
 
     void init(uint64_t expected) {
         cap = 1;
         while (cap < expected * 2) cap <<= 1;
         mask = cap - 1;
-        keys = (Hash128*)calloc(cap, sizeof(Hash128));
+        keys = static_cast<Hash128*>(calloc(cap, sizeof(Hash128)));
         count = 0;
     }
 

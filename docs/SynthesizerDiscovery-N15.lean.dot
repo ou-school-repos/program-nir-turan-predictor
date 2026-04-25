@@ -1,0 +1,119 @@
+graph SynthDiscovery {
+  bgcolor="#0d1117"; layout=twopi; ranksep=1.5;
+  splines=true; overlap=false;
+  graph [
+    label=<
+      <TABLE BORDER="0" CELLSPACING="0">
+        <TR><TD><B><FONT POINT-SIZE="20" COLOR="#e6edf3">Topology Discovery (N=15)</FONT></B></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12" COLOR="#8b949e">Path: 1,597 IS | Top: 16,385 IS (10.26x)</FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="11" COLOR="#58a6ff">λ_max=1.8667 | Wiener=196</FONT></TD></TR>
+      </TABLE>
+    > labelloc=t fontname="Helvetica"
+  ];
+  node [shape=none, fontname="Helvetica"];
+
+  0 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N0</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  1 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#ff0000">
+      <tr><td colspan="2"><font color="#000000"><b>N1</b></font></td></tr>
+      <tr><td><font color="#000000">Deg</font></td><td><font color="#000000">14</font></td></tr>
+      <tr><td><font color="#000000">BC</font></td><td><font color="#000000">91</font></td></tr>
+    </table>>];
+  2 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N2</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  3 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N3</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  4 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N4</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  5 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N5</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  6 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N6</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  7 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N7</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  8 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N8</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  9 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N9</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  10 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N10</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  11 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N11</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  12 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N12</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  13 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N13</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  14 [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="#21c4db">
+      <tr><td colspan="2"><font color="#e6edf3"><b>N14</b></font></td></tr>
+      <tr><td><font color="#e6edf3">Deg</font></td><td><font color="#e6edf3">1</font></td></tr>
+      <tr><td><font color="#e6edf3">BC</font></td><td><font color="#e6edf3">0</font></td></tr>
+    </table>>];
+  0 -- 1 [penwidth=7.5, color="#495057"];
+  1 -- 2 [penwidth=7.5, color="#495057"];
+  1 -- 3 [penwidth=7.5, color="#495057"];
+  1 -- 4 [penwidth=7.5, color="#495057"];
+  1 -- 5 [penwidth=7.5, color="#495057"];
+  1 -- 6 [penwidth=7.5, color="#495057"];
+  1 -- 7 [penwidth=7.5, color="#495057"];
+  1 -- 8 [penwidth=7.5, color="#495057"];
+  1 -- 9 [penwidth=7.5, color="#495057"];
+  1 -- 10 [penwidth=7.5, color="#495057"];
+  1 -- 11 [penwidth=7.5, color="#495057"];
+  1 -- 12 [penwidth=7.5, color="#495057"];
+  1 -- 13 [penwidth=7.5, color="#495057"];
+  1 -- 14 [penwidth=7.5, color="#495057"];
+}

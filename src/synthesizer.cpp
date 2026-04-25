@@ -264,7 +264,7 @@ static uint64_t generate(int n, int top_k) {
             top_k_add(score, L, n);
         }
 
-        // Progress
+        // Progress (in-place overwrite)
         if (unique >= last_reported + 100000) {
             last_reported = unique;
             auto now = std::chrono::high_resolution_clock::now();
@@ -273,11 +273,15 @@ static uint64_t generate(int n, int top_k) {
             double rate = unique / (ms / 1000.0);
             uint64_t target = (n <= 30) ? A000055[n] : 0;
             if (target > 0) {
-                fprintf(stderr, "  [c++] %luK / %luK trees | %.1fs | %.0fK/s\n",
-                        unique / 1000, target / 1000, ms / 1000.0,
-                        rate / 1000.0);
+                double pct = 100.0 * unique / target;
+                double eta_s = (target - unique) / rate;
+                fprintf(stderr,
+                        "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
+                        "%.0fK/s | ETA %.0fs   ",
+                        unique / 1000, target / 1000, pct, ms / 1000.0,
+                        rate / 1000.0, eta_s);
             } else {
-                fprintf(stderr, "  [c++] %luK trees | %.1fs | %.0fK/s\n",
+                fprintf(stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
                         unique / 1000, ms / 1000.0, rate / 1000.0);
             }
         }
@@ -298,12 +302,41 @@ static uint64_t generate(int n, int top_k) {
     double elapsed_ms =
         std::chrono::duration<double, std::milli>(t_end - t_start).count();
 
+    // End-of-run summary
+    double dedup_ratio = (double)rooted / unique;
+    double load = (double)seen.size() / seen.cap;
+    uint64_t top1 = top_k_vec.empty() ? 0 : top_k_vec[0].score;
+    uint64_t p_sc = path_score(n);
     fprintf(stderr,
-            "  Scanned %lu unique / %lu rooted in %.1f ms (%.0f trees/sec)\n",
-            unique, rooted, elapsed_ms, unique / (elapsed_ms / 1000.0));
+            "\n  ═══════════════════════════════════════════════\n"
+            "  N=%d | %lu unique / %lu rooted | %.1fs\n"
+            "  Throughput: %.0f trees/sec | Dedup ratio: %.1fx\n"
+            "  Hash load: %.1f%% (%lu / %lu slots)\n"
+            "  Top-1: %lu (%.2fx vs path)\n"
+            "  ═══════════════════════════════════════════════\n",
+            n, unique, rooted, elapsed_ms / 1000.0,
+            unique / (elapsed_ms / 1000.0), dedup_ratio, load * 100.0,
+            seen.size(), seen.cap, top1, (double)top1 / p_sc);
+
+    // Auto-log to docs/runs/benchmark.log
+    {
+        system("mkdir -p docs/runs");
+        FILE* log = fopen("docs/runs/benchmark.log", "a");
+        if (log) {
+            auto now = std::chrono::system_clock::now();
+            auto t = std::chrono::system_clock::to_time_t(now);
+            char ts[32];
+            strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S", localtime(&t));
+            fprintf(log,
+                    "%s | N=%d | %lu trees | %lu rooted | %.1fs | "
+                    "%.0f trees/sec\n",
+                    ts, n, unique, rooted, elapsed_ms / 1000.0,
+                    unique / (elapsed_ms / 1000.0));
+            fclose(log);
+        }
+    }
 
     // JSON output
-    uint64_t p_sc = path_score(n);
     printf("{\n");
     printf("  \"n\": %d,\n", n);
     printf("  \"trees_scanned\": %lu,\n", unique);

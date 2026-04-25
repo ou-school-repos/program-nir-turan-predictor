@@ -642,18 +642,92 @@ class FinanceModule:
 
 
 # =========================================================================
+# PURE PYTHON GRAPH INVARIANTS (Zero Dependencies)
+# =========================================================================
+class GraphInvariants:
+    """Wiener Index, Spectral Radius, Brandes Betweenness."""
+
+    @staticmethod
+    def wiener_index(n, adj_list):
+        """Sum of all shortest paths (routing compactness)."""
+        wiener = 0
+        for i in range(n):
+            dist = [-1] * n
+            dist[i] = 0
+            q = [i]
+            while q:
+                curr = q.pop(0)
+                for nxt in adj_list[curr]:
+                    if dist[nxt] == -1:
+                        dist[nxt] = dist[curr] + 1
+                        wiener += dist[nxt]
+                        q.append(nxt)
+        return wiener // 2
+
+    @staticmethod
+    def spectral_radius(n, adj_list):
+        """Power iteration for largest adjacency eigenvalue."""
+        import math
+
+        vec = [1.0] * n
+        for _ in range(50):
+            nxt = [0.0] * n
+            norm_sq = 0.0
+            for i in range(n):
+                for j in adj_list[i]:
+                    nxt[i] += vec[j]
+                norm_sq += nxt[i] ** 2
+            norm = math.sqrt(norm_sq) if norm_sq > 0 else 1.0
+            vec = [x / norm for x in nxt]
+        eigenvalue = sum(vec[i] * vec[j] for i in range(n) for j in adj_list[i])
+        return eigenvalue
+
+    @staticmethod
+    def betweenness_centrality(n, adj_list):
+        """Brandes' algorithm for betweenness centrality."""
+        cb = {i: 0.0 for i in range(n)}
+        for s in range(n):
+            stack = []
+            pred = {w: [] for w in range(n)}
+            sigma = {w: 0 for w in range(n)}
+            dist = {w: -1 for w in range(n)}
+            sigma[s] = 1
+            dist[s] = 0
+            queue = [s]
+            while queue:
+                v = queue.pop(0)
+                stack.append(v)
+                for w in adj_list[v]:
+                    if dist[w] < 0:
+                        queue.append(w)
+                        dist[w] = dist[v] + 1
+                    if dist[w] == dist[v] + 1:
+                        sigma[w] += sigma[v]
+                        pred[w].append(v)
+            delta = {w: 0.0 for w in range(n)}
+            while stack:
+                w = stack.pop()
+                for v in pred[w]:
+                    delta[v] += (sigma[v] / sigma[w]) * (1.0 + delta[w])
+                if w != s:
+                    cb[w] += delta[w]
+        for i in cb:
+            cb[i] /= 2.0
+        return cb
+
+
+# =========================================================================
 # MODULE 5: SYNTHESIZER (Unsupervised Topology Discovery)
 # =========================================================================
 class SynthesizerModule:
     @staticmethod
     def execute(fn):
+        import json
+        import subprocess
+
         N = int(os.environ.get("SYNTH_N", "21"))
-        method = os.environ.get("SYNTH_METHOD", "level")
         top_k = int(os.environ.get("SYNTH_TOP", "10"))
-        print(
-            f"{CYN}[Synthesizer] Unsupervised Tree Enumeration "
-            f"(N={N}, method={method}).{RST}"
-        )
+        print(f"{CYN}[Synthesizer] Unsupervised Tree Enumeration " f"(N={N}).{RST}")
 
         synth_bin = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -664,20 +738,16 @@ class SynthesizerModule:
             print("  Build it with: make synthesizer")
             sys.exit(1)
 
-        import json
-        import subprocess
-
         result = subprocess.run(
-            [synth_bin, str(N), "--method", method, "--top", str(top_k)],
+            [synth_bin, str(N), "--top", str(top_k)],
             stdout=subprocess.PIPE,
-            stderr=None,  # inherit — streams live to terminal
+            stderr=None,
             text=True,
         )
 
         data = json.loads(result.stdout)
         trees = data["trees_scanned"]
         p_score = data["path_score"]
-
         elapsed = data["elapsed_ms"]
         tps = data["trees_per_sec"]
 
@@ -686,33 +756,8 @@ class SynthesizerModule:
             f"({tps:,.0f} trees/sec)"
         )
 
-        top = data.get("top_anomaly")
-        if top:
-            print(
-                f"{GRN}  [Discovery] Top anomaly: score={top['score']:,} "
-                f"(path={p_score:,}, ratio={top['ratio']:.2f}){RST}"
-            )
-            print(f"  [Structure] Degree sequence: {top['degree_sequence']}")
-
-            # Build adjacency list for visualizer
-            adj = [row for row in top["adj"]]
-            base = os.path.basename(fn).replace(".lean", f"-N{N}.lean")
-            dot_path = os.path.join("docs", base + ".dot")
-            lean_path = fn.replace(".lean", f"-N{N}.lean")
-            Visualizer.export_synthesized(dot_path, N, adj, p_score, top["score"])
-
-            with open(lean_path, "w") as out:
-                out.write(
-                    f"import Mathlib.Tactic\n"
-                    f"def synth_n : Nat := {N}\n"
-                    f"def path_score : Nat := {p_score}\n"
-                    f"def synth_score : Nat := {top['score']}\n"
-                    f"def trees_scanned : Nat := {trees}\n"
-                    f"theorem anomaly_discovered : "
-                    f"synth_score > path_score "
-                    f":= by decide\n"
-                )
-        else:
+        top_list = data.get("top_k", [])
+        if not top_list:
             print("  [Result] No anomalies found.")
             lean_path = fn.replace(".lean", f"-N{N}.lean")
             with open(lean_path, "w") as out:
@@ -722,6 +767,116 @@ class SynthesizerModule:
                     f"def synth_n : Nat := {N}\n"
                     f"def path_score : Nat := {p_score}\n"
                 )
+            return
+
+        top = top_list[0]
+        print(
+            f"{GRN}  [Discovery] Top anomaly: score={top['score']:,} "
+            f"(path={p_score:,}, ratio={top['ratio']:.2f}){RST}"
+        )
+
+        # Build adjacency list from edge list
+        edges = top["edges"]
+        adj_list = {i: [] for i in range(N)}
+        for u, v in edges:
+            adj_list[u].append(v)
+            adj_list[v].append(u)
+
+        # Compute graph invariants
+        wiener = GraphInvariants.wiener_index(N, adj_list)
+        spec_rad = GraphInvariants.spectral_radius(N, adj_list)
+        cent = GraphInvariants.betweenness_centrality(N, adj_list)
+        max_cent = max(cent.values()) if cent else 1.0
+
+        print(
+            f"  [Invariants] Wiener={wiener:,} | "
+            f"λ_max={spec_rad:.4f} | "
+            f"MaxBetweenness={max_cent:.1f}"
+        )
+
+        # Print top-K table
+        print(
+            f"\n  {YEL}{'Rank':<5} {'Score':<10} {'Ratio':<8} "
+            f"{'Dia':<5} {'Leaves':<7} {'MaxDeg':<7}{RST}"
+        )
+        print(f"  {'-' * 45}")
+        for t in top_list:
+            print(
+                f"  {t['rank']:<5} {t['score']:<10} "
+                f"{t['ratio']:>5.2f}x  {t['diameter']:<5} "
+                f"{t['leaves']:<7} {t['max_degree']:<7}"
+            )
+
+        # Visualize top anomaly with thermal centrality heatmap
+        base = os.path.basename(fn).replace(".lean", f"-N{N}.lean")
+        dot_path = os.path.join("docs", base + ".dot")
+        lean_path = fn.replace(".lean", f"-N{N}.lean")
+
+        with open(dot_path, "w") as f:
+            f.write(
+                f"graph SynthDiscovery {{\n"
+                f'  bgcolor="#0d1117"; layout=twopi; ranksep=1.5;\n'
+                f"  splines=true; overlap=false;\n"
+                f"  graph [\n"
+                f"    label=<\n"
+                f'      <TABLE BORDER="0" CELLSPACING="0">\n'
+                f'        <TR><TD><B><FONT POINT-SIZE="20"'
+                f' COLOR="#e6edf3">Topology Discovery'
+                f" (N={N})</FONT></B></TD></TR>\n"
+                f'        <TR><TD><FONT POINT-SIZE="12"'
+                f' COLOR="#8b949e">Path: {p_score:,} IS |'
+                f' Top: {top["score"]:,} IS'
+                f' ({top["ratio"]:.2f}x)</FONT></TD></TR>\n'
+                f'        <TR><TD><FONT POINT-SIZE="11"'
+                f' COLOR="#58a6ff">λ_max={spec_rad:.4f} |'
+                f" Wiener={wiener:,}</FONT></TD></TR>\n"
+                f"      </TABLE>\n"
+                f'    > labelloc=t fontname="Helvetica"\n'
+                f"  ];\n"
+                f'  node [shape=none, fontname="Helvetica"];\n\n'
+            )
+            for i in range(N):
+                deg = len(adj_list[i])
+                norm = cent[i] / max_cent if max_cent > 0 else 0
+                # Thermal: blue(cold) → red(hot)
+                r = int(255 * norm) if norm > 0.3 else 33
+                g = int(196 * (1 - norm))
+                b = 219 if norm < 0.3 else int(50 * (1 - norm))
+                color = f"#{r:02x}{g:02x}{b:02x}"
+                fc = "#e6edf3" if norm < 0.5 else "#000000"
+                f.write(
+                    f"  {i} [label=<\n"
+                    f'    <table border="0" cellborder="1"'
+                    f' cellspacing="0" cellpadding="4"'
+                    f' bgcolor="{color}">\n'
+                    f'      <tr><td colspan="2"><font'
+                    f' color="{fc}"><b>N{i}</b></font>'
+                    f"</td></tr>\n"
+                    f'      <tr><td><font color="{fc}">'
+                    f'Deg</font></td><td><font color="{fc}">'
+                    f"{deg}</font></td></tr>\n"
+                    f'      <tr><td><font color="{fc}">'
+                    f'BC</font></td><td><font color="{fc}">'
+                    f"{cent[i]:.0f}</font></td></tr>\n"
+                    f"    </table>>];\n"
+                )
+            for u, v in edges:
+                w = (len(adj_list[u]) + len(adj_list[v])) / 2.0
+                f.write(f"  {u} -- {v} [penwidth={w:.1f}," f' color="#495057"];\n')
+            f.write("}\n")
+
+        with open(lean_path, "w") as out:
+            out.write(
+                f"import Mathlib.Tactic\n"
+                f"def synth_n : Nat := {N}\n"
+                f"def path_score : Nat := {p_score}\n"
+                f"def synth_score : Nat := {top['score']}\n"
+                f"def trees_scanned : Nat := {trees}\n"
+                f"def wiener_index : Nat := {wiener}\n"
+                f"theorem anomaly_discovered : "
+                f"synth_score > path_score "
+                f":= by decide\n"
+            )
 
 
 class OracleModule:
@@ -743,10 +898,12 @@ class OracleModule:
 
         result = subprocess.run(
             [oracle_bin, module_name, fn],
-            stderr=None,  # inherit — streams live to terminal
+            stderr=None,
         )
         if result.returncode != 0:
-            print(f"{RED}  [Error] Oracle exited with code {result.returncode}{RST}")
+            print(
+                f"{RED}  [Error] Oracle exited with code " f"{result.returncode}{RST}"
+            )
             sys.exit(1)
 
 
@@ -760,7 +917,10 @@ MODULES = {
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} <module> <output.lean>", file=sys.stderr)
+        print(
+            f"Usage: {sys.argv[0]} <module> <output.lean>",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     module = sys.argv[1]

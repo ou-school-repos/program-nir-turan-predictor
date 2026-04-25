@@ -249,14 +249,14 @@ vector<vector<int>> prufer_to_tree(const vector<int>& p, int N) {
     for (int x : p) deg[x]++;
     vector<vector<int>> adj(N);
     for (int x : p) {
-        for (int i = 0; i < N; i++) {
-            if (deg[i] == 1) {
-                adj[i].push_back(x);
-                adj[x].push_back(i);
-                deg[i]--;
-                deg[x]--;
-                break;
-            }
+        auto it =
+            std::find_if(deg.begin(), deg.end(), [](int d) { return d == 1; });
+        if (it != deg.end()) {
+            int i = std::distance(deg.begin(), it);
+            adj[i].push_back(x);
+            adj[x].push_back(i);
+            deg[i]--;
+            deg[x]--;
         }
     }
     int u = -1, v = -1;
