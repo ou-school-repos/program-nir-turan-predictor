@@ -95,6 +95,14 @@ lean: ##H Build Lean 4 verifiers
 	$(ensure_lake_packages)
 	cd proofs && lake build
 
+
+.PHONY: doc
+F ?= docs/SEQUENCE_DISCOVERY.md
+doc: ##H Convert markdown to PDF (F=docs/file.md)
+	@$(call print_info,Generating PDF from $(F))
+	pandoc $(F) --pdf-engine=xelatex -V geometry:margin=1in -o $(basename $(F)).pdf
+	@$(call print_success,$(basename $(F)).pdf)
+
 .PHONY: lean-cache
 lean-cache: ##H Download mathlib cache
 	cd proofs && lake exe cache get
