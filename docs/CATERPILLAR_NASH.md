@@ -68,8 +68,8 @@ Computed via Alpha-Beta search with Zobrist transposition tables
 
 ### Model B (Spread-After-Cut)
 
-Computed via recursive Minimax with memoization
-(`.tmp/test_ideas07.cpp`).
+Computed via single-ignition recursive Minimax with memoization
+(`src/firefighter.cpp`).
 
 | $S \setminus K$ | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   |
 | --------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -128,9 +128,9 @@ make dendro
 bash scripts/sweep_caterpillar.sh
 python3 scripts/analyze_caterpillar.py
 
-# Model B (spread-after-cut)
-g++ -O3 -std=c++17 -o .tmp/test_ideas07 .tmp/test_ideas07.cpp
-./.tmp/test_ideas07
+# Model B (single-ignition firefighter)
+make firefighter
+./firefighter
 ```
 
 ## Data

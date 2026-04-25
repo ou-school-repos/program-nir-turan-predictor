@@ -152,10 +152,10 @@ This sequence is directly relevant to:
 make synthesizer
 
 # Run for a specific N (results auto-append to docs/runs/sequence.jsonl)
-./synthesizer 24 > proofs/synth-n24.json
+./synthesizer 22
 
-# Run the full sweep (N=3..23, ~5 minutes)
-bash scripts/sweep_d3.sh 23
+# Run the full sweep (N=0..20, ~30 seconds)
+bash scripts/sweep_d3.sh 20
 
 # Analyze the sequence
 python3 scripts/analyze_sequence.py

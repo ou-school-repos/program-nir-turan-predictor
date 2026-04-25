@@ -380,6 +380,7 @@ struct TTEntry {
 struct GameConfig {
     int gw, gh, nodes, depth;
     int cat_spine, cat_legs;  // caterpillar params (0 = not a caterpillar)
+    bool sync_mode;           // true = Model B (spread-after-cut)
     string label;
 };
 
@@ -389,16 +390,18 @@ static int num_nodes;
 static uint64_t z_node[MAX_N], z_edge[MAX_E], z_turn;
 static TTEntry* tt;
 static int burner_order[MAX_N];
+static bool sync_mode_flag = false;  // Model B switch
 
 static GameConfig parse_preset(const string& name) {
-    if (name == "path16") return {1, 16, 16, 12, 0, 0, "Path P(16)"};
-    if (name == "path20") return {1, 20, 20, 10, 0, 0, "Path P(20)"};
-    if (name == "path24") return {1, 24, 24, 10, 0, 0, "Path P(24)"};
-    if (name == "tree15") return {0, 0, 15, 12, 0, 0, "Binary Tree (15)"};
-    if (name == "campus") return {0, 0, 16, 14, 0, 0, "Campus Network"};
-    if (name == "grid3x5") return {3, 5, 15, 10, 0, 0, "Grid 3x5"};
-    if (name == "grid4x4") return {4, 4, 16, 8, 0, 0, "Grid 4x4"};
-    if (name == "grid5x5") return {5, 5, 25, 8, 0, 0, "Grid 5x5"};
+    if (name == "path16") return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
+    if (name == "path20") return {1, 20, 20, 10, 0, 0, false, "Path P(20)"};
+    if (name == "path24") return {1, 24, 24, 10, 0, 0, false, "Path P(24)"};
+    if (name == "tree15")
+        return {0, 0, 15, 12, 0, 0, false, "Binary Tree (15)"};
+    if (name == "campus") return {0, 0, 16, 14, 0, 0, false, "Campus Network"};
+    if (name == "grid3x5") return {3, 5, 15, 10, 0, 0, false, "Grid 3x5"};
+    if (name == "grid4x4") return {4, 4, 16, 8, 0, 0, false, "Grid 4x4"};
+    if (name == "grid5x5") return {5, 5, 25, 8, 0, 0, false, "Grid 5x5"};
     // Caterpillar presets: catS[xK] where S=spine length, K=legs per node
     // Default K=1 (simple caterpillar = backbone + access points)
     if (name.substr(0, 3) == "cat") {
@@ -420,9 +423,10 @@ static GameConfig parse_preset(const string& name) {
             depth,
             spine,
             legs,
+            false,
             "Caterpillar C(" + to_string(spine) + "," + to_string(legs) + ")"};
     }
-    return {1, 16, 16, 12, 0, 0, "Path P(16)"};
+    return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
 }
 
 static void init_tree15() {
@@ -613,8 +617,9 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                 int ei = cands[k];
                 uint64_t ne = alive_edges & ~(1ULL << ei);
                 int dummy = -1;
-                int val = alphabeta(burned, ne, depth - 1, alpha, beta, true,
-                                    dummy, nodes);
+                int val =
+                    alphabeta(sync_mode_flag ? spread_fire(burned, ne) : burned,
+                              ne, depth - 1, alpha, beta, true, dummy, nodes);
                 if (val < min_val) {
                     min_val = val;
                     best_move = ei;
@@ -632,12 +637,15 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
 
 }  // namespace adversarial
 
-void run_adversarial(const string& lean_fn, const string& preset) {
+void run_adversarial(const string& lean_fn, const string& preset,
+                     bool sync = false) {
     using namespace adversarial;
 
     auto cfg = parse_preset(preset);
+    cfg.sync_mode = sync;
     cout << CYN << "[Dendro] Adversarial: " << cfg.label << " (" << cfg.nodes
-         << "N, depth " << cfg.depth << ").\n"
+         << "N, depth " << cfg.depth << ", "
+         << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
          << RST;
     cout << MAG
          << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
@@ -646,6 +654,7 @@ void run_adversarial(const string& lean_fn, const string& preset) {
 
     init_graph(cfg);
     init_move_order(cfg);
+    sync_mode_flag = cfg.sync_mode;
     init_zobrist();
 
     uint32_t burned = 0;
@@ -764,7 +773,10 @@ int main(int argc, char** argv) {
         run_finance(lean_fn, dot_fn);
     else if (mode == "adversarial") {
         string preset = (argc >= 4) ? argv[3] : "path16";
-        run_adversarial(lean_fn, preset);
+        bool sync = false;
+        for (int i = 4; i < argc; i++)
+            if (string(argv[i]) == "--sync") sync = true;
+        run_adversarial(lean_fn, preset, sync);
     } else {
         cerr << RED << "Unknown module: " << mode << RST << "\n";
         return 1;

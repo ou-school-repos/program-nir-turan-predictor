@@ -129,6 +129,12 @@ dendro: ##H Build the C++ Dendro engine
 	g++ -O3 -march=native -std=c++17 -o dendro src/dendro.cpp
 	@$(call print_success,dendro built.)
 
+.PHONY: firefighter
+firefighter: ##H Build the single-ignition firefighter solver (Model B)
+	@$(call print_info,Building firefighter)
+	g++ -O3 -march=native -std=c++17 -o firefighter src/firefighter.cpp
+	@$(call print_success,firefighter built.)
+
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
