@@ -44,7 +44,7 @@ def builderMinBurn (adj : Array UInt32) (burned : UInt32)
       (List.range n).foldl (init := ([] : List (Nat × Nat))) fun acc u =>
         if testBit burned u then
           (List.range n).foldl (init := acc) fun acc2 v =>
-            if v > u && testBit (adj[u]!) v && !testBit burned v
+            if v != u && testBit (adj[u]!) v && !testBit burned v
             then (u, v) :: acc2
             else acc2
         else acc
