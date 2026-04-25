@@ -91,6 +91,104 @@ See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for the full analysis, 
 
 ---
 
+## Computer output
+
+\footnotesize
+
+````log
+Generating Epidemiology Policy [Scale: 64]
+[Dendro] Initializing Spatial Comb Graph (N=64) for BNC Verification.
+  -> Burning Number Conjecture Limit: b(G) <= 8 steps.
+  [Step 1] Drop at Node 7 | Saturation: 1.6%
+  [Step 2] Drop at Node 21 | Saturation: 7.8%
+  [Step 3] Drop at Node 27 | Saturation: 20.3%
+  [Step 4] Drop at Node 12 | Saturation: 39.1%
+  [Step 5] Drop at Node 0 | Saturation: 62.5%
+  [Step 6] Drop at Node 0 | Saturation: 82.8%
+  [Step 7] Drop at Node 0 | Saturation: 95.3%
+  [Step 8] Drop at Node 0 | Saturation: 100.0%
+  [Success] Decreasing Radius Heuristic defeated local minima! Saturation in 8 steps.
+Build completed successfully (3299 jobs).
+✓ Verified: policy_is_valid (native_decide evaluated to TRUE)
+==================================================
+
+CERTIFIED DEPLOYMENT LOGISTIC MAP:
+  [7, 21, 27, 12, 0, 0, 0, 0, ]
+theorem policy_satisfies_bnc : execute_burning grid_adj deployment_sequence = 0xFFFFFFFFFFFFFFFF ∧ deployment_sequence.length ≤ 8 := by native_decide
+MATHEMATICAL GUARANTEE: 100% network saturation achieved
+==================================================
+
+Generating Threat Hunting Playbook [Iter: 1000]
+[Dendro] 1-Visibility POMDP Tracker on Binary Tree.
+  [Success] Target isolated and captured in 33 deterministic probes.
+Build completed successfully (3299 jobs).
+✓ Verified: capture_guaranteed (native_decide evaluated to TRUE)
+==================================================
+
+CERTIFIED DRONE FLIGHT PLAYBOOK:
+  [15, 16, 3, 17, 18, 3, 19, 1, 9, 20, 1, 9, 1, 10, 0, 21, 22, 0, 23, 24, 0, 11, 2, 12, 6, 25, 26, 6, 27, 28, 6, 29, 30, ]
+theorem capture_guaranteed : execute_hunt cave_adj drone_routing_playbook = 0 := by native_decide
+MATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible
+==================================================
+
+```log
+Running Adversarial Burning
+[Dendro] Adversarial: Grid 4x4 (16N, depth 8).
+  -> Burner (Max) vs Builder (Min). Alpha-Beta with Zobrist TT.
+  [Search] Alpha-Beta pruning (depth=8 plies)...
+  [Ply 1] Burner drops on N13 (1 burned)
+  [Ply 2] Builder severs edge 9-13 (1 burned)
+  [Ply 3] Burner drops on N14 (2 burned)
+  [Ply 4] Builder severs edge 10-14 (2 burned)
+  [Ply 5] Burner drops on N12 (3 burned)
+  [Ply 6] Builder severs edge 8-12 (3 burned)
+  [Ply 7] Burner drops on N15 (4 burned)
+  [Ply 8] Builder severs edge 11-15 (4 burned)
+  [Nash Equilibrium] Builder limits destruction to 4/16 nodes.
+  [Telemetry] 55196 states searched in 8 ms
+[Dendro] Adversarial: Binary Tree (15) (15N, depth 12).
+  -> Burner (Max) vs Builder (Min). Alpha-Beta with Zobrist TT.
+  [Search] Alpha-Beta pruning (depth=12 plies)...
+  [Ply 1] Burner drops on N0 (1 burned)
+  [Ply 2] Builder severs edge 0-1 (1 burned)
+  [Ply 3] Burner drops on N2 (2 burned)
+  [Ply 4] Builder severs edge 0-2 (2 burned)
+  [Ply 5] Burner drops on N6 (3 burned)
+  [Ply 6] Builder severs edge 2-5 (3 burned)
+  [Ply 7] Burner drops on N13 (4 burned)
+  [Ply 8] Builder severs edge 6-14 (4 burned)
+  [Ply 10] Builder severs edge 2-6 (4 burned)
+  [Ply 12] Builder severs edge 6-13 (4 burned)
+  [Nash Equilibrium] Builder limits destruction to 4/15 nodes.
+  [Telemetry] 239145 states searched in 28 ms
+[Dendro] Adversarial: Campus Network (16N, depth 14).
+  -> Burner (Max) vs Builder (Min). Alpha-Beta with Zobrist TT.
+  [Search] Alpha-Beta pruning (depth=14 plies)...
+  [Ply 1] Burner drops on N3 (1 burned)
+  [Ply 2] Builder severs edge 0-3 (1 burned)
+  [Ply 3] Burner drops on N2 (2 burned)
+  [Ply 4] Builder severs edge 0-2 (2 burned)
+  [Ply 5] Burner drops on N8 (3 burned)
+  [Ply 6] Builder severs edge 2-8 (3 burned)
+  [Ply 7] Burner drops on N9 (4 burned)
+  [Ply 8] Builder severs edge 2-9 (4 burned)
+  [Ply 9] Burner drops on N10 (5 burned)
+  [Ply 10] Builder severs edge 2-10 (5 burned)
+  [Ply 11] Burner drops on N11 (6 burned)
+  [Ply 12] Builder severs edge 2-11 (6 burned)
+  [Ply 13] Burner drops on N12 (7 burned)
+  [Ply 14] Builder severs edge 3-12 (7 burned)
+  [Nash Equilibrium] Builder limits destruction to 7/16 nodes.
+  [Telemetry] 2379372 states searched in 139 ms
+Running Systemic Risk Audit [Scale: 64]
+[Dendro] Turan Limits & Systemic Risk Centrality (N=64).
+  -> Found 1032 edges (Mantel Limit = 1024). Supersaturation Triggered!
+  -> Exact Triangles (K3): 258
+✓ All pipelines verified.
+````
+
+---
+
 ### Epidemiology: Comb Graph BNC Deployment
 
 ![Burning Number Conjecture — Comb Graph Deployment](docs/epidemiology.svg)
