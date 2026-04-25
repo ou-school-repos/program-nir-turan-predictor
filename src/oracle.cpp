@@ -21,7 +21,7 @@ using namespace std::chrono;
 #define RED "\033[1;31m"
 
 // ============================================================================
-// MODULE 1: EPIDEMIOLOGY (Decreasing Radius APSP)
+// MODULE: EPIDEMIOLOGY (Decreasing Radius APSP)
 // ============================================================================
 void run_epidemiology(const string& lean_fn, const string& dot_fn) {
     int N = 64;
@@ -143,7 +143,7 @@ void run_epidemiology(const string& lean_fn, const string& dot_fn) {
 }
 
 // ============================================================================
-// MODULE 2: SURVEILLANCE (POMDP with Temporal Heatmap)
+// MODULE: SURVEILLANCE (POMDP with Temporal Heatmap)
 // ============================================================================
 void run_surveillance(const string& lean_fn, const string& dot_fn) {
     int N = 63;
@@ -242,151 +242,7 @@ void run_surveillance(const string& lean_fn, const string& dot_fn) {
 }
 
 // ============================================================================
-// MODULE 3: SPECTRUM (Unsupervised Machine Discovery via Prüfer Mutation)
-// ============================================================================
-vector<vector<int>> prufer_to_tree(const vector<int>& p, int N) {
-    vector<int> deg(N, 1);
-    for (int x : p) deg[x]++;
-    vector<vector<int>> adj(N);
-    for (int x : p) {
-        auto it =
-            std::find_if(deg.begin(), deg.end(), [](int d) { return d == 1; });
-        if (it != deg.end()) {
-            int i = std::distance(deg.begin(), it);
-            adj[i].push_back(x);
-            adj[x].push_back(i);
-            deg[i]--;
-            deg[x]--;
-        }
-    }
-    int u = -1, v = -1;
-    for (int i = 0; i < N; i++)
-        if (deg[i] == 1) {
-            if (u == -1)
-                u = i;
-            else
-                v = i;
-        }
-    if (u != -1 && v != -1) {
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-    }
-    return adj;
-}
-
-pair<uint64_t, uint64_t> indep_sets(int u, int p,
-                                    const vector<vector<int>>& adj) {
-    uint64_t excl = 1, incl = 1;
-    for (int v : adj[u]) {
-        if (v == p) continue;
-        auto c = indep_sets(v, u, adj);
-        excl *= (c.first + c.second);
-        incl *= c.first;
-    }
-    return {excl, incl};
-}
-
-void run_spectrum(const string& lean_fn, const string& dot_fn) {
-    int N = 25;
-    cout << CYN << "[Oracle] Unsupervised Topology Synthesizer (N=" << N
-         << ").\n"
-         << RST;
-
-    // Baseline Path Graph
-    vector<int> path_p(N - 2);
-    for (int i = 0; i < N - 2; i++) path_p[i] = i + 1;
-    auto p_adj = prufer_to_tree(path_p, N);
-    auto p_dp = indep_sets(0, -1, p_adj);
-    uint64_t baseline = p_dp.first + p_dp.second;
-
-    cout << MAG << "  -> Baseline Path P_" << N << ": " << baseline
-         << " Independent Sets\n"
-         << RST;
-
-    // Machine Discovery: Mutate Prüfer Sequence to MAXIMIZE Independent Sets
-    vector<int> current = path_p;
-    uint64_t best_score = baseline;
-    vector<int> best_p = current;
-
-    cout << "  [Search] Simulated Annealing on Prüfer sequences to maximize "
-            "network fragility...\n";
-    mt19937 rng(42);
-    auto start = high_resolution_clock::now();
-    double temp = 1000.0;
-    double cooling_rate = 0.9995;
-
-    for (int iter = 0; iter < 30000; iter++) {
-        vector<int> next = current;
-        next[rng() % (N - 2)] = rng() % N;
-        auto adj = prufer_to_tree(next, N);
-        auto dp = indep_sets(0, -1, adj);
-        uint64_t score = dp.first + dp.second;
-
-        if (score > best_score) {
-            best_score = score;
-            best_p = next;
-            current = next;
-        } else if (exp((double)(score - best_score) / temp) >
-                   uniform_real_distribution<double>(0.0, 1.0)(rng)) {
-            current = next;  // SA Escape
-        }
-        temp *= cooling_rate;
-    }
-    auto stop = high_resolution_clock::now();
-    auto final_adj = prufer_to_tree(best_p, N);
-
-    cout << GRN << "  [Discovery] Synthesized optimal pathological topology in "
-         << duration_cast<milliseconds>(stop - start).count() << " ms.\n"
-         << RST;
-    cout << CYN << "  -> Anomaly Score: " << best_score
-         << " Allocations (Delta: +" << (best_score - baseline) << ")\n"
-         << RST;
-
-    // --- DOT output with degree-colored HTML nodes ---
-    ofstream dot(dot_fn);
-    dot << "graph Spectrum {\n  layout=sfdp; overlap=false; splines=true;\n"
-        << "  graph [label=\"Unsupervised Topology Discovery (Simulated "
-           "Annealing)\\nPath Baseline: "
-        << baseline << " | Synthesized Star-Hub: " << best_score
-        << "\", fontname=\"Helvetica\", labelloc=t];\n"
-        << "  node [shape=none, fontname=\"Helvetica\"];\n";
-    for (int i = 0; i < N; i++) {
-        int deg = final_adj[i].size();
-        string color =
-            (deg > 5) ? "#ff4d4d" : (deg > 2 ? "#ffcc00" : "#e9ecef");
-        dot << "  " << i
-            << " [label=<\n    <table border=\"0\" cellborder=\"1\" "
-               "cellspacing=\"0\" cellpadding=\"6\" bgcolor=\""
-            << color << "\">\n"
-            << "      <tr><td colspan=\"2\"><b>N" << i
-            << "</b></td></tr>\n      <tr><td>Deg</td><td>" << deg
-            << "</td></tr>\n"
-            << "    </table>>];\n";
-    }
-    for (int i = 0; i < N; i++)
-        for (int j = i + 1; j < N; j++) {
-            bool connected = false;
-            for (int v : final_adj[i])
-                if (v == j) connected = true;
-            if (connected) {
-                int w = final_adj[i].size() + final_adj[j].size();
-                dot << "  " << i << " -- " << j << " [penwidth=" << (w / 2.0)
-                    << ", color=\"gray40\"];\n";
-            }
-        }
-    dot << "}\n";
-
-    // --- Lean proof ---
-    ofstream out(lean_fn);
-    out << "import Mathlib.Tactic\n\ndef path_allocations : Nat := " << baseline
-        << "\n";
-    out << "def discovered_allocations : Nat := " << best_score << "\n\n";
-    out << "theorem anomaly_verified : discovered_allocations > "
-           "path_allocations := by decide\n";
-}
-
-// ============================================================================
-// MODULE 4: FINANCE (Eigenvector Centrality & Alpha Transparency)
+// MODULE: FINANCE (Eigenvector Centrality & Alpha Transparency)
 // ============================================================================
 void run_finance(const string& lean_fn, const string& dot_fn) {
     int N = 64;
@@ -494,7 +350,7 @@ void run_finance(const string& lean_fn, const string& dot_fn) {
 }
 
 // ============================================================================
-// MODULE 5: ADVERSARIAL (Maker-Breaker Minimax with Zobrist Hashing)
+// MODULE: ADVERSARIAL (Maker-Breaker Minimax with Zobrist Hashing)
 // ============================================================================
 namespace adversarial {
 
@@ -777,8 +633,6 @@ int main(int argc, char** argv) {
         run_epidemiology(lean_fn, dot_fn);
     else if (mode == "surveillance")
         run_surveillance(lean_fn, dot_fn);
-    else if (mode == "spectrum")
-        run_spectrum(lean_fn, dot_fn);
     else if (mode == "finance")
         run_finance(lean_fn, dot_fn);
     else if (mode == "adversarial")

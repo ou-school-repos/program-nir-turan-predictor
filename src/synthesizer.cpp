@@ -224,6 +224,7 @@ static uint64_t generate(int n, int top_k) {
     top_k_init(top_k);
 
     auto t_start = std::chrono::high_resolution_clock::now();
+    auto t_last_progress = t_start;
 
     int L[MAX_N];
     for (int i = 0; i < n; i++) L[i] = i;
@@ -266,23 +267,29 @@ static uint64_t generate(int n, int top_k) {
 
         // Progress (in-place overwrite)
         if (unique >= last_reported + 100000) {
-            last_reported = unique;
             auto now = std::chrono::high_resolution_clock::now();
-            double ms = std::chrono::duration<double, std::milli>(now - t_start)
-                            .count();
-            double rate = unique / (ms / 1000.0);
+            double ms_total =
+                std::chrono::duration<double, std::milli>(now - t_start)
+                    .count();
+            double ms_delta =
+                std::chrono::duration<double, std::milli>(now - t_last_progress)
+                    .count();
+            double inst_rate = (unique - last_reported) / (ms_delta / 1000.0);
+            last_reported = unique;
+            t_last_progress = now;
+
             uint64_t target = (n <= 30) ? A000055[n] : 0;
             if (target > 0) {
                 double pct = 100.0 * unique / target;
-                double eta_s = (target - unique) / rate;
+                double eta_s = (target - unique) / inst_rate;
                 fprintf(stderr,
                         "\r  [c++] %luK / %luK (%.0f%%) | %.1fs | "
                         "%.0fK/s | ETA %.0fs   ",
-                        unique / 1000, target / 1000, pct, ms / 1000.0,
-                        rate / 1000.0, eta_s);
+                        unique / 1000, target / 1000, pct, ms_total / 1000.0,
+                        inst_rate / 1000.0, eta_s);
             } else {
                 fprintf(stderr, "\r  [c++] %luK trees | %.1fs | %.0fK/s    ",
-                        unique / 1000, ms / 1000.0, rate / 1000.0);
+                        unique / 1000, ms_total / 1000.0, inst_rate / 1000.0);
             }
         }
 

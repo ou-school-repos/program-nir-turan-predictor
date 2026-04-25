@@ -910,7 +910,6 @@ class OracleModule:
 MODULES = {
     "epidemiology": lambda fn: OracleModule.execute("epidemiology", fn),
     "surveillance": lambda fn: OracleModule.execute("surveillance", fn),
-    "spectrum": lambda fn: OracleModule.execute("spectrum", fn),
     "finance": lambda fn: OracleModule.execute("finance", fn),
     "adversarial": lambda fn: OracleModule.execute("adversarial", fn),
     "synthesize": SynthesizerModule.execute,

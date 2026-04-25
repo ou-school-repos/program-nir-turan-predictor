@@ -51,11 +51,11 @@ verify/surveillance: ##H Generate and certify drone surveillance playbook
 		printf "\033[1;36m==================================================\033[0m\n"; \
 	} | tee output.log
 
-.PHONY: run/spectrum
-run/spectrum: ##H Stress-test 6G frequency allocation
+.PHONY: run/adversarial
+run/adversarial: ##H Run adversarial Maker-Breaker game
 	@{ \
-		$(call print_info,Running 6G Signal Audit [Iter: $(ITER)]); \
-		$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean; \
+		$(call print_info,Running Adversarial Burning); \
+		$(PYTHON) src/solver.py adversarial proofs/Adversarial.lean; \
 	} | tee output.log
 
 .PHONY: run/finance
@@ -71,7 +71,7 @@ test/all: ##H Run all certification pipelines
 	@{ \
 		$(MAKE) --no-print-directory verify/epidemiology; \
 		$(MAKE) --no-print-directory verify/surveillance; \
-		$(MAKE) --no-print-directory run/spectrum; \
+		$(MAKE) --no-print-directory run/adversarial; \
 		$(MAKE) --no-print-directory run/finance; \
 	} | tee output.log
 	@$(call print_success,All pipelines verified.)
@@ -116,18 +116,17 @@ dots: oracle ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
 	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
 	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
-	@$(PYTHON) src/solver.py spectrum proofs/SignalAudit.lean
+	@$(PYTHON) src/solver.py adversarial proofs/Adversarial.lean
 	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize proofs/SynthesizerDiscovery.lean
 
 # Layout engine map: module -> engine
-# Epidemiology (fdp), Surveillance (dot), Spectrum (sfdp), Finance (sfdp), others (dot)
+# Epidemiology (fdp), Surveillance (dot), Finance (sfdp), others (dot)
 DOT_ENGINE = dot
 define render_dot
 	$(eval ENGINE := $(if $(findstring RiskAudit,$1),sfdp,\
-		$(if $(findstring SignalAudit,$1),sfdp,\
 		$(if $(findstring VectorDeployment,$1),fdp,\
-		dot))))
+		dot)))
 	$(ENGINE) -Gdpi=150 -Tgif "$1" -o "$2"
 endef
 
@@ -140,7 +139,6 @@ render: dots ##H Render all .dot visual proofs (requires graphviz)
 		engine=dot; \
 		case "$$base" in \
 			*RiskAudit*) engine=sfdp ;; \
-			*SignalAudit*) engine=sfdp ;; \
 			*VectorDeployment*) engine=fdp ;; \
 		esac; \
 		$$engine -Gdpi=150 -Tgif "$$f" -o "docs/out/$${base}.gif"; \
