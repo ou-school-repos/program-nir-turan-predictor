@@ -63,13 +63,13 @@ For each $k$, we loaded all connected graphs on $k$ vertices via `geng -c k`
 and tested every tree on $n$ vertices for $n \in \{7, 10, 13, 15\}$.
 Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 
-| $m = \|V(H)\|$ | connected $H$ (A001349) | $n$ tested    | violations |
-| -------------- | ----------------------- | ------------- | ---------- |
-| 4              | 6                       | 7, 10, 13, 15 | **0**      |
-| 5              | 21                      | 7, 10, 13, 15 | **0**      |
-| 6              | 112                     | 7, 10, 13, 15 | **0**      |
-| 7              | 853                     | 7, 10, 13, 15 | **0**      |
-| 8              | 11,117                  | 7, 10, 13, 15 | **0**      |
+| $m = \|V(H)\|$ | connected $H$ | $\sum$ graphs | ops ($H \times T \times n \times m^2$) | violations |
+| -------------- | ------------- | ------------- | -------------------------------------- | ---------- |
+| 4              | 6             | 6             | $1.3 \times 10^7$                      | **0**      |
+| 5              | 21            | 27            | $7.0 \times 10^7$                      | **0**      |
+| 6              | 112           | 139           | $5.4 \times 10^8$                      | **0**      |
+| 7              | 853           | 992           | $5.6 \times 10^9$                      | **0**      |
+| 8              | 11,117        | 12,109        | $9.5 \times 10^{10}$                   | **0**      |
 
 **New result:** No graph on $\le 8$ vertices is Leontovich at any $n \le 15$.
 
