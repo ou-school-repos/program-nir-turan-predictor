@@ -27,8 +27,8 @@
 \newcommand{\Hom}{\mathrm{hom}}
 
 \title{%
-  \textbf{[PREPRINT] Spectral Degeneracy, Topological Rigidity,}\\
-  \textbf{and the Limits of Path Optimality in Tree Homomorphisms}\\[0.5em]
+  \textbf{[PREPRINT] Spectral Structure of Path Minimizers}\\
+  \textbf{and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
   \large \textit{Bachelor's thesis}
 }
 \author{
@@ -52,7 +52,7 @@
 \begin{abstract}
 We investigate the minimization of graph homomorphisms among trees
 into fixed target graphs $H$, addressing open problems from
-Nir~\cite{nir2025}. We verify the odd-path minimizer conjecture
+Galvin et al.~\cite{nir2025}. We verify the odd-path minimizer conjecture
 computationally for $H = P_3, P_5, P_7, P_9$ up to source trees on
 $n = 22$ vertices, establishing $P_5$ as the transition point from
 total spectral degeneracy to strict topological rigidity. We push the
@@ -79,7 +79,8 @@ $\Hom(T, H)$ among trees $T$ on $n$ vertices for any target $H$.
 The dual question---which trees \emph{minimize} homomorphisms---remains
 largely open. Galvin and Tetali~\cite{galvin-tetali} conjectured that
 the path $P_n$ minimizes $\Hom(T, H)$ among $n$-vertex trees for all
-$H$. Leontovich first observed that this fails for certain targets;
+$H$. Leontovich~\cite{leontovich1989} first observed that this fails
+for certain targets;
 Csikv\'ari and Lin~\cite{csikvari-lin} systematically developed the
 theory via the KC-transformation. Recently, Galvin, McMillon, Nir, and
 Redlich~\cite{nir2025} demonstrated explicit bipartite counterexamples,
@@ -209,12 +210,15 @@ isolating $P_n$ as the strict unique minimizer.
 
 \begin{theorem}[1-Positive Eigenvalue Rule]
   \label{thm:spectral}
-  If the orbit-similarity (quotient) matrix of a bipartite graph $H$
-  has exactly one positive eigenvalue, then $H$ cannot be Leontovich.
+  Let $H$ be a rooted bipartite graph whose automorphism orbits respect
+  the bipartition (i.e., no orbit contains vertices from both sides).
+  If the quotient matrix of $H$ has exactly one positive eigenvalue,
+  then $H$ cannot be Leontovich.
 \end{theorem}
 
 \begin{proof}
-  Since $H$ is bipartite, its quotient spectrum is symmetric about zero.
+  Since the orbits respect the bipartition, the quotient matrix is
+  itself bipartite, so its spectrum is symmetric about zero.
   If there is exactly one positive eigenvalue $\lambda_1$, the non-zero
   spectrum is $\{\lambda_1, -\lambda_1\}$. By the transfer matrix
   decomposition,
@@ -362,7 +366,7 @@ requires a larger graph than $n = 13$.
 \end{table}
 
 \begin{remark}
-  Nir~\cite{nir2025} used $T(18,3,32)$ with $1{,}801$ vertices to prove
+  Galvin et al.~\cite{nir2025} used $T(18,3,32)$ with $1{,}801$ vertices to prove
   the $n = 7$ case. Our sweep shows $T(16,1,19)$ achieves it with only
   337 vertices.
 \end{remark}
@@ -431,7 +435,7 @@ Filtering $E_n^{(d)}$ for $n \le 200$ and $d \le 20$ across all
   \midrule
   All connected, $m \le 10$     & 11,989,760 & $m \ge 11$ \\
   Bipartite, $m \le 13$         & 2,581,354  & No Leontovich \\
-  Trees, $m \le 21$             & 2,976,835  & No Leontovich \\
+  Trees, $m \le 22$             & 8,600,591  & No Leontovich \\
   Symmetric trees, $|V| < 78$   & 5,357      & No Leontovich \\
   \bottomrule
 \end{tabular}
@@ -460,6 +464,34 @@ $\sim\!2$ hours. All source code is available at
 
 The author thanks J.\,D.\ Nir for advising this project and for
 the foundational results in~\cite{nir2025} that motivated this work.
+
+\appendix
+\section{Threshold Landscape Data}
+
+Table~\ref{tab:landscape_full} extends the threshold landscape
+(Table~\ref{tab:thresholds}) to confirm that no $T(x,1,z)$ graph with
+$|V| < 2{,}000$ achieves a Leontovich crossover at $n \ge 17$. The
+vertex count valley at $n = 13$ is therefore a true global minimum
+within the $T(x,y,z)$ family.
+
+\begin{table}[H]
+\centering
+\caption{Full threshold landscape for $T(x,1,z)$, $|V| \le 2{,}000$.}
+\label{tab:landscape_full}
+\begin{tabular}{@{}clcc@{}}
+  \toprule
+  Threshold $n$ & Smallest $T(x,1,z)$ & $|V|$ & Note \\
+  \midrule
+  5  & ---            & ---  & Algebraically impossible (Prop.~\ref{prop:n5}) \\
+  7  & $T(16,1,19)$   & 337  & \\
+  9  & $T(9,1,11)$    & 118  & \\
+  11 & $T(8,1,10)$    &  97  & \\
+  13 & $T(7,1,9)$     &  78  & \textbf{Global minimum} \\
+  15 & $T(8,1,12)$    & 113  & Vertex count increases \\
+  $\ge 17$ & ---       & $> 2{,}000$ & None found \\
+  \bottomrule
+\end{tabular}
+\end{table}
 
 \bibliographystyle{plain}
 \bibliography{references}

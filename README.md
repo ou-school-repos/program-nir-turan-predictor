@@ -188,6 +188,69 @@ Running Systemic Risk Audit [Scale: 64]
 
 ---
 
+## Leontovich Tree Sweep (m=22)
+
+Exhaustive sweep of all 5.6M non-isomorphic trees on 22 vertices,
+testing each as a potential Leontovich graph target via the
+`leontovich_fast` asymptotic spectral filter ($n \le 200$, $d \le 20$).
+
+```shell
+$ ./synthesizer 22 --export-g6 | ./leontovich_fast
+[c++ synthesizer] Enumerating trees on N=22 (top_k=10)
+  Path P(22) baseline: 46368 independent sets
+  [c++] 5622K / 5623K (100%) | 6803.1s | 0K/s | ETA 2s | pruned 0.0M     [filter] 5620000 graphs | 0 hits | 826/s | 6798s elapsed
+  ═══════════════════════════════════════════════
+  N=22 | 5623756 unique / 97055181 rooted | 6806.5s
+  Throughput: 826 trees/sec | Dedup ratio: 17.3x
+  Hash load: 33.5% (5623756 / 16777216 slots)
+  Trees: 5623756 (d≤3: 254371, d≤4: 2278658)
+  Top-1 (any): 2097153 (45.23x vs path)
+  Top-1 (d≤3): 84546 | Top-1 (d≤4): 147177
+  ═══════════════════════════════════════════════
+{
+  "n": 22,
+  "trees_scanned": 5623756,
+  "rooted_processed": 97055181,
+  "path_score": 46368,
+  "elapsed_ms": 6806481.7,
+  "trees_per_sec": 826,
+  "top_k": [
+    {
+      "constraint": "Delta <= 3 (Chemical / 6G Routing)",
+      "score": 84546,
+      "ratio": 1.82,
+      "max_degree": 3,
+      "diameter": 6,
+      "leaves": 12,
+      "edges": [[0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [5,7], [4,8], [8,9], [8,10], [3,11], [11,12], [12,13], [12,14], [11,15], [15,16], [15,17], [2,18], [18,19], [18,20], [1,21]]
+    },
+    {
+      "constraint": "Delta <= 4 (Telecom Hubs)",
+      "score": 147177,
+      "ratio": 3.17,
+      "max_degree": 4,
+      "diameter": 5,
+      "leaves": 15,
+      "edges": [[0,1], [1,2], [2,3], [3,4], [4,5], [4,6], [4,7], [3,8], [8,9], [8,10], [8,11], [3,12], [12,13], [12,14], [12,15], [2,16], [16,17], [16,18], [16,19], [1,20], [1,21]]
+    },
+    {
+      "constraint": "Unconstrained",
+      "score": 2097153,
+      "ratio": 45.23,
+      "max_degree": 21,
+      "diameter": 2,
+      "leaves": 21,
+      "edges": [[0,1], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10], [1,11], [1,12], [1,13], [1,14], [1,15], [1,16], [1,17], [1,18], [1,19], [1,20], [1,21]]
+    }
+  ]
+}
+
+Leontovich filter: 0 / 5623756 graphs flagged (n<=200, d<=20) | 6806s | 826 graphs/s
+{"event":"leontovich_filter_done","total":5623756,"hits":0,"elapsed_s":6806,"rate_per_s":826}
+```
+
+---
+
 ![Epidemiology: Comb Graph BNC Deployment](docs/epidemiology.svg)
 
 ![Autonomous Surveillance: POMDP Drone Playbook](docs/surveillance.svg)
