@@ -126,7 +126,7 @@ lean-cache: ##H Download mathlib cache
 N ?= 21
 
 .PHONY: build
-build: synthesizer dendro firefighter leontovich_fast leontovich_sa ##H Build all C++ binaries
+build: synthesizer dendro firefighter leontovich_fast leontovich_sa depth5_sweep ##H Build all C++ binaries
 
 synthesizer: src/synthesizer.cpp src/hpc_core.hpp ##H Build the C++ tree synthesizer
 	@$(call print_info,Building synthesizer)
@@ -152,6 +152,11 @@ leontovich_sa: src/leontovich_sa.cpp ##H Build the Leontovich SA search
 	@$(call print_info,Building leontovich_sa)
 	g++ -O3 -march=native -std=c++17 -o leontovich_sa src/leontovich_sa.cpp
 	@$(call print_success,leontovich_sa built.)
+
+depth5_sweep: src/depth5_sweep.cpp ##H Build the depth-5 Leontovich sweep
+	@$(call print_info,Building depth5_sweep)
+	g++ -O3 -march=native -std=c++17 -o depth5_sweep src/depth5_sweep.cpp
+	@$(call print_success,depth5_sweep built.)
 
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses

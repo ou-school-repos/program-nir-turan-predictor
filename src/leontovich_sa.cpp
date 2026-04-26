@@ -13,6 +13,8 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
+#include <numeric>
 #include <random>
 #include <sstream>
 #include <string>
@@ -67,9 +69,10 @@ static Graph make_symmetric_tree(const std::vector<int>& degrees) {
     G.clear();
     // Compute orbit sizes: orbit[0]=1, orbit[i]=prod(d1..di)
     std::vector<int> orbit_size = {1};
-    for (int d : degrees) orbit_size.push_back(orbit_size.back() * d);
-    int total = 0;
-    for (int s : orbit_size) total += s;
+    std::transform(degrees.begin(), degrees.end(),
+                   std::back_inserter(orbit_size),
+                   [&](int d) { return orbit_size.back() * d; });
+    int total = std::accumulate(orbit_size.begin(), orbit_size.end(), 0);
     if (total > MAXV) {
         std::cerr << "make_symmetric_tree: |V|=" << total
                   << " exceeds MAXV=" << MAXV << "\n";
