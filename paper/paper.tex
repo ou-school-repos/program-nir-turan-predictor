@@ -711,16 +711,12 @@ and $H$ is bipartite.
 \end{proposition}
 
 \noindent
-The mechanism is as follows.  When $n$ is even, both $P_n$ and
-$E_n^{(d)}$ admit a perfectly balanced bipartition with
-$n/2$ vertices on each side.  Because they share the same optimal
-macroscopic allocation to the bipartition classes of $H$, the
-purely linear geometry of $P_n$ minimises the internal projection
-onto $H$'s dominant eigenvector.  The defect tree $E_n^{(d)}$ can
-only exploit its secondary eigenvector to flip the leading
-coefficient when forced into an imbalanced partition with
-$\frac{n+1}{2}$ and $\frac{n-1}{2}$ vertices---which occurs
-precisely for odd~$n$.
+When $n$ is even, both $P_n$ and $E_n^{(d)}$ have a balanced
+bipartition ($n/2$ per side), so they project identically onto
+$H$'s dominant eigenvector.  The path's linear geometry then
+locks it in as the minimiser.  For odd~$n$, the partition is
+forced to $\frac{n+1}{2}$ vs.\ $\frac{n-1}{2}$, and the
+secondary eigenvector can flip the leading coefficient.
 
 We verified this computationally: across all target graphs tested
 (over 463~million bipartite graphs and 5.6~million trees), no
