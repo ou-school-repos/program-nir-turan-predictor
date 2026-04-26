@@ -11,7 +11,9 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cstring>
 #include <string>
+#include <vector>
 
 #include "hpc_core.hpp"
 
@@ -67,6 +69,84 @@ static uint64_t tree_hom(int n, int h) {
             uint64_t child_sum = 0;
             for (int ci = 0; ci < h; ci++)
                 if (adj_H[cp][ci]) child_sum += hc_dp[i][ci];
+            hc_dp[p][cp] *= child_sum;
+        }
+    }
+    uint64_t total = 0;
+    for (int c = 0; c < h; c++) total += hc_dp[0][c];
+    return total;
+}
+
+// =====================================================================
+// Leontovich Sweep: Inline multi-graph testing (for --leontovich mode)
+// =====================================================================
+static bool quiet_mode = false;
+
+struct TargetGraph {
+    std::string g6;
+    int h;
+    bool adj[32][32];
+    uint64_t path_score;
+    bool violation_found;
+};
+
+static std::vector<TargetGraph> leontovich_targets;
+static bool leontovich_mode = false;
+
+// Decode graph6 format into adjacency matrix
+static void parse_graph6(const char* g6, int& h_out, bool adj_out[32][32]) {
+    if (strncmp(g6, ">>graph6<<", 10) == 0) g6 += 10;
+
+    h_out = g6[0] - 63;
+    memset(adj_out, 0, 32 * 32 * sizeof(bool));
+
+    int k = 1;
+    int bit_pos = 5;
+    for (int col = 1; col < h_out; col++) {
+        for (int row = 0; row < col; row++) {
+            int val = g6[k] - 63;
+            if ((val >> bit_pos) & 1) {
+                adj_out[row][col] = true;
+                adj_out[col][row] = true;
+            }
+            if (--bit_pos < 0) {
+                k++;
+                bit_pos = 5;
+            }
+        }
+    }
+}
+
+// Compute hom(P_n, H) for a specific target adjacency matrix
+static uint64_t path_hom_target(int n, int h, const bool adj[32][32]) {
+    if (n <= 0) return 1;
+    if (n == 1) return (uint64_t)h;
+    uint64_t dp_prev[32], dp_cur[32] = {};
+    for (int c = 0; c < h; c++) dp_prev[c] = 1;
+    for (int step = 1; step < n; step++) {
+        for (int c = 0; c < h; c++) {
+            dp_cur[c] = 0;
+            for (int c2 = 0; c2 < h; c2++)
+                if (adj[c][c2]) dp_cur[c] += dp_prev[c2];
+        }
+        memcpy(dp_prev, dp_cur, h * sizeof(uint64_t));
+    }
+    uint64_t total = 0;
+    for (int c = 0; c < h; c++) total += dp_prev[c];
+    return total;
+}
+
+// Compute hom(T, H) for current tree with a specific target adj matrix
+static uint64_t tree_hom_target(int n, int h, const bool adj[32][32]) {
+    for (int v = 0; v < n; v++)
+        for (int c = 0; c < h; c++) hc_dp[v][c] = 1;
+
+    for (int i = n - 1; i > 0; i--) {
+        int p = parent_arr[i];
+        for (int cp = 0; cp < h; cp++) {
+            uint64_t child_sum = 0;
+            for (int ci = 0; ci < h; ci++)
+                if (adj[cp][ci]) child_sum += hc_dp[i][ci];
             hc_dp[p][cp] *= child_sum;
         }
     }
@@ -312,7 +392,12 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
     top_k_init(top_k);
 
     // Set H-coloring path baseline (must be after top_k_init resets it)
-    if (hcolor_h > 0) {
+    if (leontovich_mode) {
+        for (auto& tg : leontovich_targets) {
+            tg.path_score = path_hom_target(n, tg.h, tg.adj);
+            tg.violation_found = false;
+        }
+    } else if (hcolor_h > 0) {
         hc_path_score = path_hom(n, hcolor_h);
         // Star K_{1,n-1}: center maps to c, each leaf to a neighbor of c
         if (n >= 2) {
@@ -414,8 +499,32 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                 // Lazy top-K (invariants only for candidates)
                 top_k_add(score, L, n);
 
-                // H-coloring minimizer (if --hcolor active)
-                if (hcolor_h > 0) {
+                // Leontovich inline sweep (if --leontovich active)
+                if (leontovich_mode) {
+                    for (auto& tg : leontovich_targets) {
+                        if (tg.violation_found) continue;
+                        uint64_t hc = tree_hom_target(n, tg.h, tg.adj);
+                        if (hc < tg.path_score) {
+                            tg.violation_found = true;
+                            fprintf(stdout,
+                                    "\n*** LEONTOVICH GRAPH FOUND ***\n"
+                                    "Target H (graph6) = %s\n"
+                                    "Target |V| = %d\n"
+                                    "Tree vertices n = %d\n"
+                                    "hom(P_%d, H) = %lu\n"
+                                    "hom(T_%d, H) = %lu (Violation!)\n"
+                                    "Tree edges: ",
+                                    tg.g6.c_str(), tg.h, n, n, tg.path_score, n,
+                                    hc);
+                            for (int j = 1; j < n; j++)
+                                fprintf(stdout, "[%d,%d] ", parent_arr[j], j);
+                            fprintf(stdout,
+                                    "\n********************************\n");
+                            fflush(stdout);
+                        }
+                    }
+                    // H-coloring minimizer (if --hcolor active)
+                } else if (hcolor_h > 0) {
                     uint64_t hc = tree_hom(n, hcolor_h);
                     hc_sum += hc;
                     hc_podium_add(hc);
@@ -723,19 +832,22 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
 int main(int argc, const char* argv[]) {
     if (argc < 2 || strcmp(argv[1], "-h") == 0 ||
         strcmp(argv[1], "--help") == 0) {
-        fprintf(stderr,
-                "Usage: %s N [--top K] [--prune [D]] [--hcolor PK]\n"
-                "\n"
-                "  N          Number of vertices (0..%d)\n"
-                "  --top K    Track top-K extremal trees (default: 10)\n"
-                "  --prune    Hard-prune trees with degree > D (default D=4)\n"
-                "             --prune 3  prune degree > 3 (fastest for d3)\n"
-                "  --hcolor PK  Find tree minimizing hom(T, P_K)\n"
-                "               e.g. --hcolor P5 for odd path P_5\n"
-                "\n"
-                "Output: JSON to stdout, telemetry to stderr,\n"
-                "        auto-appends to docs/runs/sequence.jsonl\n",
-                argv[0], MAX_N);
+        fprintf(
+            stderr,
+            "Usage: %s N [--top K] [--prune [D]] [--hcolor PK]\n"
+            "           [--hgraph G6] [--leontovich K] [--quiet]\n"
+            "\n"
+            "  N              Number of vertices (0..%d)\n"
+            "  --top K        Track top-K extremal trees (default: 10)\n"
+            "  --prune [D]    Hard-prune trees with degree > D (default D=4)\n"
+            "  --hcolor PK    Find tree minimizing hom(T, P_K)\n"
+            "  --hgraph G6    Test single target H in graph6 format\n"
+            "  --leontovich K Run geng to test ALL connected H on K vertices\n"
+            "  --quiet        Suppress progress/JSON output\n"
+            "\n"
+            "Output: JSON to stdout, telemetry to stderr,\n"
+            "        auto-appends to docs/runs/sequence.jsonl\n",
+            argv[0], MAX_N);
         return 1;
     }
 
@@ -745,6 +857,8 @@ int main(int argc, const char* argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--top") == 0 && i + 1 < argc) {
             top_k = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--quiet") == 0) {
+            quiet_mode = true;
         } else if (strcmp(argv[i], "--prune") == 0) {
             // --prune alone defaults to 4, --prune 3 prunes at degree 3
             if (i + 1 < argc && argv[i + 1][0] >= '2' && argv[i + 1][0] <= '9')
@@ -768,6 +882,39 @@ int main(int argc, const char* argv[]) {
                         argv[i]);
                 return 1;
             }
+        } else if (strcmp(argv[i], "--hgraph") == 0 && i + 1 < argc) {
+            i++;
+            TargetGraph tg;
+            tg.g6 = argv[i];
+            parse_graph6(tg.g6.c_str(), tg.h, tg.adj);
+            tg.violation_found = false;
+            leontovich_targets.push_back(tg);
+            leontovich_mode = true;
+        } else if (strcmp(argv[i], "--leontovich") == 0 && i + 1 < argc) {
+            i++;
+            int k = atoi(argv[i]);
+            char cmd[256];
+            snprintf(cmd, sizeof(cmd), "geng -c %d -q 2>/dev/null", k);
+            FILE* pipe = popen(cmd, "r");
+            if (!pipe) {
+                fprintf(stderr, "Error: failed to run geng\n");
+                return 1;
+            }
+            char buf[256];
+            while (fgets(buf, sizeof(buf), pipe)) {
+                buf[strcspn(buf, "\r\n")] = 0;
+                if (strlen(buf) > 0) {
+                    TargetGraph tg;
+                    tg.g6 = buf;
+                    parse_graph6(buf, tg.h, tg.adj);
+                    tg.violation_found = false;
+                    leontovich_targets.push_back(tg);
+                }
+            }
+            pclose(pipe);
+            leontovich_mode = true;
+            fprintf(stderr, "  Loaded %zu connected graphs on %d vertices.\n",
+                    leontovich_targets.size(), k);
         } else if (argv[i][0] != '-' && n < 0) {
             n = atoi(argv[i]);
         }
@@ -796,5 +943,16 @@ int main(int argc, const char* argv[]) {
     }
 
     generate(n, top_k, prune_deg);
+
+    // Report Leontovich summary
+    if (leontovich_mode) {
+        int violations = 0;
+        for (const auto& tg : leontovich_targets)
+            if (tg.violation_found) violations++;
+        fprintf(
+            stderr,
+            "\n  Leontovich sweep: %d / %zu graphs are Leontovich at n=%d\n",
+            violations, leontovich_targets.size(), n);
+    }
     return 0;
 }

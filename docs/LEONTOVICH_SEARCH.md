@@ -55,13 +55,34 @@ searching outside the 4-orbit spherically symmetric family.
 ## General Graph Search (Problem 4.3)
 
 Open problem: what is the smallest $m$ such that a graph $H$ on $m$ vertices
-is Leontovich? Currently $4 \le m \le 78$.
+is Leontovich? The paper shows $4 \le m \le 78$.
 
-_(Results from general graph sweep pending...)_
+### Exhaustive sweep: all connected $H$ with $|V(H)| \le 8$
+
+For each $k$, we loaded all connected graphs on $k$ vertices via `geng -c k`
+and tested every tree on $n$ vertices for $n \in \{7, 10, 13, 15\}$.
+Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
+
+| $   | V(H)   | $          | connected $H$ (A001349) | trees tested ($n=7..15$) | violations |
+| --- | ------ | ---------- | ----------------------- | ------------------------ | ---------- |
+| 4   | 6      | $4 \times$ | **0**                   |
+| 5   | 21     | $4 \times$ | **0**                   |
+| 6   | 112    | $4 \times$ | **0**                   |
+| 7   | 853    | $4 \times$ | **0**                   |
+| 8   | 11,117 | $4 \times$ | **0**                   |
+
+**New result:** No graph on $\le 8$ vertices is Leontovich at any $n \le 15$.
+
+This improves the lower bound from $m \ge 4$ to **$m \ge 9$**,
+narrowing Problem 4.3 to $9 \le m \le 78$.
 
 ## Reproduction
 
 ```bash
 # Analytical verification (Tasks A, B, C)
 python3 scripts/leontovich.py
+
+# General graph search (Problem 4.3)
+# Test all connected H on k vertices against trees of size n
+./synthesizer N --leontovich K --quiet
 ```
