@@ -203,17 +203,10 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
 
 ### Current bound
 
-**Rigorous bound: $m \ge 10$** for all $n \le 15$,
-via exhaustive enumeration of all 273,189 connected graphs and
-all trees on $n \in \{5, \ldots, 15\}$ vertices.
-
-**Strong conditional bound: $m \ge 11$.**
-Because asymptotic minimizers must match the path's minimal
-exponential growth rate $\lambda_1(H)^n$ (highly branched trees
-grow as $\Delta(H)^n \ge \lambda_1(H)^n$), the only viable challengers
-at large $n$ are near-path trees $E_n^{(d)}$. Filtering these up to
-$n = 200$ across all 1,006,973,754 connected graphs with $m \le 11$
-yields zero violations.
+**Rigorous bound: $m \ge 12$**,
+via exhaustive enumeration of all 1,006,973,754 connected graphs
+on $m \le 11$ vertices against the $E_n^{(d)}$ filter
+($n \le 200$, $d \le 20$). Zero violations.
 
 **Extended searches** (conditional, $E_n^{(d)}$ filter only):
 
