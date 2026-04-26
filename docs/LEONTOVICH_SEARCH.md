@@ -212,13 +212,13 @@ Because asymptotic minimizers must match the path's minimal
 exponential growth rate $\lambda_1(H)^n$ (highly branched trees
 grow as $\Delta(H)^n \ge \lambda_1(H)^n$), the only viable challengers
 at large $n$ are near-path trees $E_n^{(d)}$. Filtering these up to
-$n = 200$ across all 11,989,760 connected graphs with $m \le 10$
+$n = 200$ across all 1,006,973,754 connected graphs with $m \le 11$
 yields zero violations.
 
 **Extended searches** (conditional, $E_n^{(d)}$ filter only):
 
-- No bipartite Leontovich graph on $\le 13$ vertices (2,581,354 graphs tested)
-- No tree Leontovich graph on $\le 21$ vertices (2,976,835 trees tested)
+- No bipartite Leontovich graph on $\le 15$ vertices (491,413,805 graphs tested)
+- No tree Leontovich graph on $\le 23$ vertices (23,428,665 trees tested)
 
 ## Reproduction
 

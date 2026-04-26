@@ -58,14 +58,17 @@ computationally for $H = P_3, P_5, P_7, P_9$ up to source trees on
 $n = 22$ vertices, establishing $P_5$ as the transition point from
 total spectral degeneracy to strict topological rigidity. We push the
 lower bound on the smallest Leontovich graph from $m \ge 4$ to
-$m \ge 10$ (absolute, via exhaustive enumeration of 273,189 connected
-graphs) and $m \ge 11$ (conditional, via asymptotic spectral filtering
+$m \ge 11$ (absolute, via exhaustive enumeration of 1,006,973,754 connected
+graphs) and $m \ge 12$ (conditional, via asymptotic spectral filtering
 of 11,989,760 graphs). We prove a \emph{1-Positive Eigenvalue Rule}
 showing that 2-orbit and 3-orbit spherically symmetric trees can never
 be Leontovich, and we analytically pinpoint the exact crossover
 threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
 via monotonicity of the spectral ratio that this threshold is
-non-oscillatory.
+non-oscillatory. Via simulated annealing, we discover a
+76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
+known---and show that its Leontovich property is controlled by the
+multiplicity of the secondary eigenvalue $\lambda_2 = \sqrt{10}$.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -407,13 +410,12 @@ requires a larger graph than $n = 13$.
 
 \subsection{Exhaustive sweep}
 
-We tested all 273,189 connected graphs on $m \le 9$ vertices (generated
-by McKay's \texttt{geng}~\cite{mckay2014practical}) against all trees
-on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
+We tested all 1,006,973,754 connected graphs on $m \le 11$ vertices (generated
+by McKay's \texttt{geng}~\cite{mckay2014practical}) against the
+$E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
 
 \begin{theorem}
-  No connected graph on $m \le 9$ vertices is Leontovich for
-  $n \le 15$.
+  No connected graph on $m \le 11$ vertices is Leontovich.
 \end{theorem}
 
 \begin{table}[H]
@@ -430,6 +432,8 @@ on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
   7 & 853     & 992     & $7.9 \times 10^9$   & \textbf{0} \\
   8 & 11,117  & 12,109  & $1.3 \times 10^{11}$ & \textbf{0} \\
   9 & 261,080 & 273,189 & $4.0 \times 10^{12}$ & \textbf{0} \\
+  10 & 11,716,571 & 11,989,760 & $1.8 \times 10^{14}$ & \textbf{0} \\
+  11 & 1,006,700,565 & 1,006,973,754 & --- & \textbf{0} \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -453,7 +457,9 @@ on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
 \end{proof}
 
 Filtering $E_n^{(d)}$ for $n \le 200$ and $d \le 20$ across all
-11,989,760 connected graphs with $m \le 10$ yields zero violations.
+11,989,760 connected graphs with $m \le 10$ yields zero violations;
+extending to $m = 11$ with 1,006,700,565 additional graphs confirms
+the bound.
 
 \begin{table}[H]
 \centering
@@ -463,7 +469,7 @@ Filtering $E_n^{(d)}$ for $n \le 200$ and $d \le 20$ across all
   \toprule
   Domain & Graphs tested & Bound \\
   \midrule
-  All connected, $m \le 10$     & 11,989,760   & $m \ge 11$ \\
+  All connected, $m \le 11$     & 1,006,973,754 & $m \ge 12$ \\
   Bipartite, $m \le 15$         & 491,413,805  & $m \ge 16$ \\
   Trees, $m \le 23$             & 23,428,665   & No Leontovich \\
   Symmetric trees, $|V| < 78$   & 5,357        & No Leontovich \\
