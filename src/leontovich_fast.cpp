@@ -118,46 +118,46 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    vector<string> lines;
-    lines.reserve(1 << 20);
-    {
-        string line;
-        while (cin >> line) {
-            if (!line.empty()) lines.push_back(move(line));
-        }
-    }
+    constexpr int BATCH = 250000;
+    vector<string> batch;
+    batch.reserve(BATCH);
 
-    int total_count = (int)lines.size();
+    int64_t total_count = 0;
     int leontovich_count = 0;
     auto t0 = chrono::steady_clock::now();
 
-    cerr << "  [filter] loaded " << total_count << " graphs" << endl;
+    auto process_batch = [&]() {
+        int bsz = (int)batch.size();
+        int local_total_hits = 0;
 
-#pragma omp parallel reduction(+ : leontovich_count)
-    {
-        int local_hits = 0;
-
-#pragma omp for schedule(dynamic, 1024)
-        for (int idx = 0; idx < total_count; idx++) {
+#pragma omp parallel for reduction(+ : local_total_hits) schedule(dynamic, 1024)
+        for (int idx = 0; idx < bsz; idx++) {
             Graph G;
-            parse_graph6(lines[idx].c_str(), G);
-            if (check_leontovich(G, lines[idx])) {
-                local_hits++;
-            }
-#ifdef _OPENMP
-            if (omp_get_thread_num() == 0 && idx % 100000 < 1024) {
-#else
-            if (idx % 100000 == 0) {
-#endif
-                auto now = chrono::steady_clock::now();
-                double secs = chrono::duration<double>(now - t0).count();
-                int rate = secs > 0 ? (int)(idx / secs) : 0;
-                cerr << "  [filter] " << idx << " / " << total_count << " | "
-                     << rate << "/s | " << (int)secs << "s elapsed\r" << flush;
+            parse_graph6(batch[idx].c_str(), G);
+            if (check_leontovich(G, batch[idx])) {
+                local_total_hits++;
             }
         }
-        leontovich_count += local_hits;
+
+        leontovich_count += local_total_hits;
+        total_count += bsz;
+        batch.clear();
+
+        auto now = chrono::steady_clock::now();
+        double secs = chrono::duration<double>(now - t0).count();
+        int rate = secs > 0 ? (int)(total_count / secs) : 0;
+        cerr << "  [filter] " << total_count << " graphs | " << leontovich_count
+             << " hits | " << rate << "/s | " << (int)secs << "s elapsed\r"
+             << flush;
+    };
+
+    string line;
+    while (cin >> line) {
+        if (line.empty()) continue;
+        batch.push_back(std::move(line));
+        if ((int)batch.size() >= BATCH) process_batch();
     }
+    if (!batch.empty()) process_batch();
 
     auto t1 = chrono::steady_clock::now();
     double total_secs = chrono::duration<double>(t1 - t0).count();

@@ -460,10 +460,11 @@ Filtering $E_n^{(d)}$ for $n \le 200$ and $d \le 20$ across all
   \toprule
   Domain & Graphs tested & Bound \\
   \midrule
-  All connected, $m \le 10$     & 11,989,760 & $m \ge 11$ \\
-  Bipartite, $m \le 13$         & 2,581,354  & No Leontovich \\
-  Trees, $m \le 22$             & 8,600,591  & No Leontovich \\
-  Symmetric trees, $|V| < 78$   & 5,357      & No Leontovich \\
+  All connected, $m \le 10$     & 11,989,760   & $m \ge 11$ \\
+  Bipartite, $m \le 14$         & 34,211,870   & No Leontovich \\
+  Bipartite, $m = 15$           & $\sim\!400$M & In progress \\
+  Trees, $m \le 22$             & 8,600,591    & No Leontovich \\
+  Symmetric trees, $|V| < 78$   & 5,357        & No Leontovich \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -481,9 +482,18 @@ precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, 31$, and evaluates
 $\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ using normalized
 matrix--vector iteration to prevent floating-point overflow.
 
-Throughput: $\sim\!970$ graphs/second on a single core (Intel
-Coffee Lake), sufficient to process 5.6\,M trees ($m = 22$) in
-$\sim\!2$ hours. All source code is available at
+Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
+Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
+matrices with DAXPY loop ordering and OpenMP parallelism. The
+bipartite sweep of $m \le 14$ ($\sim$34M graphs) completes in
+approximately 2~minutes.
+
+To search beyond the exhaustive enumeration wall ($m \ge 16$),
+we employ a simulated annealing search seeded from $T(7,1,9)$,
+mutating edges and contracting vertices to seek smaller Leontovich
+graphs within the graph manifold.
+
+All source code is available at
 \url{https://github.com/ou-school-repos/program-nir-turan-predictor}.
 
 % ════════════════════════════════════════════════════════════════════════
@@ -519,6 +529,36 @@ within the $T(x,y,z)$ family.
   \bottomrule
 \end{tabular}
 \end{table}
+
+\section{Simulated Annealing Results}
+\label{app:sa}
+
+Starting from $T(7,1,9)$ ($|V|=78$), our simulated annealing
+search discovered a smaller Leontovich graph with $|V|=76$ via
+edge mutation and vertex contraction.
+Table~\ref{tab:sa_hits} records all improvements found.
+
+\begin{table}[H]
+\centering
+\caption{Leontovich graphs found by simulated annealing from $T(7,1,9)$.}
+\label{tab:sa_hits}
+\begin{tabular}{@{}cccccc@{}}
+  \toprule
+  $|V|$ & Threshold $n$ & Depth $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
+  \midrule
+  78 & 13 & 2 & 0.6877 & 3.3973 & 2.3364 \\
+  77 & 99 & 20 & 0.9084 & 3.4810 & 3.1623 \\
+  76 & 21 & 2 & 0.9365 & 3.3766 & 3.1623 \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The 76-vertex graph has $\lambda_2 = \sqrt{10} \approx 3.1623$
+exactly, suggesting deep algebraic structure. Its crossover at
+$n = 21$ with $d = 2$ confirms it as a genuine Leontovich graph
+(not merely a high-$d$ anomaly). Further annealing with additional
+restarts may yield even smaller examples.
 
 \bibliographystyle{plain}
 \bibliography{references}
