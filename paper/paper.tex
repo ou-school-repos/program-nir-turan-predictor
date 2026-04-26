@@ -279,6 +279,60 @@ $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$ tested
 \end{tabular}
 \end{table}
 
+\subsection{The $n = 5$ impossibility}
+
+\begin{proposition}[$n = 5$ threshold is algebraically impossible]
+  \label{prop:n5}
+  For all $T(x,y,z)$ with $x, y, z \ge 1$,
+  \[
+    \Hom(P_5, T) - \Hom(E_5, T) = -xy\bigl((x - z - 1)^2 + y^2 z\bigr) < 0.
+  \]
+  In particular, $E_5$ always has \emph{more} homomorphisms than $P_5$
+  into any $T(x,y,z)$, so no Leontovich crossover can occur at $n = 5$.
+\end{proposition}
+
+\begin{proof}
+  Direct symbolic expansion of the transfer matrix products for
+  $P_5$ and $E_5$ using the $4 \times 4$ quotient matrix of $T(x,y,z)$.
+  Since $x, y, z \ge 1$, both $(x - z - 1)^2 \ge 0$ and $y^2 z \ge 1$,
+  so the parenthesized sum is strictly positive. Multiplied by $-xy < 0$,
+  the difference is strictly negative.
+\end{proof}
+
+\subsection{Minimum threshold landscape}
+
+Sweeping the generator over all $T(x,y,z)$ with $|V| \le 500$ and
+selecting the smallest graph achieving each odd-$n$ threshold yields
+Table~\ref{tab:thresholds}. The vertex count bottoms out at $n = 13$
+with $T(7,1,9)$, then \emph{increases} again---the threshold at $n = 15$
+requires a larger graph than $n = 13$.
+
+\begin{table}[H]
+\centering
+\caption{Smallest Leontovich graph by crossover threshold.}
+\label{tab:thresholds}
+\begin{tabular}{@{}llcc@{}}
+  \toprule
+  Family & Parameters & $|V|$ & Threshold \\
+  \midrule
+  $T(x,y,z)$ & $T(16, 1, 19)$ & 337 & $n = 7$ \\
+              & $T(9, 1, 11)$  & 118 & $n = 9$ \\
+              & $T(8, 1, 10)$  &  97 & $n = 11$ \\
+              & $T(7, 1, 9)$   &  78 & $n = 13$ \\
+              & $T(8, 1, 12)$  & 113 & $n = 15$ \\
+  \midrule
+  $T(d_1,d_2,d_3,d_4)$ & $T(1,10,1,13)$ & 152 & $n = 9$ \\
+                        & $T(1,8,1,11)$  & 106 & $n = 11$ \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}
+  Nir~\cite{nir2025} used $T(18,3,32)$ with $1{,}801$ vertices to prove
+  the $n = 7$ case. Our sweep shows $T(16,1,19)$ achieves it with only
+  337 vertices.
+\end{remark}
+
 % ════════════════════════════════════════════════════════════════════════
 \section{Bounding the Smallest Leontovich Graph}
 \label{sec:bounds}
