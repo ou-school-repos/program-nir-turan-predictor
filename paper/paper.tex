@@ -90,8 +90,13 @@ minimize $\Hom(T, H)$ among trees.
 \subsection{Summary of contributions}
 \begin{enumerate}[label=(\roman*)]
   \item Computational verification of the odd-path minimizer conjecture
-    for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, with analytical
-    explanation of the rigidity hierarchy (Section~\ref{sec:odd-path}).
+    for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
+    transition: $P_3$ is totally degenerate (depending only on the
+    bipartition, cf.\ Theorem~2.6 of \cite{nir2025}), $P_5$ minimizes
+    but \emph{not uniquely} (massive tie clusters from 2-shift
+    invariance), and $P_{\ge 7}$ is strictly rigid. This directly
+    addresses Open Problem~6.3 of \cite{nir2025}
+    (Section~\ref{sec:odd-path}).
   \item A \emph{1-Positive Eigenvalue Rule} (Theorem~\ref{thm:spectral})
     proving that 2-orbit and 3-orbit trees cannot be Leontovich.
   \item An exact analytical determination that $n = 13$ is the
@@ -101,6 +106,9 @@ minimize $\Hom(T, H)$ among trees.
     $m \ge 4$ to $m \ge 10$ (absolute) and $m \ge 11$ (conditional).
   \item Exhaustive search of all 5,357 spherically symmetric trees with
     $|V| < 78$, ruling out smaller Leontovich graphs in this family.
+  \item Algebraic proof that $n = 5$ crossovers are impossible for all
+    $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
+    showing that $T(7,1,9)$ is the global vertex-count minimum.
 \end{enumerate}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -163,7 +171,8 @@ which $P_n$ minimizes homomorphisms. We identify three regimes.
 
 Since $P_n$ has the most balanced bipartition among $n$-vertex trees,
 it achieves the minimum, but any tree sharing the same bipartition sizes
-ties it exactly. The path wins, but not uniquely.
+ties it exactly. The path wins, but not uniquely. This is a special case
+of Theorem~2.6 of~\cite{nir2025}, since $P_3 \cong K_{1,2}$.
 
 \subsubsection{$P_5$: Interior degeneracy and 2-shift invariance}
 
