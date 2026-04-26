@@ -8,6 +8,7 @@
 \usepackage{microtype}
 \usepackage{float}
 \usepackage{caption}
+\usepackage{graphicx}
 \usepackage[hidelinks,hypertexnames=false]{hyperref}
 \usepackage{enumitem}
 
@@ -549,14 +550,19 @@ leaves, another lost one).
 
 \begin{table}[H]
 \centering
-\caption{Leontovich graphs: $T(7,1,9)$ vs.\ the 76-vertex graph.}
+\caption{Asymmetric pruning sequence from $T(7,1,9)$.
+  Removing leaves from two branches preserves $\lambda_2 = \sqrt{10}$
+  but shifts the crossover. At $|V|=75$, the Leontovich property is lost.}
 \label{tab:sa_hits}
-\begin{tabular}{@{}cccccc@{}}
+\begin{tabular}{@{}clccccc@{}}
   \toprule
-  $|V|$ & First crossover $n$ & Depth $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
+  $|V|$ & Structure & Crossover $n$ & $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
   \midrule
-  78 & 13 & 2 & 0.6877 & 3.3973 & 2.3364 \\
-  76 & 17 & 2 & 0.9365 & 3.3766 & $\sqrt{10}$ \\
+  78 & $T(7,1,[9^7])$   & 13  & 2 & 0.9308 & 3.3973 & $\sqrt{10}$ \\
+  77 & $T(7,1,[9^6,8])$ & 15  & 2 & 0.9336 & 3.3874 & $\sqrt{10}$ \\
+  76 & $T(7,1,[9^5,8^2])$ & 17  & 2 & 0.9365 & 3.3766 & $\sqrt{10}$ \\
+  \midrule
+  75 & $T(7,1,[9^4,8^3])$ & --- & --- & 0.9399 & 3.3647 & $\sqrt{10}$ \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -568,8 +574,26 @@ at $n = 17$ with $d = 2$ was verified by exact integer computation
 of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
 The sign of $\Delta_n$ then alternates at every odd $n$, a hallmark
 of destructive interference from the secondary eigenvalue.
-Further annealing with additional
-restarts may yield even smaller examples.
+
+A 20-seed swarm of $5 \times 10^6$ SA steps each (totalling
+$10^8$ evaluations) was run from $T(7,1,9)$ at temperature 3.0.
+Every seed converged to a 76-vertex graph, with an intermediate
+$|V|=77$ Leontovich graph consistently discovered along the path
+(typically within the first 10 steps). No seed found a graph with
+$|V| < 76$.  This strongly suggests that 76 is the global minimum
+within the star-of-stars basin, and that the descent
+$78 \to 77 \to 76$ represents the unique pruning sequence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{../docs/out/leontovich_76.png}
+\caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
+(degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
+Green: leaves (degree~1). The asymmetric pruning of two branches
+from $T(7,1,9)$ preserves $\lambda_2 = \sqrt{10}$ while shifting
+the first crossover from $n=13$ to $n=17$.}
+\label{fig:leo76}
+\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{references}
