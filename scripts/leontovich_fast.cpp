@@ -3,36 +3,36 @@
 // Usage:   geng -c 8 -q | ./leontovich_fast
 //          genbg -c 7 8 -q | ./leontovich_fast   (bipartite m=15)
 //
-// v3: Precompute w_k = A^k * 1 once per graph, then compute all
-//     hom(P_n) and hom(E_n^{(d)}) via dot products.  ~100-500x faster.
+// v4: Bitboard adjacency (132 bytes vs 4KB), SWAR bit-scans for matvec,
+//     precomputed w_k = A^k * 1 for O(N*m) per graph.
 
 #include <chrono>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-static constexpr int MAX_V = 32;   // max vertices in target graph
-static constexpr int MAX_K = 201;  // max walk length (n up to 200)
+static constexpr int MAX_V = 32;
+static constexpr int MAX_K = 201;
 
 struct Graph {
-    int m;                  // vertex count
-    int deg[MAX_V];         // degree of each vertex
-    int adj[MAX_V][MAX_V];  // adjacency list (neighbors)
+    int m;
+    uint32_t mask[MAX_V];  // bitboard adjacency: 132 bytes total
 };
 
 static void parse_graph6(const char* g6, Graph& G) {
     if (strncmp(g6, ">>graph6<<", 10) == 0) g6 += 10;
     G.m = g6[0] - 63;
-    memset(G.deg, 0, sizeof(G.deg));
+    memset(G.mask, 0, sizeof(G.mask));
     int k = 1, bit_pos = 5;
     for (int col = 1; col < G.m; col++) {
         for (int row = 0; row < col; row++) {
             int val = g6[k] - 63;
             if ((val >> bit_pos) & 1) {
-                G.adj[row][G.deg[row]++] = col;
-                G.adj[col][G.deg[col]++] = row;
+                G.mask[row] |= (1U << col);
+                G.mask[col] |= (1U << row);
             }
             if (--bit_pos < 0) {
                 k++;
@@ -42,17 +42,21 @@ static void parse_graph6(const char* g6, Graph& G) {
     }
 }
 
-// Adjacency-list matvec: y = A * x  (skips zeros, ~2x faster than dense)
+// SWAR matvec: y = A * x using hardware bit-scans
 static inline void matvec_adj(const Graph& G, const double* __restrict x,
                               double* __restrict y) {
     for (int i = 0; i < G.m; i++) {
         double s = 0.0;
-        for (int j = 0; j < G.deg[i]; j++) s += x[G.adj[i][j]];
+        uint32_t bits = G.mask[i];
+        while (bits) {
+            int j = __builtin_ctz(bits);  // TZCNT: find lowest set bit
+            s += x[j];
+            bits &= (bits - 1);  // BLSR: clear lowest set bit
+        }
         y[i] = s;
     }
 }
 
-// Returns true if graph is Leontovich (some E_n^d beats P_n).
 static bool check_leontovich(const Graph& G, const string& g6_str) {
     int m = G.m;
 
@@ -71,9 +75,8 @@ static bool check_leontovich(const Graph& G, const string& g6_str) {
         homP[n] = s;
     }
 
-    // hom(E_n^{(d)}, H) = sum_i  w[n-d-2][i] * w[1][i] * w[d][i]
+    // hom(E_n^{(d)}, H) = sum_i w[n-d-2][i] * w[1][i] * w[d][i]
     for (int d = 2; d <= 20; d++) {
-        // branch factor b[i] = deg(i) * w[d][i]
         double b[MAX_V];
         for (int i = 0; i < m; i++) {
             b[i] = w[1][i] * w[d][i];
