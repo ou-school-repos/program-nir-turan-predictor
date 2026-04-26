@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -96,15 +97,15 @@ static bool check_leontovich(const Graph& G, const string& g6_str) {
 
             int n = stem + d + 2;
             if (homE < homP[n] * (1.0 - 1e-11)) {
-                if (d > 2) {
-                    cout << "ANOMALY " << g6_str << " |V|=" << m << " n=" << n
-                         << " d=" << d << " (d>2 required to beat path!)"
-                         << " hom(E)=" << homE << " < hom(P)=" << homP[n]
-                         << endl;
-                } else {
-                    cout << "LEONTOVICH " << g6_str << " |V|=" << m
-                         << " n=" << n << " d=" << d << " hom(E)=" << homE
-                         << " < hom(P)=" << homP[n] << endl;
+                const char* type = (d > 2) ? "anomaly" : "leontovich";
+#pragma omp critical
+                {
+                    cout << fixed << setprecision(1) << "{\"type\":\"" << type
+                         << "\""
+                         << ",\"g6\":\"" << g6_str << "\""
+                         << ",\"m\":" << m << ",\"n\":" << n << ",\"d\":" << d
+                         << ",\"homE\":" << homE << ",\"homP\":" << homP[n]
+                         << "}" << endl;
                 }
                 return true;
             }
@@ -135,10 +136,6 @@ int main() {
 #pragma omp parallel reduction(+ : leontovich_count)
     {
         int local_hits = 0;
-        int tid = 0;
-#ifdef _OPENMP
-        tid = omp_get_thread_num();
-#endif
 
 #pragma omp for schedule(dynamic, 1024)
         for (int idx = 0; idx < total_count; idx++) {
@@ -147,7 +144,11 @@ int main() {
             if (check_leontovich(G, lines[idx])) {
                 local_hits++;
             }
-            if (tid == 0 && idx % 100000 < 1024) {
+#ifdef _OPENMP
+            if (omp_get_thread_num() == 0 && idx % 100000 < 1024) {
+#else
+            if (idx % 100000 == 0) {
+#endif
                 auto now = chrono::steady_clock::now();
                 double secs = chrono::duration<double>(now - t0).count();
                 int rate = secs > 0 ? (int)(idx / secs) : 0;
