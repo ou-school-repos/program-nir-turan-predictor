@@ -111,6 +111,12 @@ docs: ##H Convert all tracked markdown files to PDF
 	done
 	@$(call print_success,All PDFs generated.)
 
+.PHONY: paper
+paper: ##H Compile paper/paper.tex to PDF
+	@$(call print_info,Building paper)
+	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
+	@$(call print_success,paper/paper.pdf)
+
 .PHONY: lean-cache
 lean-cache: ##H Download mathlib cache
 	cd proofs && lake exe cache get

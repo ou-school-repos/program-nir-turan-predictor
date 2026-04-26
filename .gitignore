@@ -25,3 +25,10 @@ dendro
 leontovich*
 *.pdf
 firefighter
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
