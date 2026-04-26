@@ -116,6 +116,7 @@ docs: ##H Convert all tracked markdown files to PDF
 .PHONY: paper
 paper: ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
+	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
 	@$(call print_success,paper/paper.pdf)
 
