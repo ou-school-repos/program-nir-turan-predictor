@@ -499,6 +499,14 @@ graphs within the graph manifold.
 All source code is available at
 \url{https://github.com/ou-school-repos/program-nir-turan-predictor}.
 
+\begin{remark}
+Since an independent set in $G$ is exactly a homomorphism
+$G \to H_{\mathrm{ind}}$ (two vertices with a loop on each), the
+framework developed here extends naturally to the Merrifield--Simmons
+index: degree-constrained trees that maximise independent sets are
+dual to trees that minimise homomorphisms into a specific looped target.
+\end{remark}
+
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
 
@@ -724,6 +732,16 @@ even-$n$ crossover was observed.  This is consistent with the
 original result of Sidorenko~\cite{sidorenko1991}, who proved that
 adding a loop to the root of $H$ (destroying bipartiteness) is
 necessary to achieve even-$n$ crossovers.
+
+\begin{remark}
+The same parity phenomenon appears in the independent set
+setting: the consecutive ratios $a(N)/a(N-1)$ of maximum independent
+set counts on degree-constrained trees oscillate with period~2,
+reflecting the same bipartite balance constraint.  Since an
+independent set is a homomorphism into the hard-core graph $H_{\mathrm{ind}}$
+(which is itself bipartite with a loop), this is a special case of
+the rule above.
+\end{remark}
 
 \bibliographystyle{plain}
 \bibliography{references}
