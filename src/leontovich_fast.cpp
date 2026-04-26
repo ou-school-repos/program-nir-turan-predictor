@@ -1,0 +1,175 @@
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx2,fma")
+// Fast asymptotic filter for Leontovich graphs using E_n^{(d)} trees.
+// Compile: g++ -O3 -march=native -o leontovich_fast scripts/leontovich_fast.cpp
+// Usage:   geng -c 8 -q | ./leontovich_fast
+//          genbg -c 7 8 -q | ./leontovich_fast   (bipartite m=15)
+//
+// v5: Dense 16x16 padded matrix with DAXPY loop order for AVX2 FMA.
+//     Fixed loop bounds eliminate branch mispredictions entirely.
+
+#include <chrono>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+using namespace std;
+
+static constexpr int MAX_K = 201;
+static constexpr int MAX_N = MAX_K + 1;  // homP needs index up to MAX_K
+static constexpr int V_PAD = 16;
+
+struct Graph {
+    int m;
+    alignas(32) double A[V_PAD][V_PAD];
+};
+
+static void parse_graph6(const char* g6, Graph& G) {
+    if (strncmp(g6, ">>graph6<<", 10) == 0) g6 += 10;
+    G.m = g6[0] - 63;
+    memset(G.A, 0, sizeof(G.A));
+    int k = 1, bit_pos = 5;
+    for (int col = 1; col < G.m; col++) {
+        for (int row = 0; row < col; row++) {
+            int val = g6[k] - 63;
+            if ((val >> bit_pos) & 1) {
+                G.A[row][col] = 1.0;
+                G.A[col][row] = 1.0;
+            }
+            if (--bit_pos < 0) {
+                k++;
+                bit_pos = 5;
+            }
+        }
+    }
+}
+
+static bool check_leontovich(const Graph& G, const string& g6_str) {
+    int m = G.m;
+
+    // Precompute w[k] = A^k * 1 and homP[n] = sum_i w[n-1][i]
+    alignas(32) double w[MAX_K][V_PAD];
+    double homP[MAX_N];
+
+    memset(w, 0, sizeof(w));
+    memset(homP, 0, sizeof(homP));
+    for (int i = 0; i < m; i++) w[0][i] = 1.0;
+    homP[1] = m;
+
+    for (int step = 1; step < MAX_K; step++) {
+        alignas(32) double tmp[V_PAD] = {};
+        for (int j = 0; j < V_PAD; j++) {
+            double wj = w[step - 1][j];
+#pragma GCC ivdep
+            for (int i = 0; i < V_PAD; i++) {
+                tmp[i] += G.A[j][i] * wj;
+            }
+        }
+        double s = 0.0;
+        for (int i = 0; i < V_PAD; i++) {
+            w[step][i] = tmp[i];
+            s += tmp[i];
+        }
+        if (step + 1 < MAX_N) homP[step + 1] = s;
+    }
+
+    // Check E_n^{(d)}: hom = sum_i w[stem][i] * w[1][i] * w[d][i]
+    for (int d = 2; d <= 20; d++) {
+        alignas(32) double b[V_PAD] = {};
+#pragma GCC ivdep
+        for (int i = 0; i < V_PAD; i++) {
+            b[i] = w[1][i] * w[d][i];
+        }
+
+        int limit = 200 - d - 2;
+        for (int stem = 0; stem <= limit; stem++) {
+            double homE = 0.0;
+#pragma GCC ivdep
+            for (int i = 0; i < V_PAD; i++) {
+                homE += w[stem][i] * b[i];
+            }
+
+            int n = stem + d + 2;
+            if (homE < homP[n] * (1.0 - 1e-11)) {
+                if (d > 2) {
+                    cout << "ANOMALY " << g6_str << " |V|=" << m << " n=" << n
+                         << " d=" << d << " (d>2 required to beat path!)"
+                         << " hom(E)=" << homE << " < hom(P)=" << homP[n]
+                         << endl;
+                } else {
+                    cout << "LEONTOVICH " << g6_str << " |V|=" << m
+                         << " n=" << n << " d=" << d << " hom(E)=" << homE
+                         << " < hom(P)=" << homP[n] << endl;
+                }
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    vector<string> lines;
+    lines.reserve(1 << 20);
+    {
+        string line;
+        while (cin >> line) {
+            if (!line.empty()) lines.push_back(move(line));
+        }
+    }
+
+    int total_count = (int)lines.size();
+    int leontovich_count = 0;
+    auto t0 = chrono::steady_clock::now();
+
+    cerr << "  [filter] loaded " << total_count << " graphs" << endl;
+
+#pragma omp parallel reduction(+ : leontovich_count)
+    {
+        int local_hits = 0;
+        int tid = 0;
+#ifdef _OPENMP
+        tid = omp_get_thread_num();
+#endif
+
+#pragma omp for schedule(dynamic, 1024)
+        for (int idx = 0; idx < total_count; idx++) {
+            Graph G;
+            parse_graph6(lines[idx].c_str(), G);
+            if (check_leontovich(G, lines[idx])) {
+                local_hits++;
+            }
+            if (tid == 0 && idx % 100000 < 1024) {
+                auto now = chrono::steady_clock::now();
+                double secs = chrono::duration<double>(now - t0).count();
+                int rate = secs > 0 ? (int)(idx / secs) : 0;
+                cerr << "  [filter] " << idx << " / " << total_count << " | "
+                     << rate << "/s | " << (int)secs << "s elapsed\r" << flush;
+            }
+        }
+        leontovich_count += local_hits;
+    }
+
+    auto t1 = chrono::steady_clock::now();
+    double total_secs = chrono::duration<double>(t1 - t0).count();
+    int rate = total_count > 0 ? (int)(total_count / total_secs) : 0;
+    cerr << "\nLeontovich filter: " << leontovich_count << " / " << total_count
+         << " graphs flagged (n<=200, d<=20)"
+         << " | " << (int)total_secs << "s"
+         << " | " << rate << " graphs/s" << endl;
+
+    cerr << "{\"event\":\"leontovich_filter_done\""
+         << ",\"total\":" << total_count << ",\"hits\":" << leontovich_count
+         << ",\"elapsed_s\":" << (int)total_secs << ",\"rate_per_s\":" << rate
+         << "}" << endl;
+
+    return 0;
+}

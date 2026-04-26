@@ -124,7 +124,7 @@ lean-cache: ##H Download mathlib cache
 N ?= 21
 
 .PHONY: build
-build: synthesizer dendro firefighter ##H Build all C++ binaries
+build: synthesizer dendro firefighter leontovich_fast ##H Build all C++ binaries
 
 synthesizer: src/synthesizer.cpp src/hpc_core.hpp ##H Build the C++ tree synthesizer
 	@$(call print_info,Building synthesizer)
@@ -140,6 +140,11 @@ firefighter: src/firefighter.cpp ##H Build the single-ignition firefighter solve
 	@$(call print_info,Building firefighter)
 	g++ -O3 -march=native -std=c++17 -o firefighter src/firefighter.cpp
 	@$(call print_success,firefighter built.)
+
+leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
+	@$(call print_info,Building leontovich_fast)
+	g++ -O3 -march=native -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
+	@$(call print_success,leontovich_fast built.)
 
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
@@ -203,7 +208,7 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f *.o bundle.zip synthesizer dendro firefighter
+	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help
