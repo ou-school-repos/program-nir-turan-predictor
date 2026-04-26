@@ -330,6 +330,31 @@ There are exactly $\lfloor n/2 \rfloor$ distinct values, exhausting all trees.
 - **$P_k$ for $k \ge 5$**: Path is the **unique** minimizer at every $n$ (always 1 tree at #1)
 - **$P_3$**: Degenerate — only $\lfloor n/2 \rfloor$ distinct scores, determined by bipartition balance
 
+### Path Baseline Sequences
+
+The minimizer score $\hom(P_n, P_k)$ satisfies the Chebyshev recurrence
+$a(n) = k_1 \cdot a(n{-}2) - k_2 \cdot a(n{-}4) + \cdots$ derived from the char. polynomial of $A_{P_k}$.
+
+**$P_3$** ([OEIS A029744](https://oeis.org/A029744), offset 2): $\hom(P_n, P_3)$: 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, ...
+Recurrence: $a(n) = 2a(n{-}2)$. Closed form: $2^{\lceil n/2 \rceil} + 2^{\lfloor n/2 \rfloor}$. Numbers of the form $2^m$ or $3 \cdot 2^m$.
+
+**$P_5$** ([OEIS A090993](https://oeis.org/A090993)): 5, 8, 14, 24, 42, 72, 126, 216, 378, 648, ...
+Recurrence: $a(n) = 4a(n{-}2) - 3a(n{-}4)$. Two-step ratio $\to 3$
+
+**$P_7$** ([OEIS A129639](https://oeis.org/A129639), offset 1): 7, 12, 22, 40, 74, 136, 252, 464, 860, 1584, ...
+Recurrence: $a(n) = 6a(n{-}2) - 10a(n{-}4) + 4a(n{-}6)$. Two-step ratio $\to 2{+}\sqrt{2}$
+
+**$P_9$** ([OEIS A153362](https://oeis.org/A153362)): 9, 16, 30, 56, 106, 200, 380, 720, 1370, 2600, ...
+Recurrence: $a(n) = 8a(n{-}2) - 21a(n{-}4) + 20a(n{-}6) - 5a(n{-}8)$. Two-step ratio $\to (5{+}\sqrt{5})/2$
+
+### Structural Observations
+
+1. **Parity alternation in ties**: For $P_7$ and $P_9$, the #2 tier alternates between 1 and 2 trees depending on $n$ parity (even $n$: 1 tree, odd $n$: 2 trees). This likely reflects the bipartite symmetry of the path target.
+
+2. **P₅ clustering**: Unlike $P_7$/$P_9$ where nearly every tree has a unique score, $P_5$ shows increasing tie counts at #2 (growing as $\sim n$) and significant clustering at #4/#5. This may relate to $P_5$'s smaller spectral gap.
+
+3. **Contrast with $P_3$**: The number of distinct hom values for $P_3$ is exactly $\lfloor n/2 \rfloor$ (closed form). For $k \ge 5$, distinct values grow rapidly with the number of trees — no simple closed form.
+
 ### Transfer Matrices for $\hom(P_n, P_k)$
 
 The path baseline is computed via $\hom(P_n, P_k) = \mathbf{1}^T A_{P_k}^{n-1} \mathbf{1}$,
