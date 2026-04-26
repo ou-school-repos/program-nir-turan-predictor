@@ -58,8 +58,23 @@ Exhaustive grid search over $T(x,y,z)$ with $|V| = 1 + x + xy + xyz \le 100$:
 
 **$T(7,1,9)$ with 78 vertices is the unique smallest** in the $T(x,y,z)$ family.
 
+### Generalized Symmetric Tree Search
+
+To rule out smaller Leontovich graphs in higher-orbit symmetric families,
+we exhaustively tested all spherically symmetric trees $T(d_1, d_2, \ldots, d_k)$
+with $|V| < 78$ and $k \in \{3, 4, 5, 6\}$ (4 through 7 orbits):
+
+| depth $k$ | orbits | trees tested | Leontovich found |
+| --------- | ------ | ------------ | ---------------- |
+| 3         | 4      | 581          | **0**            |
+| 4         | 5      | 1,026        | **0**            |
+| 5         | 6      | 1,567        | **0**            |
+| 6         | 7      | 2,183        | **0**            |
+
+**Total: 5,357 symmetric trees tested, zero Leontovich graphs with $|V| < 78$.**
+
 This confirms that closing the Problem 4.3 gap ($4 \le m \le 78$) requires
-searching outside the 4-orbit spherically symmetric family.
+searching outside the spherically symmetric family entirely.
 
 ### Spectral Crossover Theorem
 

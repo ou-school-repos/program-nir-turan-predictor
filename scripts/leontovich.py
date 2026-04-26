@@ -310,8 +310,117 @@ def task_d():
     print()
 
 
+def get_Ma_general(degrees):
+    """Build (k+1)x(k+1) similarity matrix for a depth-k symmetric tree.
+
+    degrees = [d1, d2, ..., dk] where d_i is the branching factor at depth i.
+    Root (orbit 0) has d1 children in orbit 1, each orbit-i vertex has
+    d_{i+1} children in orbit i+1.
+
+    Returns (M, a) where M is the similarity matrix and a is orbit sizes.
+    """
+    k = len(degrees)
+    dim = k + 1  # orbits 0 through k
+    M = [[0] * dim for _ in range(dim)]
+
+    # Build adjacency: orbit i connects to orbit i+1 with weight d_{i+1}
+    for i in range(k):
+        M[i][i + 1] = degrees[i]  # parent -> children
+        M[i + 1][i] = 1  # child -> parent
+
+    # Orbit sizes: s_0=1, s_1=d1, s_2=d1*d2, ...
+    a = [1]
+    for d in degrees:
+        a.append(a[-1] * d)
+
+    return M, a
+
+
+def task_e():
+    """Hunt for Leontovich graphs smaller than T(7,1,9) = 78 vertices.
+
+    Exhaustively searches all spherically symmetric trees with:
+    - Depth 3 (4 orbits, = T(x,y,z) family, re-verified)
+    - Depth 4 (5 orbits)
+    - Depth 5 (6 orbits)
+    - Depth 6 (7 orbits)
+    with |V| < 78 and all branching factors >= 2.
+    """
+    print("=" * 60)
+    print("Task E: Hunt for Smallest Leontovich Graph (|V| < 78)")
+    print("=" * 60)
+
+    max_v = 77  # must be strictly less than 78
+    best_leo = None
+    total_tested = 0
+
+    for depth in range(3, 7):
+        hits = []
+
+        def search(degrees, remaining_depth):
+            nonlocal total_tested, best_leo
+
+            if remaining_depth == 0:
+                M, a = get_Ma_general(degrees)
+                V = sum(a)
+                if V > max_v or V < 10:
+                    return
+
+                total_tested += 1
+
+                # Test odd n from 5 to 201
+                for n in range(5, 202, 2):
+                    hp = eval_tree_hom(make_Pn(n), n, M, a)
+                    he = eval_tree_hom(make_En(n), n, M, a)
+                    if he < hp:
+                        label = ",".join(str(d) for d in degrees)
+                        hits.append((V, label, n))
+                        if best_leo is None or V < best_leo[0]:
+                            best_leo = (V, label, n)
+                        break
+                return
+
+            # Try branching factors 2..max feasible
+            current_product = 1
+            for d in degrees:
+                current_product *= d
+            # Minimum |V| with remaining_depth more levels:
+            # need at least 2^remaining_depth * current_product more vertices
+            for d in range(1, max_v):
+                new_product = current_product * d
+                # Rough lower bound on total vertices
+                min_extra = new_product  # at least one more level
+                if 1 + current_product + min_extra > max_v:
+                    break
+                search(degrees + [d], remaining_depth - 1)
+
+        print(f"\n--- Depth {depth} ({depth + 1} orbits) ---")
+        search([], depth)
+        print(f"  Tested: {total_tested} trees")
+
+        if hits:
+            hits.sort()
+            for V, label, n in hits[:10]:
+                print(f"  LEONTOVICH! T({label}) |V|={V} at n={n}")
+        else:
+            print(f"  No Leontovich graph found at depth {depth}")
+
+    print(f"\n{'=' * 60}")
+    print(f"Total symmetric trees tested: {total_tested}")
+    if best_leo:
+        print(
+            f"SMALLEST LEONTOVICH: T({best_leo[1]}) with |V|={best_leo[0]} at n={best_leo[2]}"
+        )
+    else:
+        print(
+            "No Leontovich graph smaller than 78 vertices found in symmetric families"
+        )
+    print()
+
+
 if __name__ == "__main__":
     task_a()
     task_b()
     task_c()
     task_d()
+    task_e()
