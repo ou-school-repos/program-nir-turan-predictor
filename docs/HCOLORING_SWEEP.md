@@ -335,16 +335,36 @@ There are exactly $\lfloor n/2 \rfloor$ distinct values, exhausting all trees.
 The minimizer score $\hom(P_n, P_k)$ satisfies the Chebyshev recurrence
 $a(n) = k_1 \cdot a(n{-}2) - k_2 \cdot a(n{-}4) + \cdots$ derived from the char. polynomial of $A_{P_k}$.
 
-**$P_3$** ([OEIS A029744](https://oeis.org/A029744), offset 2): $\hom(P_n, P_3)$: 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, ...
+#### $P_3$ (sequence/recurrence)
+
+[OEIS A029744](https://oeis.org/A029744), offset 2
+
+$\hom(P_n, P_3)$: 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, ...
+
 Recurrence: $a(n) = 2a(n{-}2)$. Closed form: $2^{\lceil n/2 \rceil} + 2^{\lfloor n/2 \rfloor}$. Numbers of the form $2^m$ or $3 \cdot 2^m$.
 
-**$P_5$** ([OEIS A090993](https://oeis.org/A090993)): 5, 8, 14, 24, 42, 72, 126, 216, 378, 648, ...
+#### $P_5$ (sequence/recurrence)
+
+[OEIS A090993](https://oeis.org/A090993), offset $-1$ (our $n{=}1$ term $5$ not in OEIS; $a(1) = 8$ is our $n{=}2$)
+
+$\hom(P_n, P_5)$: 5, 8, 14, 24, 42, 72, 126, 216, 378, 648, ...
+
 Recurrence: $a(n) = 4a(n{-}2) - 3a(n{-}4)$. Two-step ratio $\to 3$
 
-**$P_7$** ([OEIS A129639](https://oeis.org/A129639), offset 1): 7, 12, 22, 40, 74, 136, 252, 464, 860, 1584, ...
+#### $P_7$ (sequence/recurrence)
+
+[OEIS A129639](https://oeis.org/A129639), offset $-1$ (our $n{=}1$ term $7$ not in OEIS; starts at our $n{=}2$)
+
+$\hom(P_n, P_7)$: 7, 12, 22, 40, 74, 136, 252, 464, 860, 1584, ...
+
 Recurrence: $a(n) = 6a(n{-}2) - 10a(n{-}4) + 4a(n{-}6)$. Two-step ratio $\to 2{+}\sqrt{2}$
 
-**$P_9$** ([OEIS A153362](https://oeis.org/A153362)): 9, 16, 30, 56, 106, 200, 380, 720, 1370, 2600, ...
+#### $P_9$ (sequence/recurrence)
+
+[OEIS A153362](https://oeis.org/A153362), offset 0 (exact match)
+
+$\hom(P_n, P_9)$: 9, 16, 30, 56, 106, 200, 380, 720, 1370, 2600, ...
+
 Recurrence: $a(n) = 8a(n{-}2) - 21a(n{-}4) + 20a(n{-}6) - 5a(n{-}8)$. Two-step ratio $\to (5{+}\sqrt{5})/2$
 
 ### Structural Observations
@@ -380,16 +400,3 @@ $$p_k(x) = \prod_{j=1}^{k} \left(x - 2\cos\frac{j\pi}{k+1}\right)$$
 Since paths are bipartite, homomorphisms alternate parity, so $\lambda_1^2 = 4\cos^2(\pi/(k{+}1))$
 gives the exact scaling per two steps. $P_9$ contains the golden ratio $\varphi$ as an eigenvalue.
 As $k \to \infty$, $\lambda_1^2 \to 4$.
-
-## Reproduction
-
-```bash
-# Build
-g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
-
-# Full sweep (n=0..20, ~3 min)
-bash scripts/sweep_hcolor.sh
-
-# Extend to larger n
-bash scripts/sweep_hcolor.sh 21 22
-```
