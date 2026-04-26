@@ -43,13 +43,14 @@ $H = T(7,1,9)$ with $|V| = 78$. The paper proves $E_n$ beats $P_n$ for
 
 **Result:** Threshold is $n = 13$. For all even $n$, $P_n$ wins.
 
-**Parity explanation:** $T(7,1,9)$ is bipartite, so homomorphism counts
-are governed by the tree's bipartition classes $(A, B)$. For even $n$,
-$P_n$ has a perfectly balanced bipartition $(n/2, n/2)$ which minimizes
-mappings into bipartite targets. At odd $n$, both $P_n$ and $E_n$ share
-the same forced imbalance $((n+1)/2, (n-1)/2)$, putting them on equal
-macroscopic footing and allowing local topological defects to dictate
-the winner.
+**Parity explanation:** Both $P_n$ and $E_n$ have the **same bipartition sizes**
+for all $n$: balanced $(n/2, n/2)$ for even $n$, and
+$(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$ for odd $n$. For even $n$,
+$P_n$'s linear structure naturally minimizes the internal projection onto
+the dominant eigenvector, locking in the path as the winner. For odd $n$,
+the forced imbalance amplifies the role of the secondary eigenvector
+(which captures local topological defects like $E_n$'s moved pendant),
+giving it enough leverage to flip the winner at sufficiently large $n$.
 
 ### Smallest 4-Orbit Leontovich Graph
 
@@ -82,12 +83,13 @@ then $H$ cannot be Leontovich.*
 - All 2-orbit trees $T(x)$: 1 positive eigenvalue $\Rightarrow$ $P_n$ always wins (verified)
 - All 3-orbit trees $T(x,y)$: 1 positive eigenvalue $\Rightarrow$ $P_n$ always wins (verified)
 - 4-orbit trees $T(x,y,z)$: characteristic polynomial
-  $\lambda^4 - (x+y+z)\lambda^2 + xz = 0$ yields two positive eigenvalues
-  when $s^2 > 4xz$ and $s > \sqrt{4xz}$, where $s = x + y + z$.
+  $\lambda^4 - (x+y+z)\lambda^2 + xz = 0$. The discriminant
+  $(x+y+z)^2 - 4xz = (x-z)^2 + 2y(x+z) + y^2 > 0$ always,
+  so **every** $T(x,y,z)$ has two positive eigenvalues.
 
 **Key subtlety:** Two positive eigenvalues is **necessary but not sufficient**.
 $T(2,2,2)$ has $\lambda_1 \approx 2.288$, $\lambda_2 \approx 0.874$ (both
-positive), yet is not Leontovich — it lacks the topological extremity (like
+positive), yet is not Leontovich --- it lacks the topological extremity (like
 $T(7,1,9)$'s massive branches) to force the leading coefficients to flip.
 
 ### Asymptotic Defense of the $E_n^{(d)}$ Filter
@@ -177,7 +179,6 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
 | 15  | 7,741           | ~4s         | **0**                    |
 | 18  | 123,867         | ~2 min      | **0**                    |
 | 20  | 823,065         | ~12 min     | **0**                    |
-| 25  | 4,638,590       | *(running)* | *(pending)*              |
 
 ### Current bound
 

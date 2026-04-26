@@ -55,7 +55,7 @@ Confirms the known theorem: $P_n$ minimizes $\hom(T, P_{2m})$ among all trees $T
 | 21  | 3072                  | $P_{21}$  |
 | 22  | 4096                  | $P_{22}$  |
 
-**Pattern:** $\hom(P_n, P_3) = 3 \cdot 2^{\lfloor n/2 \rfloor} \cdot (4/3)^{n \bmod 2}$. Alternates $\times \frac{3}{2}$ and $\times \frac{4}{3}$.
+**Closed form:** $\hom(P_n, P_3) = 2^{\lceil n/2 \rceil} + 2^{\lfloor n/2 \rfloor}$, since $\hom(T, P_3) = 2^{|A|} + 2^{|B|}$ for any tree $T$ with bipartition $(A, B)$.
 
 #### $P_5$ Minimizer Sequence
 
@@ -412,3 +412,8 @@ $$p_k(x) = \prod_{j=1}^{k} \left(x - 2\cos\frac{j\pi}{k+1}\right)$$
 Since paths are bipartite, homomorphisms alternate parity, so $\lambda_1^2 = 4\cos^2(\pi/(k{+}1))$
 gives the exact scaling per two steps. $P_9$ contains the golden ratio $\varphi$ as an eigenvalue.
 As $k \to \infty$, $\lambda_1^2 \to 4$.
+
+**Note on constructibility:** By the Gauss-Wantzel theorem, $\lambda_1 = 2\cos(\pi/(k{+}1))$
+admits a closed form in nested real square roots if and only if $k+1$ is a product of a power
+of 2 and distinct Fermat primes. Thus $P_{13}$ (related to the inconstructible regular 14-gon)
+is the first tabulated target lacking a real radical expression for its spectral radius.
