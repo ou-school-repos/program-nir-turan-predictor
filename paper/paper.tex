@@ -595,6 +595,67 @@ the first crossover from $n=13$ to $n=17$.}
 \label{fig:leo76}
 \end{figure}
 
+\subsection*{Eigenvalue structure and the multiplicity threshold}
+
+The spectral structure of the pruning sequence admits a clean analytic
+description.  In the star-of-stars family $T(x,1,\vec{z})$, each hub
+with $z_i$ leaves, connected to the root through a bridge, contributes
+an eigenvalue at $\lambda = \sqrt{z_i + 1}$.  Specifically:
+\begin{itemize}
+  \item A hub with $z_i = 9$ leaves yields $\lambda^2 = 10$,
+        hence $\lambda = \sqrt{10}$.
+  \item A hub with $z_i = 8$ leaves yields $\lambda^2 = 9$,
+        hence $\lambda = 3$.
+\end{itemize}
+
+\noindent
+In $T(7,1,9) = T(7,1,[9^7])$, all seven hubs have 9~leaves, producing
+$\lambda_2 = \sqrt{10}$ with \emph{multiplicity~6} (one degree of
+freedom is absorbed into the Perron eigenvector $\lambda_1$).  Each
+leaf pruned from a 9-leaf hub converts one copy of $\sqrt{10}$ into
+$\sqrt{9} = 3$, while simultaneously reducing $\lambda_1$.  The
+pruning sequence yields:
+
+\begin{table}[H]
+\centering
+\caption{Eigenvalue multiplicities along the pruning sequence.}
+\label{tab:mult}
+\begin{tabular}{@{}ccccc@{}}
+  \toprule
+  $|V|$ & Structure & $\mathrm{mult}(\sqrt{10})$
+        & $\mathrm{mult}(3)$ & Leontovich? \\
+  \midrule
+  78 & $T(7,1,[9^7])$     & 6 & 0 & \checkmark \\
+  77 & $T(7,1,[9^6,8])$   & 5 & 0 & \checkmark \\
+  76 & $T(7,1,[9^5,8^2])$ & 4 & 1 & \checkmark \\
+  \midrule
+  75 & $T(7,1,[9^4,8^3])$ & 3 & 2 & --- \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The Leontovich crossover arises from destructive interference
+between the dominant Perron mode $\lambda_1^n$ and the degenerate
+$\lambda_2 = \sqrt{10}$ eigenspace in the homomorphism count
+$\Hom(E_n^{(d)}, H)$.  Higher multiplicity amplifies this
+interference.  At $|V| = 76$, four copies of $\sqrt{10}$ provide
+\emph{just barely} enough interference to drive the ratio
+$\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at $n = 17$
+(by a margin of $\sim\!1.08 \times 10^{-4}$).  At $|V| = 75$,
+only three copies remain, and the minimum ratio is $1.00017$---the
+crossover never occurs.
+
+This yields a sharp structural characterisation: \emph{within the
+$T(7,1,\vec{z})$ family, a Leontovich graph requires at least five
+hubs with $z_i = 9$ leaves}, establishing $T(7,1,[9^5,8^2])$ as
+the unique minimum.  The eigenvalue $\lambda_2 = \sqrt{10}$ is
+preserved throughout the sequence because $\max_i(z_i + 1) = 10$
+regardless of how many branches are pruned, confirming that the
+Leontovich property is controlled not by the \emph{value} of
+$\lambda_2$ but by the \emph{multiplicity} of the secondary
+eigenspace.
+
 \bibliographystyle{plain}
 \bibliography{references}
 
