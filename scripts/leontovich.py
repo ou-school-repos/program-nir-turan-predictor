@@ -259,6 +259,54 @@ def task_d():
     print()
     print("RESULT: All 2-orbit and 3-orbit trees tie P_n vs E_n (1 pos eigenvalue)")
     print("        Only 4-orbit trees with 2 pos eigenvalues can be Leontovich")
+
+    # --- One-Way Threshold Proof (ideas-16) ---
+    # Verify that for T(7,1,9), Δ_odd(n) = hom(P_n,H) - hom(E_n,H)
+    # crosses zero exactly once (at n=13) and is strictly monotonic after.
+    print("\n--- One-Way Threshold Verification for T(7,1,9) ---")
+    x, y, z = 7, 1, 9
+    eigs = eigenvalues_4x4(x, y, z)
+    r = eigs[1] / eigs[0]  # λ₂/λ₁, should be in (0,1)
+    print(f"  lam1 = {eigs[0]:.6f}, lam2 = {eigs[1]:.6f}")
+    print(
+        f"  ratio r = lam2/lam1 = {r:.6f} (must be in (0,1): {'YES' if 0 < r < 1 else 'NO'})"
+    )
+
+    M, a = get_Ma(x, y, z)
+    deltas = []
+    for n in range(5, 102, 2):
+        hp = eval_tree_hom(make_Pn(n), n, M, a)
+        he = eval_tree_hom(make_En(n), n, M, a)
+        delta = hp - he  # positive means E_n wins (fewer homs)
+        deltas.append((n, delta))
+
+    # Find crossover
+    crossover_n = None
+    for n, d in deltas:
+        if d > 0 and crossover_n is None:
+            crossover_n = n
+
+    # Verify strict monotonicity after crossover
+    monotonic = True
+    post_cross = [(n, d) for n, d in deltas if n >= crossover_n] if crossover_n else []
+    for i in range(1, len(post_cross)):
+        if post_cross[i][1] <= post_cross[i - 1][1]:
+            monotonic = False
+            break
+
+    print(f"  Crossover at n = {crossover_n}")
+    print(f"  Strictly monotonic after crossover: {'YES' if monotonic else 'NO'}")
+    print(
+        f"  No re-crossover (all Delta > 0 for odd n >= {crossover_n}): "
+        f"{'YES' if all(d > 0 for n, d in deltas if n >= crossover_n) else 'NO'}"
+    )
+
+    # Print a few values around the crossover
+    print(f"\n  {'n':>4} {'Delta (P-E)':>14} {'winner':>8}")
+    for n, d in deltas:
+        if 5 <= n <= 21 or n in (51, 101):
+            winner = "E_n" if d > 0 else "P_n"
+            print(f"  {n:>4} {d:>14.1f} {winner:>8}")
     print()
 
 

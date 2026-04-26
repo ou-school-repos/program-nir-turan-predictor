@@ -126,5 +126,12 @@ int main() {
          << " graphs flagged (n<=200, d<=20)"
          << " | " << (int)total_secs << "s"
          << " | " << rate << " graphs/s" << endl;
+
+    // JSONL summary to stderr for pipeline auditing
+    cerr << "{\"event\":\"leontovich_filter_done\""
+         << ",\"total\":" << total_count << ",\"hits\":" << leontovich_count
+         << ",\"elapsed_s\":" << (int)total_secs << ",\"rate_per_s\":" << rate
+         << "}" << endl;
+
     return 0;
 }

@@ -97,22 +97,26 @@ $T(7,1,9)$'s massive branches) to force the leading coefficients to flip.
 **Claim:** Testing only the near-path family $E_n^{(d)}$ is asymptotically
 sufficient. Highly branched trees cannot beat the path.
 
-**Proof:** Csikvári and Lin (2014) showed that the exponential growth rate
-of tree homomorphisms satisfies
-$\liminf \hom(T_n, H)^{1/n} \ge \lambda_1(H)$,
-with the path $P_n$ achieving this minimum. Stars and highly branched trees
-grow as $\sim \Delta(H)^n$, and since $\Delta(H) > \lambda_1(H)$ for all
-non-regular graphs, branched trees produce **exponentially more** homomorphisms.
+**Proof:** The path $P_n$ achieves the absolute minimal exponential growth
+rate $\lambda_1(H)^n$ (Csikvári and Lin, 2014). Stars and highly branched
+trees grow as $\sim \Delta(H)^n$. By the **Perron-Frobenius Theorem**, for
+any connected, non-regular graph $H$, $\Delta(H) > \lambda_1(H)$ strictly.
 To beat the path, a tree must match its minimal growth rate $\lambda_1^n$
 while achieving a smaller leading coefficient — this is only possible for
 long paths with localized boundary defects, i.e., the $E_n^{(d)}$ family.
 
-### Paper Correction
+### Refinement of Theorem 1.4
 
-The paper states $T(7,1,9)$ (78 vertices) is Leontovich. Our computation
-confirms this, but shows the threshold is $n = 13$ (not $n = 7$ as
-potentially implied by the paper's phrasing). For $n < 13$, $P_n$ still
-wins. This is a refinement, not a contradiction.
+The original authors proved that $T(7,1,9)$ (78 vertices) is Leontovich
+"for all sufficiently large odd $n$" (Theorem 1.4). Our analytical matrix
+computation pinpoints the exact threshold: **$n = 13$**. Because the spectral
+difference for odd $n$ reduces to
+$\Delta_{\text{odd}}(n) = A\lambda_1^n - |B|\lambda_2^n$
+with $A > 0$, $|B| > 0$, and $\lambda_2 / \lambda_1 \in (0, 1)$,
+the ratio $(\lambda_2/\lambda_1)^n$ is strictly monotonically decreasing.
+This crossover is therefore **non-oscillatory**: for all $n < 13$ (and all
+even $n$), $P_n$ minimizes homomorphisms, while for all odd $n \ge 13$,
+$E_n$ strictly minimizes them. There is no subsequent crossover.
 
 ## General Graph Search (Problem 4.3)
 
@@ -179,6 +183,7 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
 | 15  | 7,741           | ~4s         | **0**                    |
 | 18  | 123,867         | ~2 min      | **0**                    |
 | 20  | 823,065         | ~12 min     | **0**                    |
+| 21  | 2,144,505       | ~37 min     | **0**                    |
 
 ### Current bound
 
@@ -197,7 +202,7 @@ yields zero violations.
 **Extended searches** (conditional, $E_n^{(d)}$ filter only):
 
 - No bipartite Leontovich graph on $\le 13$ vertices (2,581,354 graphs tested)
-- No tree Leontovich graph on $\le 20$ vertices (832,330 trees tested)
+- No tree Leontovich graph on $\le 21$ vertices (2,976,835 trees tested)
 
 ## Reproduction
 
