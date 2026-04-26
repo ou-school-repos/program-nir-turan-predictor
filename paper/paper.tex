@@ -275,19 +275,37 @@ eigenvalues.
 \end{theorem}
 
 \begin{proof}
+  The characteristic polynomial of the quotient matrix
+  \[
+    M = \begin{pmatrix} 0&7&0&0 \\ 1&0&1&0 \\
+    0&1&0&9 \\ 0&0&1&0 \end{pmatrix}
+  \]
+  is $t^4 - 17t^2 + 63 = 0$. Setting $u = t^2$:
+  \[
+    u = \frac{17 \pm \sqrt{37}}{2},
+    \qquad
+    \lambda_1 = \sqrt{\frac{17 + \sqrt{37}}{2}} \approx 3.3973,
+    \qquad
+    \lambda_2 = \sqrt{\frac{17 - \sqrt{37}}{2}} \approx 2.3364.
+  \]
   For odd $n$, the spectral decomposition yields
   \[
     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
     \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
   \]
-  with $A > 0$, $|B| > 0$, and $0 < \lambda_2 / \lambda_1 < 1$.
-  Setting $r = \lambda_2 / \lambda_1 \approx 0.6877$,
+  with $A > 0$, $|B| > 0$. Setting
+  $r = \lambda_2 / \lambda_1 = \sqrt{(17 - \sqrt{37})/(17 + \sqrt{37})}
+  \approx 0.6877$:
   \[
     \Delta_{\mathrm{odd}}(n) = \lambda_1^n \bigl(A - |B|\,r^n\bigr).
   \]
   Since $r^n$ is strictly monotonically decreasing, $A - |B|\,r^n$ can
-  cross zero at most once. Evaluating directly: $\Delta(11) < 0$ and
-  $\Delta(13) > 0$. Thus $n = 13$ is the unique, permanent threshold.
+  cross zero at most once. Evaluating directly:
+  \begin{align*}
+    \Delta(11) &= 13{,}993{,}266 - 14{,}000{,}700 = -7{,}434 < 0, \\
+    \Delta(13) &= 161{,}209{,}734 - 161{,}161{,}476 = +48{,}258 > 0.
+  \end{align*}
+  Thus $n = 13$ is the unique, permanent threshold.
 
   For even $n$, both $P_n$ and $E_n$ have balanced bipartitions
   $(n/2, n/2)$, and the path's linear structure minimizes the projection
@@ -466,7 +484,7 @@ matrix--vector iteration to prevent floating-point overflow.
 Throughput: $\sim\!970$ graphs/second on a single core (Intel
 Coffee Lake), sufficient to process 5.6\,M trees ($m = 22$) in
 $\sim\!2$ hours. All source code is available at
-\url{https://github.com/sjaroch/program-nir-turan-predictor}.
+\url{https://github.com/ou-school-repos/program-nir-turan-predictor}.
 
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
