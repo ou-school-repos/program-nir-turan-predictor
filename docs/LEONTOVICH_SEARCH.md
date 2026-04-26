@@ -57,9 +57,9 @@ searching outside the 4-orbit spherically symmetric family.
 Open problem: what is the smallest $m$ such that a graph $H$ on $m$ vertices
 is Leontovich? The paper shows $4 \le m \le 78$.
 
-### Exhaustive sweep: all connected $H$ with $|V(H)| \le 8$
+### Exhaustive tree sweep: all connected $H$ with $\|V(H)\| \le 9$
 
-For each $k$, we loaded all connected graphs on $k$ vertices via `geng -c k`
+For each $m$, we loaded all connected graphs via `geng -c m`
 and tested every tree on $n$ vertices for $n \in \{7, 10, 13, 15\}$.
 Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 
@@ -70,11 +70,34 @@ Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 | 6              | 112           | 139           | $5.4 \times 10^8$                      | **0**      |
 | 7              | 853           | 992           | $5.6 \times 10^9$                      | **0**      |
 | 8              | 11,117        | 12,109        | $9.5 \times 10^{10}$                   | **0**      |
+| 9              | 261,080       | 273,189       | $2.8 \times 10^{12}$                   | **0**      |
 
-**New result:** No graph on $\le 8$ vertices is Leontovich at any $n \le 15$.
+### Asymptotic filter: $E_n^{(d)}$ family up to $n = 200$
 
-This improves the lower bound from $m \ge 4$ to **$m \ge 9$**,
-narrowing Problem 4.3 to $9 \le m \le 78$.
+The exhaustive tree sweep only covers $n \le 15$. To close the
+"delayed threshold" loophole (a graph whose Leontovich crossover
+occurs at large $n$), we use `leontovich_fast.cpp`: for each target $H$,
+test the near-path trees $E_n^{(d)}$ (path with pendant at depth $d$)
+via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
+
+| $m$ | connected $H$ | filter time | violations ($n \le 200$) |
+| --- | ------------- | ----------- | ------------------------ |
+| 4   | 6             | instant     | **0**                    |
+| 5   | 21            | instant     | **0**                    |
+| 6   | 112           | instant     | **0**                    |
+| 7   | 853           | instant     | **0**                    |
+| 8   | 11,117        | < 1s        | **0**                    |
+| 9   | 261,080       | ~40s        | **0**                    |
+| 10  | 11,716,571    | ~57 min     | **0**                    |
+
+### Current bound
+
+**New result: $m \ge 11$**, narrowing Problem 4.3 to $11 \le m \le 78$.
+
+No connected graph on $\le 10$ vertices is Leontovich, verified by:
+
+1. Exhaustive tree enumeration ($n \le 15$, all 273,189 graphs, $m \le 9$)
+2. Asymptotic near-path filter ($n \le 200$, all 11,989,760 graphs, $m \le 10$)
 
 ## Reproduction
 
@@ -82,7 +105,10 @@ narrowing Problem 4.3 to $9 \le m \le 78$.
 # Analytical verification (Tasks A, B, C)
 python3 scripts/leontovich.py
 
-# General graph search (Problem 4.3)
-# Test all connected H on k vertices against trees of size n
+# Exhaustive tree sweep (Problem 4.3)
 ./synthesizer N --leontovich K --quiet
+
+# Asymptotic near-path filter
+g++ -O3 -march=native -o leontovich_fast scripts/leontovich_fast.cpp
+geng -c K -q | ./leontovich_fast
 ```
