@@ -523,7 +523,7 @@ within the $T(x,y,z)$ family.
   7  & $T(16,1,19)$   & 337  & \\
   9  & $T(9,1,11)$    & 118  & \\
   11 & $T(8,1,10)$    &  97  & \\
-  13 & $T(7,1,9)$     &  78  & \textbf{Global minimum} \\
+  13 & $T(7,1,9)$     &  78  & Minimum within $T(x,y,z)$ \\
   15 & $T(8,1,12)$    & 113  & Vertex count increases \\
   $\ge 17$ & ---       & $> 2{,}000$ & None found \\
   \bottomrule
@@ -535,29 +535,41 @@ within the $T(x,y,z)$ family.
 
 Starting from $T(7,1,9)$ ($|V|=78$), our simulated annealing
 search discovered a smaller Leontovich graph with $|V|=76$ via
-edge mutation and vertex contraction.
-Table~\ref{tab:sa_hits} records all improvements found.
+edge mutation and vertex contraction.  The result was verified
+independently with exact integer arithmetic
+(\texttt{scripts/verify\_76.py}).
+
+The 76-vertex graph is a tree with 75 edges and degree sequence
+\[
+  [10, 10, 10, 10, 10, 9, 9, 7, \underbrace{2, \ldots, 2}_{7},
+   \underbrace{1, \ldots, 1}_{61}].
+\]
+It retains the star-of-stars topology of $T(7,1,9)$ but with
+asymmetric leaf counts at the bridge layer (one branch lost two
+leaves, another lost one).
 
 \begin{table}[H]
 \centering
-\caption{Leontovich graphs found by simulated annealing from $T(7,1,9)$.}
+\caption{Leontovich graphs: $T(7,1,9)$ vs.\ the 76-vertex graph.}
 \label{tab:sa_hits}
 \begin{tabular}{@{}cccccc@{}}
   \toprule
-  $|V|$ & Threshold $n$ & Depth $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
+  $|V|$ & First crossover $n$ & Depth $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
   \midrule
   78 & 13 & 2 & 0.6877 & 3.3973 & 2.3364 \\
-  77 & 99 & 20 & 0.9084 & 3.4810 & 3.1623 \\
-  76 & 21 & 2 & 0.9365 & 3.3766 & 3.1623 \\
+  76 & 17 & 2 & 0.9365 & 3.3766 & $\sqrt{10}$ \\
   \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent
 The 76-vertex graph has $\lambda_2 = \sqrt{10} \approx 3.1623$
-exactly, suggesting deep algebraic structure. Its crossover at
-$n = 21$ with $d = 2$ confirms it as a genuine Leontovich graph
-(not merely a high-$d$ anomaly). Further annealing with additional
+exactly, suggesting deep algebraic structure. Its first crossover
+at $n = 17$ with $d = 2$ was verified by exact integer computation
+of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
+The sign of $\Delta_n$ then alternates at every odd $n$, a hallmark
+of destructive interference from the secondary eigenvalue.
+Further annealing with additional
 restarts may yield even smaller examples.
 
 \bibliographystyle{plain}

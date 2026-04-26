@@ -86,6 +86,16 @@ def check_leontovich(A, max_n=200, max_d=20):
     return best_ratio < 1.0 - 1e-11, best_n, best_d, best_ratio
 
 
+def get_edges(A):
+    """Extract edge list from adjacency matrix."""
+    edges = []
+    for i in range(A.shape[0]):
+        for j in range(i + 1, A.shape[1]):
+            if A[i, j] > 0:
+                edges.append([i, j])
+    return edges
+
+
 def spectral_ratio(A):
     """Compute r = lambda_2 / lambda_1 for graph adjacency A."""
     evals = np.linalg.eigvalsh(A)
@@ -211,7 +221,7 @@ def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)"):
     n1 = 1 + 7 + 7  # root + children + bridges = 15 left-side vertices
     m = A.shape[0]
 
-    is_leo, best_n, best_d, ratio = check_leontovich(A, max_n=100)
+    is_leo, best_n, best_d, ratio = check_leontovich(A, max_n=300)
     r, lam1, lam2 = spectral_ratio(A)
 
     print(
@@ -252,7 +262,7 @@ def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)"):
             if not ok:
                 continue
 
-        is_leo_cand, n_cand, d_cand, ratio_cand = check_leontovich(A_cand, max_n=100)
+        is_leo_cand, n_cand, d_cand, ratio_cand = check_leontovich(A_cand, max_n=300)
         cand_score = score(A_cand, is_leo_cand, ratio_cand)
 
         # Metropolis acceptance
@@ -281,6 +291,7 @@ def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)"):
                     "r": round(r, 6),
                     "lam1": round(lam1, 6),
                     "lam2": round(lam2, 6),
+                    "edges": get_edges(A),
                     "time": datetime.now().isoformat(),
                 }
                 hits.append(hit)
