@@ -211,10 +211,25 @@ def shrink_graph(A, n1):
     return A_new, new_n1, True
 
 
-def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)"):
+def algebraic_penalty(A):
+    """Penalty for eigenvalues that are NOT perfect square roots."""
+    evals = np.linalg.eigvalsh(A)
+    pos = sorted([e for e in evals if e > 1e-10], reverse=True)
+    if len(pos) < 2:
+        return 100.0
+    penalty = 0.0
+    for lam in pos[:2]:
+        sq = lam * lam
+        nearest_int = round(sq)
+        penalty += abs(sq - nearest_int)
+    return penalty
+
+
+def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)", algebraic=False):
     """Simulated annealing to find small Leontovich graphs."""
-    print("=== Leontovich Simulated Annealing ===", file=sys.stderr)
-    print(f"Steps: {steps}, Temp: {temp_init}", file=sys.stderr)
+    mode = "ALGEBRAIC" if algebraic else "MINIMIZE"
+    print(f"=== Leontovich Simulated Annealing [{mode}] ===", file=sys.stderr)
+    print(f"Steps: {steps}, Temp: {temp_init}, Mode: {mode}", file=sys.stderr)
 
     # Initialize from T(7,1,9)
     A = make_T(7, 1, 9)
@@ -235,7 +250,10 @@ def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)"):
     def score(A_cand, is_leo_cand, ratio_cand):
         sz = A_cand.shape[0]
         if is_leo_cand:
-            return float(sz)  # pure vertex count
+            base = float(sz)
+            if algebraic:
+                base += 10.0 * algebraic_penalty(A_cand)
+            return base
         else:
             # Heavy penalty: "distance from crossover" keeps graph near boundary
             return 500.0 + sz + 100.0 * max(0, ratio_cand - 0.999)
@@ -325,9 +343,14 @@ if __name__ == "__main__":
     parser.add_argument("--steps", type=int, default=100000)
     parser.add_argument("--temp", type=float, default=2.0)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--algebraic",
+        action="store_true",
+        help="Prefer graphs with eigenvalues that are perfect square roots",
+    )
     args = parser.parse_args()
 
     random.seed(args.seed)
     np.random.seed(args.seed)
 
-    anneal(steps=args.steps, temp_init=args.temp)
+    anneal(steps=args.steps, temp_init=args.temp, algebraic=args.algebraic)
