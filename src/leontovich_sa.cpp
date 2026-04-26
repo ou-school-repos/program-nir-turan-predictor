@@ -59,6 +59,42 @@ static Graph make_T(int x, int y, int z) {
     return G;
 }
 
+// ~~~ Build spherically symmetric tree T(d1,d2,...,dk)
+// Branching sequence: orbit i has product(d1..di) vertices, each with
+// d_{i+1} children. E.g. T(7,1,9) = make_symmetric_tree({7,1,9}).
+static Graph make_symmetric_tree(const std::vector<int>& degrees) {
+    Graph G;
+    G.clear();
+    // Compute orbit sizes: orbit[0]=1, orbit[i]=prod(d1..di)
+    std::vector<int> orbit_size = {1};
+    for (int d : degrees) orbit_size.push_back(orbit_size.back() * d);
+    int total = 0;
+    for (int s : orbit_size) total += s;
+    if (total > MAXV) {
+        std::cerr << "make_symmetric_tree: |V|=" << total
+                  << " exceeds MAXV=" << MAXV << "\n";
+        G.m = 0;
+        return G;
+    }
+    // Assign vertex IDs per orbit
+    std::vector<int> orbit_start = {0};
+    for (size_t i = 1; i < orbit_size.size(); i++)
+        orbit_start.push_back(orbit_start.back() + orbit_size[i - 1]);
+    // Connect parent orbit i to child orbit i+1
+    for (size_t i = 0; i < degrees.size(); i++) {
+        int d = degrees[i];
+        for (int p = 0; p < orbit_size[i]; p++) {
+            int parent = orbit_start[i] + p;
+            for (int c = 0; c < d; c++) {
+                int child = orbit_start[i + 1] + p * d + c;
+                G.add_edge(parent, child);
+            }
+        }
+    }
+    G.m = total;
+    return G;
+}
+
 // ── Load graph from JSON edge list ─────────────────────────────────────
 static Graph load_json(const std::string& path) {
     Graph G;
