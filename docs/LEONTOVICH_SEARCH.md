@@ -98,6 +98,35 @@ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
 | 9   | 261,080       | ~40s        | **0**                    |
 | 10  | 11,716,571    | ~57 min     | **0**                    |
 
+### Bipartite graph sweep (via `genbg`)
+
+The known Leontovich graph $T(7,1,9)$ is a tree (hence bipartite).
+Connected bipartite graphs grow far slower than general connected graphs,
+enabling deeper $m$-values. For each partition $(n_1, n_2)$ with
+$n_1 + n_2 = m$, we run `genbg -c n1 n2 -q | ./leontovich_fast`.
+
+| $m$ | bipartite $H$ | filter time | violations ($n \le 200$) |
+| --- | ------------- | ----------- | ------------------------ |
+| 10  | 5,664         | < 1s        | **0**                    |
+| 11  | 25,598        | ~2s         | **0**                    |
+| 12  | 308,362       | ~30s        | **0**                    |
+| 13  | 2,241,730     | ~16 min     | **0**                    |
+
+### Tree-as-target sweep (via `--export-g6`)
+
+If the smallest Leontovich graph is a tree, we can test all trees
+up to $m = 25$ by piping `synthesizer --export-g6` into the filter.
+Tree counts match [OEIS A000055](https://oeis.org/A000055).
+
+| $m$ | trees (A000055) | filter time | violations ($n \le 200$) |
+| --- | --------------- | ----------- | ------------------------ |
+| 10  | 106             | instant     | **0**                    |
+| 12  | 551             | instant     | **0**                    |
+| 15  | 7,741           | ~4s         | **0**                    |
+| 18  | 123,867         | ~2 min      | **0**                    |
+| 20  | 823,065         | ~12 min     | **0**                    |
+| 25  | 4,638,590       | *(running)* | *(pending)*              |
+
 ### Current bound
 
 **Rigorous bound: $m \ge 10$** for all $n \le 15$,
@@ -112,6 +141,11 @@ at large $n$ are near-path trees $E_n^{(d)}$. Filtering these up to
 $n = 200$ across all 11,989,760 connected graphs with $m \le 10$
 yields zero violations.
 
+**Extended searches** (conditional, $E_n^{(d)}$ filter only):
+
+- No bipartite Leontovich graph on $\le 13$ vertices (2,581,354 graphs tested)
+- No tree Leontovich graph on $\le 20$ vertices (832,330 trees tested)
+
 ## Reproduction
 
 ```bash
@@ -121,7 +155,15 @@ python3 scripts/leontovich.py
 # Exhaustive tree sweep (Problem 4.3)
 ./synthesizer N --leontovich K --quiet
 
-# Asymptotic near-path filter
+# Asymptotic near-path filter (general connected)
 g++ -O3 -march=native -o leontovich_fast scripts/leontovich_fast.cpp
 geng -c K -q | ./leontovich_fast
+
+# Bipartite filter
+for n1 in $(seq 1 $((K/2))); do
+  genbg -c $n1 $((K-n1)) -q | ./leontovich_fast
+done
+
+# Tree-as-target filter
+./synthesizer M --export-g6 | ./leontovich_fast
 ```

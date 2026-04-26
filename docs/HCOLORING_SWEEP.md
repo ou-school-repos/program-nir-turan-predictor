@@ -371,7 +371,7 @@ Recurrence: $a(n) = 8a(n{-}2) - 21a(n{-}4) + 20a(n{-}6) - 5a(n{-}8)$. Two-step r
 
 1. **Parity alternation in ties**: For $P_7$ and $P_9$, the #2 tier alternates between 1 and 2 trees depending on $n$ parity (even $n$: 1 tree, odd $n$: 2 trees). This likely reflects the bipartite symmetry of the path target.
 
-2. **P₅ clustering**: Unlike $P_7$/$P_9$ where nearly every tree has a unique score, $P_5$ shows increasing tie counts at #2 (growing as $\sim n$) and significant clustering at #4/#5. This may relate to $P_5$'s smaller spectral gap.
+2. **$P_5$ clustering**: Unlike $P_7$/$P_9$ where nearly every tree has a unique score, $P_5$ shows increasing tie counts at #2 (growing as $\sim n$) and significant clustering at #4/#5. This may relate to $P_5$'s smaller spectral gap.
 
 3. **Contrast with $P_3$**: The number of distinct hom values for $P_3$ is exactly $\lfloor n/2 \rfloor$ (closed form). For $k \ge 5$, distinct values grow rapidly with the number of trees — no simple closed form.
 
