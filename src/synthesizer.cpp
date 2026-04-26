@@ -82,6 +82,7 @@ static uint64_t tree_hom(int n, int h) {
 // Leontovich Sweep: Inline multi-graph testing (for --leontovich mode)
 // =====================================================================
 static bool quiet_mode = false;
+static bool export_g6 = false;
 
 struct TargetGraph {
     std::string g6;
@@ -485,6 +486,32 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
                 if (max_deg <= 3) trees_d3++;
                 if (max_deg <= 4) trees_d4++;
 
+                // Export graph6 (if --export-g6 active)
+                if (export_g6) {
+                    // Build adjacency bitmask from parent_arr
+                    bool adj_g6[MAX_N][MAX_N] = {};
+                    for (int ii = 1; ii < n; ii++) {
+                        adj_g6[ii][parent_arr[ii]] = true;
+                        adj_g6[parent_arr[ii]][ii] = true;
+                    }
+                    char g6[256];
+                    g6[0] = (char)(n + 63);
+                    int ki = 1, bit_pos = 5, val = 0;
+                    for (int col = 1; col < n; col++) {
+                        for (int row = 0; row < col; row++) {
+                            if (adj_g6[row][col]) val |= (1 << bit_pos);
+                            if (--bit_pos < 0) {
+                                g6[ki++] = (char)(val + 63);
+                                bit_pos = 5;
+                                val = 0;
+                            }
+                        }
+                    }
+                    if (bit_pos != 5) g6[ki++] = (char)(val + 63);
+                    g6[ki] = '\0';
+                    fprintf(stdout, "%s\n", g6);
+                }
+
                 // Bottom-up DP (O(N))
                 for (int i = 0; i < n; i++) {
                     dp_excl[i] = 1;
@@ -805,24 +832,26 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
         printf("]\n    }");
     };
 
-    printf("{\n");
-    printf("  \"n\": %d,\n", n);
-    printf("  \"trees_scanned\": %lu,\n", unique);
-    printf("  \"rooted_processed\": %lu,\n", rooted);
-    printf("  \"path_score\": %lu,\n", p_sc);
-    printf("  \"elapsed_ms\": %.1f,\n", elapsed_ms);
-    printf("  \"trees_per_sec\": %.0f,\n", unique / (elapsed_ms / 1000.0));
-    printf("  \"top_k\": [\n");
-    if (best_d3.score > 0) {
-        print_tree(best_d3, "Delta <= 3 (Chemical / 6G Routing)");
-        printf(",\n");
+    if (!quiet_mode) {
+        printf("{\n");
+        printf("  \"n\": %d,\n", n);
+        printf("  \"trees_scanned\": %lu,\n", unique);
+        printf("  \"rooted_processed\": %lu,\n", rooted);
+        printf("  \"path_score\": %lu,\n", p_sc);
+        printf("  \"elapsed_ms\": %.1f,\n", elapsed_ms);
+        printf("  \"trees_per_sec\": %.0f,\n", unique / (elapsed_ms / 1000.0));
+        printf("  \"top_k\": [\n");
+        if (best_d3.score > 0) {
+            print_tree(best_d3, "Delta <= 3 (Chemical / 6G Routing)");
+            printf(",\n");
+        }
+        if (best_d4.score > 0) {
+            print_tree(best_d4, "Delta <= 4 (Telecom Hubs)");
+            printf(",\n");
+        }
+        print_tree(best_any, "Unconstrained");
+        printf("\n  ]\n}\n");
     }
-    if (best_d4.score > 0) {
-        print_tree(best_d4, "Delta <= 4 (Telecom Hubs)");
-        printf(",\n");
-    }
-    print_tree(best_any, "Unconstrained");
-    printf("\n  ]\n}\n");
 
     return unique;
 }
@@ -837,6 +866,7 @@ int main(int argc, const char* argv[]) {
             stderr,
             "Usage: %s N [--top K] [--prune [D]] [--hcolor PK]\n"
             "           [--hgraph G6] [--leontovich K] [--quiet]\n"
+            "           [--export-g6]\n"
             "\n"
             "  N              Number of vertices (0..%d)\n"
             "  --top K        Track top-K extremal trees (default: 10)\n"
@@ -844,6 +874,7 @@ int main(int argc, const char* argv[]) {
             "  --hcolor PK    Find tree minimizing hom(T, P_K)\n"
             "  --hgraph G6    Test single target H in graph6 format\n"
             "  --leontovich K Run geng to test ALL connected H on K vertices\n"
+            "  --export-g6    Output each unique tree as graph6 to stdout\n"
             "  --quiet        Suppress progress/JSON output\n"
             "\n"
             "Output: JSON to stdout, telemetry to stderr,\n"
@@ -860,6 +891,9 @@ int main(int argc, const char* argv[]) {
             top_k = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--quiet") == 0) {
             quiet_mode = true;
+        } else if (strcmp(argv[i], "--export-g6") == 0) {
+            export_g6 = true;
+            quiet_mode = true;  // suppress JSON when piping graph6
         } else if (strcmp(argv[i], "--prune") == 0) {
             // --prune alone defaults to 4, --prune 3 prunes at degree 3
             if (i + 1 < argc && argv[i + 1][0] >= '2' && argv[i + 1][0] <= '9')
