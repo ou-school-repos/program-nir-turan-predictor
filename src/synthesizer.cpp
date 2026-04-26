@@ -9,6 +9,7 @@
 //
 // Build: g++ -O3 -march=native -std=c++17 -o synthesizer src/synthesizer.cpp
 
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -887,6 +888,7 @@ int main(int argc, const char* argv[]) {
             TargetGraph tg;
             tg.g6 = argv[i];
             parse_graph6(tg.g6.c_str(), tg.h, tg.adj);
+            tg.path_score = 0;
             tg.violation_found = false;
             leontovich_targets.push_back(tg);
             leontovich_mode = true;
@@ -907,6 +909,7 @@ int main(int argc, const char* argv[]) {
                     TargetGraph tg;
                     tg.g6 = buf;
                     parse_graph6(buf, tg.h, tg.adj);
+                    tg.path_score = 0;
                     tg.violation_found = false;
                     leontovich_targets.push_back(tg);
                 }
@@ -946,9 +949,9 @@ int main(int argc, const char* argv[]) {
 
     // Report Leontovich summary
     if (leontovich_mode) {
-        int violations = 0;
-        for (const auto& tg : leontovich_targets)
-            if (tg.violation_found) violations++;
+        int violations = (int)std::count_if(
+            leontovich_targets.begin(), leontovich_targets.end(),
+            [](const TargetGraph& tg) { return tg.violation_found; });
         fprintf(
             stderr,
             "\n  Leontovich sweep: %d / %zu graphs are Leontovich at n=%d\n",
