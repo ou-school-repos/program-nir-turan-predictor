@@ -43,6 +43,14 @@ $H = T(7,1,9)$ with $|V| = 78$. The paper proves $E_n$ beats $P_n$ for
 
 **Result:** Threshold is $n = 13$. For all even $n$, $P_n$ wins.
 
+**Parity explanation:** $T(7,1,9)$ is bipartite, so homomorphism counts
+are governed by the tree's bipartition classes $(A, B)$. For even $n$,
+$P_n$ has a perfectly balanced bipartition $(n/2, n/2)$ which minimizes
+mappings into bipartite targets. At odd $n$, both $P_n$ and $E_n$ share
+the same forced imbalance $((n+1)/2, (n-1)/2)$, putting them on equal
+macroscopic footing and allowing local topological defects to dictate
+the winner.
+
 ### Smallest 4-Orbit Leontovich Graph
 
 Exhaustive grid search over $T(x,y,z)$ with $|V| = 1 + x + xy + xyz \le 100$:
@@ -60,17 +68,17 @@ is Leontovich? The paper shows $4 \le m \le 78$.
 ### Exhaustive tree sweep: all connected $H$ with $\|V(H)\| \le 9$
 
 For each $m$, we loaded all connected graphs via `geng -c m`
-and tested every tree on $n$ vertices for $n \in \{7, 10, 13, 15\}$.
+and tested every tree on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
 Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 
-| $m = \|V(H)\|$ | connected $H$ | $\sum$ graphs | ops ($H \times T \times n \times m^2$) | violations |
-| -------------- | ------------- | ------------- | -------------------------------------- | ---------- |
-| 4              | 6             | 6             | $1.3 \times 10^7$                      | **0**      |
-| 5              | 21            | 27            | $7.0 \times 10^7$                      | **0**      |
-| 6              | 112           | 139           | $5.4 \times 10^8$                      | **0**      |
-| 7              | 853           | 992           | $5.6 \times 10^9$                      | **0**      |
-| 8              | 11,117        | 12,109        | $9.5 \times 10^{10}$                   | **0**      |
-| 9              | 261,080       | 273,189       | $2.8 \times 10^{12}$                   | **0**      |
+| $m = \|V(H)\|$ | connected $H$ | cumulative $H$ | ops ($H \times T \times n \times m^2$) | violations |
+| -------------- | ------------- | --------------- | -------------------------------------- | ---------- |
+| 4              | 6             | 6               | $1.8 \times 10^7$                      | **0**      |
+| 5              | 21            | 27              | $9.9 \times 10^7$                      | **0**      |
+| 6              | 112           | 139             | $7.6 \times 10^8$                      | **0**      |
+| 7              | 853           | 992             | $7.9 \times 10^9$                      | **0**      |
+| 8              | 11,117        | 12,109          | $1.3 \times 10^{11}$                   | **0**      |
+| 9              | 261,080       | 273,189         | $4.0 \times 10^{12}$                   | **0**      |
 
 ### Asymptotic filter: $E_n^{(d)}$ family up to $n = 200$
 
@@ -92,12 +100,17 @@ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
 
 ### Current bound
 
-**New result: $m \ge 11$**, narrowing Problem 4.3 to $11 \le m \le 78$.
+**Rigorous bound: $m \ge 10$** for all $n \le 15$,
+via exhaustive enumeration of all 273,189 connected graphs and
+all trees on $n \in \{5, \ldots, 15\}$ vertices.
 
-No connected graph on $\le 10$ vertices is Leontovich, verified by:
-
-1. Exhaustive tree enumeration ($n \le 15$, all 273,189 graphs, $m \le 9$)
-2. Asymptotic near-path filter ($n \le 200$, all 11,989,760 graphs, $m \le 10$)
+**Strong conditional bound: $m \ge 11$.**
+Because asymptotic minimizers must match the path's minimal
+exponential growth rate $\lambda_1(H)^n$ (highly branched trees
+grow as $\Delta(H)^n \ge \lambda_1(H)^n$), the only viable challengers
+at large $n$ are near-path trees $E_n^{(d)}$. Filtering these up to
+$n = 200$ across all 11,989,760 connected graphs with $m \le 10$
+yields zero violations.
 
 ## Reproduction
 
