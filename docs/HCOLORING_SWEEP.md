@@ -371,7 +371,19 @@ Recurrence: $a(n) = 8a(n{-}2) - 21a(n{-}4) + 20a(n{-}6) - 5a(n{-}8)$. Two-step r
 
 1. **Parity alternation in ties**: For $P_7$ and $P_9$, the #2 tier alternates between 1 and 2 trees depending on $n$ parity (even $n$: 1 tree, odd $n$: 2 trees). This likely reflects the bipartite symmetry of the path target.
 
-2. **$P_5$ clustering**: Unlike $P_7$/$P_9$ where nearly every tree has a unique score, $P_5$ shows increasing tie counts at #2 (growing as $\sim n$) and significant clustering at #4/#5. This may relate to $P_5$'s smaller spectral gap.
+2. **$P_5$ clustering (2-shift invariance)**: Unlike $P_7$/$P_9$ where nearly every tree has a unique score, $P_5$ shows increasing tie counts at #2 (growing as $\sim n$) and significant clustering at #4/#5. This is a provable structural degeneracy:
+
+   Let $A$ be the adjacency matrix of $P_5$ and $\mathbf{1}$ the all-ones leaf vector:
+
+   $$
+   A\mathbf{1} = (1, 2, 2, 2, 1)^T, \quad
+     A^2\mathbf{1} = (2, 3, 4, 3, 2)^T, \quad
+     A^3\mathbf{1} = (3, 6, 6, 6, 3)^T = 3 \cdot A\mathbf{1}
+   $$
+
+   Because $A^3\mathbf{1} = 3 \cdot A\mathbf{1}$, lengthening any internal branch by 2 edges multiplies the DP state by exactly 3. Shortening another by 2 divides by 3. At the merge point, these factors cancel via element-wise product, creating large families of non-isomorphic trees with identical scores.
+
+   For $P_7$, eigenvalues are irrational ($2 + \sqrt{2}$, etc.). The transfer matrix never reduces to a perfect integer scalar, completely breaking 2-shift invariance and enforcing strict uniqueness.
 
 3. **Contrast with $P_3$**: The number of distinct hom values for $P_3$ is exactly $\lfloor n/2 \rfloor$ (closed form). For $k \ge 5$, distinct values grow rapidly with the number of trees — no simple closed form.
 

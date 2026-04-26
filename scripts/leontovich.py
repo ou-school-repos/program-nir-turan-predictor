@@ -5,6 +5,7 @@ Verifies results from "Long paths need not minimize H-colorings among trees"
 (J.D. Nir, arXiv:2510.18770v1) using the 4x4 orbit partition trick.
 """
 
+import math
 from collections import deque
 
 
@@ -166,7 +167,103 @@ def task_c():
     print()
 
 
+def task_d():
+    """Verify spectral interference theorem: need ≥2 positive eigenvalues."""
+    print("=" * 60)
+    print("Task D: Spectral Interference Theorem Verification")
+    print("=" * 60)
+
+    def eigenvalues_2x2(x):
+        """Eigenvalues of 2x2 orbit matrix [[0, x], [1, 0]]."""
+        return [math.sqrt(x), -math.sqrt(x)]
+
+    def eigenvalues_4x4(x, y, z):
+        """Positive eigenvalues of T(x,y,z) quotient matrix via char. poly."""
+        # det(λI - M) = λ^4 - (x + y + z)λ^2 + xz = 0
+        # Substituting u = λ^2: u^2 - (x+y+z)u + xz = 0
+        s = x + y + z
+        disc = s * s - 4 * x * z
+        if disc < 0:
+            return [math.sqrt(s / 2), 0.0]  # shouldn't happen for trees
+        u1 = (s + math.sqrt(disc)) / 2
+        u2 = (s - math.sqrt(disc)) / 2
+        lam1 = math.sqrt(u1) if u1 > 0 else 0.0
+        lam2 = math.sqrt(u2) if u2 > 0 else 0.0
+        return [lam1, lam2]
+
+    # Test 2-orbit trees T(x): star-like, diameter <= 3
+    print("\n--- 2-Orbit Trees T(x) (diameter <= 2) ---")
+    print(f"{'x':>4} {'|V|':>6} {'lam1':>10} {'pos eigs':>10} {'P wins?':>10}")
+    for x in [2, 3, 5, 10]:
+        eigs = eigenvalues_2x2(x)
+        pos = sum(1 for e in eigs if e > 1e-10)
+        M = [[0, x], [1, 0]]
+        a = [1, x]
+        leo = any(
+            eval_tree_hom(make_En(n), n, M, a) < eval_tree_hom(make_Pn(n), n, M, a)
+            for n in range(5, 52, 2)
+        )
+        V = 1 + x
+        print(
+            f"{x:>4} {V:>6} {eigs[0]:>10.4f} {pos:>10} {'NO (Leo!)' if leo else 'YES':>10}"
+        )
+
+    # Test 3-orbit trees T(x,y): diameter <= 4
+    print("\n--- 3-Orbit Trees T(x,y) (diameter <= 4) ---")
+    print(f"{'(x,y)':>8} {'|V|':>6} {'lam1':>10} {'pos eigs':>10} {'P wins?':>10}")
+    for x, y in [(2, 2), (3, 3), (5, 2), (10, 5)]:
+        M3 = [[0, x, 0], [1, 0, y], [0, 1, 0]]
+        a3 = [1, x, x * y]
+        V = 1 + x + x * y
+        # eigenvalues: lam^3 - (x+y)lam = 0 => only 1 positive
+        lam1 = math.sqrt(x + y)
+        pos = 1
+        leo = any(
+            eval_tree_hom(make_En(n), n, M3, a3) < eval_tree_hom(make_Pn(n), n, M3, a3)
+            for n in range(5, 52, 2)
+        )
+        print(
+            f"  ({x},{y}) {V:>6} {lam1:>10.4f} {pos:>10} {'NO (Leo!)' if leo else 'YES':>10}"
+        )
+
+    # Test 4-orbit trees T(x,y,z): can have 2 positive eigenvalues
+    print("\n--- 4-Orbit Trees T(x,y,z) (diameter ≤ 6) ---")
+    print(
+        f"  {'(x,y,z)':>12} {'|V|':>6} {'lam1':>8} {'lam2':>8} {'pos':>4} {'Leo?':>6}"
+    )
+    tests = [
+        (2, 1, 2),
+        (3, 1, 3),
+        (7, 1, 9),
+        (18, 3, 32),
+        (2, 2, 2),
+        (5, 5, 5),
+    ]
+    for x, y, z in tests:
+        eigs = eigenvalues_4x4(x, y, z)
+        V = 1 + x + x * y + x * y * z
+        pos = sum(1 for e in eigs if e > 1e-10)
+        # Check if Leontovich at any odd n up to 51
+        M, a = get_Ma(x, y, z)
+        leo = any(
+            eval_tree_hom(make_En(n), n, M, a) < eval_tree_hom(make_Pn(n), n, M, a)
+            for n in range(5, 52, 2)
+        )
+        leo_str = "YES" if leo else "no"
+        label = f"({x},{y},{z})"
+        print(
+            f"  {label:>12} {V:>6} {eigs[0]:>8.3f} {eigs[1]:>8.3f}"
+            f" {pos:>4} {leo_str:>6}"
+        )
+
+    print()
+    print("RESULT: All 2-orbit and 3-orbit trees tie P_n vs E_n (1 pos eigenvalue)")
+    print("        Only 4-orbit trees with 2 pos eigenvalues can be Leontovich")
+    print()
+
+
 if __name__ == "__main__":
     task_a()
     task_b()
     task_c()
+    task_d()

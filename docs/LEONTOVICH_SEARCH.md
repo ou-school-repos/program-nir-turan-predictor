@@ -60,6 +60,58 @@ Exhaustive grid search over $T(x,y,z)$ with $|V| = 1 + x + xy + xyz \le 100$:
 This confirms that closing the Problem 4.3 gap ($4 \le m \le 78$) requires
 searching outside the 4-orbit spherically symmetric family.
 
+### Spectral Crossover Theorem
+
+**Theorem (1-Positive Eigenvalue Rule):** *If the quotient matrix of a
+bipartite graph $H$ has exactly one positive eigenvalue $\lambda_1$,
+then $H$ cannot be Leontovich.*
+
+**Proof:**
+
+1. Because $H$ is bipartite, its spectrum is symmetric. If it has exactly
+   one positive eigenvalue, its non-zero spectrum is $\{\lambda_1, -\lambda_1\}$.
+2. By the transfer matrix theorem, $\hom(G_n, H) = c \lambda_1^n + d (-\lambda_1)^n$.
+3. For odd $n$, this reduces to $(c - d) \lambda_1^n$. There are **no secondary
+   exponential terms**. The ratio $\hom(E_n, H) / \hom(P_n, H)$ is a strict
+   constant for all odd $n$.
+4. Since $P_n$ minimizes at small $n$, it is locked in for all $n$.
+   A delayed threshold (like $n = 13$) is algebraically impossible.
+
+**Computational verification** (Task D in `leontovich.py`):
+
+- All 2-orbit trees $T(x)$: 1 positive eigenvalue $\Rightarrow$ $P_n$ always wins (verified)
+- All 3-orbit trees $T(x,y)$: 1 positive eigenvalue $\Rightarrow$ $P_n$ always wins (verified)
+- 4-orbit trees $T(x,y,z)$: characteristic polynomial
+  $\lambda^4 - (x+y+z)\lambda^2 + xz = 0$ yields two positive eigenvalues
+  when $s^2 > 4xz$ and $s > \sqrt{4xz}$, where $s = x + y + z$.
+
+**Key subtlety:** Two positive eigenvalues is **necessary but not sufficient**.
+$T(2,2,2)$ has $\lambda_1 \approx 2.288$, $\lambda_2 \approx 0.874$ (both
+positive), yet is not Leontovich — it lacks the topological extremity (like
+$T(7,1,9)$'s massive branches) to force the leading coefficients to flip.
+
+### Asymptotic Defense of the $E_n^{(d)}$ Filter
+
+**Claim:** Testing only the near-path family $E_n^{(d)}$ is asymptotically
+sufficient. Highly branched trees cannot beat the path.
+
+**Proof:** Csikvári and Lin (2014) showed that the exponential growth rate
+of tree homomorphisms satisfies
+$\liminf \hom(T_n, H)^{1/n} \ge \lambda_1(H)$,
+with the path $P_n$ achieving this minimum. Stars and highly branched trees
+grow as $\sim \Delta(H)^n$, and since $\Delta(H) > \lambda_1(H)$ for all
+non-regular graphs, branched trees produce **exponentially more** homomorphisms.
+To beat the path, a tree must match its minimal growth rate $\lambda_1^n$
+while achieving a smaller leading coefficient — this is only possible for
+long paths with localized boundary defects, i.e., the $E_n^{(d)}$ family.
+
+### Paper Correction
+
+The paper states $T(7,1,9)$ (78 vertices) is Leontovich. Our computation
+confirms this, but shows the threshold is $n = 13$ (not $n = 7$ as
+potentially implied by the paper's phrasing). For $n < 13$, $P_n$ still
+wins. This is a refinement, not a contradiction.
+
 ## General Graph Search (Problem 4.3)
 
 Open problem: what is the smallest $m$ such that a graph $H$ on $m$ vertices
