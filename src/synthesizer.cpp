@@ -81,7 +81,6 @@ static uint64_t tree_hom(int n, int h) {
 // =====================================================================
 // Leontovich Sweep: Inline multi-graph testing (for --leontovich mode)
 // =====================================================================
-static bool quiet_mode = false;
 static bool export_g6 = false;
 
 struct TargetGraph {
@@ -806,7 +805,7 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
         }
     }
 
-    // JSON output with constrained extremals
+    // JSON output (always stderr — stdout reserved for graph6 piping)
     auto print_tree = [&](const ConstrainedBest& t, const char* label) {
         int par[MAX_N], ds[MAX_N];
         par[0] = -1;
@@ -815,43 +814,42 @@ static uint64_t generate(int n, int top_k, int prune_deg) {
             par[i] = ds[t.level_seq[i] - 1];
             ds[t.level_seq[i]] = i;
         }
-        printf("    {\n");
-        printf("      \"constraint\": \"%s\",\n", label);
-        printf("      \"score\": %lu,\n", t.score);
-        printf("      \"ratio\": %.2f,\n", (double)t.score / p_sc);
-        printf("      \"max_degree\": %d,\n", t.max_degree);
-        printf("      \"diameter\": %d,\n", t.diameter);
-        printf("      \"leaves\": %d,\n", t.leaves);
-        printf("      \"edges\": [");
+        fprintf(stderr, "    {\n");
+        fprintf(stderr, "      \"constraint\": \"%s\",\n", label);
+        fprintf(stderr, "      \"score\": %lu,\n", t.score);
+        fprintf(stderr, "      \"ratio\": %.2f,\n", (double)t.score / p_sc);
+        fprintf(stderr, "      \"max_degree\": %d,\n", t.max_degree);
+        fprintf(stderr, "      \"diameter\": %d,\n", t.diameter);
+        fprintf(stderr, "      \"leaves\": %d,\n", t.leaves);
+        fprintf(stderr, "      \"edges\": [");
         bool first = true;
         for (int i = 1; i < t.n; i++) {
-            if (!first) printf(", ");
-            printf("[%d,%d]", par[i], i);
+            if (!first) fprintf(stderr, ", ");
+            fprintf(stderr, "[%d,%d]", par[i], i);
             first = false;
         }
-        printf("]\n    }");
+        fprintf(stderr, "]\n    }");
     };
 
-    if (!quiet_mode) {
-        printf("{\n");
-        printf("  \"n\": %d,\n", n);
-        printf("  \"trees_scanned\": %lu,\n", unique);
-        printf("  \"rooted_processed\": %lu,\n", rooted);
-        printf("  \"path_score\": %lu,\n", p_sc);
-        printf("  \"elapsed_ms\": %.1f,\n", elapsed_ms);
-        printf("  \"trees_per_sec\": %.0f,\n", unique / (elapsed_ms / 1000.0));
-        printf("  \"top_k\": [\n");
-        if (best_d3.score > 0) {
-            print_tree(best_d3, "Delta <= 3 (Chemical / 6G Routing)");
-            printf(",\n");
-        }
-        if (best_d4.score > 0) {
-            print_tree(best_d4, "Delta <= 4 (Telecom Hubs)");
-            printf(",\n");
-        }
-        print_tree(best_any, "Unconstrained");
-        printf("\n  ]\n}\n");
+    fprintf(stderr, "{\n");
+    fprintf(stderr, "  \"n\": %d,\n", n);
+    fprintf(stderr, "  \"trees_scanned\": %lu,\n", unique);
+    fprintf(stderr, "  \"rooted_processed\": %lu,\n", rooted);
+    fprintf(stderr, "  \"path_score\": %lu,\n", p_sc);
+    fprintf(stderr, "  \"elapsed_ms\": %.1f,\n", elapsed_ms);
+    fprintf(stderr, "  \"trees_per_sec\": %.0f,\n",
+            unique / (elapsed_ms / 1000.0));
+    fprintf(stderr, "  \"top_k\": [\n");
+    if (best_d3.score > 0) {
+        print_tree(best_d3, "Delta <= 3 (Chemical / 6G Routing)");
+        fprintf(stderr, ",\n");
     }
+    if (best_d4.score > 0) {
+        print_tree(best_d4, "Delta <= 4 (Telecom Hubs)");
+        fprintf(stderr, ",\n");
+    }
+    print_tree(best_any, "Unconstrained");
+    fprintf(stderr, "\n  ]\n}\n");
 
     return unique;
 }
@@ -865,8 +863,7 @@ int main(int argc, const char* argv[]) {
         fprintf(
             stderr,
             "Usage: %s N [--top K] [--prune [D]] [--hcolor PK]\n"
-            "           [--hgraph G6] [--leontovich K] [--quiet]\n"
-            "           [--export-g6]\n"
+            "           [--hgraph G6] [--leontovich K] [--export-g6]\n"
             "\n"
             "  N              Number of vertices (0..%d)\n"
             "  --top K        Track top-K extremal trees (default: 10)\n"
@@ -875,9 +872,8 @@ int main(int argc, const char* argv[]) {
             "  --hgraph G6    Test single target H in graph6 format\n"
             "  --leontovich K Run geng to test ALL connected H on K vertices\n"
             "  --export-g6    Output each unique tree as graph6 to stdout\n"
-            "  --quiet        Suppress progress/JSON output\n"
             "\n"
-            "Output: JSON to stdout, telemetry to stderr,\n"
+            "Output: JSON to stderr, telemetry to stderr,\n"
             "        auto-appends to docs/runs/sequence.jsonl\n",
             argv[0], MAX_N);
         return 1;
@@ -889,11 +885,8 @@ int main(int argc, const char* argv[]) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--top") == 0 && i + 1 < argc) {
             top_k = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "--quiet") == 0) {
-            quiet_mode = true;
         } else if (strcmp(argv[i], "--export-g6") == 0) {
             export_g6 = true;
-            quiet_mode = true;  // suppress JSON when piping graph6
         } else if (strcmp(argv[i], "--prune") == 0) {
             // --prune alone defaults to 4, --prune 3 prunes at degree 3
             if (i + 1 < argc && argv[i + 1][0] >= '2' && argv[i + 1][0] <= '9')
