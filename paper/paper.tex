@@ -103,17 +103,45 @@ minimize $\Hom(T, H)$ among trees.
 \end{enumerate}
 
 % ════════════════════════════════════════════════════════════════════════
+\section{Preliminaries}
+\label{sec:prelim}
+
+\begin{definition}[$E_n$]
+  The \emph{near-path tree} $E_n$ is the tree on $n$ vertices obtained
+  from the path $P_{n-1}$ by attaching a pendant vertex to the
+  third-from-last vertex.
+\end{definition}
+
+\begin{definition}[$T(x,y,z)$]
+  For positive integers $x, y, z$, the \emph{spherically symmetric tree}
+  $T(x,y,z)$ is a rooted tree with 4 orbits: a root (orbit~0, 1~vertex),
+  $x$ children of the root (orbit~1), $xy$ grandchildren (orbit~2),
+  and $xyz$ leaves (orbit~3). Total vertices: $|V| = 1 + x + xy + xyz$.
+\end{definition}
+
+\begin{definition}[$E_n^{(d)}$]
+  The \emph{near-path family} $E_n^{(d)}$ consists of trees on $n$
+  vertices obtained from $P_{n-1}$ by attaching a pendant vertex at
+  depth $d$ from the end. When $d = 2$, this recovers $E_n$.
+\end{definition}
+
+% ════════════════════════════════════════════════════════════════════════
 \section{The Odd-Path Minimizer Conjecture}
 \label{sec:odd-path}
 
+\begin{conjecture}[Odd-Path Minimizer]
+  For every odd path $P_k$ and every $n$-vertex tree $T$,
+  $\Hom(P_n, P_k) \le \Hom(T, P_k)$.
+\end{conjecture}
+
 \subsection{Computational evidence}
 
-We exhaustively verified that $P_n$ minimizes $\Hom(T, H)$ among all
-$n$-vertex trees for $H \in \{P_3, P_5, P_7, P_9\}$ and $n \le 22$.
-Tree enumeration uses the Beyer--Hedetniemi canonical level-sequence
-algorithm implemented in C++, producing all non-isomorphic trees via the
-\texttt{synthesizer} engine. Tree counts are cross-validated against
-OEIS A000055~\cite{oeis_A000055}.
+We exhaustively verified this conjecture for
+$H \in \{P_3, P_5, P_7, P_9\}$ and all $n$-vertex trees with
+$n \le 22$. Tree enumeration uses the Beyer--Hedetniemi canonical
+level-sequence algorithm implemented in C++, producing all
+non-isomorphic trees via the \texttt{synthesizer} engine. Tree counts
+are cross-validated against OEIS A000055~\cite{oeis_A000055}.
 
 \subsection{The hierarchy of rigidity}
 
@@ -147,8 +175,10 @@ where $\mathbf{1}$ is the all-ones vector. This identity implies that
 the cube of the transfer matrix acts as a scalar multiple of the
 matrix itself on the constant vector. Combinatorially, moving a pendant
 edge two positions along the interior of a path preserves the
-homomorphism count into $P_5$, producing massive tie clusters
-($\sim\!200$ ties at $n = 20$).
+homomorphism count into $P_5$: length-3 walks from vertex $v$ to the
+all-ones vector are exactly $3\times$ the length-1 walks, so pendant
+relocations that shift by 2 steps produce identical walk sums.
+This generates massive tie clusters ($\sim\!200$ ties at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
 $\lambda_1^2 = 3$ exactly, and the ratio
@@ -157,9 +187,11 @@ $\Hom(P_{n+2}, P_5) / \Hom(P_n, P_5) = 3$ for all odd $n$.
 \subsubsection{$P_{\ge 7}$: Strict rigidity}
 
 For $k \ge 7$, the eigenvalues of $A_{P_k}$ are
-$2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$, which are
-algebraically independent irrationals when $k+1$ is not a product of a
-power of~2 and distinct Fermat primes.
+$2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$. When
+$k+1$ is not a product of a power of~2 and distinct Fermat primes,
+these are non-constructible irrationals---not expressible in nested
+real radicals---completely breaking any rational shift-symmetry and
+isolating $P_n$ as the strict unique minimizer.
 
 \begin{remark}[Constructibility]
   By the Gauss--Wantzel theorem, $\lambda_1 = 2\cos(\pi/(k+1))$ admits
