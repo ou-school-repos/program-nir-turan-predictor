@@ -15,6 +15,7 @@ import math
 import random
 import sys
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 
@@ -225,15 +226,29 @@ def algebraic_penalty(A):
     return penalty
 
 
-def anneal(steps=100000, temp_init=1.0, seed_graph="T(7,1,9)", algebraic=False):
+def anneal(
+    steps=100000, temp_init=1.0, seed_graph="T(7,1,9)", algebraic=False, start="7,1,9"
+):
     """Simulated annealing to find small Leontovich graphs."""
     mode = "ALGEBRAIC" if algebraic else "MINIMIZE"
     print(f"=== Leontovich Simulated Annealing [{mode}] ===", file=sys.stderr)
     print(f"Steps: {steps}, Temp: {temp_init}, Mode: {mode}", file=sys.stderr)
 
-    # Initialize from T(7,1,9)
-    A = make_T(7, 1, 9)
-    n1 = 1 + 7 + 7  # root + children + bridges = 15 left-side vertices
+    # Parse seed graph
+    if start == "L76":
+        p = Path(__file__).resolve().parent.parent / "data" / "leontovich_76.json"
+        data = json.load(open(p))
+        m = data["vertices"]
+        A = np.zeros((m, m), dtype=np.float64)
+        for i, j in data["edges"]:
+            A[i, j] = A[j, i] = 1.0
+        n1 = 8  # approximate bipartite split
+        seed_graph = "L76"
+    else:
+        parts = [int(x) for x in start.split(",")]
+        A = make_T(*parts)
+        n1 = 1 + parts[0] + parts[0]  # root + children + bridges
+        seed_graph = f"T({','.join(str(p) for p in parts)})"
     m = A.shape[0]
 
     is_leo, best_n, best_d, ratio = check_leontovich(A, max_n=300)
@@ -344,6 +359,12 @@ if __name__ == "__main__":
     parser.add_argument("--temp", type=float, default=2.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
+        "--start",
+        type=str,
+        default="7,1,9",
+        help="Seed graph: 'x,y,z' for T(x,y,z) or 'L76' for the 76-vertex graph",
+    )
+    parser.add_argument(
         "--algebraic",
         action="store_true",
         help="Prefer graphs with eigenvalues that are perfect square roots",
@@ -353,4 +374,9 @@ if __name__ == "__main__":
     random.seed(args.seed)
     np.random.seed(args.seed)
 
-    anneal(steps=args.steps, temp_init=args.temp, algebraic=args.algebraic)
+    anneal(
+        steps=args.steps,
+        temp_init=args.temp,
+        algebraic=args.algebraic,
+        start=args.start,
+    )
