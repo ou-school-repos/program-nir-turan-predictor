@@ -169,7 +169,8 @@ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
 | 7   | 853           | instant     | **0**                    |
 | 8   | 11,117        | < 1s        | **0**                    |
 | 9   | 261,080       | ~40s        | **0**                    |
-| 10  | 11,716,571    | ~57 min     | **0**                    |
+| 10  | 11,716,571    | ~45s        | **0**                    |
+| 11  | 1,006,700,565 | ~136 min    | **0**                    |
 
 ### Bipartite graph sweep (via `genbg`)
 
