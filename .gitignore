@@ -22,10 +22,12 @@ output.log
 synthesizer
 oracle
 dendro
-leontovich*
+leontovich
+leontovich_fast
+leontovich_sa
 depth5_sweep
-*.pdf
 firefighter
+*.pdf
 
 # LaTeX build artifacts
 *.aux

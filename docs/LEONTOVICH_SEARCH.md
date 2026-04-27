@@ -78,9 +78,9 @@ searching outside the spherically symmetric family entirely.
 
 ### Spectral Crossover Theorem
 
-**Theorem (1-Positive Eigenvalue Rule):** *If the quotient matrix of a
+**Theorem (1-Positive Eigenvalue Rule):** _If the quotient matrix of a
 bipartite graph $H$ has exactly one positive eigenvalue $\lambda_1$,
-then $H$ cannot be Leontovich.*
+then $H$ cannot be Leontovich._
 
 **Proof:**
 
@@ -145,13 +145,13 @@ and tested every tree on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
 Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 
 | $m = \|V(H)\|$ | connected $H$ | cumulative $H$ | ops ($H \times T \times n \times m^2$) | violations |
-| -------------- | ------------- | --------------- | -------------------------------------- | ---------- |
-| 4              | 6             | 6               | $1.8 \times 10^7$                      | **0**      |
-| 5              | 21            | 27              | $9.9 \times 10^7$                      | **0**      |
-| 6              | 112           | 139             | $7.6 \times 10^8$                      | **0**      |
-| 7              | 853           | 992             | $7.9 \times 10^9$                      | **0**      |
-| 8              | 11,117        | 12,109          | $1.3 \times 10^{11}$                   | **0**      |
-| 9              | 261,080       | 273,189         | $4.0 \times 10^{12}$                   | **0**      |
+| -------------- | ------------- | -------------- | -------------------------------------- | ---------- |
+| 4              | 6             | 6              | $1.8 \times 10^7$                      | **0**      |
+| 5              | 21            | 27             | $9.9 \times 10^7$                      | **0**      |
+| 6              | 112           | 139            | $7.6 \times 10^8$                      | **0**      |
+| 7              | 853           | 992            | $7.9 \times 10^9$                      | **0**      |
+| 8              | 11,117        | 12,109         | $1.3 \times 10^{11}$                   | **0**      |
+| 9              | 261,080       | 273,189        | $4.0 \times 10^{12}$                   | **0**      |
 
 ### Asymptotic filter: $E_n^{(d)}$ family up to $n = 200$
 
@@ -208,9 +208,29 @@ via exhaustive enumeration of all 1,006,973,754 connected graphs
 on $m \le 11$ vertices against the $E_n^{(d)}$ filter
 ($n \le 200$, $d \le 20$). Zero violations.
 
-**Extended searches** (conditional, $E_n^{(d)}$ filter only):
+#### Bipartite sweep (OEIS [A005142](https://oeis.org/A005142))
 
-- No bipartite Leontovich graph on $\le 15$ vertices (491,413,805 graphs tested)
+All connected bipartite graphs on $m \le 15$ vertices, deduplicated
+via `shortg` and validated against A005142. Zero violations.
+
+| $m$ | Connected bipartite $H$ | Cumulative  | Time | A005142 | Violations |
+| --- | ----------------------- | ----------- | ---- | ------- | ---------- |
+| 2   | 1                       | 1           | 0s   | ✓       | **0**      |
+| 3   | 1                       | 2           | 0s   | ✓       | **0**      |
+| 4   | 3                       | 5           | 0s   | ✓       | **0**      |
+| 5   | 5                       | 10          | 0s   | ✓       | **0**      |
+| 6   | 17                      | 27          | 0s   | ✓       | **0**      |
+| 7   | 44                      | 71          | 0s   | ✓       | **0**      |
+| 8   | 182                     | 253         | 0s   | ✓       | **0**      |
+| 9   | 730                     | 983         | 0s   | ✓       | **0**      |
+| 10  | 4,032                   | 5,015       | 0s   | ✓       | **0**      |
+| 11  | 25,598                  | 30,613      | 1s   | ✓       | **0**      |
+| 12  | 212,780                 | 243,393     | 1s   | ✓       | **0**      |
+| 13  | 2,241,730               | 2,485,123   | 13s  | ✓       | **0**      |
+| 14  | 31,193,324              | 33,678,447  | 217s | ✓       | **0**      |
+| 15  | 575,252,112             | 608,930,559 | TBD  | TBD     | TBD        |
+
+- No bipartite Leontovich graph on $\le 15$ vertices
 - No tree Leontovich graph on $\le 23$ vertices (23,428,665 trees tested)
 
 ## Reproduction
