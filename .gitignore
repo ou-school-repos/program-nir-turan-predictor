@@ -27,6 +27,7 @@ leontovich_fast
 leontovich_sa
 depth5_sweep
 firefighter
+landscape_txz
 *.pdf
 
 # LaTeX build artifacts

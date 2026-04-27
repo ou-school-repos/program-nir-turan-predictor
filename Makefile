@@ -127,7 +127,7 @@ lean-cache: ##H Download mathlib cache
 N ?= 21
 
 .PHONY: build
-build: synthesizer dendro firefighter leontovich_fast leontovich_sa depth5_sweep ##H Build all C++ binaries
+build: synthesizer dendro firefighter leontovich_fast leontovich_sa depth5_sweep landscape_txz ##H Build all C++ binaries
 
 synthesizer: src/synthesizer.cpp src/hpc_core.hpp ##H Build the C++ tree synthesizer
 	@$(call print_info,Building synthesizer)
@@ -158,6 +158,11 @@ depth5_sweep: src/depth5_sweep.cpp ##H Build the depth-5 Leontovich sweep
 	@$(call print_info,Building depth5_sweep)
 	g++ -O3 -march=native -std=c++17 -o depth5_sweep src/depth5_sweep.cpp
 	@$(call print_success,depth5_sweep built.)
+
+landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search
+	@$(call print_info,Building landscape_txz)
+	g++ -O3 -march=native -std=c++17 -o landscape_txz src/landscape_txz.cpp
+	@$(call print_success,landscape_txz built.)
 
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
@@ -221,7 +226,7 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast
+	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast landscape_txz
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help
