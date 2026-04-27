@@ -418,9 +418,53 @@ def task_e():
     print()
 
 
+def task_f(max_v=50000):
+    """Full threshold landscape for T(x,1,z).
+
+    For each odd threshold n, find the smallest T(x,1,z) that first
+    crosses over at that n.  Searches all (x,z) with |V| = 1+2x+xz <= max_v.
+    """
+    print("=" * 60)
+    print(f"Task F: Threshold landscape for T(x,1,z), |V| <= {max_v:,}")
+    print("=" * 60)
+
+    results = {}  # threshold -> (x, z, V)
+    count = 0
+
+    for x in range(2, max_v):
+        if 1 + 2 * x + x * 2 > max_v:
+            break
+        for z in range(2, max_v):
+            V = 1 + 2 * x + x * z
+            if V > max_v:
+                break
+            count += 1
+            M, a = get_Ma(x, 1, z)
+            for n in range(5, 52, 2):
+                he = eval_tree_hom(make_En(n), n, M, a)
+                hp = eval_tree_hom(make_Pn(n), n, M, a)
+                if he < hp:
+                    if n not in results or V < results[n][2]:
+                        results[n] = (x, z, V)
+                    break
+
+    print(f"\nSearched {count:,} T(x,1,z) graphs")
+    print(f"\n{'Threshold n':<14} {'Smallest T(x,1,z)':<20} {'|V|':>8}")
+    print("-" * 44)
+    for t in sorted(results.keys()):
+        x, z, V = results[t]
+        print(f"  n={t:<10d} T({x},1,{z}){'':<10} {V:>8,}")
+
+    max_found = max(results.keys()) if results else 0
+    if max_found < 51:
+        print(f"\nNo threshold >= {max_found + 2} found with |V| <= {max_v:,}")
+    print()
+
+
 if __name__ == "__main__":
     task_a()
     task_b()
     task_c()
     task_d()
     task_e()
+    task_f()

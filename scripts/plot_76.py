@@ -15,6 +15,8 @@ import matplotlib
 import networkx as nx
 
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42  # TrueType fonts in PDF
+matplotlib.rcParams["ps.fonttype"] = 42
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
 
