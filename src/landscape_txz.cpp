@@ -5,6 +5,7 @@
 //
 // Build: g++ -O2 -o landscape_txz src/landscape_txz.cpp
 
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -110,39 +111,68 @@ int main(int argc, char** argv) {
     if (argc > 1) max_v = atoi(argv[1]);
 
     printf("Task F: Threshold landscape for T(x,1,z), |V| <= %d\n", max_v);
+    setvbuf(stderr, NULL, _IONBF, 0);
 
     std::map<int, std::tuple<int, int, int>> results;  // threshold -> (x, z, V)
     long long count = 0;
+    std::atomic<int> progress{0};
+    const int x_max = (max_v - 1) / 4;  // 1 + 2x + 2x <= max_v
 
-    for (int x = 2;; x++) {
-        if (1 + 2 * x + x * 2 > max_v) break;
-        for (int z = 2;; z++) {
-            int V = 1 + 2 * x + x * z;
-            if (V > max_v) break;
-            count++;
+#pragma omp parallel
+    {
+        std::map<int, std::tuple<int, int, int>> local_results;
+        long long local_count = 0;
 
-            Mat M = {};
-            M.m[0][1] = x;
-            M.m[1][0] = 1;
-            M.m[1][2] = 1;
-            M.m[2][1] = 1;
-            M.m[2][3] = z;
-            M.m[3][2] = 1;
-            double a[K] = {1.0, (double)x, (double)x, (double)(x * z)};
+#pragma omp for schedule(dynamic, 1) nowait
+        for (int x = 2; x <= x_max; x++) {
+            int pct = (int)((long long)(x - 2) * 100 / (x_max - 1));
+            int prev = progress.load(std::memory_order_relaxed);
+            if (pct > prev && progress.compare_exchange_weak(
+                                  prev, pct, std::memory_order_relaxed)) {
+                fprintf(stderr, "\r  [landscape] x=%d/%d (%d%%)", x, x_max,
+                        pct);
+            }
+            for (int z = 2;; z++) {
+                int V = 1 + 2 * x + x * z;
+                if (V > max_v) break;
+                local_count++;
 
-            for (int n = 5; n <= NMAX; n += 2) {
-                double he = hom_en(M, a, n);
-                double hp = hom_path(M, a, n);
-                if (he < hp) {
-                    auto it = results.find(n);
-                    if (it == results.end() || V < std::get<2>(it->second))
-                        results[n] = {x, z, V};
-                    break;
+                Mat M = {};
+                M.m[0][1] = x;
+                M.m[1][0] = 1;
+                M.m[1][2] = 1;
+                M.m[2][1] = 1;
+                M.m[2][3] = z;
+                M.m[3][2] = 1;
+                double a[K] = {1.0, (double)x, (double)x, (double)(x * z)};
+
+                for (int n = 5; n <= NMAX; n += 2) {
+                    double he = hom_en(M, a, n);
+                    double hp = hom_path(M, a, n);
+                    if (he < hp) {
+                        auto it = local_results.find(n);
+                        if (it == local_results.end() ||
+                            V < std::get<2>(it->second))
+                            local_results[n] = {x, z, V};
+                        break;
+                    }
                 }
+            }
+        }
+
+#pragma omp critical
+        {
+            count += local_count;
+            for (auto& [t, v] : local_results) {
+                auto it = results.find(t);
+                if (it == results.end() ||
+                    std::get<2>(v) < std::get<2>(it->second))
+                    results[t] = v;
             }
         }
     }
 
+    fprintf(stderr, "\r  [landscape] done.                          \n");
     printf("\nSearched %lld T(x,1,z) graphs\n\n", count);
     printf("%-14s %-22s %10s\n", "Threshold n", "Smallest T(x,1,z)", "|V|");
     printf("------------------------------------------------\n");

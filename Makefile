@@ -161,7 +161,7 @@ depth5_sweep: src/depth5_sweep.cpp ##H Build the depth-5 Leontovich sweep
 
 landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search
 	@$(call print_info,Building landscape_txz)
-	g++ -O3 -march=native -std=c++17 -o landscape_txz src/landscape_txz.cpp
+	g++ -O3 -march=native -std=c++17 -fopenmp -o landscape_txz src/landscape_txz.cpp
 	@$(call print_success,landscape_txz built.)
 
 .PHONY: dots

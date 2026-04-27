@@ -651,15 +651,20 @@ at $n = 13$ is a true global minimum within the $T(x,y,z)$ family.
   11 & $T(8,1,10)$    &  97    & \\
   13 & $T(7,1,9)$     &  78    & Minimum within $T(x,y,z)$ \\
   15 & $T(8,1,12)$    & 113    & Vertex count increases \\
-  17 & $T(58,1,112)$  & 6{,}613 & \\
-  $\ge 19$ & ---       & ---    & None with $|V| \le 50{,}000$ \\
+  17 & $T(58,1,112)$      & 6{,}613     & \\
+  19 & $T(122,1,240)$     & 29{,}525    & \\
+  21 & $T(250,1,496)$     & 124{,}501   & \\
+  23 & $T(506,1,1008)$    & 511{,}061   & \\
+  25 & $T(1018,1,2032)$   & 2{,}070{,}613 & \\
+  27 & $T(2042,1,4080)$   & 8{,}335{,}445 & $|V| \approx 4\times$ per step \\
+  $\ge 29$ & ---           & ---         & None with $|V| \le 10{,}000{,}000$ \\
   \bottomrule
 \end{tabular}
 \smallskip
 
-\noindent{\footnotesize All $T(x,1,z)$ with
-$|V| = 1 + 2x + xz \le 50{,}000$ were tested exhaustively
-against $E_n^{(2)}$ for odd $n \le 51$.}
+\noindent{\footnotesize All 134{,}391{,}973 graphs $T(x,1,z)$ with
+$|V| = 1 + 2x + xz \le 10{,}000{,}000$ were tested exhaustively
+against $E_n^{(2)}$ for odd $n \le 51$ (4\,min, 6 threads).}
 \end{table}
 
 \section{Simulated Annealing Results}
