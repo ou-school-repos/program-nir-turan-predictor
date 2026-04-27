@@ -136,6 +136,8 @@ def plot(out_path, fmt):
         from PIL import Image
 
         Image.open(tmp).save(out_path)
+    elif fmt == "pdf":
+        plt.savefig(out_path, bbox_inches="tight", facecolor=fig.get_facecolor())
     else:
         plt.savefig(
             out_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor()
@@ -147,8 +149,9 @@ def plot(out_path, fmt):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot the 76-vertex graph")
     parser.add_argument("--png", action="store_true", help="Output PNG instead of GIF")
+    parser.add_argument("--pdf", action="store_true", help="Output PDF (vector text)")
     args = parser.parse_args()
 
-    fmt = "png" if args.png else "gif"
+    fmt = "pdf" if args.pdf else ("png" if args.png else "gif")
     out = f"docs/out/leontovich_76.{fmt}"
     plot(out, fmt)
