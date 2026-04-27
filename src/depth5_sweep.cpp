@@ -13,11 +13,14 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <map>
 #include <string>
 #include <vector>
+
+static FILE* log_fp = nullptr;
 
 static constexpr int MAX_DIM = 7;  // max orbits = max_depth + 1
 static constexpr int MAX_N = 301;  // max path length to check
@@ -104,12 +107,15 @@ static int max_degree = 20;
 static int max_depth = 5;
 static std::atomic<long long> total_checked{0};
 static std::atomic<long long> total_leo{0};
-static std::map<int, FrontierEntry> frontier;
+
+// Key: (threshold_n, orbit_count)
+using FKey = std::pair<int, int>;
+static std::map<FKey, FrontierEntry> frontier;
 
 // Thread-local recursive sweep (no global mutation except atomics)
 static void sweep(std::vector<int>& current, int remaining, int orbit_product,
                   int current_v, long long& local_checked, long long& local_leo,
-                  std::map<int, FrontierEntry>& local_frontier) {
+                  std::map<FKey, FrontierEntry>& local_frontier) {
     if (remaining == 0) {
         local_checked++;
 
@@ -125,27 +131,37 @@ static void sweep(std::vector<int>& current, int remaining, int orbit_product,
         if (result.found) {
             local_leo++;
             int n = result.first_n;
-            if (local_frontier.find(n) == local_frontier.end() ||
-                S.total_v < local_frontier[n].total_v) {
-                local_frontier[n] = {S.total_v, current, result.first_d,
-                                     result.ratio};
+            int orbits = (int)current.size() + 1;
+            FKey key = {n, orbits};
+            if (local_frontier.find(key) == local_frontier.end() ||
+                S.total_v < local_frontier[key].total_v) {
+                local_frontier[key] = {S.total_v, current, result.first_d,
+                                       result.ratio};
             }
 #pragma omp critical
             {
-                printf("  LEO n>=%d: T(", n);
-                for (int i = 0; i < (int)current.size(); i++) {
-                    if (i) printf(",");
-                    printf("%d", current[i]);
-                }
-                printf(") |V|=%d d=%d r=%.8f\n", S.total_v, result.first_d,
-                       result.ratio);
-                fflush(stdout);
-
-                // Update global frontier
-                if (frontier.find(n) == frontier.end() ||
-                    S.total_v < frontier[n].total_v) {
-                    frontier[n] = {S.total_v, current, result.first_d,
-                                   result.ratio};
+                if (frontier.find(key) == frontier.end() ||
+                    S.total_v < frontier[key].total_v) {
+                    frontier[key] = {S.total_v, current, result.first_d,
+                                     result.ratio};
+                    printf("  NEW BEST n>=%d [%d-orb]: T(", n, orbits);
+                    for (int i = 0; i < (int)current.size(); i++) {
+                        if (i) printf(",");
+                        printf("%d", current[i]);
+                    }
+                    printf(") |V|=%d d=%d r=%.8f\n", S.total_v, result.first_d,
+                           result.ratio);
+                    fflush(stdout);
+                    if (log_fp) {
+                        fprintf(log_fp, "n>=%d,%d-orb,T(", n, orbits);
+                        for (int i = 0; i < (int)current.size(); i++) {
+                            if (i) fprintf(log_fp, ",");
+                            fprintf(log_fp, "%d", current[i]);
+                        }
+                        fprintf(log_fp, "),%d,%d,%.8f\n", S.total_v,
+                                result.first_d, result.ratio);
+                        fflush(log_fp);
+                    }
                 }
             }
         }
@@ -163,11 +179,11 @@ static void sweep(std::vector<int>& current, int remaining, int orbit_product,
 }
 
 // Merge a local frontier into the global one (called under critical)
-static void merge_frontier(const std::map<int, FrontierEntry>& local) {
-    for (auto& [n, e] : local) {
-        if (frontier.find(n) == frontier.end() ||
-            e.total_v < frontier[n].total_v) {
-            frontier[n] = e;
+static void merge_frontier(const std::map<FKey, FrontierEntry>& local) {
+    for (auto& [key, e] : local) {
+        if (frontier.find(key) == frontier.end() ||
+            e.total_v < frontier[key].total_v) {
+            frontier[key] = e;
         }
     }
 }
@@ -181,10 +197,18 @@ int main(int argc, char** argv) {
             max_degree = std::stoi(argv[++i]);
         else if (arg == "--max-depth" && i + 1 < argc)
             max_depth = std::stoi(argv[++i]);
-        else if (arg == "-h" || arg == "--help") {
+        else if (arg == "--log" && i + 1 < argc) {
+            log_fp = fopen(argv[++i], "w");
+            if (!log_fp) {
+                fprintf(stderr, "Cannot open log file: %s\n", argv[i]);
+                return 1;
+            }
+            fprintf(log_fp, "threshold,tree,vertices,d,ratio\n");
+            fflush(log_fp);
+        } else if (arg == "-h" || arg == "--help") {
             printf(
                 "Usage: %s [--max-vertices N] [--max-degree N] [--max-depth "
-                "N]\n",
+                "N] [--log FILE]\n",
                 argv[0]);
             return 0;
         }
@@ -204,7 +228,7 @@ int main(int argc, char** argv) {
 #pragma omp parallel
         {
             long long lc = 0, ll = 0;
-            std::map<int, FrontierEntry> lf;
+            std::map<FKey, FrontierEntry> lf;
 
 #pragma omp for schedule(dynamic, 1) nowait
             for (int d1 = 1; d1 <= d1_max; d1++) {
@@ -220,10 +244,11 @@ int main(int argc, char** argv) {
                     if (result.found) {
                         ll++;
                         int n = result.first_n;
-                        if (lf.find(n) == lf.end() ||
-                            S.total_v < lf[n].total_v) {
-                            lf[n] = {S.total_v, seq, result.first_d,
-                                     result.ratio};
+                        FKey key = {n, 2};  // depth-1 = 2 orbits
+                        if (lf.find(key) == lf.end() ||
+                            S.total_v < lf[key].total_v) {
+                            lf[key] = {S.total_v, seq, result.first_d,
+                                       result.ratio};
                         }
                     }
                 } else {
@@ -260,41 +285,38 @@ int main(int argc, char** argv) {
     printf("Checked %lld branching sequences, found %lld Leontovich\n",
            total_checked.load(), total_leo.load());
     printf("\n============================================================\n");
-    printf("PARETO FRONTIER: Smallest Leontovich graph per threshold n\n");
+    printf("PARETO FRONTIER: Smallest Leontovich graph per n (all orbits)\n");
     printf("============================================================\n");
-    printf("%4s  %6s  %-30s  %3s  %12s\n", "n", "|V|", "Structure", "d",
-           "ratio");
-    printf(
-        "--------------------------------------------------------------------"
-        "\n");
 
-    printf("\nChecked %lld branching sequences, found %lld Leontovich\n",
-           total_checked.load(), total_leo.load());
+    // Group by n
+    std::map<int, std::map<int, FrontierEntry>> by_n;
+    for (auto& [key, e] : frontier) {
+        auto [n, orbits] = key;
+        by_n[n][orbits] = e;
+    }
 
     int abs_min_n = -1, abs_min_v = 1 << 30;
-    for (auto& [n, e] : frontier) {
-        printf("%4d  %6d  T(", n, e.total_v);
-        for (int i = 0; i < (int)e.degrees.size(); i++) {
-            if (i) printf(",");
-            printf("%d", e.degrees[i]);
+    for (auto& [n, orb_map] : by_n) {
+        printf("n>=%3d:", n);
+        for (auto& [orbits, e] : orb_map) {
+            printf("  T(");
+            for (int i = 0; i < (int)e.degrees.size(); i++) {
+                if (i) printf(",");
+                printf("%d", e.degrees[i]);
+            }
+            printf("),v=%d", e.total_v);
+            if (e.total_v < abs_min_v) {
+                abs_min_v = e.total_v;
+                abs_min_n = n;
+            }
         }
-        printf(")%*s  %3d  %12.8f\n", (int)(27 - 2 * e.degrees.size()), "", e.d,
-               e.ratio);
-        if (e.total_v < abs_min_v) {
-            abs_min_v = e.total_v;
-            abs_min_n = n;
-        }
+        printf("\n");
     }
 
     if (abs_min_n >= 0) {
-        const auto& e = frontier[abs_min_n];
-        printf("\nAbsolute minimum: T(");
-        for (int i = 0; i < (int)e.degrees.size(); i++) {
-            if (i) printf(",");
-            printf("%d", e.degrees[i]);
-        }
-        printf(") with |V|=%d at n>=%d\n", e.total_v, abs_min_n);
+        printf("\nAbsolute minimum |V|=%d at n>=%d\n", abs_min_v, abs_min_n);
     }
 
+    if (log_fp) fclose(log_fp);
     return 0;
 }
