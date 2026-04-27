@@ -79,6 +79,19 @@ static bool check_leontovich(const Graph& G, const string& g6_str) {
         if (step + 1 < MAX_N) homP[step + 1] = s;
     }
 
+    // Precision check: find the step where values exceed 2^52
+    // (beyond which double cannot represent consecutive integers)
+    int precise_steps = MAX_K;
+    for (int step = 0; step < MAX_K; step++) {
+        for (int i = 0; i < m; i++) {
+            if (w[step][i] > 4.5e15) {  // ~2^52
+                precise_steps = step;
+                goto precision_check_done;
+            }
+        }
+    }
+precision_check_done:
+
     // Check E_n^{(d)}: hom = sum_i w[stem][i] * w[1][i] * w[d][i]
     for (int d = 2; d <= 20; d++) {
         alignas(32) double b[V_PAD] = {};
@@ -105,7 +118,8 @@ static bool check_leontovich(const Graph& G, const string& g6_str) {
                          << ",\"g6\":\"" << g6_str << "\""
                          << ",\"m\":" << m << ",\"n\":" << n << ",\"d\":" << d
                          << ",\"homE\":" << homE << ",\"homP\":" << homP[n]
-                         << "}" << endl;
+                         << ",\"precise_steps\":" << precise_steps << "}"
+                         << endl;
                 }
                 return true;
             }
