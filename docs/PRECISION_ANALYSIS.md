@@ -23,9 +23,9 @@ $O(\Delta^k)$. The largest values occur at $k = 200$ (the filter's max):
 
 | $m$ | Max $\Delta$ | $\Delta^{200}$ (approx) | Within `double` range? |
 | --- | ------------ | ----------------------- | ---------------------- |
-| 9   | 8            | $10^{181}$              | ✓ ($< 10^{308}$)       |
-| 11  | 10           | $10^{200}$              | ✓                      |
-| 15  | 14           | $10^{229}$              | ✓                      |
+| 9   | 8            | $10^{181}$              | Yes ($< 10^{308}$)     |
+| 11  | 10           | $10^{200}$              | Yes                    |
+| 15  | 14           | $10^{229}$              | Yes                    |
 
 No overflow occurs for $m \le 15$, $n \le 200$.
 
@@ -43,20 +43,20 @@ $$\delta_n \le n \cdot m \cdot \varepsilon$$
 
 | $m$ | $n$ | $\delta_n$            | Tolerance ($10^{-11}$) | Safety margin |
 | --- | --- | --------------------- | ---------------------- | ------------- |
-| 9   | 200 | $4.0 \times 10^{-13}$ | $10^{-11}$             | 25×           |
-| 11  | 200 | $4.9 \times 10^{-13}$ | $10^{-11}$             | 20×           |
-| 15  | 200 | $6.7 \times 10^{-13}$ | $10^{-11}$             | 15×           |
+| 9   | 200 | $4.0 \times 10^{-13}$ | $10^{-11}$             | 25x           |
+| 11  | 200 | $4.9 \times 10^{-13}$ | $10^{-11}$             | 20x           |
+| 15  | 200 | $6.7 \times 10^{-13}$ | $10^{-11}$             | 15x           |
 
 The `1e-11` tolerance in the comparison
-`homE < homP * (1.0 - 1e-11)` provides a 15–25× safety margin over
+`homE < homP * (1.0 - 1e-11)` provides a 15-25x safety margin over
 the worst-case accumulated rounding error.
 
 ## False Positive / False Negative Analysis
 
 **False positives** (filter flags a non-violation):
 Occur when rounding makes `homE` appear smaller than `homP * (1 - 1e-11)`
-even though the exact values satisfy `homE ≥ homP`. This requires
-the rounding error to exceed the tolerance — ruled out by the 15× margin.
+even though the exact values satisfy `homE >= homP`. This requires
+the rounding error to exceed the tolerance — ruled out by the 15x margin.
 
 **False negatives** (filter misses a genuine violation):
 Occur when a genuine `homE < homP` is masked by rounding that inflates
@@ -73,23 +73,23 @@ the m=15 anomaly on graph `NCQCCA?_B?K?W?g?K??`:
 
 - **300 anomalies** (d > 2) confirmed with exact arithmetic
 - **0 Leontovich violations** (d = 2) — consistent with the filter
-- Relative differences ~7.58×10⁻⁴ — far above the `1e-11` tolerance
+- Relative differences ~7.58e-4 — far above the `1e-11` tolerance
 - The `double` filter correctly identified this graph
 
 ## Synthesizer (`uint64_t`) Bounds
 
-The brute-force `synthesizer` uses `uint64_t` (max ~1.8×10¹⁸).
-For the m ≤ 9 exhaustive sweep (trees on n ≤ 15 vertices into
+The brute-force `synthesizer` uses `uint64_t` (max ~1.8e18).
+For the $m \le 9$ exhaustive sweep (trees on $n \le 15$ vertices into
 graphs with $\Delta \le 8$):
 
 $$\max \operatorname{hom} \le 8^{15} \approx 3.5 \times 10^{13} \ll 1.8 \times 10^{18}$$
 
-No overflow. The m ≤ 9 results are exact.
+No overflow. The $m \le 9$ results are exact.
 
 ## Conclusion
 
 - **No overflow** in either `double` or `uint64_t` within operating ranges
-- **Rounding error** is bounded at ~10⁻¹³, well within the 10⁻¹¹ tolerance
-- **False negatives** would require violations with relative margins < 10⁻¹¹,
+- **Rounding error** is bounded at ~$10^{-13}$, well within the $10^{-11}$ tolerance
+- **False negatives** would require violations with relative margins < $10^{-11}$,
   which is physically implausible given spectral gap structure
 - All flagged anomalies can be verified exactly with `verify_hom.py`
