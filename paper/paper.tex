@@ -482,7 +482,7 @@ yields zero violations.
   Domain & Graphs tested & Bound \\
   \midrule
   All connected, $m \le 11$     & 1,006,973,754 & $m \ge 12$ \\
-  Bipartite, $m \le 15$         & 491,413,805  & $m \ge 16$ \\
+  Bipartite, $m \le 15$         & 608,930,559  & $m \ge 16$ \\
   Trees, $m \le 23$             & 23,428,665   & No Leontovich \\
   Symmetric trees, $|V| < 78$   & 5,357        & No Leontovich \\
   \bottomrule
@@ -499,8 +499,13 @@ $O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
 trees in graph6 format on \texttt{stdout}, which is piped to the
 \texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
 precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
-$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ using normalized
-matrix--vector iteration to prevent floating-point overflow.
+$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration
+in IEEE 754 double precision.
+Comparisons use a relative tolerance of $10^{-11}$, which exceeds the
+worst-case accumulated rounding error ($\sim n_{\max} \cdot m \cdot
+\varepsilon \approx 6.7 \times 10^{-13}$ at $m = 15$, $n = 200$) by
+a factor of~15.  All flagged anomalies are subsequently verified with
+exact integer arithmetic.
 The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
 $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
@@ -508,8 +513,35 @@ Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
 Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
 matrices with DAXPY loop ordering and OpenMP parallelism---operating
 virtually at the silicon limit of the hardware. The bipartite sweep
-of $m \le 14$ ($\sim$34M graphs) completes in approximately
-2~minutes.
+of 608,930,559 graphs on $m \le 15$ vertices (validated against OEIS
+A005142~\cite{oeis}) completes in approximately 35~minutes.
+
+\begin{remark}[Depth anomalies]
+\label{rem:depth_anomaly}
+While no $d = 2$ Leontovich violations were found, the $m = 15$
+bipartite sweep revealed a single graph $H^*$ (Figure~\ref{fig:anomaly})
+for which $\Hom(E_n^{(d)}, H^*) < \Hom(P_n, H^*)$ at $d \ge 14$,
+verified with exact integer arithmetic.
+This bipartite graph on 15 vertices with partition sizes $(3,12)$
+and degree sequence $[7, 5, 5, 2^5, 1^7]$ exhibits 300
+such anomalies across $d \in \{14,\ldots,20\}$ and odd
+$n \in \{57,\ldots,199\}$, each with relative deficit
+$\sim 7.6 \times 10^{-4}$.
+No anomalies of any depth were detected at $m \le 13$.
+\end{remark}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.38\textwidth]{../docs/out/anomaly_NCQCCA.png}%
+  \hfill
+  \includegraphics[width=0.58\textwidth]{../docs/out/anomaly_ratio.png}
+  \caption{\textbf{Left:} The depth-anomaly graph $H^*$ on 15 vertices (g6:
+    \texttt{NCQCCA?\_B?K?W?g?K??}); red/blue shows the $(3,12)$ bipartition.
+    \textbf{Right:} Ratio $\Hom(E_n^{(d)}, H^*) / \Hom(P_n, H^*)$ for
+    odd~$n$. For $d \ge 14$ the ratio drops below~1 (shaded), meaning
+    $E_n^{(d)}$ beats the path. For $d = 2$ the path remains the minimizer.}
+  \label{fig:anomaly}
+\end{figure}
 
 To search beyond the exhaustive enumeration wall ($m \ge 16$),
 we employ a simulated annealing search seeded from $T(7,1,9)$,

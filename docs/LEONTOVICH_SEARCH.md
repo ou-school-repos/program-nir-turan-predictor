@@ -213,24 +213,30 @@ on $m \le 11$ vertices against the $E_n^{(d)}$ filter
 All connected bipartite graphs on $m \le 15$ vertices, deduplicated
 via `shortg` and validated against A005142. Zero violations.
 
-| $m$ | Connected bipartite $H$ | Cumulative  | Time | A005142 | Violations |
-| --- | ----------------------- | ----------- | ---- | ------- | ---------- |
-| 2   | 1                       | 1           | 0s   | ✓       | **0**      |
-| 3   | 1                       | 2           | 0s   | ✓       | **0**      |
-| 4   | 3                       | 5           | 0s   | ✓       | **0**      |
-| 5   | 5                       | 10          | 0s   | ✓       | **0**      |
-| 6   | 17                      | 27          | 0s   | ✓       | **0**      |
-| 7   | 44                      | 71          | 0s   | ✓       | **0**      |
-| 8   | 182                     | 253         | 0s   | ✓       | **0**      |
-| 9   | 730                     | 983         | 0s   | ✓       | **0**      |
-| 10  | 4,032                   | 5,015       | 0s   | ✓       | **0**      |
-| 11  | 25,598                  | 30,613      | 1s   | ✓       | **0**      |
-| 12  | 212,780                 | 243,393     | 1s   | ✓       | **0**      |
-| 13  | 2,241,730               | 2,485,123   | 13s  | ✓       | **0**      |
-| 14  | 31,193,324              | 33,678,447  | 217s | ✓       | **0**      |
-| 15  | 575,252,112             | 608,930,559 | TBD  | TBD     | TBD        |
+| $m$ | Connected bipartite $H$ | Cumulative  | Time  | A005142 | Violations |
+| --- | ----------------------- | ----------- | ----- | ------- | ---------- |
+| 2   | 1                       | 1           | 0s    | ✓       | **0**      |
+| 3   | 1                       | 2           | 0s    | ✓       | **0**      |
+| 4   | 3                       | 5           | 0s    | ✓       | **0**      |
+| 5   | 5                       | 10          | 0s    | ✓       | **0**      |
+| 6   | 17                      | 27          | 0s    | ✓       | **0**      |
+| 7   | 44                      | 71          | 0s    | ✓       | **0**      |
+| 8   | 182                     | 253         | 0s    | ✓       | **0**      |
+| 9   | 730                     | 983         | 0s    | ✓       | **0**      |
+| 10  | 4,032                   | 5,015       | 0s    | ✓       | **0**      |
+| 11  | 25,598                  | 30,613      | 1s    | ✓       | **0**      |
+| 12  | 212,780                 | 243,393     | 1s    | ✓       | **0**      |
+| 13  | 2,241,730               | 2,485,123   | 13s   | ✓       | **0**      |
+| 14  | 31,193,324              | 33,678,447  | 217s  | ✓       | **0**      |
+| 15  | 575,252,112             | 608,930,559 | 2210s | ✓       | **0**†     |
 
-- No bipartite Leontovich graph on $\le 15$ vertices
+†One d>2 depth anomaly detected at m=15 (`NCQCCA?_B?K?W?g?K??`),
+verified with exact integer arithmetic (`scripts/verify_hom.py`):
+300 cases where $\operatorname{hom}(E_n^{(d)}, H^*) < \operatorname{hom}(P_n, H^*)$
+for $d \ge 14$, but zero violations at $d = 2$ (Leontovich definition).
+See `docs/PRECISION_ANALYSIS.md` for floating-point methodology.
+
+- No bipartite Leontovich graph ($d = 2$) on $\le 15$ vertices
 - No tree Leontovich graph on $\le 23$ vertices (23,428,665 trees tested)
 
 ## Reproduction
