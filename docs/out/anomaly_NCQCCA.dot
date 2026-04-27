@@ -1,0 +1,38 @@
+graph G {
+  layout=neato;
+  overlap=false;
+  node [shape=circle, width=0.35, fixedsize=true, fontsize=10, penwidth=1.5];
+  edge [color="#555555", penwidth=1.2];
+  0 [fillcolor="#e74c3c", style=filled, fontcolor=white];
+  1 [fillcolor="#e74c3c", style=filled, fontcolor=white];
+  2 [fillcolor="#e74c3c", style=filled, fontcolor=white];
+  3 [fillcolor="#3498db", style=filled, fontcolor=white];
+  4 [fillcolor="#3498db", style=filled, fontcolor=white];
+  5 [fillcolor="#3498db", style=filled, fontcolor=white];
+  6 [fillcolor="#3498db", style=filled, fontcolor=white];
+  7 [fillcolor="#3498db", style=filled, fontcolor=white];
+  8 [fillcolor="#3498db", style=filled, fontcolor=white];
+  9 [fillcolor="#3498db", style=filled, fontcolor=white];
+  10 [fillcolor="#3498db", style=filled, fontcolor=white];
+  11 [fillcolor="#3498db", style=filled, fontcolor=white];
+  12 [fillcolor="#3498db", style=filled, fontcolor=white];
+  13 [fillcolor="#3498db", style=filled, fontcolor=white];
+  14 [fillcolor="#3498db", style=filled, fontcolor=white];
+  0 -- 3;
+  1 -- 4;
+  0 -- 5;
+  0 -- 6;
+  0 -- 7;
+  0 -- 8;
+  0 -- 9;
+  1 -- 10;
+  2 -- 10;
+  1 -- 11;
+  2 -- 11;
+  1 -- 12;
+  2 -- 12;
+  0 -- 13;
+  2 -- 13;
+  1 -- 14;
+  2 -- 14;
+}
