@@ -71,17 +71,17 @@ def plot(out_path, fmt):
     pos = radial_layout(G)
 
     fig, ax = plt.subplots(1, 1, figsize=(16, 16))
-    ax.set_facecolor("#16162a")
-    fig.patch.set_facecolor("#16162a")
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
 
-    nx.draw_networkx_edges(G, pos, ax=ax, edge_color="#667788", width=1.2, alpha=0.6)
+    nx.draw_networkx_edges(G, pos, ax=ax, edge_color="#999999", width=1.2, alpha=0.6)
     nx.draw_networkx_nodes(
         G,
         pos,
         ax=ax,
         node_color=colors,
         node_size=sizes,
-        edgecolors="white",
+        edgecolors="black",
         linewidths=0.8,
     )
 
@@ -96,32 +96,32 @@ def plot(out_path, fmt):
         labels,
         ax=ax,
         font_size=11,
-        font_color="white",
+        font_color="black",
         font_weight="bold",
     )
 
     ax.set_title(
         r"$T(7, 1, [9^5, 8^2])$  —  76-vertex Leontovich graph"
-        r"  ($\lambda_2 = \sqrt{10}$)",
-        color="white",
+        r"  ($\lambda_2^* \approx 3.038$)",
+        color="black",
         fontsize=20,
         pad=25,
         fontweight="bold",
     )
 
     legend_elements = [
-        Patch(facecolor="#FF4444", edgecolor="white", label="Root (deg 7)"),
-        Patch(facecolor="#44AAFF", edgecolor="white", label="Bridges (deg 2)"),
-        Patch(facecolor="#FFAA00", edgecolor="white", label="Hubs (deg 9-10)"),
-        Patch(facecolor="#88CC88", edgecolor="white", label="Leaves (deg 1)"),
+        Patch(facecolor="#FF4444", edgecolor="black", label="Root (deg 7)"),
+        Patch(facecolor="#44AAFF", edgecolor="black", label="Bridges (deg 2)"),
+        Patch(facecolor="#FFAA00", edgecolor="black", label="Hubs (deg 9-10)"),
+        Patch(facecolor="#88CC88", edgecolor="black", label="Leaves (deg 1)"),
     ]
     ax.legend(
         handles=legend_elements,
         loc="upper right",
         fontsize=13,
-        facecolor="#2a2a4e",
-        edgecolor="#667788",
-        labelcolor="white",
+        facecolor="white",
+        edgecolor="#999999",
+        labelcolor="black",
     )
 
     ax.set_xlim(-7, 7)
