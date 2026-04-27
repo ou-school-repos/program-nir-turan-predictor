@@ -56,8 +56,8 @@ Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the odd-pa
 minimizer theorem for $H = P_3, P_5, P_7, P_9$ up to source trees on
 $n = 22$ vertices, establishing $P_5$ as the transition point from
 total spectral degeneracy to strict unique minimality. We push the
-lower bound on the smallest Leontovich graph from $m \ge 4$ to
-$m \ge 12$ via exhaustive enumeration of all 1,018,690,325 connected
+lower bound on the smallest simple Leontovich graph from $m \ge 4$ to
+$m \ge 12$ via exhaustive enumeration of all 1,018,690,325 connected simple
 graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
 showing that 2-orbit and 3-orbit spherically symmetric trees can never
 be Leontovich, and we analytically pinpoint the exact crossover
@@ -106,10 +106,10 @@ targets where paths strictly minimize.
   \item An exact analytical determination that $n = 13$ is the
     non-oscillatory crossover threshold for $T(7,1,9)$
     (Theorem~\ref{thm:threshold}).
-  \item Pushing the lower bound on the smallest Leontovich graph from
+  \item Pushing the lower bound on the smallest simple Leontovich graph from
     $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
-    1,018,690,325 connected graphs on $m \le 11$ vertices). This definitively
-    resolves Problem~4.3 of \cite{galvin2025}.
+    1,018,690,325 connected simple graphs on $m \le 11$ vertices). This
+    resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
   \item Exhaustive search of all 5,357 spherically symmetric trees with
     $|V| < 78$, ruling out smaller Leontovich graphs in this family.
   \item Algebraic proof that $n = 5$ crossovers are impossible for all
@@ -326,16 +326,16 @@ eigenvalues.
 
 \begin{remark}[Parity]
   \label{rem:parity}
-  For even $n$, $P_n$ maintains a perfectly balanced bipartition $(n/2, n/2)$,
-  minimizing its dominant projection. In contrast, for odd depths $d$,
-  $E_n^{(d)}$ has an unbalanced bipartition (e.g., $(n/2 - 1, n/2 + 1)$), giving it
-  a strictly larger leading coefficient. Even for even depths (like $d=2$)
-  where $E_n^{(d)}$ is balanced, the path's linear geometry yields a smaller
-  projection onto the dominant eigenvector than the branched topology of
-  $E_n^{(d)}$. This structural advantage shields the path from being beaten
-  at any even~$n$. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same unbalanced
-  bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$, enabling the secondary
-  eigenvector to interfere and drive the crossover.
+  For even $n$, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
+  minimising its dominant projection. For even depths $d$ (e.g., $d=2$),
+  $E_n^{(d)}$ is forced into an unbalanced $(n/2+1, n/2-1)$ bipartition,
+  giving it a strictly larger leading coefficient. Even for odd depths
+  (e.g., $d=3$) where $E_n^{(d)}$ remains balanced, the path's linear
+  geometry yields a smaller projection onto the dominant eigenvector.
+  This structural advantage shields the path from being beaten at any
+  even~$n$. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same
+  unbalanced bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$,
+  enabling the secondary eigenvector to interfere and drive the crossover.
 \end{remark}
 
 \subsection{Minimum size in the symmetric family}
@@ -376,10 +376,42 @@ $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$ tested
 \end{proposition}
 
 \begin{proof}
-  Direct symbolic expansion of the transfer matrix products for
-  $P_5$ and $E_5$ using the $4 \times 4$ quotient matrix of $T(x,y,z)$.
-  Since $x, y, z \ge 1$, both $(x - z - 1)^2 \ge 0$ and $y^2 z \ge 1$,
-  so the parenthesized sum is strictly positive. Multiplied by $-xy < 0$,
+  Let $M$ denote the $4 \times 4$ quotient matrix of $T(x,y,z)$
+  over its four automorphism orbits (root, children, grandchildren,
+  leaves), with orbit-size vector
+  $\mathbf{s} = (1,\, x,\, xy,\, xyz)^T$:
+  \[
+    M = \begin{pmatrix} 0&x&0&0 \\ 1&0&y&0 \\
+    0&1&0&z \\ 0&0&1&0 \end{pmatrix}.
+  \]
+  For any path $P_n$, the homomorphism count decomposes as
+  $\Hom(P_n, H) = \mathbf{s}^T M^{n-1} \mathbf{1}$,
+  where $\mathbf{1} = (1,1,1,1)^T$. Iterating:
+  \begin{align*}
+    M\,\mathbf{1} &= (x,\; y+1,\; z+1,\; 1)^T, \\
+    M^2\mathbf{1} &= (xy+x,\; x+yz+y,\; y+z+1,\; z+1)^T.
+  \end{align*}
+  The tree $E_5$ has vertices $\{1,2,3,4,5\}$ with edges
+  $(1,2),\,(2,3),\,(3,4),\,(2,5)$, so vertex~2 has degree~3. Rooting
+  at vertex~2 and summing over orbit assignments:
+  \[
+    \Hom(E_5, H) = \sum_{b=0}^{3}
+      s_b \cdot (M\mathbf{1})_b^2 \cdot (M^2\mathbf{1})_b,
+  \]
+  since the three branches from vertex~2 contribute
+  one factor of $(M\mathbf{1})_b$ each for the two pendant
+  leaves (vertices~1 and~5) and one factor of
+  $(M^2\mathbf{1})_b$ for the length-2 branch (vertices 3--4).
+
+  Expanding $\mathbf{s}^T M^4 \mathbf{1}$ and collecting terms:
+  \begin{align*}
+    \Hom(P_5, T) - \Hom(E_5, T)
+    &= -xy\bigl(x^2 - 2x(z+1) + (z+1)^2 + y^2 z\bigr) \\
+    &= -xy\bigl((x - z - 1)^2 + y^2 z\bigr).
+  \end{align*}
+  Since $x, y, z \ge 1$, the squared term
+  $(x - z - 1)^2 \ge 0$ and $y^2 z \ge 1$, so the
+  parenthesised sum is strictly positive. Multiplied by $-xy < 0$,
   the difference is strictly negative.
 \end{proof}
 
@@ -431,10 +463,15 @@ vertices~\cite{oeis_A001349} (generated by McKay's
 $E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
 
 \begin{theorem}
-  No connected graph on $m \le 11$ vertices is Leontovich.
+  No connected simple graph on $m \le 11$ vertices is Leontovich.
 \end{theorem}
 
-This computationally resolves Problem 4.3 of Galvin et al.~\cite{galvin2025}, establishing $m \ge 12$ as the strict lower bound for the order of any Leontovich graph.
+This computationally resolves Problem~4.3 of Galvin et al.~\cite{galvin2025}
+for simple graphs, establishing $m \ge 12$ as the strict lower bound for
+the order of any simple Leontovich graph. Because our search space comprised
+simple graphs (generated by \texttt{geng}), this bound does not exclude the
+possibility of a looped graph on fewer than 12 vertices being strongly
+Leontovich in the sense of~\cite{galvin2026}.
 
 \begin{table}[H]
 \centering
@@ -465,7 +502,7 @@ Corollary~\ref{cor:2_and_3_orbit_trees} and
 Proposition~\ref{prop:pf}.}
 \end{table}
 
-\subsection{Asymptotic defense via the Rayleigh quotient}
+\subsection{Asymptotic defense via Perron--Frobenius}
 
 \begin{proposition}
   \label{prop:pf}
@@ -476,7 +513,7 @@ Proposition~\ref{prop:pf}.}
 \begin{proof}
   The path $P_n$ achieves the minimal exponential growth rate
   $\lambda_1(H)^n$ (Csikv\'ari and Lin~\cite{csikvari2015}). For any
-  connected, non-regular graph $H$, the Rayleigh quotient gives
+  connected, non-regular graph $H$, the Perron--Frobenius eigenvector equation guarantees
   $\Delta(H) > \lambda_1(H)$ strictly. Trees with macroscopic branching
   (such as stars) grow at an exponential rate strictly greater than $\lambda_1(H)^n$,
   exponentially faster than the path.
@@ -705,8 +742,8 @@ increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
 At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
 sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
 $n = 17$. However, at $|V| = 75$, the gap has narrowed too much ($\lambda_2^* = 3.0581$),
-flipping the leading coefficient so the Perron mode of the path strictly
-dominates at all odd $n$, and the crossover never occurs.
+suppressing the secondary interference coefficient so the Perron mode
+of the path strictly dominates at all odd $n$, and the crossover never occurs.
 
 This yields a sharp structural characterisation: \emph{within the star-of-stars
 basin, asymmetric pruning breaks orbital symmetry and lifts new active
@@ -721,7 +758,8 @@ The 76-vertex graph $T(7,1,[9^5,8^2])$ is the smallest known
 Leontovich graph, but it is not the only small one outside the
 $T(x,1,z)$ family.  The 5-orbit tree $T(1,7,1,10)$, with branching
 sequence $[1,7,1,10]$, has $|V| = 86$ and is Leontovich with first
-crossover at $n = 15$ ($d = 4$) and $\lambda_2^2 = 11$.  This
+crossover at $n = 15$ ($d = 4$) and active quotient eigenvalue
+$\lambda_2^* \approx 2.541$.  This
 confirms that deeper symmetric trees can achieve the Leontovich
 property at moderate size, though none yet found are smaller than
 the 76-vertex asymmetric star-of-stars.
@@ -768,13 +806,14 @@ and $H$ is bipartite.
 
 \noindent
 When $n$ is even, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
-minimising its projection onto $H$'s dominant eigenvector.  For odd
-depths~$d$, $E_n^{(d)}$ is forced into an unbalanced $(n/2-1, n/2+1)$
-bipartition, giving it a strictly larger leading coefficient.  Even for
-even depths (e.g.\ $d=2$) where $E_n^{(d)}$ remains balanced, the path's
-linear geometry uniquely minimises the projection coefficient.  For
-odd~$n$, both trees share the same unbalanced bipartition, allowing
-the secondary eigenvector to interfere and flip the overall count.
+minimising its projection onto $H$'s dominant eigenvector.  For even
+depths~$d$ (e.g.\ $d=2$), $E_n^{(d)}$ is forced into an unbalanced
+$(n/2+1, n/2-1)$ bipartition, giving it a strictly larger leading
+coefficient.  Even for odd depths (e.g.\ $d=3$) where $E_n^{(d)}$
+remains balanced, the path's linear geometry uniquely minimises the
+projection coefficient.  For odd~$n$, both trees share the same
+unbalanced bipartition, allowing the secondary eigenvector to interfere
+and flip the overall count.
 
 We verified this computationally: across all target graphs tested
 (over 463~million bipartite graphs and 5.6~million trees), no
