@@ -245,6 +245,7 @@ isolating $P_n$ as the strict unique minimizer.
 \end{proof}
 
 \begin{corollary}
+  \label{cor:2_and_3_orbit_trees}
   All 2-orbit trees (stars $S_m$) and 3-orbit trees $T(x,y)$ have
   exactly one positive eigenvalue. Hence no star or 3-orbit tree is
   Leontovich.
@@ -432,15 +433,25 @@ $E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
   7 & 853     & 992     & $7.9 \times 10^9$   & \textbf{0} \\
   8 & 11,117  & 12,109  & $1.3 \times 10^{11}$ & \textbf{0} \\
   9 & 261,080 & 273,189 & $4.0 \times 10^{12}$ & \textbf{0} \\
-  10 & 11,716,571 & 11,989,760 & $1.8 \times 10^{14}$ & \textbf{0} \\
-  11 & 1,006,700,565 & 1,006,973,754 & --- & \textbf{0} \\
+  10 & 11,716,571 & 11,989,760 & 57\,min$^\dagger$ & \textbf{0} \\
+  11 & 1,006,700,565 & 1,006,973,754 & 136\,min$^\dagger$ & \textbf{0} \\
   \bottomrule
 \end{tabular}
+\smallskip
+
+\noindent{\footnotesize $^\dagger$For $m \le 9$, every tree on
+$n \in \{5,\ldots,15\}$ vertices was tested (brute-force); the
+Operations column counts hom evaluations. For $m = 10, 11$, only
+near-path trees $E_n^{(d)}$ ($n \le 200$, $d \le 20$) were used
+via the $E_n^{(d)}$ filter (wall-clock time shown); justified by
+Corollary~\ref{cor:2_and_3_orbit_trees} and
+Proposition~\ref{prop:pf}.}
 \end{table}
 
 \subsection{Asymptotic defense via Perron--Frobenius}
 
 \begin{proposition}
+  \label{prop:pf}
   Testing only the near-path family $E_n^{(d)}$ is asymptotically
   sufficient. Highly branched trees cannot beat the path.
 \end{proposition}
@@ -456,10 +467,11 @@ $E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
   near-path trees $E_n^{(d)}$ with localized boundary defects.
 \end{proof}
 
-Filtering $E_n^{(d)}$ for $n \le 200$ and $d \le 20$ across all
-11,989,760 connected graphs with $m \le 10$ yields zero violations;
-extending to $m = 11$ with 1,006,700,565 additional graphs confirms
-the bound.
+This reduces the per-target cost from brute-force $O(t \cdot n \cdot m^2)$
+(over $t$ source trees) to $O(d_{\max} \cdot n_{\max} \cdot m)$ via
+$O(m)$ matrix--vector iteration up to $n = 200$, $d \le 20$.
+Filtering across all 1,006,973,754 connected graphs with $m \le 11$
+yields zero violations.
 
 \begin{table}[H]
 \centering
@@ -486,9 +498,11 @@ algorithm, generating all non-isomorphic trees on $n$ vertices in
 $O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
 trees in graph6 format on \texttt{stdout}, which is piped to the
 \texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
-precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, 31$, and evaluates
+precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
 $\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ using normalized
 matrix--vector iteration to prevent floating-point overflow.
+The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
+$O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
 Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
 Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
