@@ -159,7 +159,7 @@ leontovich_sa: src/leontovich_sa.cpp ##H Build the Leontovich SA search
 
 depth5_sweep: src/depth5_sweep.cpp ##H Build the depth-5 Leontovich sweep
 	@$(call print_info,Building depth5_sweep)
-	g++ -O3 -march=native -std=c++17 -o depth5_sweep src/depth5_sweep.cpp
+	g++ -O3 -march=native -std=c++17 -fopenmp -o depth5_sweep src/depth5_sweep.cpp
 	@$(call print_success,depth5_sweep built.)
 
 landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search

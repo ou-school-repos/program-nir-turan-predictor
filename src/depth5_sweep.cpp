@@ -6,13 +6,13 @@
 // Uses the (k+1)×(k+1) similarity matrix instead of the full |V|×|V|
 // adjacency matrix -- O(k²) per evaluation instead of O(|V|²).
 //
-// Compile: g++ -O3 -march=native -std=c++17 -o depth5_sweep
+// Compile: g++ -O3 -march=native -std=c++17 -fopenmp -o depth5_sweep
 //          src/depth5_sweep.cpp
 // Usage:   ./depth5_sweep [--max-vertices 400] [--max-degree 20]
 //                         [--max-depth 5]
 
 #include <algorithm>
-#include <cmath>
+#include <atomic>
 #include <cstdio>
 #include <cstring>
 #include <map>
@@ -102,27 +102,37 @@ struct FrontierEntry {
 static int max_vertices = 400;
 static int max_degree = 20;
 static int max_depth = 5;
-static long long total_checked = 0;
-static long long total_leo = 0;
+static std::atomic<long long> total_checked{0};
+static std::atomic<long long> total_leo{0};
 static std::map<int, FrontierEntry> frontier;
 
+// Thread-local recursive sweep (no global mutation except atomics)
 static void sweep(std::vector<int>& current, int remaining, int orbit_product,
-                  int current_v) {
+                  int current_v, long long& local_checked, long long& local_leo,
+                  std::map<int, FrontierEntry>& local_frontier) {
     if (remaining == 0) {
-        total_checked++;
+        local_checked++;
+
+        if (local_checked % 100000 == 0) {
+            fprintf(stderr, "\r    ... checked %lld (local), found %lld Leo   ",
+                    local_checked, local_leo);
+        }
 
         SimilarityMatrix S;
         S.build(current);
 
         auto result = check_leontovich(S);
         if (result.found) {
-            total_leo++;
+            local_leo++;
             int n = result.first_n;
-            if (frontier.find(n) == frontier.end() ||
-                S.total_v < frontier[n].total_v) {
-                frontier[n] = {S.total_v, current, result.first_d,
-                               result.ratio};
-                printf("  NEW BEST n>=%d: T(", n);
+            if (local_frontier.find(n) == local_frontier.end() ||
+                S.total_v < local_frontier[n].total_v) {
+                local_frontier[n] = {S.total_v, current, result.first_d,
+                                     result.ratio};
+            }
+#pragma omp critical
+            {
+                printf("  LEO n>=%d: T(", n);
                 for (int i = 0; i < (int)current.size(); i++) {
                     if (i) printf(",");
                     printf("%d", current[i]);
@@ -130,12 +140,14 @@ static void sweep(std::vector<int>& current, int remaining, int orbit_product,
                 printf(") |V|=%d d=%d r=%.8f\n", S.total_v, result.first_d,
                        result.ratio);
                 fflush(stdout);
-            }
-        }
 
-        if (total_checked % 100000 == 0) {
-            fprintf(stderr, "  ... checked %lld sequences, found %lld Leo\n",
-                    total_checked, total_leo);
+                // Update global frontier
+                if (frontier.find(n) == frontier.end() ||
+                    S.total_v < frontier[n].total_v) {
+                    frontier[n] = {S.total_v, current, result.first_d,
+                                   result.ratio};
+                }
+            }
         }
         return;
     }
@@ -144,8 +156,19 @@ static void sweep(std::vector<int>& current, int remaining, int orbit_product,
         int new_v = current_v + orbit_product * d;
         if (new_v > max_vertices) break;
         current.push_back(d);
-        sweep(current, remaining - 1, orbit_product * d, new_v);
+        sweep(current, remaining - 1, orbit_product * d, new_v, local_checked,
+              local_leo, local_frontier);
         current.pop_back();
+    }
+}
+
+// Merge a local frontier into the global one (called under critical)
+static void merge_frontier(const std::map<int, FrontierEntry>& local) {
+    for (auto& [n, e] : local) {
+        if (frontier.find(n) == frontier.end() ||
+            e.total_v < frontier[n].total_v) {
+            frontier[n] = e;
+        }
     }
 }
 
@@ -167,17 +190,75 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("=== Depth-%d Leontovich Sweep (C++) ===\n", max_depth);
+    printf("=== Depth-%d Leontovich Sweep (C++, OpenMP) ===\n", max_depth);
     printf("Max vertices: %d, Max degree: %d\n\n", max_vertices, max_degree);
 
+    setvbuf(stderr, NULL, _IONBF, 0);
+
     for (int depth = 1; depth <= max_depth; depth++) {
-        std::vector<int> seq;
-        sweep(seq, depth, 1, 1);
+        fprintf(stderr, "  [depth %d] sweeping...\n", depth);
+
+        // Parallelize over the first branching degree d1
+        int d1_max = std::min(max_degree, max_vertices - 1);
+
+#pragma omp parallel
+        {
+            long long lc = 0, ll = 0;
+            std::map<int, FrontierEntry> lf;
+
+#pragma omp for schedule(dynamic, 1) nowait
+            for (int d1 = 1; d1 <= d1_max; d1++) {
+                int v1 = 1 + d1;  // root + d1 children
+                if (v1 > max_vertices) continue;
+                if (depth == 1) {
+                    // Single-level tree: just T(d1)
+                    std::vector<int> seq = {d1};
+                    lc++;
+                    SimilarityMatrix S;
+                    S.build(seq);
+                    auto result = check_leontovich(S);
+                    if (result.found) {
+                        ll++;
+                        int n = result.first_n;
+                        if (lf.find(n) == lf.end() ||
+                            S.total_v < lf[n].total_v) {
+                            lf[n] = {S.total_v, seq, result.first_d,
+                                     result.ratio};
+                        }
+                    }
+                } else {
+                    // Recurse for remaining (depth-1) levels
+                    std::vector<int> seq = {d1};
+                    sweep(seq, depth - 1, d1, v1, lc, ll, lf);
+                }
+
+                // Progress (only from first thread hitting this d1)
+                int pct =
+                    (int)((long long)(d1 - 1) * 100 / std::max(1, d1_max));
+                fprintf(
+                    stderr,
+                    "\r  [depth %d] d1=%d/%d (%d%%)  checked=%lld  leo=%lld",
+                    depth, d1, d1_max, pct,
+                    total_checked.load(std::memory_order_relaxed) + lc,
+                    total_leo.load(std::memory_order_relaxed) + ll);
+            }
+
+#pragma omp critical
+            {
+                total_checked += lc;
+                total_leo += ll;
+                merge_frontier(lf);
+            }
+        }
+
+        fprintf(stderr,
+                "\r  [depth %d] done.                                  \n",
+                depth);
     }
 
     printf("\n============================================================\n");
     printf("Checked %lld branching sequences, found %lld Leontovich\n",
-           total_checked, total_leo);
+           total_checked.load(), total_leo.load());
     printf("\n============================================================\n");
     printf("PARETO FRONTIER: Smallest Leontovich graph per threshold n\n");
     printf("============================================================\n");
@@ -186,6 +267,9 @@ int main(int argc, char** argv) {
     printf(
         "--------------------------------------------------------------------"
         "\n");
+
+    printf("\nChecked %lld branching sequences, found %lld Leontovich\n",
+           total_checked.load(), total_leo.load());
 
     int abs_min_n = -1, abs_min_v = 1 << 30;
     for (auto& [n, e] : frontier) {
