@@ -204,7 +204,7 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
 ### Current bound
 
 **Rigorous bound: $m \ge 12$**,
-via exhaustive enumeration of all 1,006,973,754 connected graphs
+via exhaustive enumeration of all 1,018,690,325 connected graphs
 on $m \le 11$ vertices against the $E_n^{(d)}$ filter
 ($n \le 200$, $d \le 20$). Zero violations.
 
