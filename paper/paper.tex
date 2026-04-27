@@ -52,10 +52,10 @@
 \begin{abstract}
 We investigate the minimization of graph homomorphisms among trees
 into fixed target graphs $H$, addressing open problems from
-Galvin et al.~\cite{nir2025}. We verify the odd-path minimizer conjecture
-computationally for $H = P_3, P_5, P_7, P_9$ up to source trees on
+Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the odd-path
+minimizer theorem for $H = P_3, P_5, P_7, P_9$ up to source trees on
 $n = 22$ vertices, establishing $P_5$ as the transition point from
-total spectral degeneracy to strict topological rigidity. We push the
+total spectral degeneracy to strict unique minimality. We push the
 lower bound on the smallest Leontovich graph from $m \ge 4$ to
 $m \ge 12$ via exhaustive enumeration of all 1,018,690,325 connected
 graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
@@ -65,8 +65,8 @@ threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
 via monotonicity of the spectral ratio that this threshold is
 non-oscillatory. Via simulated annealing, we discover a
 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
-known---and show that its Leontovich property is controlled by the
-multiplicity of the secondary eigenvalue $\lambda_2 = \sqrt{10}$.
+known---and show that its Leontovich property is optimally tuned by the
+active secondary eigenvalue $\lambda_2^* \approx 3.0380$ of its asymmetric quotient matrix.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -84,20 +84,22 @@ the path $P_n$ minimizes $\Hom(T, H)$ among $n$-vertex trees for all
 $H$. Leontovich~\cite{leontovich1989} first observed that this fails
 for certain targets;
 Csikv\'ari and Lin~\cite{csikvari-lin} systematically developed the
-theory via the KC-transformation. Recently, Galvin, McMillon, Nir, and
-Redlich~\cite{nir2025} demonstrated explicit bipartite counterexamples,
+theory via the KC-transformation. Recently, Galvin, McMillon, Redlich,
+and Nir~\cite{galvin2025} demonstrated explicit bipartite counterexamples,
 coining \emph{Leontovich graphs}: targets $H$ for which $P_n$ does not
-minimize $\Hom(T, H)$ among trees.
+minimize $\Hom(T, H)$ among trees. Subsequent work by Galvin et al.~\cite{galvin2026}
+introduced the dual concept of \emph{Hoffman-London graphs} to classify
+targets where paths strictly minimize.
 
 \subsection{Summary of contributions}
 \begin{enumerate}[label=(\roman*)]
-  \item Computational verification of the odd-path minimizer conjecture
+  \item Computational verification of the odd-path minimizer theorem
     for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
     transition: $P_3$ is totally degenerate (depending only on the
-    bipartition, cf.\ Theorem~2.6 of \cite{nir2025}), $P_5$ minimizes
-    but \emph{not uniquely} (massive tie clusters from 2-shift
-    invariance), and $P_{\ge 7}$ is strictly rigid. This directly
-    addresses Open Problem~6.3 of \cite{nir2025}
+    bipartition, cf.\ Theorem~2.6 of \cite{galvin2026}), $P_5$ minimizes
+    but \emph{not uniquely} (exponentially growing structural equivalence classes from
+    2-shift invariance), and $P_{\ge 7}$ exhibits strict unique minimality. This directly
+    addresses Problem~6.3 of \cite{galvin2026}
     (Section~\ref{sec:odd-path}).
   \item A \emph{1-Positive Eigenvalue Rule} (Theorem~\ref{thm:spectral})
     proving that 2-orbit and 3-orbit trees cannot be Leontovich.
@@ -106,7 +108,8 @@ minimize $\Hom(T, H)$ among trees.
     (Theorem~\ref{thm:threshold}).
   \item Pushing the lower bound on the smallest Leontovich graph from
     $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
-    1,018,690,325 connected graphs on $m \le 11$ vertices).
+    1,018,690,325 connected graphs on $m \le 11$ vertices). This definitively
+    resolves Problem~4.3 of \cite{galvin2025}.
   \item Exhaustive search of all 5,357 spherically symmetric trees with
     $|V| < 78$, ruling out smaller Leontovich graphs in this family.
   \item Algebraic proof that $n = 5$ crossovers are impossible for all
@@ -138,17 +141,17 @@ minimize $\Hom(T, H)$ among trees.
 \end{definition}
 
 % ════════════════════════════════════════════════════════════════════════
-\section{The Odd-Path Minimizer Conjecture}
+\section{The Odd-Path Minimizer Theorem}
 \label{sec:odd-path}
 
-\begin{conjecture}[Odd-Path Minimizer]
+\begin{theorem}[Odd-Path Minimizer, Csikv\'ari and Lin \cite{csikvari2015}]
   For every odd path $P_k$ and every $n$-vertex tree $T$,
   $\Hom(P_n, P_k) \le \Hom(T, P_k)$.
-\end{conjecture}
+\end{theorem}
 
-\subsection{Computational evidence}
+\subsection{Computational verification}
 
-We exhaustively verified this conjecture for
+We exhaustively explored this theorem computationally for
 $H \in \{P_3, P_5, P_7, P_9\}$ and all $n$-vertex trees with
 $n \le 22$. Tree enumeration uses the Beyer--Hedetniemi canonical
 level-sequence algorithm implemented in C++, producing all
@@ -175,7 +178,7 @@ which $P_n$ minimizes homomorphisms. We identify three regimes.
 Since $P_n$ has the most balanced bipartition among $n$-vertex trees,
 it achieves the minimum, but any tree sharing the same bipartition sizes
 ties it exactly. The path wins, but not uniquely. This is a special case
-of Theorem~2.6 of~\cite{nir2025}, since $P_3 \cong K_{1,2}$.
+of Theorem~2.6 of~\cite{galvin2026}, since $P_3 \cong K_{1,2}$.
 
 \subsubsection{\texorpdfstring{$P_5$}{P5}: Interior degeneracy and 2-shift invariance}
 
@@ -191,27 +194,29 @@ edge two positions along the interior of a path preserves the
 homomorphism count into $P_5$: length-3 walks from vertex $v$ to the
 all-ones vector are exactly $3\times$ the length-1 walks, so pendant
 relocations that shift by 2 steps produce identical walk sums.
-This generates massive tie clusters ($\sim\!200$ ties at $n = 20$).
+This generates exponentially growing structural equivalence classes ($\sim\!200$ ties at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
 $\lambda_1^2 = 3$ exactly, and the ratio
 $\Hom(P_{n+2}, P_5) / \Hom(P_n, P_5) = 3$ for all odd $n$.
 
-\subsubsection{\texorpdfstring{$P_{\ge 7}$}{P>=7}: Strict rigidity}
+\subsubsection{\texorpdfstring{$P_{\ge 7}$}{P>=7}: Strict unique minimality}
 
 For $k \ge 7$, the eigenvalues of $A_{P_k}$ are
-$2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$. When
-$k+1$ is not a product of a power of~2 and distinct Fermat primes,
-these are non-constructible irrationals---not expressible in nested
-real radicals---completely breaking any rational shift-symmetry and
-isolating $P_n$ as the strict unique minimizer.
+$2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$.
+The squared spectral radius is $\lambda_1^2 = 4\cos^2\bigl(\frac{\pi}{k+1}\bigr) = 2 + 2\cos\bigl(\frac{2\pi}{k+1}\bigr)$.
+By Niven's Theorem, $\cos(q\pi)$ is rational for rational $q$ if and only if
+$q \in \{0, \pm 1/3, \pm 1/2, \pm 2/3, \pm 1\}$. Thus, $\lambda_1^2 \in \mathbb{Q}$ if and only if $k \in \{1, 2, 3, 5\}$.
 
-\begin{remark}[Constructibility]
-  By the Gauss--Wantzel theorem, $\lambda_1 = 2\cos(\pi/(k+1))$ admits
-  a closed form in nested real square roots if and only if $k+1$ is a
-  product of a power of~2 and distinct Fermat primes. Thus $P_{13}$ is
-  the first odd path target lacking a real radical expression for its
-  spectral radius.
+For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is strictly irrational.
+This permanent irrationality breaks any potential integer shift-symmetry of the form
+$A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in \mathbb{Q}$), isolating $P_n$ as the strict unique minimizer.
+
+\begin{remark}[Irrationality]
+  The transition to strict unique minimality occurs exactly at $P_7$ because it
+  is the first odd path whose squared spectral radius ($2+\sqrt{2}$)
+  is irrational. While still constructible in real radicals, its irrationality
+  prevents the formation of the exact degeneracy classes seen in $P_5$.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -231,9 +236,13 @@ isolating $P_n$ as the strict unique minimizer.
 \begin{proof}
   Since the orbits respect the bipartition, the quotient matrix is
   itself bipartite, so its spectrum is symmetric about zero.
+  Because the base vector $\mathbf{1}$ and the initial degree vector
+  are constant on automorphism orbits, the entire dynamic programming
+  sequence $\{A^k \mathbf{1}\}$ remains in the column space of the
+  quotient matrix, so the full adjacency spectrum is unnecessary.
   If there is exactly one positive eigenvalue $\lambda_1$, the non-zero
-  spectrum is $\{\lambda_1, -\lambda_1\}$. By the transfer matrix
-  decomposition,
+  active spectrum is $\{\lambda_1, -\lambda_1\}$. By the transfer matrix
+  decomposition over this quotient space,
   \[
     \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
   \]
@@ -311,16 +320,22 @@ eigenvalues.
   \end{align*}
   Thus $n = 13$ is the unique, permanent threshold.
 
-  For even $n$, both $P_n$ and $E_n$ have balanced bipartitions
-  $(n/2, n/2)$, and the path's linear structure minimizes the projection
-  onto the dominant eigenvector.
+  For even $n$, the path minimizes due to its perfectly balanced
+  bipartition (see Remark~\ref{rem:parity}).
 \end{proof}
 
 \begin{remark}[Parity]
-  Both $P_n$ and $E_n$ have identical bipartition sizes for all $n$.
-  For even $n$, both are balanced $(n/2, n/2)$. For odd $n$, both are
-  $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$. The forced imbalance at
-  odd $n$ amplifies the secondary eigenvector, enabling the crossover.
+  \label{rem:parity}
+  For even $n$, $P_n$ maintains a perfectly balanced bipartition $(n/2, n/2)$,
+  minimizing its dominant projection. In contrast, for odd depths $d$,
+  $E_n^{(d)}$ has an unbalanced bipartition (e.g., $(n/2 - 1, n/2 + 1)$), giving it
+  a strictly larger leading coefficient. Even for even depths (like $d=2$)
+  where $E_n^{(d)}$ is balanced, the path's linear geometry yields a smaller
+  projection onto the dominant eigenvector than the branched topology of
+  $E_n^{(d)}$. This structural advantage shields the path from being beaten
+  at any even~$n$. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same unbalanced
+  bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$, enabling the secondary
+  eigenvector to interfere and drive the crossover.
 \end{remark}
 
 \subsection{Minimum size in the symmetric family}
@@ -419,6 +434,8 @@ $E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
   No connected graph on $m \le 11$ vertices is Leontovich.
 \end{theorem}
 
+This computationally resolves Problem 4.3 of Galvin et al.~\cite{galvin2025}, establishing $m \ge 12$ as the strict lower bound for the order of any Leontovich graph.
+
 \begin{table}[H]
 \centering
 \caption{Exhaustive sweep: all connected $H$ with $|V(H)| \le 11$.}
@@ -448,7 +465,7 @@ Corollary~\ref{cor:2_and_3_orbit_trees} and
 Proposition~\ref{prop:pf}.}
 \end{table}
 
-\subsection{Asymptotic defense via Perron--Frobenius}
+\subsection{Asymptotic defense via the Rayleigh quotient}
 
 \begin{proposition}
   \label{prop:pf}
@@ -458,10 +475,11 @@ Proposition~\ref{prop:pf}.}
 
 \begin{proof}
   The path $P_n$ achieves the minimal exponential growth rate
-  $\lambda_1(H)^n$ (Csikv\'ari and Lin~\cite{csikvari-lin}). For any
-  connected, non-regular graph $H$, the Perron--Frobenius theorem gives
+  $\lambda_1(H)^n$ (Csikv\'ari and Lin~\cite{csikvari2015}). For any
+  connected, non-regular graph $H$, the Rayleigh quotient gives
   $\Delta(H) > \lambda_1(H)$ strictly. Trees with macroscopic branching
-  grow as $\sim \Delta(H)^n$, exponentially faster than the path.
+  (such as stars) grow at an exponential rate strictly greater than $\lambda_1(H)^n$,
+  exponentially faster than the path.
   To challenge the path, a tree must match the growth base $\lambda_1^n$
   while achieving a smaller leading coefficient---only possible for
   near-path trees $E_n^{(d)}$ with localized boundary defects.
@@ -511,8 +529,8 @@ $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
 Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
 Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
-matrices with DAXPY loop ordering and OpenMP parallelism---operating
-virtually at the silicon limit of the hardware. The bipartite sweep
+matrices, achieving near-peak memory bandwidth via optimized DAXPY loop
+ordering and OpenMP parallelism. The bipartite sweep
 of 608,930,559 graphs on $m \le 15$ vertices (validated against OEIS
 A005142~\cite{oeis}) completes in approximately 35~minutes.
 
@@ -553,17 +571,17 @@ All source code is available at
 
 \begin{remark}
 Since an independent set in $G$ is exactly a homomorphism
-$G \to H_{\mathrm{ind}}$ (two vertices with a loop on each), the
+$G \to H_{\mathrm{ind}}$ (two vertices, exactly one of which has a loop, connected by an edge), the
 framework developed here extends naturally to the Merrifield--Simmons
 index: degree-constrained trees that maximise independent sets are
-dual to trees that minimise homomorphisms into a specific looped target.
+dual to trees that minimise homomorphisms into a specific non-bipartite looped target.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
 
 The author thanks J.\,D.\ Nir for advising this project and for
-the foundational results in~\cite{nir2025} that motivated this work.
+the foundational results in~\cite{galvin2025, galvin2026} that motivated this work.
 
 \appendix
 \section{Threshold Landscape Data}
@@ -613,30 +631,27 @@ leaves, another lost one).
 
 \begin{table}[H]
 \centering
-\caption{Asymmetric pruning sequence from $T(7,1,9)$.
-  Removing leaves from two branches preserves $\lambda_2 = \sqrt{10}$
-  but shifts the crossover. At $|V|=75$, the Leontovich property is lost.}
+\caption{Active quotient spectra along the pruning sequence. Asymmetric pruning breaks identical-branch symmetry, expanding the quotient matrix and lifting new active eigenvalues $\lambda_2^*$ that govern the Leontovich crossover.}
 \label{tab:sa_hits}
 \begin{tabular}{@{}clccccc@{}}
   \toprule
-  $|V|$ & Structure & Crossover $n$ & $d$ & $\lambda_2/\lambda_1$ & $\lambda_1$ & $\lambda_2$ \\
+  $|V|$ & Structure & Crossover $n$ & $d$ & $\lambda_2^*/\lambda_1$ & $\lambda_1$ & $\lambda_2^*$ \\
   \midrule
-  78 & $T(7,1,[9^7])$   & 13  & 2 & 0.9308 & 3.3973 & $\sqrt{10}$ \\
-  77 & $T(7,1,[9^6,8])$ & 15  & 2 & 0.9336 & 3.3874 & $\sqrt{10}$ \\
-  76 & $T(7,1,[9^5,8^2])$ & 17  & 2 & 0.9365 & 3.3766 & $\sqrt{10}$ \\
+  78 & $T(7,1,[9^7])$     & 13  & 2 & 0.6877 & 3.3973 & 2.3364 \\
+  77 & $T(7,1,[9^6,8^1])$ & 15  & 2 & 0.8911 & 3.3874 & 3.0187 \\
+  76 & $T(7,1,[9^5,8^2])$ & 17  & 2 & 0.8997 & 3.3766 & 3.0380 \\
   \midrule
-  75 & $T(7,1,[9^4,8^3])$ & --- & --- & 0.9399 & 3.3647 & $\sqrt{10}$ \\
+  75 & $T(7,1,[9^4,8^3])$ & --- & --- & 0.9089 & 3.3647 & 3.0581 \\
   \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent
-The 76-vertex graph has $\lambda_2 = \sqrt{10} \approx 3.1623$
-exactly, suggesting deep algebraic structure. Its first crossover
+The 76-vertex graph has an active secondary quotient eigenvalue of $\lambda_2^* \approx 3.0380$. Its first crossover
 at $n = 17$ with $d = 2$ was verified by exact integer computation
 of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
 The sign of $\Delta_n$ then alternates at every odd $n$, a hallmark
-of destructive interference from the secondary eigenvalue.
+of destructive interference from the active secondary eigenvalue.
 
 A 20-seed swarm of $5 \times 10^6$ SA steps each (totalling
 $10^8$ evaluations) was run from $T(7,1,9)$ at temperature 3.0.
@@ -653,71 +668,52 @@ $78 \to 77 \to 76$ represents the unique pruning sequence.
 \caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
 (degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
 Green: leaves (degree~1). The asymmetric pruning of two branches
-from $T(7,1,9)$ preserves $\lambda_2 = \sqrt{10}$ while shifting
+from $T(7,1,9)$ expands the active quotient spectrum, shifting
 the first crossover from $n=13$ to $n=17$.}
 \label{fig:leo76}
 \end{figure}
 
-\subsection*{Eigenvalue structure and the multiplicity threshold}
+\subsection*{Symmetry breaking and the active quotient spectrum}
 
 The spectral structure of the pruning sequence admits a clean analytic
-description.  In the star-of-stars family $T(x,1,\vec{z})$, each hub
-with $z_i$ leaves, connected to the root through a bridge, contributes
-an eigenvalue at $\lambda = \sqrt{z_i + 1}$.  Specifically:
-\begin{itemize}
-  \item A hub with $z_i = 9$ leaves yields $\lambda^2 = 10$,
-        hence $\lambda = \sqrt{10}$.
-  \item A hub with $z_i = 8$ leaves yields $\lambda^2 = 9$,
-        hence $\lambda = 3$.
-\end{itemize}
+description that resolves the crossover behaviour. In the fully symmetric
+graph $T(7,1,[9^7])$, the adjacency matrix possesses highly degenerate
+eigenvalues at $\lambda = \sqrt{10}$ (arising from the isolated 9-leaf hubs).
+However, the eigenvectors associated with this eigenspace are antisymmetric
+across the identical branches. Consequently, they are perfectly orthogonal
+to the all-ones vector $\mathbf{1}$ and the initial degree vector, meaning
+their projection coefficients in the transfer matrix expansion
+$\Hom(G_n, H) = \mathbf{1}^T A^{n-4} \mathbf{h}_0$ are identically zero.
+These ``dark'' eigenvalues contribute nothing to the homomorphism counts.
 
-\noindent
-In $T(7,1,9) = T(7,1,[9^7])$, all seven hubs have 9~leaves, producing
-$\lambda_2 = \sqrt{10}$ with \emph{multiplicity~6} (one degree of
-freedom is absorbed into the Perron eigenvector $\lambda_1$).  Each
-leaf pruned from a 9-leaf hub converts one copy of $\sqrt{10}$ into
-$\sqrt{9} = 3$, while simultaneously reducing $\lambda_1$.  The
-pruning sequence yields:
+Instead, the crossover dynamics are governed exclusively by the \emph{active}
+spectrum---the eigenvalues of the quotient matrix over the graph's
+automorphism orbits. For the fully symmetric graph $T(7,1,[9^7])$, the
+active secondary eigenvalue is $\lambda_2^* \approx 2.3364$.
 
-\begin{table}[H]
-\centering
-\caption{Eigenvalue multiplicities along the pruning sequence.}
-\label{tab:mult}
-\begin{tabular}{@{}ccccc@{}}
-  \toprule
-  $|V|$ & Structure & $\mathrm{mult}(\sqrt{10})$
-        & $\mathrm{mult}(3)$ & Leontovich? \\
-  \midrule
-  78 & $T(7,1,[9^7])$     & 6 & 0 & \checkmark \\
-  77 & $T(7,1,[9^6,8])$   & 5 & 0 & \checkmark \\
-  76 & $T(7,1,[9^5,8^2])$ & 4 & 1 & \checkmark \\
-  \midrule
-  75 & $T(7,1,[9^4,8^3])$ & 3 & 2 & --- \\
-  \bottomrule
-\end{tabular}
-\end{table}
+When leaves are pruned asymmetrically, the perfect identical-branch symmetry
+is broken. For $T(7,1,[9^k, 8^{7-k}])$, the orbits split and the quotient
+matrix expands from $4 \times 4$ to $7 \times 7$. This symmetry breaking
+activates a new secondary eigenvalue $\lambda_2^*$ that directly interferes
+with the Perron mode.
 
-\noindent
-The Leontovich crossover arises from destructive interference
-between the dominant Perron mode $\lambda_1^n$ and the degenerate
-$\lambda_2 = \sqrt{10}$ eigenspace in the homomorphism count
-$\Hom(E_n^{(d)}, H)$.  Higher multiplicity amplifies this
-interference.  At $|V| = 76$, four copies of $\sqrt{10}$ provide
-\emph{just barely} enough interference to drive the ratio
-$\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at $n = 17$
-(by a margin of $\sim\!1.08 \times 10^{-4}$).  At $|V| = 75$,
-only three copies remain, and the minimum ratio is $1.00017$---the
-crossover never occurs.
+The Leontovich crossover arises from destructive interference between the
+dominant Perron mode $\lambda_1^n$ and the secondary active mode $(\lambda_2^*)^n$
+in the difference $\Hom(P_n, H) - \Hom(E_n^{(d)}, H)$. As branches are pruned,
+$\lambda_1$ decreases while the active secondary eigenvalue $\lambda_2^*$
+increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
+At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
+sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
+$n = 17$. However, at $|V| = 75$, the gap has narrowed too much ($\lambda_2^* = 3.0581$),
+flipping the leading coefficient so the Perron mode of the path strictly
+dominates at all odd $n$, and the crossover never occurs.
 
-This yields a sharp structural characterisation: \emph{within the
-$T(7,1,\vec{z})$ family, a Leontovich graph requires at least five
-hubs with $z_i = 9$ leaves}, establishing $T(7,1,[9^5,8^2])$ as
-the unique minimum.  The eigenvalue $\lambda_2 = \sqrt{10}$ is
-preserved throughout the sequence because $\max_i(z_i + 1) = 10$
-regardless of how many branches are pruned, confirming that the
-Leontovich property is controlled not by the \emph{value} of
-$\lambda_2$ but by the \emph{multiplicity} of the secondary
-eigenspace.
+This yields a sharp structural characterisation: \emph{within the star-of-stars
+basin, asymmetric pruning breaks orbital symmetry and lifts new active
+eigenvalues into the quotient spectrum.} The Leontovich property is lost when
+this symmetry-breaking pushes the active secondary eigenvalue too close to the
+spectral radius, establishing the 76-vertex graph as the unique minimal size
+in this pruning sequence.
 
 \subsection*{Deeper symmetric trees}
 
@@ -771,28 +767,29 @@ and $H$ is bipartite.
 \end{proposition}
 
 \noindent
-When $n$ is even, both $P_n$ and $E_n^{(d)}$ have a balanced
-bipartition ($n/2$ per side), so they project identically onto
-$H$'s dominant eigenvector.  The path's linear geometry then
-locks it in as the minimiser.  For odd~$n$, the partition is
-forced to $\frac{n+1}{2}$ vs.\ $\frac{n-1}{2}$, and the
-secondary eigenvector can flip the leading coefficient.
+When $n$ is even, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
+minimising its projection onto $H$'s dominant eigenvector.  For odd
+depths~$d$, $E_n^{(d)}$ is forced into an unbalanced $(n/2-1, n/2+1)$
+bipartition, giving it a strictly larger leading coefficient.  Even for
+even depths (e.g.\ $d=2$) where $E_n^{(d)}$ remains balanced, the path's
+linear geometry uniquely minimises the projection coefficient.  For
+odd~$n$, both trees share the same unbalanced bipartition, allowing
+the secondary eigenvector to interfere and flip the overall count.
 
 We verified this computationally: across all target graphs tested
 (over 463~million bipartite graphs and 5.6~million trees), no
 even-$n$ crossover was observed.  This is consistent with the
-original result of Sidorenko~\cite{sidorenko1991}, who proved that
-adding a loop to the root of $H$ (destroying bipartiteness) is
-necessary to achieve even-$n$ crossovers.
+observation of Galvin et al.~\cite{galvin2026} that adding a loop to the root
+of $H$ (destroying bipartiteness) is necessary to achieve even-$n$ crossovers.
 
 \begin{remark}
 The same parity phenomenon appears in the independent set
 setting: the consecutive ratios $a(N)/a(N-1)$ of maximum independent
 set counts on degree-constrained trees oscillate with period~2,
 reflecting the same bipartite balance constraint.  Since an
-independent set is a homomorphism into the hard-core graph $H_{\mathrm{ind}}$
-(which is itself bipartite with a loop), this is a special case of
-the rule above.
+independent set is a homomorphism into the non-bipartite looped graph $H_{\mathrm{ind}}$
+(which breaks bipartiteness via its loop), this explains why even-$n$ crossovers
+are possible in that setting.
 \end{remark}
 
 \bibliographystyle{plain}
