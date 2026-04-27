@@ -600,13 +600,14 @@ No anomalies of any depth were detected at $m \le 13$.
   \includegraphics[width=0.38\textwidth]{../docs/out/anomaly_NCQCCA.png}%
   \hfill
   \includegraphics[width=0.58\textwidth]{../docs/out/anomaly_ratio.png}
-  \caption{\textbf{Left:} The depth-anomaly graph $H^*$ on 15 vertices (g6:
-    \texttt{NCQCCA?\_B?K?W?g?K??}); red/blue shows the $(3,12)$ bipartition.
+  \caption{\textbf{Left:} The depth-anomaly graph $H^*$ on 15
+    vertices\protect\footnotemark; red/blue shows the $(3,12)$ bipartition.
     \textbf{Right:} Ratio $\Hom(E_n^{(d)}, H^*) / \Hom(P_n, H^*)$ for
     odd~$n$. For $d \ge 14$ the ratio drops below~1 (shaded), meaning
     $E_n^{(d)}$ beats the path. For $d = 2$ the path remains the minimizer.}
   \label{fig:anomaly}
 \end{figure}
+\footnotetext{Graph6 encoding: \texttt{NCQCCA?\_B?K?W?g?K??}}
 
 To search beyond the exhaustive enumeration wall ($m \ge 16$),
 we employ a simulated annealing search seeded from $T(7,1,9)$,
@@ -664,7 +665,10 @@ at $n = 13$ is a true global minimum within the $T(x,y,z)$ family.
 
 \noindent{\footnotesize All 134{,}391{,}973 graphs $T(x,1,z)$ with
 $|V| = 1 + 2x + xz \le 10{,}000{,}000$ were tested exhaustively
-against $E_n^{(2)}$ for odd $n \le 51$ (4\,min, 6 threads).}
+against $E_n^{(2)}$ for odd $n \le 51$ (4\,min, 6 threads).
+Each minimizer is unique: a tie would require distinct $(x_1,z_1),(x_2,z_2)$
+with $x_1(2{+}z_1)=x_2(2{+}z_2)$ and identical spectral crossover threshold,
+a Diophantine coincidence that does not occur in this range.}
 \end{table}
 
 \section{Simulated Annealing Results}

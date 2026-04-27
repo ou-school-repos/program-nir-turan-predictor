@@ -303,8 +303,8 @@ make leontovich_sa
 
 ---
 
-![Epidemiology: Comb Graph BNC Deployment](docs/out/VectorDeployment.lean.gif)
+![Epidemiology: Comb Graph BNC Deployment](docs/out/VectorDeployment.lean.png)
 
-![Autonomous Surveillance: POMDP Drone Playbook](docs/out/ThreatHunting.lean.gif)
+![Autonomous Surveillance: POMDP Drone Playbook](docs/out/ThreatHunting.lean.png)
 
-![Financial Network: Supersaturation Risk Audit](docs/out/RiskAudit.lean.gif)
+![Financial Network: Supersaturation Risk Audit](docs/out/RiskAudit.lean.png)

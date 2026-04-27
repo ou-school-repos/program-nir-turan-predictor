@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <vector>
 
 static const int K = 4;      // quotient matrix dimension
 static const int NMAX = 51;  // max source tree size to check
@@ -113,14 +114,15 @@ int main(int argc, char** argv) {
     printf("Task F: Threshold landscape for T(x,1,z), |V| <= %d\n", max_v);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    std::map<int, std::tuple<int, int, int>> results;  // threshold -> (x, z, V)
+    // threshold -> list of (x, z, V) at the minimum V
+    std::map<int, std::vector<std::tuple<int, int, int>>> results;
     long long count = 0;
     std::atomic<int> progress{0};
     const int x_max = (max_v - 1) / 4;  // 1 + 2x + 2x <= max_v
 
 #pragma omp parallel
     {
-        std::map<int, std::tuple<int, int, int>> local_results;
+        std::map<int, std::vector<std::tuple<int, int, int>>> local_results;
         long long local_count = 0;
 
 #pragma omp for schedule(dynamic, 1) nowait
@@ -150,10 +152,15 @@ int main(int argc, char** argv) {
                     double he = hom_en(M, a, n);
                     double hp = hom_path(M, a, n);
                     if (he < hp) {
-                        auto it = local_results.find(n);
-                        if (it == local_results.end() ||
-                            V < std::get<2>(it->second))
-                            local_results[n] = {x, z, V};
+                        auto& vec = local_results[n];
+                        int best_v =
+                            vec.empty() ? max_v + 1 : std::get<2>(vec[0]);
+                        if (V < best_v) {
+                            vec.clear();
+                            vec.emplace_back(x, z, V);
+                        } else if (V == best_v) {
+                            vec.emplace_back(x, z, V);
+                        }
                         break;
                     }
                 }
@@ -163,11 +170,15 @@ int main(int argc, char** argv) {
 #pragma omp critical
         {
             count += local_count;
-            for (auto& [t, v] : local_results) {
-                auto it = results.find(t);
-                if (it == results.end() ||
-                    std::get<2>(v) < std::get<2>(it->second))
-                    results[t] = v;
+            for (auto& [t, vec] : local_results) {
+                auto& dst = results[t];
+                int dst_v = dst.empty() ? max_v + 1 : std::get<2>(dst[0]);
+                int src_v = std::get<2>(vec[0]);
+                if (src_v < dst_v) {
+                    dst = vec;
+                } else if (src_v == dst_v) {
+                    dst.insert(dst.end(), vec.begin(), vec.end());
+                }
             }
         }
     }
@@ -177,11 +188,18 @@ int main(int argc, char** argv) {
     printf("%-14s %-22s %10s\n", "Threshold n", "Smallest T(x,1,z)", "|V|");
     printf("------------------------------------------------\n");
     int max_found = 0;
-    for (auto& [t, v] : results) {
-        auto [x, z, V] = v;
-        char label[64];
-        snprintf(label, sizeof(label), "T(%d,1,%d)", x, z);
-        printf("  n=%-10d %-22s %10d\n", t, label, V);
+    for (auto& [t, vec] : results) {
+        for (size_t i = 0; i < vec.size(); i++) {
+            auto [x, z, V] = vec[i];
+            char label[64];
+            snprintf(label, sizeof(label), "T(%d,1,%d)", x, z);
+            if (i == 0)
+                printf("  n=%-10d %-22s %10d", t, label, V);
+            else
+                printf("  %14s %-22s %10d", "", label, V);
+            if (vec.size() > 1 && i == 0) printf("  (%zu tied)", vec.size());
+            printf("\n");
+        }
         if (t > max_found) max_found = t;
     }
     if (max_found < NMAX)

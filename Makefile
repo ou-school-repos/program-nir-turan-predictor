@@ -2,6 +2,9 @@ PYTHON = python3
 
 .DEFAULT_GOAL := _help
 
+.PHONY: all
+all: format lint clean build paper docs bundle ##H Full pipeline: format, lint, clean, build, paper, docs, bundle
+
 # --- Print Helpers ---
 define print_info
 	printf "\033[1;36m%s\033[0m\n" "$(1)"
@@ -101,15 +104,15 @@ F ?= docs/SEQUENCE_DISCOVERY.md
 doc: ##H Convert markdown to PDF (F=docs/file.md)
 	@$(call print_info,Generating PDF from $(F))
 	pandoc $(F) --pdf-engine=xelatex -V geometry:margin=1in -o $(basename $(F)).pdf
-	-qpdf --stream-data=uncompress --replace-input $(basename $(F)).pdf
+	touch -r $(F) $(basename $(F)).pdf
 	@$(call print_success,$(basename $(F)).pdf)
 
 .PHONY: docs
 docs: ##H Convert all tracked markdown files to PDF
 	@for f in $$(git ls-files '*.md'); do \
 		$(call print_info,$$f → $$(basename $$f .md).pdf); \
-		pandoc "$$f" --pdf-engine=xelatex -V geometry:margin=1in -o "$$(dirname $$f)/$$(basename $$f .md).pdf" 2>&1 | grep -v "^$$" || true; \
-		qpdf --stream-data=uncompress --replace-input "$$(dirname $$f)/$$(basename $$f .md).pdf" 2>/dev/null || true; \
+		pandoc "$$f" --pdf-engine=xelatex -V geometry:margin=1in -o "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
+		touch -r "$$f" "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
 	done
 	@$(call print_success,All PDFs generated.)
 
