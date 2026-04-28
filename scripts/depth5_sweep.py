@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Depth-5 sweep: find the Pareto frontier of smallest Leontovich graphs
+Depth-5 sweep: find the threshold landscape of smallest Leontovich graphs
 among all spherically symmetric trees T(d1, d2, ..., dk) for k ≤ 5.
 
 Uses the O(1) similarity matrix trick: for a tree with branching
@@ -203,7 +203,7 @@ def main():
     print(f"\n{'='*60}")
     print(f"Checked {total_checked} branching sequences, found {total_leo} Leontovich")
     print(f"\n{'='*60}")
-    print("PARETO FRONTIER: Smallest Leontovich graph per threshold n")
+    print("THRESHOLD LANDSCAPE: Smallest Leontovich graph per threshold n")
     print(f"{'='*60}")
     print(
         f"{'n':>4s}  {'|V|':>6s}  {'Structure':25s}  {'d':>3s}  {'λ1':>8s}  {'λ2':>8s}  {'ratio':>12s}"

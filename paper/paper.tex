@@ -110,8 +110,10 @@ targets where paths strictly minimize.
     $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
     1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
     resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
-  \item Exhaustive search of all 5,357 spherically symmetric trees with
-    $|V| < 78$, ruling out smaller Leontovich graphs in this family.
+  \item Exhaustive search of all spherically symmetric trees
+    $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
+    verified with exact integer arithmetic, ruling out smaller
+    Leontovich graphs in this family.
   \item Algebraic proof that $n = 5$ crossovers are impossible for all
     $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
     showing that $T(7,1,9)$ is the global vertex-count minimum.
@@ -344,21 +346,28 @@ Exhaustive grid search over $T(x,y,z)$ with
 $|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
 vertices is the unique smallest Leontovich graph in the $T(x,y,z)$
 family. A generalized search over all spherically symmetric trees
-$T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$ tested
-5,357 trees with zero Leontovich instances (Table~\ref{tab:symmetric}).
+$T(d_1, \ldots, d_k)$ with $|V| \le 77$ and depth $k \le 6$ tested
+5,732 trees with exact integer arithmetic
+(\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $d \le 20$) and
+confirmed zero Leontovich instances (Table~\ref{tab:symmetric}).
 
 \begin{table}[H]
 \centering
-\caption{Generalized symmetric tree search ($|V| < 78$).}
+\caption{Generalized symmetric tree search ($|V| \le 77$, exact integer
+arithmetic, $n \le 200$, $d \le 20$).}
 \label{tab:symmetric}
 \begin{tabular}{@{}cccc@{}}
   \toprule
   Depth $k$ & Orbits & Trees tested & Leontovich found \\
   \midrule
-  3 & 4 & 581   & \textbf{0} \\
-  4 & 5 & 1,026 & \textbf{0} \\
-  5 & 6 & 1,567 & \textbf{0} \\
-  6 & 7 & 2,183 & \textbf{0} \\
+  1 & 2 &    76 & \textbf{0} \\
+  2 & 3 &   268 & \textbf{0} \\
+  3 & 4 &   592 & \textbf{0} \\
+  4 & 5 & 1,036 & \textbf{0} \\
+  5 & 6 & 1,573 & \textbf{0} \\
+  6 & 7 & 2,187 & \textbf{0} \\
+  \midrule
+  \multicolumn{2}{c}{Total} & 5,732 & \textbf{0} \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -436,13 +445,6 @@ requires a larger graph than $n = 13$.
               & $T(8, 1, 10)$  &  97 & $n = 11$ \\
               & $T(7, 1, 9)$   &  78 & $n = 13$ \\
               & $T(8, 1, 12)$  & 113 & $n = 15$ \\
-  \midrule
-  $T(d_1,d_2,d_3,d_4)$ & $T(2,1,5,3)$   &  45 & $n = 7$ \\
-                        & $T(3,1,4,2)$   &  43 & $n = 9$ \\
-                        & $T(5,2,1,1)$   &  36 & $n = 11$ \\
-                        & $T(1,1,1,21)$  &  25 & $n = 13$ \\
-                        & $T(1,3,1,19)$  &  65 & $n = 15$ \\
-                        & $T(4,1,1,4)$   &  29 & $n = 17$ \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -785,22 +787,26 @@ in this pruning sequence.
 
 \subsection*{Deeper symmetric trees}
 
-The 76-vertex graph $T(7,1,[9^5,8^2])$ is the smallest known
-Leontovich graph, but it is not the only small one outside the
-$T(x,1,z)$ family.  An exhaustive sweep over all spherically symmetric
-trees $T(d_1,\ldots,d_k)$ with $k \le 4$ orbits, $|V| \le 100{,}000$,
-and maximum degree $\le 200$ tested $12{,}546{,}788$ branching
-sequences and found $12{,}331{,}524$ Leontovich instances.
-Table~\ref{tab:thresholds} reports the Pareto-optimal 5-orbit trees
-for each odd threshold~$n$.  At every threshold $n \ge 7$, the smallest
-5-orbit tree is strictly smaller than the best 4-orbit tree:
-for example, $T(1,1,1,21)$ achieves the $n = 13$ crossover with
-just $25$~vertices (vs.\ $78$ for $T(7,1,9)$), and $T(4,1,1,4)$
-achieves $n = 17$ with $29$~vertices.  None of the 5-orbit trees found
-are smaller than the 76-vertex asymmetric star-of-stars $T(7,1,[9^5,8^2])$
-at the critical $n = 17$ threshold where it operates, but the
-dramatic vertex-count reductions confirm that deeper symmetric trees
-become exponentially more efficient than shallow ones.
+An overflow-safe sweep (\texttt{\_\_int128} exact arithmetic with
+\texttt{\_\_builtin\_mul\_overflow}) over 596,891 branching sequences
+$T(d_1, \ldots, d_k)$ with $k \le 5$ orbits and $|V| \le 2{,}000$
+found 7,016 Leontovich instances and confirms that $T(7,1,9)$ at
+$|V| = 78$ is the absolute vertex-count minimum across all orbit
+counts.  For each threshold~$n$, the smallest 5-orbit tree is
+consistently \emph{larger} than the corresponding 4-orbit tree:
+for example, at $n = 13$, $T(1,8,1,12)$ ($|V| = 114$) versus
+$T(7,1,9)$ ($|V| = 78$).  Deeper trees do extend the reachable
+threshold range---5-orbit entries reach $n \ge 61$ where no 4-orbit
+tree appears---but at vertex counts exceeding 500.
+
+An earlier floating-point sweep produced false positives (e.g.,
+$T(1,1,1,21)$ at $|V| = 25$ was incorrectly flagged as Leontovich).
+Exact integer verification showed $\Hom(E_n, H) > \Hom(P_n, H)$ at
+all~$n$ for these candidates.  The root cause was signed
+\texttt{\_\_int128} overflow (undefined behaviour under \texttt{-O3}),
+which silently corrupted the comparisons; the
+\texttt{\_\_builtin\_mul\_overflow} intrinsic eliminates this class
+of error.
 
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
 \label{rem:ballast}

@@ -290,6 +290,9 @@ improving the previous minimum of 78 vertices. The graph is stored in
 # Verify the 76-vertex graph with exact integer arithmetic
 python3 scripts/verify_76.py
 
+# Verify any symmetric tree T(d1,...,dk) with exact arithmetic
+python3 scripts/verify_leontovich.py 7 1 9       # T(7,1,9), |V|=78
+
 # Plot the graph structure
 python3 scripts/plot_76.py          # -> docs/out/leontovich_76.gif
 python3 scripts/plot_76.py --png    # -> docs/out/leontovich_76.png
