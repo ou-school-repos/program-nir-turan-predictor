@@ -52,10 +52,10 @@
 \begin{abstract}
 We investigate the minimization of graph homomorphisms among trees
 into fixed target graphs $H$, addressing open problems from
-Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the odd-path
-minimizer theorem for $H = P_3, P_5, P_7, P_9$ up to source trees on
+Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the
+path minimizer theorem for odd paths $H = P_3, P_5, P_7, P_9$ up to source trees on
 $n = 22$ vertices, establishing $P_5$ as the transition point from
-total spectral degeneracy to strict unique minimality. We push the
+bipartite degeneracy to strict unique minimality. We raise the
 lower bound on the smallest simple Leontovich graph from $m \ge 4$ to
 $m \ge 12$ via exhaustive enumeration of all 1,018,690,329 connected simple
 graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
@@ -65,7 +65,7 @@ threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
 via monotonicity of the spectral ratio that this threshold is
 non-oscillatory. Via simulated annealing, we discover a
 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
-known---and show that its Leontovich property is optimally tuned by the
+known---and show that its Leontovich property is governed by the
 active secondary eigenvalue $\lambda_2^* \approx 3.0380$ of its asymmetric quotient matrix.
 \end{abstract}
 
@@ -93,9 +93,9 @@ targets where paths strictly minimize.
 
 \subsection{Summary of contributions}
 \begin{enumerate}[label=(\roman*)]
-  \item Computational verification of the odd-path minimizer theorem
+  \item Computational verification of the path minimizer theorem
     for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
-    transition: $P_3$ is totally degenerate (depending only on the
+    transition: $P_3$ is degenerate (homomorphisms depend only on the
     bipartition, cf.\ Theorem~2.6 of \cite{galvin2026}), $P_5$ minimizes
     but \emph{not uniquely} (exponentially growing structural equivalence classes from
     2-shift invariance), and $P_{\ge 7}$ exhibits strict unique minimality. This directly
@@ -143,10 +143,10 @@ targets where paths strictly minimize.
 \end{definition}
 
 % ════════════════════════════════════════════════════════════════════════
-\section{The Odd-Path Minimizer Theorem}
+\section{The Path Minimizer Theorem}
 \label{sec:odd-path}
 
-\begin{theorem}[Odd-Path Minimizer, Csikv\'ari and Lin \cite{csikvari2015}]
+\begin{theorem}[Path Minimizer, Csikv\'ari and Lin \cite{csikvari2015}]
   For every odd path $P_k$ and every $n$-vertex tree $T$,
   $\Hom(P_n, P_k) \le \Hom(T, P_k)$.
 \end{theorem}
@@ -486,7 +486,7 @@ looped upper bound collapses strictly to $2{,}855$ vertices at
 $\hat{T}(2, 31, 1, 44)$). Furthermore, since our exhaustive search
 includes all simple non-bipartite graphs (those containing odd cycles),
 Theorem~5.1 establishes $m \ge 12$ as the strict lower bound for any
-\textbf{simple} strongly Leontovich graph, drastically narrowing the
+\textbf{simple} strongly Leontovich graph, significantly narrowing the
 uncertainty gap from the bottom up.
 
 \begin{table}[H]
@@ -555,10 +555,10 @@ yields zero violations.
   \toprule
   Domain & Graphs tested & Bound \\
   \midrule
-  All connected, $m \le 11$     & 1,018,690,325 & $m \ge 12$ \\
+  All connected, $4 \le m \le 11$     & 1,018,690,329 & $m \ge 12$ \\
   Bipartite, $m \le 15$         & 608,930,559  & $m \ge 16$ \\
   Trees, $m \le 23$             & 23,428,665   & $m \ge 24$ \\
-  Symmetric trees, $|V| < 78$   & 5,357        & $|V| \ge 78$ \\
+  Symmetric trees, $|V| \le 77$ & 5,732        & $|V| \ge 78$ \\
   \bottomrule
 \end{tabular}
 \end{table}
@@ -585,7 +585,7 @@ $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
 Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
 Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
-matrices, achieving near-peak memory bandwidth via optimized DAXPY loop
+matrices via optimized DAXPY loop
 ordering and OpenMP parallelism. The bipartite sweep
 of 608,930,559 graphs on $m \le 15$ vertices (validated against OEIS
 A005142~\cite{oeis}) completes in approximately 35~minutes.
@@ -720,7 +720,7 @@ The 76-vertex graph has an active secondary quotient eigenvalue of $\lambda_2^* 
 at $n = 17$ with $d = 2$ was verified by exact integer computation
 of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
 For $n \ge 17$, the sign of $\Delta_n$ strictly alternates between
-even and odd $n$, a hallmark of destructive interference from the
+even and odd $n$, indicating destructive interference from the
 active secondary eigenvalue.
 
 A 20-seed swarm of $5 \times 10^6$ SA steps each (totalling
@@ -754,7 +754,7 @@ across the identical branches. Consequently, they are perfectly orthogonal
 to the all-ones vector $\mathbf{1}$ and the initial degree vector, meaning
 their projection coefficients in the transfer matrix expansion
 $\Hom(G_n, H) = \mathbf{1}^T A^{n-4} \mathbf{h}_0$ are identically zero.
-These ``dark'' eigenvalues contribute nothing to the homomorphism counts.
+These orthogonal eigenvectors contribute nothing to the homomorphism counts.
 
 Instead, the crossover dynamics are governed exclusively by the \emph{active}
 spectrum---the eigenvalues of the quotient matrix over the graph's
@@ -887,8 +887,9 @@ within this tiny parameter space, the branching degrees must be scaled
 to extreme values (e.g., $x = 400$, $z = 800$ for
 $\hat{T}(400, 3, 800)$).  The resulting $\sim\!960{,}000$ vertices are
 \emph{algebraic ballast}: redundant, identical branches imposed by the
-symmetry constraint, carrying ``dark'' eigenvectors that project to
-zero in the homomorphism counts and contribute nothing to the crossover.
+symmetry constraint, carrying eigenvectors orthogonal to the initial state
+that project to zero in the homomorphism counts and contribute nothing to
+the crossover.
 
 Adding a 5th orbit expands the quotient matrix from $4 \times 4$ to
 $5 \times 5$, unlocking a new independent variable.  The graph can then
