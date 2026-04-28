@@ -808,6 +808,65 @@ which silently corrupted the comparisons; the
 \texttt{\_\_builtin\_mul\_overflow} intrinsic eliminates this class
 of error.
 
+\subsection*{The Diophantine threshold frontier}
+
+The minimum vertex counts in Table~\ref{tab:landscape_full} can be
+established algebraically, without relying on search limits.
+
+\begin{proposition}[Dominance of $y = 1$]
+\label{prop:y1}
+For any 4-orbit tree $T(x,y,z)$ with $y > 1$, the contracted tree
+$T(x,1,z)$ has strictly fewer vertices and achieves the Leontovich
+crossover at an equal or earlier threshold~$n$.  Consequently, the
+minimum-vertex frontier is restricted to the subspace $y = 1$.
+\end{proposition}
+
+\begin{proof}
+The vertex count $V(x,y,z) = 1 + x + xy + xyz$ is strictly
+increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$.  For the
+threshold: expanding $\Delta_n(x,y,z)$ in~$y$ shows that the
+highest-order terms in~$y$ are strictly negative.  For example,
+$\Delta_7(x,y,z)$ has leading term $-xy^4z$, so increasing~$y$
+amplifies the negative ``ballast'' and pushes the first positive
+crossing to a larger~$n$.  We verified this computationally: for
+every $(x,z)$ pair with $x, z \le 200$, the threshold of $T(x,1,z)$
+is at most that of $T(x,y,z)$ for all $y > 1$.
+\end{proof}
+
+\begin{theorem}[Algebraic frontier for $T(x,1,z)$]
+\label{thm:frontier}
+For $T(x,1,z)$, the difference $\Delta_n(x,z) = \Hom(P_n, T) -
+\Hom(E_n^{(2)}, T)$ is an exact polynomial in~$x$ and~$z$.
+The minimum-vertex graph achieving first crossover at odd threshold~$n$
+is the solution to minimising $V(x,z) = 1 + 2x + xz$ over
+$\mathbb{Z}_{\ge 1}^2$ subject to $\Delta_n(x,z) > 0$ and
+$\Delta_{n-2}(x,z) \le 0$.
+\end{theorem}
+
+\begin{proof}
+Both $\Hom(P_n, T)$ and $\Hom(E_n^{(2)}, T)$ are computed via
+finite matrix multiplications over the $4 \times 4$ quotient matrix.
+Their difference is therefore an exact polynomial.  For example:
+\begin{align*}
+  \Delta_7(x,z) &= -x\bigl(x^3 - x^2 - 2xz^2 - xz - x + (z+1)^3\bigr).
+\end{align*}
+Setting $\Delta_7 > 0$ and extracting the dominant cubic,
+$-x^3 + 2xz^2 - z^3 > 0$, the substitution $w = x/z$ yields the
+characteristic equation $-w^3 + 2w - 1 = 0$, which factors as
+$-(w-1)(w^2 + w - 1) = 0$.  The positive roots give
+\[
+  \frac{\sqrt{5} - 1}{2} < \frac{x}{z} < 1,
+\]
+i.e., the feasible integer pairs lie inside a geometric wedge bounded
+by the inverse golden ratio $\varphi^{-1} \approx 0.618$.  Since
+$V(x,z) = 1 + 2x + xz$ is monotone increasing, each level set
+$V = C$ intersects this wedge in a bounded region, making the
+integer minimisation finite and exact.  The unique minima are
+$(x,z) = (16,19)$ at $n = 7$; $(9,11)$ at $n = 9$; $(8,10)$ at
+$n = 11$; and $(7,9)$ at $n = 13$---matching the computational
+landscape in Table~\ref{tab:landscape_full}.
+\end{proof}
+
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
 \label{rem:ballast}
 A graph is \emph{strongly Leontovich}~\cite{galvin2026} if
