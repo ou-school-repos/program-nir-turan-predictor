@@ -861,10 +861,15 @@ i.e., the feasible integer pairs lie inside a geometric wedge bounded
 by the inverse golden ratio $\varphi^{-1} \approx 0.618$.  Since
 $V(x,z) = 1 + 2x + xz$ is monotone increasing, each level set
 $V = C$ intersects this wedge in a bounded region, making the
-integer minimisation finite and exact.  The unique minima are
-$(x,z) = (16,19)$ at $n = 7$; $(9,11)$ at $n = 9$; $(8,10)$ at
-$n = 11$; and $(7,9)$ at $n = 13$---matching the computational
-landscape in Table~\ref{tab:landscape_full}.
+integer minimisation finite and exact.  For example, at $n = 7$ the
+unique minimum is $(x,z) = (16,19)$ with $\Delta_7(16,19) = 512 > 0$
+and $\Delta_5(16,19) = -560 \le 0$, yielding $|V| = 337$.  This
+improves the $1{,}801$-vertex bound of
+Galvin et al.~\cite{galvin2026} to 337 vertices.  Iterating
+across thresholds gives the complete frontier:
+$(9,11)$ at $n = 9$; $(8,10)$ at $n = 11$; $(7,9)$ at $n = 13$;
+and $(8,12)$ at $n = 15$---matching the computational landscape
+in Table~\ref{tab:landscape_full}.
 \end{proof}
 
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
