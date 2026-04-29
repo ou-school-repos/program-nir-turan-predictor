@@ -573,13 +573,18 @@ $O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
 trees in graph6 format on \texttt{stdout}, which is piped to the
 \texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
 precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
-$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration
-in IEEE 754 double precision.
-Comparisons use a relative tolerance of $10^{-11}$, which exceeds the
-worst-case accumulated rounding error ($\sim n_{\max} \cdot m \cdot
-\varepsilon \approx 6.7 \times 10^{-13}$ at $m = 15$, $n = 200$) by
-a factor of~15.  All flagged anomalies are subsequently verified with
-exact integer arithmetic.
+$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration in
+IEEE 754 double precision. Because the adjacency matrices and state vectors
+are strictly non-negative, the iteration is immune to catastrophic subtractive
+cancellation. By standard \textbf{forward error analysis}, the worst-case
+accumulated relative rounding error grows strictly linearly, bounded by
+$\sim n_{\max} \cdot m \cdot \varepsilon \approx 6.7 \times 10^{-13}$ (at
+$m=15, n=200$, with machine epsilon $\varepsilon \approx 2.22 \times 10^{-16}$).
+Comparisons use a relative tolerance of $10^{-11}$, which safely exceeds this
+noise floor by more than an order of magnitude to prevent false negatives.
+To guarantee absolute mathematical rigor, this floating-point engine acts
+strictly as a high-speed filter; all flagged anomalies are subsequently
+verified using exact infinite-precision integer arithmetic.
 The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
 $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
