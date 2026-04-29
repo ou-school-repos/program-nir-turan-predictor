@@ -28,8 +28,7 @@
 \newcommand{\Hom}{\mathrm{hom}}
 
 \title{%
-  \textbf{[PREPRINT] Spectral Structure of Path Minimizers}\\
-  \textbf{and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
+  \textbf{[PREPRINT] Path Minimizers and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
 }
 \author{
   Shane Jaroch \\
@@ -50,23 +49,24 @@
 \maketitle
 
 \begin{abstract}
-We investigate the minimization of graph homomorphisms among trees
-into fixed target graphs $H$, addressing open problems from
-Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the
-path minimizer theorem for odd paths $H = P_3, P_5, P_7, P_9$ up to source trees on
-$n = 22$ vertices, establishing $P_5$ as the transition point from
-bipartite degeneracy to strict unique minimality. We raise the
-lower bound on the smallest simple Leontovich graph from $m \ge 4$ to
-$m \ge 12$ via exhaustive enumeration of all 1,018,690,329 connected simple
-graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
-showing that 2-orbit and 3-orbit spherically symmetric trees can never
-be Leontovich, and we analytically pinpoint the exact crossover
-threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
-via monotonicity of the spectral ratio that this threshold is
-non-oscillatory. Via simulated annealing, we discover a
-76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
-known---and show that its Leontovich property is governed by the
-active secondary eigenvalue $\lambda_2^* \approx 3.0380$ of its asymmetric quotient matrix.
+We investigate the minimization of graph homomorphisms from trees to fixed
+target graphs $H$, addressing open problems from Galvin et
+al.~\cite{galvin2025,galvin2026}. We computationally verify the path
+minimizer theorem for odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to source
+trees on $n=22$ vertices, observing a transition from structural
+degeneracy in $P_3$ and $P_5$ to unique minimality in $P_{\ge 7}$. By
+exhaustively evaluating all 1,018,690,329 connected simple graphs on $m \le
+11$ vertices, we improve the lower bound on the order of the smallest
+simple Leontovich graph from $m \ge 4$ to $m \ge 12$. Furthermore, we
+demonstrate that target graphs whose quotient matrices possess exactly one
+positive eigenvalue cannot be Leontovich, analytically ruling out all 2-
+and 3-orbit spherically symmetric trees. We determine the crossover
+threshold $n=13$ for the known Leontovich graph $T(7,1,9)$, using the
+monotonic decay of its spectral ratio to prove this threshold is permanent.
+Finally, using simulated annealing, we identify a 76-vertex Leontovich
+graph $T(7,1,[9^5, 8^2])$---the smallest currently known---and show that
+its Leontovich property is driven by the secondary eigenvalue of its
+asymmetric quotient matrix.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -93,21 +93,20 @@ targets where paths strictly minimize.
 
 \subsection{Summary of contributions}
 \begin{enumerate}[label=(\roman*)]
-  \item Computational verification of the path minimizer theorem
-    for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
-    transition: $P_3$ is degenerate (homomorphisms depend only on the
-    bipartition, cf.\ Theorem~2.6 of \cite{galvin2026}), $P_5$ minimizes
-    but \emph{not uniquely} (exponentially growing structural equivalence classes from
-    2-shift invariance), and $P_{\ge 7}$ exhibits strict unique minimality. This directly
-    addresses Problem~6.3 of \cite{galvin2026}
-    (Section~\ref{sec:odd-path}).
-  \item A \emph{1-Positive Eigenvalue Rule} (Theorem~\ref{thm:spectral})
-    proving that 2-orbit and 3-orbit trees cannot be Leontovich.
+  \item Computational verification of the path minimizer theorem for
+    odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
+    illustrating a transition from structural degeneracy at $P_3$ and
+    $P_5$ to unique minimality for $P_{\ge 7}$. This directly addresses
+    Problem~6.3 of \cite{galvin2026} (Section~\ref{sec:odd-path}).
+  \item A spectral condition (Theorem~\ref{thm:spectral}) demonstrating
+    that target graphs whose quotient matrices possess exactly one
+    positive eigenvalue cannot be Leontovich, ruling out all 2- and
+    3-orbit trees.
   \item An exact analytical determination that $n = 13$ is the
     non-oscillatory crossover threshold for $T(7,1,9)$
     (Theorem~\ref{thm:threshold}).
-  \item Pushing the lower bound on the smallest simple Leontovich graph from
-    $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
+  \item Pushing the lower bound on the smallest simple Leontovich graph
+    from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
     1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
     resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
   \item Exhaustive search of all spherically symmetric trees
@@ -225,9 +224,9 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
 \section{Analytical Properties of Leontovich Graphs}
 \label{sec:leontovich}
 
-\subsection{The Spectral Crossover Theorem}
+\subsection{Spectral obstructions to the Leontovich property}
 
-\begin{theorem}[1-Positive Eigenvalue Rule]
+\begin{theorem}
   \label{thm:spectral}
   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
   the bipartition (i.e., no orbit contains vertices from both sides).
