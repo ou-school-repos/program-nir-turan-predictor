@@ -95,27 +95,29 @@ targets where paths strictly minimize.
 \begin{enumerate}[label=(\roman*)]
   \item Computational verification of the path minimizer theorem for
     odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
-    illustrating a transition from structural degeneracy at $P_3$ and
-    $P_5$ to unique minimality for $P_{\ge 7}$. This directly addresses
-    Problem~6.3 of \cite{galvin2026} (Section~\ref{sec:odd-path}).
-  \item A spectral condition (Theorem~\ref{thm:spectral}) demonstrating
+    illustrating a transition from structural degeneracy in $P_3$ and
+    $P_5$ (with $P_5$ exhibiting large structural equivalence classes
+    due to 2-shift invariance) to unique minimality for $P_{\ge 7}$.
+    This directly addresses Problem~6.3 of \cite{galvin2026}
+    (Section~\ref{sec:odd-path}).
+  \item An analytical proof (Theorem~\ref{thm:spectral}) demonstrating
     that target graphs whose quotient matrices possess exactly one
-    positive eigenvalue cannot be Leontovich, ruling out all 2- and
-    3-orbit trees.
-  \item An exact analytical determination that $n = 13$ is the
-    non-oscillatory crossover threshold for $T(7,1,9)$
-    (Theorem~\ref{thm:threshold}).
-  \item Pushing the lower bound on the smallest simple Leontovich graph
-    from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
-    1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
-    resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+    positive eigenvalue cannot be Leontovich, which analytically rules
+    out all 2-orbit and 3-orbit spherically symmetric trees.
+  \item An analytical proof determining the crossover threshold $n = 13$
+    for the known Leontovich graph $T(7,1,9)$, showing this threshold
+    is permanent (Theorem~\ref{thm:threshold}).
+  \item Improving the lower bound on the smallest simple Leontovich
+    graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
+    all 1,018,690,329 connected simple graphs on $m \le 11$ vertices).
+    This resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
   \item Exhaustive search of all spherically symmetric trees
     $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
     verified with exact integer arithmetic, ruling out smaller
     Leontovich graphs in this family.
   \item Algebraic proof that $n = 5$ crossovers are impossible for all
     $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
-    showing that $T(7,1,9)$ is the global vertex-count minimum.
+    showing that $T(7,1,9)$ is the minimum-order graph in this family.
 \end{enumerate}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -152,19 +154,19 @@ targets where paths strictly minimize.
 
 \subsection{Computational verification}
 
-We exhaustively explored this theorem computationally for
-$H \in \{P_3, P_5, P_7, P_9\}$ and all $n$-vertex trees with
-$n \le 22$. Tree enumeration uses the Beyer--Hedetniemi canonical
-level-sequence algorithm implemented in C++, producing all
-non-isomorphic trees. Tree counts are cross-validated against
-OEIS A000055~\cite{oeis_A000055}.
+To investigate the uniqueness of the path minimizer, we computationally
+evaluated homomorphism counts for $H \in \{P_3, P_5, P_7, P_9\}$ and all
+$n$-vertex trees with $n \le 22$. Tree enumeration uses the
+Beyer--Hedetniemi canonical level-sequence algorithm implemented in C++,
+producing all non-isomorphic trees. Tree counts are cross-validated
+against OEIS A000055~\cite{oeis_A000055}.
 
-\subsection{The hierarchy of rigidity}
+\subsection{Regimes of minimality}
 
 The spectral structure of $P_k$ governs the degree of uniqueness with
 which $P_n$ minimizes homomorphisms. We identify three regimes.
 
-\subsubsection{\texorpdfstring{$P_3$}{P3}: Total degeneracy}
+\subsubsection{Structural degeneracy}
 
 \begin{proposition}
   \label{prop:p3}
@@ -178,8 +180,9 @@ which $P_n$ minimizes homomorphisms. We identify three regimes.
 
 Since $P_n$ has the most balanced bipartition among $n$-vertex trees,
 it achieves the minimum, but any tree sharing the same bipartition sizes
-ties it exactly. The path wins, but not uniquely. This is a special case
-of Theorem~2.6 of~\cite{galvin2026}, since $P_3 \cong K_{1,2}$.
+ties it exactly. Thus, the path minimizes the homomorphism count, but
+it does not do so uniquely. This is a special case of Theorem~2.6
+of~\cite{galvin2026}, since $P_3 \cong K_{1,2}$.
 
 \subsubsection{\texorpdfstring{$P_5$}{P5}: Interior degeneracy and 2-shift invariance}
 
@@ -192,16 +195,18 @@ where $\mathbf{1}$ is the all-ones vector. This identity implies that
 the cube of the transfer matrix acts as a scalar multiple of the
 matrix itself on the constant vector. Combinatorially, moving a pendant
 edge two positions along the interior of a path preserves the
-homomorphism count into $P_5$: length-3 walks from vertex $v$ to the
-all-ones vector are exactly $3\times$ the length-1 walks, so pendant
-relocations that shift by 2 steps produce identical walk sums.
-This generates exponentially growing structural equivalence classes ($\sim\!200$ ties at $n = 20$).
+homomorphism count into $P_5$: the number of walks of length 3
+originating from any vertex $v$ is exactly three times the number of
+length-1 walks originating from $v$. Thus pendant relocations that
+shift by 2 steps produce identical walk sums. This generates
+exponentially growing structural equivalence classes ($\sim\!200$ ties
+at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
 $\lambda_1^2 = 3$ exactly, and the ratio
 $\Hom(P_{n+2}, P_5) / \Hom(P_n, P_5) = 3$ for all odd $n$.
 
-\subsubsection{\texorpdfstring{$P_{\ge 7}$}{P>=7}: Strict unique minimality}
+\subsubsection{Unique minimality}
 
 For $k \ge 7$, the eigenvalues of $A_{P_k}$ are
 $2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$.
@@ -209,24 +214,27 @@ The squared spectral radius is $\lambda_1^2 = 4\cos^2\bigl(\frac{\pi}{k+1}\bigr)
 By Niven's Theorem, $\cos(q\pi)$ is rational for rational $q$ if and only if
 $q \in \{0, \pm 1/3, \pm 1/2, \pm 2/3, \pm 1\}$. Thus, $\lambda_1^2 \in \mathbb{Q}$ if and only if $k \in \{1, 2, 3, 5\}$.
 
-For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is strictly irrational.
-This permanent irrationality breaks any potential integer shift-symmetry of the form
-$A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in \mathbb{Q}$), isolating $P_n$ as the strict unique minimizer.
+For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is
+irrational. This irrationality breaks any potential integer
+shift-symmetry of the form $A^m \mathbf{1} = cA \mathbf{1}$ (which
+would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
+\mathbb{Q}$), establishing $P_n$ as the unique minimizer.
 
 \begin{remark}[Irrationality]
-  The transition to strict unique minimality occurs exactly at $P_7$ because it
+  The transition to unique minimality occurs exactly at $P_7$ because it
   is the first odd path whose squared spectral radius ($2+\sqrt{2}$)
-  is irrational. While still constructible in real radicals, its irrationality
-  prevents the formation of the exact degeneracy classes seen in $P_5$.
+  is irrational. While still constructible in real radicals, its
+  irrationality prevents the formation of the exact degeneracy classes
+  seen in $P_5$.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
 \section{Analytical Properties of Leontovich Graphs}
 \label{sec:leontovich}
 
-\subsection{Spectral obstructions to the Leontovich property}
+\subsection{A spectral condition for Leontovich graphs}
 
-\begin{theorem}
+\begin{theorem}[Single Positive Eigenvalue Condition]
   \label{thm:spectral}
   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
   the bipartition (i.e., no orbit contains vertices from both sides).
@@ -248,10 +256,10 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
     \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
   \]
   For odd $n$, this reduces to $(c - d)\,\lambda_1^n$. There are no
-  secondary exponential terms: the ratio
-  $\Hom(E_n, H) / \Hom(P_n, H)$ is a strict constant for all odd~$n$.
-  Since $P_n$ minimizes at small $n$ (verified computationally), it is
-  locked in for all $n$.
+  secondary exponential terms: the ratio $\Hom(E_n, H) / \Hom(P_n, H)$
+  is constant for all odd $n$. Since $P_n$ minimizes the count at
+  small $n$ (verified computationally), it remains the minimizer for
+  all odd $n$.
 \end{proof}
 
 \begin{corollary}
@@ -261,7 +269,7 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
   Leontovich.
 \end{corollary}
 
-\subsection{Four-orbit trees: the unconditional discriminant}
+\subsection{Four-orbit trees}
 
 For 4-orbit trees $T(x,y,z)$, the characteristic polynomial of the
 quotient matrix is
@@ -276,12 +284,12 @@ $\lambda^2$ is
 \]
 Since $x, y, z \ge 1$, this expression is always strictly positive
 ($\ge 5$). By Descartes' rule of signs, both roots for $\lambda^2$ are
-positive, so \textbf{every} 4-orbit tree possesses exactly 2 positive
-eigenvalues.
+positive, so \emph{every} spherically symmetric 4-orbit tree possesses
+exactly 2 positive eigenvalues.
 
-\subsection{The exact threshold of \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+\subsection{The crossover threshold for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
 
-\begin{theorem}[Non-oscillatory threshold]
+\begin{theorem}[Permanent crossover threshold]
   \label{thm:threshold}
   Let $H = T(7,1,9)$. Then $\Hom(E_n, H) < \Hom(P_n, H)$ for all
   odd $n \ge 13$, and $\Hom(P_n, H) \le \Hom(E_n, H)$ for all
@@ -307,7 +315,7 @@ eigenvalues.
     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
     \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
   \]
-  with $A > 0$, $|B| > 0$. Setting
+  for constants $A > 0$ and $B \neq 0$. Setting
   $r = \lambda_2 / \lambda_1 = \sqrt{(17 - \sqrt{37})/(17 + \sqrt{37})}
   \approx 0.6877$:
   \[
