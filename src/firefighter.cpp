@@ -169,24 +169,9 @@ int main(int argc, const char* argv[]) {
                 CaterpillarGame game(s, k, c);
                 int computed = game.solve();
 
-                // Predicted formula (empirically derived)
-                int predicted;
-                if (c == 1) {
-                    // Single-cut: 2K+1 for S<=4, 2K+2 for S>=5
-                    if (k == 0)
-                        predicted = 2;
-                    else
-                        predicted = (s >= 5) ? 2 * k + 2 : 2 * k + 1;
-                } else {
-                    // Multi-cut (c>=2): Builder severs both spine
-                    // directions on turn 1, containing fire to the
-                    // single ignition node. Remaining c-2 cuts
-                    // defend legs. Fire consumes 1 spine node +
-                    // (K - (c-2)) undefended legs.
-                    // Nash = max(1, 1 + max(0, K - (c-2)))
-                    //       = max(1, K - c + 3)
-                    predicted = max(1, k - c + 3);
-                }
+                // Predicted: c=1 → max(2, 2K+2 or 2K+1), c≥2 → max(1, K-c+3)
+                int predicted = (c == 1) ? max(2, 2 * k + (s >= 5 ? 2 : 1))
+                                         : max(1, k - c + 3);
 
                 bool ok = (computed == predicted);
                 if (!ok) mismatches++;
