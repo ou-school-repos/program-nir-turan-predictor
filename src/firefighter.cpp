@@ -12,10 +12,20 @@ struct Edge {
     int u, v;
 };
 
+struct GameState {
+    uint64_t b, e;
+    bool operator==(const GameState& o) const { return b == o.b && e == o.e; }
+};
+struct StateHash {
+    size_t operator()(const GameState& s) const {
+        return s.b ^ (s.e * 0x9E3779B97F4A7C15ULL);
+    }
+};
+
 class CaterpillarGame {
     int S, K, N, NUM_EDGES, CUTS;
     vector<Edge> edges;
-    unordered_map<uint64_t, int> memo;
+    unordered_map<GameState, int, StateHash> memo;
 
     uint64_t spread_fire(uint64_t b, uint64_t e) {
         uint64_t nb = b;
@@ -48,8 +58,8 @@ class CaterpillarGame {
     }
 
     int builder_play(uint64_t b, uint64_t e) {
-        uint64_t state = b ^ (e * 0x9E3779B97F4A7C15ULL);
-        if (memo.count(state)) return memo[state];
+        GameState gs{b, e};
+        if (memo.count(gs)) return memo[gs];
 
         uint64_t next_b = spread_fire(b, e);
         if (next_b == b) return __builtin_popcountll(b);
@@ -65,17 +75,11 @@ class CaterpillarGame {
             }
         }
 
-        int min_val;
-        if (frontier.empty()) {
-            // No frontier edges to cut — fire spreads freely
-            min_val = builder_play(next_b, e);
-        } else {
-            // Cut min(CUTS, |frontier|) edges
-            int to_cut = min(CUTS, (int)frontier.size());
-            min_val = builder_choose(b, e, to_cut, 0, frontier);
-        }
+        // Cut min(CUTS, |frontier|) edges
+        int to_cut = min(CUTS, (int)frontier.size());
+        int min_val = builder_choose(b, e, to_cut, 0, frontier);
 
-        return memo[state] = min_val;
+        return memo[gs] = min_val;
     }
 
    public:

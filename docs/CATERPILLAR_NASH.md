@@ -280,16 +280,16 @@ For $c = 1$, the bound depends on diameter and is conjectured to be $O(\Delta \c
 
 ## 10. Computational Feasibility of Multi-Cut Search
 
-The `firefighter` engine now supports arbitrary $c$ via recursive subset enumeration of frontier edges. Complexity per Builder ply:
+The `firefighter` engine now supports arbitrary $c$ via recursive subset enumeration of **frontier** edges (edges with exactly one burned endpoint). Restricting cuts to the frontier is Without Loss of Generality for trees, since any path from fire to an unburned node must pass through the current frontier. This yields an exponential improvement over naïve whole-graph enumeration. Complexity per Builder ply:
 
-| Aspect                   | $c = 1$                   | $c > 1$                            |
-| ------------------------ | ------------------------- | ---------------------------------- |
-| Builder branching factor | $O(\|E_{\text{alive}}\|)$ | $O\binom{\|E_{\text{alive}}\|}{c}$ |
-| TT hash domain           | Edge-mask XOR             | Same (generalises cleanly)         |
-| Feasible graph size      | 32 nodes, depth 14        | ~16 nodes, depth 6–8               |
-| Search cost per ply      | Linear in edges           | Polynomial $O(E^c / c!)$           |
+| Aspect                   | $c = 1$                              | $c > 1$                                                          |
+| ------------------------ | ------------------------------------ | ---------------------------------------------------------------- |
+| Builder branching factor | $O(\lvert \text{frontier} \rvert)$   | $O\left(\binom{\lvert \text{frontier} \rvert}{c}\right)$         |
+| TT hash domain           | `GameState{b,e}` with equality check | Same (collision-safe)                                            |
+| Feasible graph size      | 32 nodes, depth 14                   | ~16 nodes, depth 6–8                                             |
+| Search cost per ply      | Linear in frontier                   | Polynomial $O(F^c / c!)$ where $F = \lvert\text{frontier}\rvert$ |
 
-The Zobrist hashing scheme in `dendro.cpp` already XORs per-edge keys, so the hash function generalises without modification. The bottleneck is pure branching factor.
+The frontier restriction is critical: on caterpillars $C(S,K)$, the frontier size is bounded by $K + 2$ (at most two spine edges plus $K$ legs of the burning node), far smaller than the total alive edge count.
 
 ---
 
