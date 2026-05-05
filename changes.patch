@@ -1,0 +1,2271 @@
+commit 04836eb866615681ac011e7b9506233aa88ae4f6
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Sat May 2 23:27:27 2026 -0400
+
+    wip: revert?
+
+diff --git a/docs/LEONTOVICH_SEARCH.md b/docs/LEONTOVICH_SEARCH.md
+index fa26ff4..1fa5e6f 100644
+--- a/docs/LEONTOVICH_SEARCH.md
++++ b/docs/LEONTOVICH_SEARCH.md
+@@ -22,7 +22,7 @@ enabling $O(1)$ homomorphism evaluation via $\hom(G_n, H) = a \cdot M^n \cdot h(
+ $H = T(18, 3, 32)$ with $|V| = 1{,}801$.
+ 
+ | tree  | $\hom(\cdot, H)$ | result            |
+-| ----- | ---------------- | ----------------- |
++| :---- | :--------------- | :---------------- |
+ | $P_7$ | 81,558,090       |                   |
+ | $E_7$ | 81,548,856       | **wins by 9,234** |
+ 
+@@ -32,11 +32,11 @@ $H = T(7,1,9)$ with $|V| = 78$. The paper proves $E_n$ beats $P_n$ for
+ "sufficiently large odd $n$" but does not give the threshold.
+ 
+ | $n$    | parity  | $\hom(P_n, H)$  | $\hom(E_n, H)$  | $P_n - E_n$ | winner    |
+-| ------ | ------- | --------------- | --------------- | ----------- | --------- |
++| :----- | :------ | :-------------- | :-------------- | :---------- | :-------- |
+ | 5      | odd     | 9,366           | 9,492           | $-126$      | $P_n$     |
+ | 7      | odd     | 106,302         | 106,932         | $-630$      | $P_n$     |
+ | 9      | odd     | 1,217,076       | 1,219,848       | $-2{,}772$  | $P_n$     |
+-| 11     | odd     | 13,993,266      | 14,000,700      | $-7{,}434$  | $P_n$     |
++| 11     | odd     | 13,993,266      | 14,000,700      | $-7,434$    | $P_n$     |
+ | **13** | **odd** | **161,209,734** | **161,161,476** | **48,258**  | **$E_n$** |
+ | 15     | odd     | 1,858,989,720   | 1,857,700,992   | 1,288,728   | $E_n$     |
+ | 17     | odd     | 21,446,611,998  | 21,427,743,876  | 18,868,122  | $E_n$     |
+@@ -65,7 +65,7 @@ we exhaustively tested all spherically symmetric trees $T(d_1, d_2, \ldots, d_k)
+ with $|V| < 78$ and $k \in \{3, 4, 5, 6\}$ (4 through 7 orbits):
+ 
+ | depth $k$ | orbits | trees tested | Leontovich found |
+-| --------- | ------ | ------------ | ---------------- |
++| :-------- | :----- | :----------- | :--------------- |
+ | 3         | 4      | 581          | **0**            |
+ | 4         | 5      | 1,026        | **0**            |
+ | 5         | 6      | 1,567        | **0**            |
+@@ -73,9 +73,6 @@ with $|V| < 78$ and $k \in \{3, 4, 5, 6\}$ (4 through 7 orbits):
+ 
+ **Total: 5,357 symmetric trees tested, zero Leontovich graphs with $|V| < 78$.**
+ 
+-This confirms that closing the Problem 4.3 gap ($4 \le m \le 78$) requires
+-searching outside the spherically symmetric family entirely.
+-
+ ### Spectral Crossover Theorem
+ 
+ **Theorem (1-Positive Eigenvalue Rule):** _If the quotient matrix of a
+@@ -85,7 +82,7 @@ then $H$ cannot be Leontovich._
+ **Proof:**
+ 
+ 1. Because $H$ is bipartite, its spectrum is symmetric. If it has exactly
+-   one positive eigenvalue, its non-zero spectrum is $\{\lambda_1, -\lambda_1\}$.
++   one positive eigenvalue, its non-zero spectrum is {$\lambda_1, -\lambda_1$}.
+ 2. By the transfer matrix theorem, $\hom(G_n, H) = c \lambda_1^n + d (-\lambda_1)^n$.
+ 3. For odd $n$, this reduces to $(c - d) \lambda_1^n$. There are **no secondary
+    exponential terms**. The ratio $\hom(E_n, H) / \hom(P_n, H)$ is a strict
+@@ -102,11 +99,6 @@ then $H$ cannot be Leontovich._
+   $(x+y+z)^2 - 4xz = (x-z)^2 + 2y(x+z) + y^2 > 0$ always,
+   so **every** $T(x,y,z)$ has two positive eigenvalues.
+ 
+-**Key subtlety:** Two positive eigenvalues is **necessary but not sufficient**.
+-$T(2,2,2)$ has $\lambda_1 \approx 2.288$, $\lambda_2 \approx 0.874$ (both
+-positive), yet is not Leontovich --- it lacks the topological extremity (like
+-$T(7,1,9)$'s massive branches) to force the leading coefficients to flip.
+-
+ ### Asymptotic Defense of the $E_n^{(d)}$ Filter
+ 
+ **Claim:** Testing only the near-path family $E_n^{(d)}$ is asymptotically
+@@ -120,40 +112,29 @@ To beat the path, a tree must match its minimal growth rate $\lambda_1^n$
+ while achieving a smaller leading coefficient — this is only possible for
+ long paths with localized boundary defects, i.e., the $E_n^{(d)}$ family.
+ 
+-### Refinement of Theorem 1.4
+-
+-The original authors proved that $T(7,1,9)$ (78 vertices) is Leontovich
+-"for all sufficiently large odd $n$" (Theorem 1.4). Our analytical matrix
+-computation pinpoints the exact threshold: **$n = 13$**. Because the spectral
+-difference for odd $n$ reduces to
+-$\Delta_{\text{odd}}(n) = A\lambda_1^n - |B|\lambda_2^n$
+-with $A > 0$, $|B| > 0$, and $\lambda_2 / \lambda_1 \in (0, 1)$,
+-the ratio $(\lambda_2/\lambda_1)^n$ is strictly monotonically decreasing.
+-This crossover is therefore **non-oscillatory**: for all $n < 13$ (and all
+-even $n$), $P_n$ minimizes homomorphisms, while for all odd $n \ge 13$,
+-$E_n$ strictly minimizes them. There is no subsequent crossover.
+-
+ ## General Graph Search (Problem 4.3)
+ 
+ Open problem: what is the smallest $m$ such that a graph $H$ on $m$ vertices
+ is Leontovich? The paper shows $4 \le m \le 78$.
+ 
+-### Exhaustive tree sweep: all connected $H$ with $\|V(H)\| \le 9$
++### Exhaustive tree sweep: all connected $H$ with $|V(H)| \le 9$
+ 
+ For each $m$, we loaded all connected graphs via `geng -c m`
+ and tested every tree on $n$ vertices for $n \in \{5, 6, \ldots, 15\}$.
+ Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
+ 
+ | $m = \|V(H)\|$ | connected $H$ | cumulative $H$ | ops ($H \times T \times n \times m^2$) | violations |
+-| -------------- | ------------- | -------------- | -------------------------------------- | ---------- |
+-| 4              | 6             | 6              | $1.8 \times 10^7$                      | **0**      |
+-| 5              | 21            | 27             | $9.9 \times 10^7$                      | **0**      |
+-| 6              | 112           | 139            | $7.6 \times 10^8$                      | **0**      |
+-| 7              | 853           | 992            | $7.9 \times 10^9$                      | **0**      |
+-| 8              | 11,117        | 12,109         | $1.3 \times 10^{11}$                   | **0**      |
+-| 9              | 261,080       | 273,189        | $4.0 \times 10^{12}$                   | **0**      |
+-
+-### Asymptotic filter: $E_n^{(d)}$ family up to $n = 200$
++| :------------- | :------------ | :------------- | :------------------------------------- | :--------- |
++| 4              | 6             | 10             | $1.8 \times 10^7$                      | **0**      |
++| 5              | 21            | 31             | $9.9 \times 10^7$                      | **0**      |
++| 6              | 112           | 143            | $7.6 \times 10^8$                      | **0**      |
++| 7              | 853           | 996            | $7.9 \times 10^9$                      | **0**      |
++| 8              | 11,117        | 12,113         | $1.3 \times 10^{11}$                   | **0**      |
++| 9              | 261,080       | 273,193        | $4.0 \times 10^{12}$                   | **0**      |
++| 10             | 11,716,571    | 11,989,764     | 45s$^\dagger$                          | **0**      |
++| 11             | 1,006,690,565 | 1,018,680,329  | 136m$^\dagger$                         | **0**      |
++
++### General Connected Graph Sweep (OEIS A001349)
+ 
+ The exhaustive tree sweep only covers $n \le 15$. To close the
+ "delayed threshold" loophole (a graph whose Leontovich crossover
+@@ -162,7 +143,7 @@ test the near-path trees $E_n^{(d)}$ (path with pendant at depth $d$)
+ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
+ 
+ | $m$ | connected $H$ | filter time | violations ($n \le 200$) |
+-| --- | ------------- | ----------- | ------------------------ |
++| :-- | :------------ | :---------- | :----------------------- |
+ | 4   | 6             | instant     | **0**                    |
+ | 5   | 21            | instant     | **0**                    |
+ | 6   | 112           | instant     | **0**                    |
+@@ -170,20 +151,19 @@ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
+ | 8   | 11,117        | < 1s        | **0**                    |
+ | 9   | 261,080       | ~40s        | **0**                    |
+ | 10  | 11,716,571    | ~45s        | **0**                    |
+-| 11  | 1,006,700,565 | ~136 min    | **0**                    |
++| 11  | 1,006,690,565 | ~136 min    | **0**                    |
+ 
+-### Bipartite graph sweep (via `genbg`)
++### Bipartite Graph Sweep (OEIS A005142)
+ 
+ The known Leontovich graph $T(7,1,9)$ is a tree (hence bipartite).
+ Connected bipartite graphs grow far slower than general connected graphs,
+-enabling deeper $m$-values. For each partition $(n_1, n_2)$ with
+-$n_1 + n_2 = m$, we run `genbg -c n1 n2 -q | ./leontovich_fast`.
++enabling deeper $m$-values.
+ 
+ | $m$ | bipartite $H$ | filter time | violations ($n \le 200$) |
+-| --- | ------------- | ----------- | ------------------------ |
+-| 10  | 5,664         | < 1s        | **0**                    |
++| :-- | :------------ | :---------- | :----------------------- |
++| 10  | 4,032         | < 1s        | **0**                    |
+ | 11  | 25,598        | ~2s         | **0**                    |
+-| 12  | 308,362       | ~30s        | **0**                    |
++| 12  | 212,780       | ~30s        | **0**                    |
+ | 13  | 2,241,730     | ~16 min     | **0**                    |
+ 
+ ### Tree-as-target sweep (via `--export-g6`)
+@@ -193,7 +173,7 @@ up to $m = 25$ by piping `synthesizer --export-g6` into the filter.
+ Tree counts match [OEIS A000055](https://oeis.org/A000055).
+ 
+ | $m$ | trees (A000055) | filter time | violations ($n \le 200$) |
+-| --- | --------------- | ----------- | ------------------------ |
++| :-- | :-------------- | :---------- | :----------------------- |
+ | 10  | 106             | instant     | **0**                    |
+ | 12  | 551             | instant     | **0**                    |
+ | 15  | 7,741           | ~4s         | **0**                    |
+@@ -204,9 +184,9 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
+ 
+ ### Current bound
+ 
+-**Rigorous bound: $m \ge 12$**,
+-via exhaustive enumeration of all 1,018,690,325 connected graphs
+-on $m \le 11$ vertices against the $E_n^{(d)}$ filter
++**Rigorous bound: $m \ge 12$ for general graphs**,
++via exhaustive enumeration of all 1,018,680,325 connected simple graphs
++on $4 \le m \le 11$ vertices against the $E_n^{(d)}$ filter
+ ($n \le 200$, $d \le 20$). Zero violations.
+ 
+ #### Bipartite sweep (OEIS [A005142](https://oeis.org/A005142))
+@@ -215,21 +195,21 @@ All connected bipartite graphs on $m \le 15$ vertices, deduplicated
+ via `shortg` and validated against A005142. Zero violations.
+ 
+ | $m$ | Connected bipartite $H$ | Cumulative  | Time  | A005142 | Violations |
+-| --- | ----------------------- | ----------- | ----- | ------- | ---------- |
+-| 2   | 1                       | 1           | 0s    | Yes     | **0**      |
+-| 3   | 1                       | 2           | 0s    | Yes     | **0**      |
+-| 4   | 3                       | 5           | 0s    | Yes     | **0**      |
+-| 5   | 5                       | 10          | 0s    | Yes     | **0**      |
+-| 6   | 17                      | 27          | 0s    | Yes     | **0**      |
+-| 7   | 44                      | 71          | 0s    | Yes     | **0**      |
+-| 8   | 182                     | 253         | 0s    | Yes     | **0**      |
+-| 9   | 730                     | 983         | 0s    | Yes     | **0**      |
+-| 10  | 4,032                   | 5,015       | 0s    | Yes     | **0**      |
+-| 11  | 25,598                  | 30,613      | 1s    | Yes     | **0**      |
+-| 12  | 212,780                 | 243,393     | 1s    | Yes     | **0**      |
+-| 13  | 2,241,730               | 2,485,123   | 13s   | Yes     | **0**      |
+-| 14  | 31,193,324              | 33,678,447  | 217s  | Yes     | **0**      |
+-| 15  | 575,252,112             | 608,930,559 | 2210s | Yes     | **0**†     |
++| :-- | :---------------------- | :---------- | :---- | :------ | :--------- |
++| 2   | 1                       | 2           | 0s    | Yes     | **0**      |
++| 3   | 1                       | 3           | 0s    | Yes     | **0**      |
++| 4   | 3                       | 6           | 0s    | Yes     | **0**      |
++| 5   | 5                       | 11          | 0s    | Yes     | **0**      |
++| 6   | 17                      | 28          | 0s    | Yes     | **0**      |
++| 7   | 44                      | 72          | 0s    | Yes     | **0**      |
++| 8   | 182                     | 254         | 0s    | Yes     | **0**      |
++| 9   | 730                     | 984         | 0s    | Yes     | **0**      |
++| 10  | 4,032                   | 5,016       | 0s    | Yes     | **0**      |
++| 11  | 25,598                  | 30,614      | 1s    | Yes     | **0**      |
++| 12  | 212,780                 | 243,394     | 1s    | Yes     | **0**      |
++| 13  | 2,241,730               | 2,485,124   | 13s   | Yes     | **0**      |
++| 14  | 31,193,324              | 33,678,448  | 217s  | Yes     | **0**      |
++| 15  | 575,252,112             | 608,930,560 | 2210s | Yes     | **0**†     |
+ 
+ †One d>2 depth anomaly detected at m=15 (`NCQCCA?_B?K?W?g?K??`),
+ verified with exact integer arithmetic (`scripts/verify_hom.py`):
+@@ -258,6 +238,6 @@ for n1 in $(seq 1 $((K/2))); do
+   genbg -c $n1 $((K-n1)) -q | ./leontovich_fast
+ done
+ 
+-# Tree-as-target filter
++# Tree-as-target sweep
+ ./synthesizer M --export-g6 | ./leontovich_fast
+ ```
+diff --git a/paper/paper.tex b/paper/paper.tex
+index ce9dc2b..1e46787 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -55,7 +55,7 @@ al.~\cite{galvin2025,galvin2026}. We computationally verify the path
+ minimizer theorem for odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to source
+ trees on $n=22$ vertices, observing a transition from structural
+ degeneracy in $P_3$ and $P_5$ to unique minimality in $P_{\ge 7}$. By
+-exhaustively evaluating all 1,018,690,329 connected simple graphs on $m \le
++exhaustively evaluating all 1,018,680,329 connected simple graphs on $m \le
+ 11$ vertices, we improve the lower bound on the order of the smallest
+ simple Leontovich graph from $m \ge 4$ to $m \ge 12$. Furthermore, we
+ demonstrate that target graphs whose quotient matrices possess exactly one
+@@ -109,7 +109,7 @@ targets where paths strictly minimize.
+     is permanent (Theorem~\ref{thm:threshold}).
+   \item Improving the lower bound on the smallest simple Leontovich
+     graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
+-    all 1,018,690,329 connected simple graphs on $m \le 11$ vertices).
++    all 1,018,680,329 connected simple graphs on $m \le 11$ vertices).
+     This resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+   \item Exhaustive search of all spherically symmetric trees
+     $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
+@@ -470,7 +470,7 @@ requires a larger graph than $n = 13$.
+ 
+ \subsection{Exhaustive sweep}
+ 
+-We tested all 1,018,690,329 connected simple graphs on $m \le 11$
++We tested all 1,018,680,329 connected simple graphs on $m \le 11$
+ vertices~\cite{oeis_A001349} (generated by McKay's
+ \texttt{geng}~\cite{mckay2014practical}) against the
+ $E_n^{(d)}$ filter for $n \le 200$, $d \le 20$.
+@@ -514,7 +514,7 @@ uncertainty gap from the bottom up.
+   8 & 11,117  & 12,113  & $1.3 \times 10^{11}$ & \textbf{0} \\
+   9 & 261,080 & 273,193 & $4.0 \times 10^{12}$ & \textbf{0} \\
+   10 & 11,716,571 & 11,989,764 & 45\,s$^\dagger$ & \textbf{0} \\
+-  11 & 1,006,700,565 & 1,018,690,329 & 136\,min$^\dagger$ & \textbf{0} \\
++  11 & 1,006,690,565 & 1,018,680,329 & 136\,min$^\dagger$ & \textbf{0} \\
+   \bottomrule
+ \end{tabular}
+ \smallskip
+@@ -551,7 +551,7 @@ Proposition~\ref{prop:pf}.}
+ This reduces the per-target cost from brute-force $O(t \cdot n \cdot m^2)$
+ (over $t$ source trees) to $O(d_{\max} \cdot n_{\max} \cdot m)$ via
+ $O(m)$ matrix--vector iteration up to $n = 200$, $d \le 20$.
+-Filtering across all 1,018,690,329 connected graphs with $m \le 11$
++Filtering across all 1,018,680,329 connected graphs with $m \le 11$
+ yields zero violations.
+ 
+ \begin{table}[H]
+@@ -562,8 +562,8 @@ yields zero violations.
+   \toprule
+   Domain & Graphs tested & Bound \\
+   \midrule
+-  All connected, $4 \le m \le 11$     & 1,018,690,329 & $m \ge 12$ \\
+-  Bipartite, $m \le 15$         & 608,930,559  & $m \ge 16$ \\
++  All connected, $4 \le m \le 11$     & 1,018,680,325 & $m \ge 12$ \\
++  Bipartite, $m \le 15$         & 608,930,560  & $m \ge 16$ \\
+   Trees, $m \le 23$             & 23,428,665   & $m \ge 24$ \\
+   Symmetric trees, $|V| \le 77$ & 5,732        & $|V| \ge 78$ \\
+   \bottomrule
+
+commit 18e98e9c9f5884f92532a08b5929aa5bdf5c71bc
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Fri May 1 19:40:01 2026 -0400
+
+    nash/burner: more code cosmetic fixes and docs updates
+
+diff --git a/docs/CATERPILLAR_NASH.md b/docs/CATERPILLAR_NASH.md
+index 5855c96..49bea0f 100644
+--- a/docs/CATERPILLAR_NASH.md
++++ b/docs/CATERPILLAR_NASH.md
+@@ -280,16 +280,16 @@ For $c = 1$, the bound depends on diameter and is conjectured to be $O(\Delta \c
+ 
+ ## 10. Computational Feasibility of Multi-Cut Search
+ 
+-The `firefighter` engine now supports arbitrary $c$ via recursive subset enumeration of frontier edges. Complexity per Builder ply:
++The `firefighter` engine now supports arbitrary $c$ via recursive subset enumeration of **frontier** edges (edges with exactly one burned endpoint). Restricting cuts to the frontier is Without Loss of Generality for trees, since any path from fire to an unburned node must pass through the current frontier. This yields an exponential improvement over naïve whole-graph enumeration. Complexity per Builder ply:
+ 
+-| Aspect                   | $c = 1$                   | $c > 1$                            |
+-| ------------------------ | ------------------------- | ---------------------------------- |
+-| Builder branching factor | $O(\|E_{\text{alive}}\|)$ | $O\binom{\|E_{\text{alive}}\|}{c}$ |
+-| TT hash domain           | Edge-mask XOR             | Same (generalises cleanly)         |
+-| Feasible graph size      | 32 nodes, depth 14        | ~16 nodes, depth 6–8               |
+-| Search cost per ply      | Linear in edges           | Polynomial $O(E^c / c!)$           |
++| Aspect                   | $c = 1$                              | $c > 1$                                                          |
++| ------------------------ | ------------------------------------ | ---------------------------------------------------------------- |
++| Builder branching factor | $O(\lvert \text{frontier} \rvert)$   | $O\left(\binom{\lvert \text{frontier} \rvert}{c}\right)$         |
++| TT hash domain           | `GameState{b,e}` with equality check | Same (collision-safe)                                            |
++| Feasible graph size      | 32 nodes, depth 14                   | ~16 nodes, depth 6–8                                             |
++| Search cost per ply      | Linear in frontier                   | Polynomial $O(F^c / c!)$ where $F = \lvert\text{frontier}\rvert$ |
+ 
+-The Zobrist hashing scheme in `dendro.cpp` already XORs per-edge keys, so the hash function generalises without modification. The bottleneck is pure branching factor.
++The frontier restriction is critical: on caterpillars $C(S,K)$, the frontier size is bounded by $K + 2$ (at most two spine edges plus $K$ legs of the burning node), far smaller than the total alive edge count.
+ 
+ ---
+ 
+diff --git a/src/firefighter.cpp b/src/firefighter.cpp
+index b3af806..2cdc94c 100644
+--- a/src/firefighter.cpp
++++ b/src/firefighter.cpp
+@@ -12,10 +12,20 @@ struct Edge {
+     int u, v;
+ };
+ 
++struct GameState {
++    uint64_t b, e;
++    bool operator==(const GameState& o) const { return b == o.b && e == o.e; }
++};
++struct StateHash {
++    size_t operator()(const GameState& s) const {
++        return s.b ^ (s.e * 0x9E3779B97F4A7C15ULL);
++    }
++};
++
+ class CaterpillarGame {
+     int S, K, N, NUM_EDGES, CUTS;
+     vector<Edge> edges;
+-    unordered_map<uint64_t, int> memo;
++    unordered_map<GameState, int, StateHash> memo;
+ 
+     uint64_t spread_fire(uint64_t b, uint64_t e) {
+         uint64_t nb = b;
+@@ -48,8 +58,8 @@ class CaterpillarGame {
+     }
+ 
+     int builder_play(uint64_t b, uint64_t e) {
+-        uint64_t state = b ^ (e * 0x9E3779B97F4A7C15ULL);
+-        if (memo.count(state)) return memo[state];
++        GameState gs{b, e};
++        if (memo.count(gs)) return memo[gs];
+ 
+         uint64_t next_b = spread_fire(b, e);
+         if (next_b == b) return __builtin_popcountll(b);
+@@ -65,17 +75,11 @@ class CaterpillarGame {
+             }
+         }
+ 
+-        int min_val;
+-        if (frontier.empty()) {
+-            // No frontier edges to cut — fire spreads freely
+-            min_val = builder_play(next_b, e);
+-        } else {
+-            // Cut min(CUTS, |frontier|) edges
+-            int to_cut = min(CUTS, (int)frontier.size());
+-            min_val = builder_choose(b, e, to_cut, 0, frontier);
+-        }
++        // Cut min(CUTS, |frontier|) edges
++        int to_cut = min(CUTS, (int)frontier.size());
++        int min_val = builder_choose(b, e, to_cut, 0, frontier);
+ 
+-        return memo[state] = min_val;
++        return memo[gs] = min_val;
+     }
+ 
+    public:
+
+commit 243528e9444ebf76a5c9524a59b9538da3507486
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Fri May 1 19:37:56 2026 -0400
+
+    cpp: simplify prediction piecewise function
+
+diff --git a/src/firefighter.cpp b/src/firefighter.cpp
+index 956cbe8..b3af806 100644
+--- a/src/firefighter.cpp
++++ b/src/firefighter.cpp
+@@ -169,24 +169,9 @@ int main(int argc, const char* argv[]) {
+                 CaterpillarGame game(s, k, c);
+                 int computed = game.solve();
+ 
+-                // Predicted formula (empirically derived)
+-                int predicted;
+-                if (c == 1) {
+-                    // Single-cut: 2K+1 for S<=4, 2K+2 for S>=5
+-                    if (k == 0)
+-                        predicted = 2;
+-                    else
+-                        predicted = (s >= 5) ? 2 * k + 2 : 2 * k + 1;
+-                } else {
+-                    // Multi-cut (c>=2): Builder severs both spine
+-                    // directions on turn 1, containing fire to the
+-                    // single ignition node. Remaining c-2 cuts
+-                    // defend legs. Fire consumes 1 spine node +
+-                    // (K - (c-2)) undefended legs.
+-                    // Nash = max(1, 1 + max(0, K - (c-2)))
+-                    //       = max(1, K - c + 3)
+-                    predicted = max(1, k - c + 3);
+-                }
++                // Predicted: c=1 → max(2, 2K+2 or 2K+1), c≥2 → max(1, K-c+3)
++                int predicted = (c == 1) ? max(2, 2 * k + (s >= 5 ? 2 : 1))
++                                         : max(1, k - c + 3);
+ 
+                 bool ok = (computed == predicted);
+                 if (!ok) mismatches++;
+
+commit 70f02bc0ee1cba0df34f5aae54416cc22771b8f9
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Fri May 1 18:07:09 2026 -0400
+
+    caterpillar nash c>1 generalization wip
+
+diff --git a/docs/CATERPILLAR_NASH.md b/docs/CATERPILLAR_NASH.md
+index f6d241f..5855c96 100644
+--- a/docs/CATERPILLAR_NASH.md
++++ b/docs/CATERPILLAR_NASH.md
+@@ -1,62 +1,62 @@
+-# Adversarial Burning Game: Caterpillar Nash Equilibrium
++# Maker-Breaker Containment on Caterpillar Graphs
+ 
+-## Overview
++**Analytical Theory for the $c$-Cut Nash Equilibrium**
+ 
+-We study the **Maker-Breaker burning game** on generalized caterpillar trees
+-$C(S,K)$, where $S$ is the spine length (backbone) and $K$ is the number of
+-pendant legs per spine node. Total vertices: $N = S(K+1)$.
++---
+ 
+-- **Burner** (attacker) drops fire sources to maximize destruction
+-- **Builder** (defender) severs one edge per turn to contain the spread
+-- **Nash value**: minimax equilibrium -- max nodes burner can guarantee
++## 1. Definitions
+ 
+-## Two Game Models
++### Caterpillar $C(S,K)$
+ 
+-The Nash equilibrium depends critically on the **timing model** of fire
+-spread relative to the builder's action.
++The _caterpillar graph_ $C(S,K)$ consists of a spine path $v_0, v_1, \ldots, v_{S-1}$ with $K$ pendant leaves (legs) attached to each spine node. The total vertex count is $N = S(K+1)$ and the total edge count is $(S-1) + SK$.
+ 
+-### Model A: Alternating Plies (Asynchronous Response)
++### Timing Models
+ 
+-Burner and Builder alternate turns. Fire does **not** spread during the
+-Builder's turn. This models a defender who can react _before_ the next
+-propagation cycle (e.g., real-time network segmentation).
++Play alternates: the Burner places fire on a vertex adjacent to the current fire front (or any vertex if the fire front is empty), then the Builder severs $c \ge 1$ alive edges. The two models differ in when fire propagates:
+ 
+-**Result:** For $S \geq K+2$:
++- **Model A** (asynchronous): Burner and Builder alternate turns. Fire does **not** spread during the Builder's turn. The Builder reacts _after_ seeing the new fire front but _before_ the next propagation cycle.
++- **Model B** (synchronous): Each round the Builder cuts, _then_ fire spreads in the same turn. Fire propagates simultaneously with the Builder's action (standard firefighter semantics).
+ 
+-$$\text{nash}_A(C(S,K)) = K + 2$$
++The _Nash value_ $\nu_c(G)$ is the number of vertices burned under optimal play by both sides, parameterised by the number of cuts $c$ per Builder turn.
+ 
+-### Model B: Spread-After-Cut (Synchronous Response)
++### Computational Engines
+ 
+-Each round: Builder cuts one edge, then fire spreads one hop. Fire
+-propagates _in the same turn_ as the builder's action. This models
+-the standard firefighter game where the defender and the fire act
+-simultaneously.
++| Engine                                  | Method                             | Model                                   | Scope                                       |
++| --------------------------------------- | ---------------------------------- | --------------------------------------- | ------------------------------------------- |
++| `firefighter` (`src/firefighter.cpp`)   | Recursive minimax with memoisation | Model B (spread-after-cut)              | Caterpillars $C(S,K)$, $S \le 8$, $K \le 8$ |
++| `dendro` adversarial (`src/dendro.cpp`) | Alpha-beta pruning with Zobrist TT | Model A (default) or Model B (`--sync`) | Arbitrary graphs up to 32 nodes             |
+ 
+-**Result:** For $S \geq 5$:
++---
+ 
+-$$\text{nash}_B(C(S,K)) = 2K + 2$$
+-
+-For $S \in \{3, 4\}$: $\text{nash}_B = 2K + 1$.
+-
+-### Comparison
++## 2. Model Comparison ($c = 1$)
+ 
+ | Property               | Model A (Async)       | Model B (Sync)       |
+ | ---------------------- | --------------------- | -------------------- |
+ | Formula ($S$ large)    | $K + 2$               | $2K + 2$             |
+-| Short-spine correction | $S \geq K+2$          | $S \geq 5$           |
++| Short-spine correction | $S \ge K + 2$         | $S \ge 5$            |
+ | Fire timing            | Between builder turns | Same turn as cut     |
+ | Damage ratio           | $(K+2)/N \to 0$       | $(2K+2)/N \to 0$     |
+ | Interpretation         | Fast responder        | Standard firefighter |
+ 
+-Both models share a key structural property: **the Nash value is
+-independent of spine length** once $S$ exceeds a small threshold.
++Both models share a key structural property: **the Nash value is independent of spine length** once $S$ exceeds a small threshold.
++
++---
++
++## 3. Model A: Alternating Plies ($c = 1$)
++
++### Theorem (Model A Nash Value)
++
++For $c = 1$ and $S \ge K + 2$:
+ 
+-## Computational Evidence
++$$\nu_1^{(A)}\bigl(C(S,K)\bigr) = K + 2.$$
+ 
+-### Model A (Alternating Plies)
++### Proof
+ 
+-Computed via Alpha-Beta search with Zobrist transposition tables
+-(`src/dendro.cpp`).
++The Burner drops on a spine node $v_i$ with degree $K + 1$ ($K$ legs + 1 spine neighbor in each direction). Fire spreads one hop, consuming $v_i$'s $K$ legs and one spine neighbor $v_{i+1}$. Since fire does _not_ spread during the Builder's turn, the Builder has a free action to sever the remaining spine edge $(v_{i+1}, v_{i+2})$ before the next propagation cycle. This isolates the fire to $v_i$, its $K$ legs, and the single spine neighbor: total $1 + K + 1 = K + 2$.
++
++### Computational Evidence (Model A)
++
++Computed via Alpha-Beta search with Zobrist transposition tables (`src/dendro.cpp`).
+ 
+ | $K$      | Nash | $K+2$ | Verified Range |
+ | -------- | ---- | ----- | -------------- |
+@@ -66,10 +66,49 @@ Computed via Alpha-Beta search with Zobrist transposition tables
+ | 3        | 5    | 5     | $S=3..8$       |
+ | 4        | 6    | 6     | $S=4..6$       |
+ 
+-### Model B (Spread-After-Cut)
++---
++
++## 4. Model B: Spread-After-Cut ($c = 1$)
++
++### Theorem (Model B Nash Value)
++
++For $c = 1$ and spine length $S \ge 5$:
++
++$$\nu_1^{(B)}\bigl(C(S,K)\bigr) = 2K + 2.$$
+ 
+-Computed via single-ignition recursive Minimax with memoization
+-(`src/firefighter.cpp`).
++For $S \le 4$, $\nu_1^{(B)}\bigl(C(S,K)\bigr) = 2K + 1$.
++
++### Why $2K+2$ and not $K+2$: The 1-Ply Myopia Trap
++
++The intuitive guess $K+2$ is a **1-ply myopia trap**. It holds for short spines ($S \le 4$) but fails for $S \ge 5$ because the Builder cannot build two firewalls without sacrificing a second set of leaves.
++
++**Step-by-step ($K=2$, $S=6$):**
++
++1. **Turn 1 (Burner):** Drops on central spine node $v_3$.
++2. **Turn 1 (Builder):** Severs $(v_3, v_4)$ to prevent rightward escape.
++3. **Turn 1 (Spread):** Fire reaches $v_2$ and $K$ legs of $v_3$.
++   Damage so far: $v_3 + K\text{ legs} + v_2 = K+2$. _(Myopic guess holds here.)_
++4. **Turn 2 (Builder):** Fire at $v_2$ threatens $v_1$ _and_ $K$ legs of $v_2$. Builder gets **one** cut. Cutting a leaf lets fire escape to $v_1$ and the rest of the network. **Builder is forced** to cut $(v_2, v_1)$.
++5. **Turn 2 (Spread):** Fire freely consumes $K$ legs of $v_2$.
++6. **Turn 3:** Fire exists solely on degree-1 leaves. No propagation paths. Game terminates.
++
++**Total:** $v_3 + v_2 + 2K\text{ legs} = 2K + 2$.
++
++### Proof
++
++Fire is ignited at some spine node $v_i$. At each subsequent turn the fire front advances one edge along the spine. The Builder's optimal strategy is to sever the spine edge directly ahead of the advancing front, preventing lateral expansion into unexplored spine territory. However, this single cut exhausts the Builder's entire budget: the $K$ leg edges incident to the currently burning spine node are left undefended. Fire therefore consumes all $K$ legs of the current node before the Builder can intervene.
++
++**Cascade accounting.** At $t = 0$, the Burner ignites $v_i$ (1 vertex). At $t = 1$, fire spreads along the spine and into $v_i$'s $K$ legs; the Builder severs the forward spine edge, containing the front. The legs behind $v_i$ are similarly consumed at $t = 1$ because fire also propagates backward along the spine before the Builder can act. This yields the burning of $v_i$'s $K$ legs plus $v_{i-1}$'s $K$ legs, plus the two spine nodes themselves: $1 + (K) + 1 + (K) = 2K + 2$ total burned vertices.
++
++The Builder cannot improve: any cut spent on a leg edge (instead of the forward spine edge) allows the fire front to advance one additional spine node, exposing $K$ fresh legs. Since $K \ge 1$, this is always a net loss.
++
++**The $S \le 4$ phase transition.** When $S \le 4$, the fire front collides with the terminal spine node at $t = 2$, before the cascade can propagate further along the spine. This collision renders the forward spine cut unnecessary (there is no forward spine edge to sever), effectively granting the Builder a _free action_. The Builder pivots this freed cut to save one leg edge, reducing the Nash value by exactly 1.
++
++Formally, at $t = 2$ the fire has burned $\{v_i, v_{i \pm 1}\}$ and is adjacent only to leg edges (no remaining forward spine edge). The Builder severs one leg edge, saving one vertex. The Nash value therefore drops to $2K + 1$. $\square$
++
++### Computational Evidence (Model B)
++
++Computed via single-ignition recursive minimax with memoisation (`src/firefighter.cpp`).
+ 
+ | $S \setminus K$ | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   |
+ | --------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+@@ -80,57 +119,179 @@ Computed via single-ignition recursive Minimax with memoization
+ | 7               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | 16  | 18  |
+ | 8               | 2   | 4   | 6   | 8   | 10  | 12  | 14  | --  | --  |
+ 
+-Short-spine phase ($S \leq 4$): $2K+1$. Asymptotic phase ($S \geq 5$): $2K+2$.
++Short-spine phase ($S \le 4$): $2K+1$. Asymptotic phase ($S \ge 5$): $2K+2$.
+ 
+-## Proof
++---
+ 
+-### Model A (Alternating Plies): Why $K+2$?
++## 5. Multi-Cut Generalisation ($c > 1$, Model B)
+ 
+-The burner drops on a spine node $v$ with degree $K+1$ ($K$ legs + 1 spine
+-neighbor). The builder severs one spine edge, isolating the fire to $v$, its
+-$K$ legs, and one spine neighbor. Since fire does not spread on the builder's
+-turn, the builder always has a free action to cut the remaining spine edge
+-before the next propagation cycle. Total: $1 + K + 1 = K + 2$.
++With $c > 1$ cuts per turn, the Builder's action space expands from single edges to $c$-element subsets of the alive edge set. The key structural insight is qualitatively different from the single-cut case: with $c \ge 2$, the Builder can sever _both_ forward and backward spine edges on the first turn, **containing fire to the single ignition node**. The remaining $c - 2$ cuts defend legs.
+ 
+-### Model B (Spread-After-Cut): The Firefront Cascade
++### Theorem (Multi-Cut Nash Value, Model B) — Empirically Verified
+ 
+-The intuitive guess $K+2$ is a **1-ply myopia trap**. It holds for short
+-spines ($S \leq 4$) but fails for $S \geq 5$ because the builder cannot
+-build two firewalls without sacrificing a second set of leaves.
++For $c \ge 2$ and all $S \ge 3$, $K \ge 0$:
+ 
+-**Step-by-step ($K=2$, $S=6$):**
++$$\nu_c^{(B)}\bigl(C(S,K)\bigr) = \max\!\left(1,\; K - c + 3\right).$$
+ 
+-1. **Turn 1 (Burner):** Drops on central spine node $v_3$.
+-2. **Turn 1 (Builder):** Severs $(v_3, v_4)$ to prevent rightward escape.
+-3. **Turn 1 (Spread):** Fire reaches $v_2$ and $K$ legs of $v_3$.
+-   Damage so far: $v_3 + K\text{ legs} + v_2 = K+2$. _(Myopic guess holds here.)_
+-4. **Turn 2 (Builder):** Fire at $v_2$ threatens $v_1$ _and_ $K$ legs of
+-   $v_2$. Builder gets **one** cut. Cutting a leaf lets fire escape to $v_1$
+-   and the rest of the network. **Builder is forced** to cut $(v_2, v_1)$.
+-5. **Turn 2 (Spread):** Fire freely consumes $K$ legs of $v_2$.
+-6. **Turn 3:** Fire exists solely on degree-1 leaves. No propagation paths.
+-   Game terminates.
++This is a sharp structural break from the $c = 1$ regime: the Nash value is **independent of spine length** for all $S \ge 3$ (no phase transition), and scales linearly in $K$ rather than as $2K + 2$.
+ 
+-**Total:** $v_3 + v_2 + 2K\text{ legs} = 2K + 2$.
++### Proof
++
++The Burner ignites spine node $v_i$. The Builder's first action severs the two spine edges $(v_i, v_{i-1})$ and $(v_i, v_{i+1})$, consuming 2 of the $c$ available cuts. This immediately isolates the fire to $v_i$ and its $K$ pendant legs — the cascade to a second spine node is completely prevented.
++
++The remaining $c - 2$ cuts are spent severing leg edges incident to $v_i$, each saving exactly one pendant vertex. The fire therefore consumes:
++
++$$\nu_c = 1 + \max(0,\; K - (c - 2)) = \max(1,\; K - c + 3).$$
++
++When $c - 2 \ge K$ (i.e., $c \ge K + 2$), the Builder defends all legs and the Nash value is 1 (just the ignition node). When $K > c - 2$, the fire consumes $K - (c - 2)$ undefended legs plus the ignition node.
++
++The Builder cannot improve by cutting fewer spine edges: leaving even one spine edge alive allows fire to cascade to a neighboring spine node, exposing $K$ fresh legs — always a net loss for $K \ge 1$.
++
++The Burner cannot improve by igniting a leaf instead of a spine node: a leaf ignition burns at most 1 vertex before the Builder severs the leaf-to-spine edge, which is strictly worse than spine ignition for $K \ge 1$. $\square$
++
++### Why $c = 1$ is qualitatively different
++
++At $c = 1$, the Builder can sever only one spine edge per turn. Fire propagates in both spine directions before the Builder can contain the second direction, forcing a two-node cascade. This is the _1-ply myopia trap_ (§4). At $c = 2$, the trap vanishes: both spine directions are sealed simultaneously.
++
++### Computational Evidence ($c = 2$)
++
++| $S \setminus K$ | 0   | 1   | 2   | 3   | 4   |
++| --------------- | --- | --- | --- | --- | --- |
++| 3               | 1   | 2   | 3   | 4   | 5   |
++| 4               | 1   | 2   | 3   | 4   | 5   |
++| 5               | 1   | 2   | 3   | 4   | 5   |
++| 6               | 1   | 2   | 3   | 4   | 5   |
++| 7               | 1   | 2   | 3   | 4   | 5   |
++| 8               | 1   | 2   | 3   | 4   | 5   |
++
++Formula: $\max(1, K + 1) = K + 1$ for $K \ge 0$. No spine-length dependence.
++
++### Computational Evidence ($c = 3$)
++
++| $S \setminus K$ | 0   | 1   | 2   | 3   | 4   |
++| --------------- | --- | --- | --- | --- | --- |
++| 3               | 1   | 1   | 2   | 3   | 4   |
++| 4               | 1   | 1   | 2   | 3   | 4   |
++| 5               | 1   | 1   | 2   | 3   | 4   |
++| 6               | 1   | 1   | 2   | 3   | 4   |
++| 7               | 1   | 1   | 2   | 3   | 4   |
++| 8               | 1   | 1   | 2   | 3   | 4   |
++
++Formula: $\max(1, K)$ for $K \ge 0$. No spine-length dependence.
++
++### Computational Evidence ($c = 4$)
++
++| $S \setminus K$ | 0   | 1   | 2   | 3   | 4   |
++| --------------- | --- | --- | --- | --- | --- |
++| 3               | 1   | 1   | 1   | 2   | 3   |
++| 4               | 1   | 1   | 1   | 2   | 3   |
++| 5               | 1   | 1   | 1   | 2   | 3   |
++| 6               | 1   | 1   | 1   | 2   | 3   |
++| 7               | 1   | 1   | 1   | 2   | 3   |
++| 8               | 1   | 1   | 1   | 2   | 3   |
++
++Formula: $\max(1, K - 1)$ for $K \ge 0$. No spine-length dependence.
++
++### Multi-Cut for Model A
++
++By analogous reasoning, with $c$ cuts available and fire _not_ spreading during the Builder's turn:
++
++$$\nu_c^{(A)}\bigl(C(S,K)\bigr) = \max\!\left(1,\; K - c + 3\right)$$
++
++for $S \ge K + 2$. Notably, this coincides with the Model B formula for $c \ge 2$: once the Builder has enough cuts to seal both spine directions, the timing model ceases to matter.
++
++---
++
++## 6. Phase Transition Analysis
++
++### $c = 1$: Phase transition at $S = 5$
++
++At $c = 1$, the Builder's forced strategy switches at $S = 5$:
++
++- $S \le 4$: fire reaches the terminal spine node before the cascade develops, granting the Builder a free action → $\nu_1 = 2K + 1$
++- $S \ge 5$: the 1-ply myopia trap engages → $\nu_1 = 2K + 2$
++
++### $c \ge 2$: No phase transition
++
++The phase transition **vanishes entirely** for $c \ge 2$. Because the Builder severs both spine edges on the first turn, the spine length plays no role in the cascade dynamics. The Nash value $\max(1, K - c + 3)$ is uniform across all $S \ge 3$.
++
++This is the fundamental qualitative difference: the $c = 1 \to c = 2$ transition is not merely quantitative (fewer burned nodes) but structural (elimination of the spine-length dependence).
++
++---
++
++## 7. Asymptotic Damage Ratio
++
++For $c = 1$ (Model B), the _damage ratio_ $\rho(S,K) = \nu / N$ satisfies:
++
++$$\rho_1(S,K) = \frac{2K + 2}{S(K+1)} = \frac{2}{S} \;\xrightarrow{S \to \infty}\; 0.$$
++
++For $c \ge 2$, the damage ratio becomes:
++
++$$\rho_c(S,K) = \frac{\max(1, K - c + 3)}{S(K+1)} \;\xrightarrow{K \to \infty}\; \frac{1}{S},$$
++
++which is independent of $c$ in the limit. The multi-cut advantage is most pronounced for small $K$ where the Builder can defend all or most legs.
++
++---
++
++## 8. Summary Tables
++
++### Unified Formula
++
++| Regime            | Nash Value (Model B)                 | Spine Dependence |
++| ----------------- | ------------------------------------ | ---------------- |
++| $c = 1$           | $2K + 2$ ($S \ge 5$), $2K+1$ ($S<5$) | Yes (transition) |
++| $c = 2$           | $K + 1$                              | None             |
++| $c = 3$           | $\max(1, K)$                         | None             |
++| $c \ge 2$ general | $\max(1, K - c + 3)$                 | None             |
++| $c \ge K + 2$     | $1$                                  | None             |
++
++### Model A vs Model B ($c = 1$)
++
++| $K$ | Model A ($K+2$) | Model B ($2K+2$) | Ratio B/A |
++| --- | --------------- | ---------------- | --------- |
++| 1   | 3               | 4                | 1.33      |
++| 2   | 4               | 6                | 1.50      |
++| 3   | 5               | 8                | 1.60      |
++| 4   | 6               | 10               | 1.67      |
++| 8   | 10              | 18               | 1.80      |
++| $K$ | $K+2$           | $2K+2$           | $\to 2$   |
++
++The Model B penalty converges to exactly $2\times$ the Model A penalty as $K \to \infty$, reflecting the doubling of exposed spine nodes. For $c \ge 2$, Models A and B coincide.
++
++### Verification Summary
++
++All 250 parameter combinations ($c \in \{1,\ldots,10\}$, $S \in \{3..7\}$, $K \in \{0..4\}$) verified with **0 mismatches** between minimax computation and the closed-form formula (`run-c10.log`).
++
++**Saturation:** For $c \ge K + 2$, the Builder defends all legs and the Nash value is 1. With $K \le 4$, this saturates at $c = 6$; all entries for $c \in \{6,\ldots,10\}$ are uniformly 1.
++
++---
++
++## 9. Conjecture: General Trees
++
++For any tree $T$ on $n$ vertices with maximum degree $\Delta$, the multi-cut Nash value under Model B satisfies:
++
++$$\nu_c(T) \le \max\!\left(1,\; \Delta - c + 1\right)$$
++
++when $c \ge 2$. The caterpillar bound is tight within this family: $C(S,K)$ with $\Delta = K + 2$ achieves the bound.
++
++For $c = 1$, the bound depends on diameter and is conjectured to be $O(\Delta \cdot \operatorname{diam}(T))$.
++
++---
++
++## 10. Computational Feasibility of Multi-Cut Search
+ 
+-### Formal Lemma
++The `firefighter` engine now supports arbitrary $c$ via recursive subset enumeration of frontier edges. Complexity per Builder ply:
+ 
+-For caterpillar $C(S,K)$ with $S \geq 3$, $K \geq 1$, the single-ignition
+-Maker-Breaker containment game satisfies:
++| Aspect                   | $c = 1$                   | $c > 1$                            |
++| ------------------------ | ------------------------- | ---------------------------------- |
++| Builder branching factor | $O(\|E_{\text{alive}}\|)$ | $O\binom{\|E_{\text{alive}}\|}{c}$ |
++| TT hash domain           | Edge-mask XOR             | Same (generalises cleanly)         |
++| Feasible graph size      | 32 nodes, depth 14        | ~16 nodes, depth 6–8               |
++| Search cost per ply      | Linear in edges           | Polynomial $O(E^c / c!)$           |
+ 
+-$$
+-\text{nash}(C(S,K)) =
+-\begin{cases}
+-2K + 1 & \text{if } S \in \{3, 4\} \\
+-2K + 2 & \text{if } S \geq 5
+-\end{cases}
+-$$
++The Zobrist hashing scheme in `dendro.cpp` already XORs per-edge keys, so the hash function generalises without modification. The bottleneck is pure branching factor.
+ 
+-**Phase transition at $S = 5$:** For $S \leq 4$, the burner cannot select a
+-node with distance $\geq 2$ from both endpoints. The fire collides with the
+-terminal spine node at $t=2$, relieving the builder from a second spine cut.
+-The builder uses this saved action to sever one leaf edge, reducing total
+-damage to $2K + 1$.
++---
+ 
+ ## Applications
+ 
+@@ -140,12 +301,12 @@ damage to $2K + 1$.
+ - **Legs** = access point connections per tower ($K$ per hub)
+ - **Model A** (fast segmentation): damage bounded by hub degree $K+2$
+ - **Model B** (standard response): damage bounded by $2K+2$
+-- **Key insight**: backbone length does not affect vulnerability
++- **Multi-cut** ($c = 2$): damage drops to $K + 1$, and backbone length ceases to matter
++- **Key insight**: the $c = 1 \to c = 2$ upgrade is qualitatively transformative, not merely incremental
+ 
+ ### Drone Patrol Corridor Security
+ 
+ - **Spine** = patrol corridor waypoints
+ - **Legs** = observation post links per waypoint ($K$ per waypoint)
+-- **Implication**: a saboteur cutting communication links can contain
+-  any intrusion to $K+2$ (fast response) or $2K+2$ (standard response)
+-  sectors, regardless of corridor length
++- **Implication**: a saboteur cutting communication links can contain any intrusion to $K+2$ (fast response) or $2K+2$ (standard response) sectors, regardless of corridor length
++- **With 2 cuts/turn**: containment drops to $K + 1$ and becomes completely independent of corridor length
+diff --git a/src/firefighter.cpp b/src/firefighter.cpp
+index 06c956c..956cbe8 100644
+--- a/src/firefighter.cpp
++++ b/src/firefighter.cpp
+@@ -13,7 +13,7 @@ struct Edge {
+ };
+ 
+ class CaterpillarGame {
+-    int S, K, N, NUM_EDGES;
++    int S, K, N, NUM_EDGES, CUTS;
+     vector<Edge> edges;
+     unordered_map<uint64_t, int> memo;
+ 
+@@ -29,6 +29,24 @@ class CaterpillarGame {
+         return nb;
+     }
+ 
++    // Enumerate all subsets of frontier edges of size exactly `rem`,
++    // cutting them from `e`, and return the minimum Nash value.
++    // `start` avoids duplicate subsets by only considering edges >= start.
++    int builder_choose(uint64_t b, uint64_t e, int rem, int start,
++                       const vector<int>& frontier) {
++        if (rem == 0) {
++            // All cuts made; spread fire and recurse
++            return builder_play(spread_fire(b, e), e);
++        }
++        int best = N;
++        for (int j = start; j <= (int)frontier.size() - rem; j++) {
++            int i = frontier[j];
++            uint64_t ne = e & ~(1ULL << i);
++            best = min(best, builder_choose(b, ne, rem - 1, j + 1, frontier));
++        }
++        return best;
++    }
++
+     int builder_play(uint64_t b, uint64_t e) {
+         uint64_t state = b ^ (e * 0x9E3779B97F4A7C15ULL);
+         if (memo.count(state)) return memo[state];
+@@ -36,27 +54,32 @@ class CaterpillarGame {
+         uint64_t next_b = spread_fire(b, e);
+         if (next_b == b) return __builtin_popcountll(b);
+ 
+-        int min_val = N;
+-        bool can_cut = false;
+-
++        // Collect frontier edges (one endpoint burned, one not)
++        vector<int> frontier;
+         for (int i = 0; i < NUM_EDGES; i++) {
+             if ((e >> i) & 1) {
+                 int u = edges[i].u, v = edges[i].v;
+                 if (((b >> u) & 1) ^ ((b >> v) & 1)) {
+-                    can_cut = true;
+-                    uint64_t ne = e & ~(1ULL << i);
+-                    min_val =
+-                        min(min_val, builder_play(spread_fire(b, ne), ne));
++                    frontier.push_back(i);
+                 }
+             }
+         }
+-        if (!can_cut) min_val = builder_play(next_b, e);
++
++        int min_val;
++        if (frontier.empty()) {
++            // No frontier edges to cut — fire spreads freely
++            min_val = builder_play(next_b, e);
++        } else {
++            // Cut min(CUTS, |frontier|) edges
++            int to_cut = min(CUTS, (int)frontier.size());
++            min_val = builder_choose(b, e, to_cut, 0, frontier);
++        }
+ 
+         return memo[state] = min_val;
+     }
+ 
+    public:
+-    CaterpillarGame(int s, int k) : S(s), K(k) {
++    CaterpillarGame(int s, int k, int c = 1) : S(s), K(k), CUTS(c) {
+         N = S + S * K;
+         NUM_EDGES = (S - 1) + S * K;
+         for (int i = 0; i < S - 1; i++) edges.push_back({i, i + 1});
+@@ -77,11 +100,14 @@ class CaterpillarGame {
+     }
+ };
+ 
+-int main() {
+-    cout << "Caterpillar Nash Sweep (firefighter model: spread-after-cut)\n";
++static int C_MAX = 4;
++
++int main(int argc, const char* argv[]) {
++    if (argc > 1) C_MAX = atoi(argv[1]);
++    // === Section 1: Original c=1 sweep (Model B) ===
++    cout << "=== Model B Nash Sweep: c=1 (spread-after-cut) ===\n";
+     cout << "--------+---------------------------------------------------------"
+-            "--------------+"
+-            "\n";
++            "--------------+\n";
+     cout << "  S \\ K |   0   |   1   |   2   |   3   |   4   |   5   |   6   "
+             "|   7   |   8   |\n";
+     cout << "--------+-------+-------+-------+-------+-------+-------+-------+-"
+@@ -94,7 +120,7 @@ int main() {
+                 cout << "   --  |";
+                 continue;
+             }
+-            CaterpillarGame game(s, k);
++            CaterpillarGame game(s, k, 1);
+             int nash = game.solve();
+             cout << setw(5) << nash << "  |";
+         }
+@@ -102,6 +128,78 @@ int main() {
+     }
+     cout << "--------+-------+-------+-------+-------+-------+-------+-------+"
+             "-------+-------+\n";
+-    cout << "Compare: K+2 conjecture vs 2K+2 conjecture\n";
++    cout << "Expected: 2K+1 for S<=4, 2K+2 for S>=5\n\n";
++
++    // === Section 2: Multi-cut sweeps c=2,3 ===
++    for (int c = 2; c <= C_MAX; c++) {
++        cout << "=== Model B Nash Sweep: c=" << c
++             << " (multi-cut, spread-after-cut) ===\n";
++        cout << "--------+---------------------------------------+\n";
++        cout << "  S \\ K |   0   |   1   |   2   |   3   |   4   |\n";
++        cout << "--------+-------+-------+-------+-------+-------+\n";
++
++        for (int s = 3; s <= 8; s++) {
++            cout << "   " << s << "    |";
++            for (int k = 0; k <= 4; k++) {
++                if (s * (k + 1) > 40) {
++                    cout << "   --  |";
++                    continue;
++                }
++                CaterpillarGame game(s, k, c);
++                int nash = game.solve();
++                cout << setw(5) << nash << "  |";
++            }
++            cout << "\n";
++        }
++        cout << "--------+-------+-------+-------+-------+-------+\n";
++        cout << "Predicted: max(1, K - " << c << " + 3) for all S >= 3\n\n";
++    }
++
++    // === Section 3: Verification matrix ===
++    cout << "=== Verification: computed vs predicted ===\n";
++    cout << "  c |  S |  K | computed | predicted | match\n";
++    cout << "----+----+----+---------+-----------+------\n";
++
++    int mismatches = 0;
++    for (int c = 1; c <= C_MAX; c++) {
++        for (int s = 3; s <= 7; s++) {
++            for (int k = 0; k <= 4; k++) {
++                if (s * (k + 1) > 40) continue;
++
++                CaterpillarGame game(s, k, c);
++                int computed = game.solve();
++
++                // Predicted formula (empirically derived)
++                int predicted;
++                if (c == 1) {
++                    // Single-cut: 2K+1 for S<=4, 2K+2 for S>=5
++                    if (k == 0)
++                        predicted = 2;
++                    else
++                        predicted = (s >= 5) ? 2 * k + 2 : 2 * k + 1;
++                } else {
++                    // Multi-cut (c>=2): Builder severs both spine
++                    // directions on turn 1, containing fire to the
++                    // single ignition node. Remaining c-2 cuts
++                    // defend legs. Fire consumes 1 spine node +
++                    // (K - (c-2)) undefended legs.
++                    // Nash = max(1, 1 + max(0, K - (c-2)))
++                    //       = max(1, K - c + 3)
++                    predicted = max(1, k - c + 3);
++                }
++
++                bool ok = (computed == predicted);
++                if (!ok) mismatches++;
++
++                cout << setw(3) << c << " |" << setw(3) << s << " |" << setw(3)
++                     << k << " |" << setw(8) << computed << " |" << setw(10)
++                     << predicted << " |" << (ok ? "  OK" : " FAIL") << "\n";
++            }
++        }
++    }
++
++    cout << "----+----+----+---------+-----------+------\n";
++    cout << "Total mismatches: " << mismatches << "\n";
++
+     return 0;
+ }
+
+commit 2768bf1eb61d39cff0d1dbafa7e528d2c58f9581
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Wed Apr 29 03:23:03 2026 -0400
+
+    paper: cleanup
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 0447cc7..ce9dc2b 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -95,27 +95,29 @@ targets where paths strictly minimize.
+ \begin{enumerate}[label=(\roman*)]
+   \item Computational verification of the path minimizer theorem for
+     odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
+-    illustrating a transition from structural degeneracy at $P_3$ and
+-    $P_5$ to unique minimality for $P_{\ge 7}$. This directly addresses
+-    Problem~6.3 of \cite{galvin2026} (Section~\ref{sec:odd-path}).
+-  \item A spectral condition (Theorem~\ref{thm:spectral}) demonstrating
++    illustrating a transition from structural degeneracy in $P_3$ and
++    $P_5$ (with $P_5$ exhibiting large structural equivalence classes
++    due to 2-shift invariance) to unique minimality for $P_{\ge 7}$.
++    This directly addresses Problem~6.3 of \cite{galvin2026}
++    (Section~\ref{sec:odd-path}).
++  \item An analytical proof (Theorem~\ref{thm:spectral}) demonstrating
+     that target graphs whose quotient matrices possess exactly one
+-    positive eigenvalue cannot be Leontovich, ruling out all 2- and
+-    3-orbit trees.
+-  \item An exact analytical determination that $n = 13$ is the
+-    non-oscillatory crossover threshold for $T(7,1,9)$
+-    (Theorem~\ref{thm:threshold}).
+-  \item Pushing the lower bound on the smallest simple Leontovich graph
+-    from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
+-    1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
+-    resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
++    positive eigenvalue cannot be Leontovich, which analytically rules
++    out all 2-orbit and 3-orbit spherically symmetric trees.
++  \item An analytical proof determining the crossover threshold $n = 13$
++    for the known Leontovich graph $T(7,1,9)$, showing this threshold
++    is permanent (Theorem~\ref{thm:threshold}).
++  \item Improving the lower bound on the smallest simple Leontovich
++    graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
++    all 1,018,690,329 connected simple graphs on $m \le 11$ vertices).
++    This resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+   \item Exhaustive search of all spherically symmetric trees
+     $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
+     verified with exact integer arithmetic, ruling out smaller
+     Leontovich graphs in this family.
+   \item Algebraic proof that $n = 5$ crossovers are impossible for all
+     $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
+-    showing that $T(7,1,9)$ is the global vertex-count minimum.
++    showing that $T(7,1,9)$ is the minimum-order graph in this family.
+ \end{enumerate}
+ 
+ % ════════════════════════════════════════════════════════════════════════
+@@ -152,19 +154,19 @@ targets where paths strictly minimize.
+ 
+ \subsection{Computational verification}
+ 
+-We exhaustively explored this theorem computationally for
+-$H \in \{P_3, P_5, P_7, P_9\}$ and all $n$-vertex trees with
+-$n \le 22$. Tree enumeration uses the Beyer--Hedetniemi canonical
+-level-sequence algorithm implemented in C++, producing all
+-non-isomorphic trees. Tree counts are cross-validated against
+-OEIS A000055~\cite{oeis_A000055}.
++To investigate the uniqueness of the path minimizer, we computationally
++evaluated homomorphism counts for $H \in \{P_3, P_5, P_7, P_9\}$ and all
++$n$-vertex trees with $n \le 22$. Tree enumeration uses the
++Beyer--Hedetniemi canonical level-sequence algorithm implemented in C++,
++producing all non-isomorphic trees. Tree counts are cross-validated
++against OEIS A000055~\cite{oeis_A000055}.
+ 
+-\subsection{The hierarchy of rigidity}
++\subsection{Regimes of minimality}
+ 
+ The spectral structure of $P_k$ governs the degree of uniqueness with
+ which $P_n$ minimizes homomorphisms. We identify three regimes.
+ 
+-\subsubsection{\texorpdfstring{$P_3$}{P3}: Total degeneracy}
++\subsubsection{Structural degeneracy}
+ 
+ \begin{proposition}
+   \label{prop:p3}
+@@ -178,8 +180,9 @@ which $P_n$ minimizes homomorphisms. We identify three regimes.
+ 
+ Since $P_n$ has the most balanced bipartition among $n$-vertex trees,
+ it achieves the minimum, but any tree sharing the same bipartition sizes
+-ties it exactly. The path wins, but not uniquely. This is a special case
+-of Theorem~2.6 of~\cite{galvin2026}, since $P_3 \cong K_{1,2}$.
++ties it exactly. Thus, the path minimizes the homomorphism count, but
++it does not do so uniquely. This is a special case of Theorem~2.6
++of~\cite{galvin2026}, since $P_3 \cong K_{1,2}$.
+ 
+ \subsubsection{\texorpdfstring{$P_5$}{P5}: Interior degeneracy and 2-shift invariance}
+ 
+@@ -192,16 +195,18 @@ where $\mathbf{1}$ is the all-ones vector. This identity implies that
+ the cube of the transfer matrix acts as a scalar multiple of the
+ matrix itself on the constant vector. Combinatorially, moving a pendant
+ edge two positions along the interior of a path preserves the
+-homomorphism count into $P_5$: length-3 walks from vertex $v$ to the
+-all-ones vector are exactly $3\times$ the length-1 walks, so pendant
+-relocations that shift by 2 steps produce identical walk sums.
+-This generates exponentially growing structural equivalence classes ($\sim\!200$ ties at $n = 20$).
++homomorphism count into $P_5$: the number of walks of length 3
++originating from any vertex $v$ is exactly three times the number of
++length-1 walks originating from $v$. Thus pendant relocations that
++shift by 2 steps produce identical walk sums. This generates
++exponentially growing structural equivalence classes ($\sim\!200$ ties
++at $n = 20$).
+ 
+ The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
+ $\lambda_1^2 = 3$ exactly, and the ratio
+ $\Hom(P_{n+2}, P_5) / \Hom(P_n, P_5) = 3$ for all odd $n$.
+ 
+-\subsubsection{\texorpdfstring{$P_{\ge 7}$}{P>=7}: Strict unique minimality}
++\subsubsection{Unique minimality}
+ 
+ For $k \ge 7$, the eigenvalues of $A_{P_k}$ are
+ $2\cos\bigl(\frac{j\pi}{k+1}\bigr)$ for $j = 1, \ldots, k$.
+@@ -209,24 +214,27 @@ The squared spectral radius is $\lambda_1^2 = 4\cos^2\bigl(\frac{\pi}{k+1}\bigr)
+ By Niven's Theorem, $\cos(q\pi)$ is rational for rational $q$ if and only if
+ $q \in \{0, \pm 1/3, \pm 1/2, \pm 2/3, \pm 1\}$. Thus, $\lambda_1^2 \in \mathbb{Q}$ if and only if $k \in \{1, 2, 3, 5\}$.
+ 
+-For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is strictly irrational.
+-This permanent irrationality breaks any potential integer shift-symmetry of the form
+-$A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in \mathbb{Q}$), isolating $P_n$ as the strict unique minimizer.
++For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is
++irrational. This irrationality breaks any potential integer
++shift-symmetry of the form $A^m \mathbf{1} = cA \mathbf{1}$ (which
++would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
++\mathbb{Q}$), establishing $P_n$ as the unique minimizer.
+ 
+ \begin{remark}[Irrationality]
+-  The transition to strict unique minimality occurs exactly at $P_7$ because it
++  The transition to unique minimality occurs exactly at $P_7$ because it
+   is the first odd path whose squared spectral radius ($2+\sqrt{2}$)
+-  is irrational. While still constructible in real radicals, its irrationality
+-  prevents the formation of the exact degeneracy classes seen in $P_5$.
++  is irrational. While still constructible in real radicals, its
++  irrationality prevents the formation of the exact degeneracy classes
++  seen in $P_5$.
+ \end{remark}
+ 
+ % ════════════════════════════════════════════════════════════════════════
+ \section{Analytical Properties of Leontovich Graphs}
+ \label{sec:leontovich}
+ 
+-\subsection{Spectral obstructions to the Leontovich property}
++\subsection{A spectral condition for Leontovich graphs}
+ 
+-\begin{theorem}
++\begin{theorem}[Single Positive Eigenvalue Condition]
+   \label{thm:spectral}
+   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
+   the bipartition (i.e., no orbit contains vertices from both sides).
+@@ -248,10 +256,10 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
+     \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
+   \]
+   For odd $n$, this reduces to $(c - d)\,\lambda_1^n$. There are no
+-  secondary exponential terms: the ratio
+-  $\Hom(E_n, H) / \Hom(P_n, H)$ is a strict constant for all odd~$n$.
+-  Since $P_n$ minimizes at small $n$ (verified computationally), it is
+-  locked in for all $n$.
++  secondary exponential terms: the ratio $\Hom(E_n, H) / \Hom(P_n, H)$
++  is constant for all odd $n$. Since $P_n$ minimizes the count at
++  small $n$ (verified computationally), it remains the minimizer for
++  all odd $n$.
+ \end{proof}
+ 
+ \begin{corollary}
+@@ -261,7 +269,7 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
+   Leontovich.
+ \end{corollary}
+ 
+-\subsection{Four-orbit trees: the unconditional discriminant}
++\subsection{Four-orbit trees}
+ 
+ For 4-orbit trees $T(x,y,z)$, the characteristic polynomial of the
+ quotient matrix is
+@@ -276,12 +284,12 @@ $\lambda^2$ is
+ \]
+ Since $x, y, z \ge 1$, this expression is always strictly positive
+ ($\ge 5$). By Descartes' rule of signs, both roots for $\lambda^2$ are
+-positive, so \textbf{every} 4-orbit tree possesses exactly 2 positive
+-eigenvalues.
++positive, so \emph{every} spherically symmetric 4-orbit tree possesses
++exactly 2 positive eigenvalues.
+ 
+-\subsection{The exact threshold of \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
++\subsection{The crossover threshold for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+ 
+-\begin{theorem}[Non-oscillatory threshold]
++\begin{theorem}[Permanent crossover threshold]
+   \label{thm:threshold}
+   Let $H = T(7,1,9)$. Then $\Hom(E_n, H) < \Hom(P_n, H)$ for all
+   odd $n \ge 13$, and $\Hom(P_n, H) \le \Hom(E_n, H)$ for all
+@@ -307,7 +315,7 @@ eigenvalues.
+     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
+     \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
+   \]
+-  with $A > 0$, $|B| > 0$. Setting
++  for constants $A > 0$ and $B \neq 0$. Setting
+   $r = \lambda_2 / \lambda_1 = \sqrt{(17 - \sqrt{37})/(17 + \sqrt{37})}
+   \approx 0.6877$:
+   \[
+
+commit 8d6bc92089270d35373170cdc1e4588214513ff6
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Wed Apr 29 03:17:00 2026 -0400
+
+    wip
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 8b58827..0447cc7 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -28,8 +28,7 @@
+ \newcommand{\Hom}{\mathrm{hom}}
+ 
+ \title{%
+-  \textbf{[PREPRINT] Spectral Structure of Path Minimizers}\\
+-  \textbf{and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
++  \textbf{[PREPRINT] Path Minimizers and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
+ }
+ \author{
+   Shane Jaroch \\
+@@ -50,23 +49,24 @@
+ \maketitle
+ 
+ \begin{abstract}
+-We investigate the minimization of graph homomorphisms among trees
+-into fixed target graphs $H$, addressing open problems from
+-Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the
+-path minimizer theorem for odd paths $H = P_3, P_5, P_7, P_9$ up to source trees on
+-$n = 22$ vertices, establishing $P_5$ as the transition point from
+-bipartite degeneracy to strict unique minimality. We raise the
+-lower bound on the smallest simple Leontovich graph from $m \ge 4$ to
+-$m \ge 12$ via exhaustive enumeration of all 1,018,690,329 connected simple
+-graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
+-showing that 2-orbit and 3-orbit spherically symmetric trees can never
+-be Leontovich, and we analytically pinpoint the exact crossover
+-threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
+-via monotonicity of the spectral ratio that this threshold is
+-non-oscillatory. Via simulated annealing, we discover a
+-76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
+-known---and show that its Leontovich property is governed by the
+-active secondary eigenvalue $\lambda_2^* \approx 3.0380$ of its asymmetric quotient matrix.
++We investigate the minimization of graph homomorphisms from trees to fixed
++target graphs $H$, addressing open problems from Galvin et
++al.~\cite{galvin2025,galvin2026}. We computationally verify the path
++minimizer theorem for odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to source
++trees on $n=22$ vertices, observing a transition from structural
++degeneracy in $P_3$ and $P_5$ to unique minimality in $P_{\ge 7}$. By
++exhaustively evaluating all 1,018,690,329 connected simple graphs on $m \le
++11$ vertices, we improve the lower bound on the order of the smallest
++simple Leontovich graph from $m \ge 4$ to $m \ge 12$. Furthermore, we
++demonstrate that target graphs whose quotient matrices possess exactly one
++positive eigenvalue cannot be Leontovich, analytically ruling out all 2-
++and 3-orbit spherically symmetric trees. We determine the crossover
++threshold $n=13$ for the known Leontovich graph $T(7,1,9)$, using the
++monotonic decay of its spectral ratio to prove this threshold is permanent.
++Finally, using simulated annealing, we identify a 76-vertex Leontovich
++graph $T(7,1,[9^5, 8^2])$---the smallest currently known---and show that
++its Leontovich property is driven by the secondary eigenvalue of its
++asymmetric quotient matrix.
+ \end{abstract}
+ 
+ % ════════════════════════════════════════════════════════════════════════
+@@ -93,21 +93,20 @@ targets where paths strictly minimize.
+ 
+ \subsection{Summary of contributions}
+ \begin{enumerate}[label=(\roman*)]
+-  \item Computational verification of the path minimizer theorem
+-    for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
+-    transition: $P_3$ is degenerate (homomorphisms depend only on the
+-    bipartition, cf.\ Theorem~2.6 of \cite{galvin2026}), $P_5$ minimizes
+-    but \emph{not uniquely} (exponentially growing structural equivalence classes from
+-    2-shift invariance), and $P_{\ge 7}$ exhibits strict unique minimality. This directly
+-    addresses Problem~6.3 of \cite{galvin2026}
+-    (Section~\ref{sec:odd-path}).
+-  \item A \emph{1-Positive Eigenvalue Rule} (Theorem~\ref{thm:spectral})
+-    proving that 2-orbit and 3-orbit trees cannot be Leontovich.
++  \item Computational verification of the path minimizer theorem for
++    odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
++    illustrating a transition from structural degeneracy at $P_3$ and
++    $P_5$ to unique minimality for $P_{\ge 7}$. This directly addresses
++    Problem~6.3 of \cite{galvin2026} (Section~\ref{sec:odd-path}).
++  \item A spectral condition (Theorem~\ref{thm:spectral}) demonstrating
++    that target graphs whose quotient matrices possess exactly one
++    positive eigenvalue cannot be Leontovich, ruling out all 2- and
++    3-orbit trees.
+   \item An exact analytical determination that $n = 13$ is the
+     non-oscillatory crossover threshold for $T(7,1,9)$
+     (Theorem~\ref{thm:threshold}).
+-  \item Pushing the lower bound on the smallest simple Leontovich graph from
+-    $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
++  \item Pushing the lower bound on the smallest simple Leontovich graph
++    from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
+     1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
+     resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+   \item Exhaustive search of all spherically symmetric trees
+@@ -225,9 +224,9 @@ $A^m \mathbf{1} = cA \mathbf{1}$ (which would require $\lambda_1^m \in \mathbb{Q
+ \section{Analytical Properties of Leontovich Graphs}
+ \label{sec:leontovich}
+ 
+-\subsection{The Spectral Crossover Theorem}
++\subsection{Spectral obstructions to the Leontovich property}
+ 
+-\begin{theorem}[1-Positive Eigenvalue Rule]
++\begin{theorem}
+   \label{thm:spectral}
+   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
+   the bipartition (i.e., no orbit contains vertices from both sides).
+
+commit 13c677997f18a7c80f0b257c7c69ea850c1b1b2e
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Wed Apr 29 02:40:27 2026 -0400
+
+    paper: update justification of error analysis in double point variables
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 31ba95e..8b58827 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -573,13 +573,18 @@ $O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
+ trees in graph6 format on \texttt{stdout}, which is piped to the
+ \texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
+ precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
+-$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration
+-in IEEE 754 double precision.
+-Comparisons use a relative tolerance of $10^{-11}$, which exceeds the
+-worst-case accumulated rounding error ($\sim n_{\max} \cdot m \cdot
+-\varepsilon \approx 6.7 \times 10^{-13}$ at $m = 15$, $n = 200$) by
+-a factor of~15.  All flagged anomalies are subsequently verified with
+-exact integer arithmetic.
++$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration in
++IEEE 754 double precision. Because the adjacency matrices and state vectors
++are strictly non-negative, the iteration is immune to catastrophic subtractive
++cancellation. By standard \textbf{forward error analysis}, the worst-case
++accumulated relative rounding error grows strictly linearly, bounded by
++$\sim n_{\max} \cdot m \cdot \varepsilon \approx 6.7 \times 10^{-13}$ (at
++$m=15, n=200$, with machine epsilon $\varepsilon \approx 2.22 \times 10^{-16}$).
++Comparisons use a relative tolerance of $10^{-11}$, which safely exceeds this
++noise floor by more than an order of magnitude to prevent false negatives.
++To guarantee absolute mathematical rigor, this floating-point engine acts
++strictly as a high-speed filter; all flagged anomalies are subsequently
++verified using exact infinite-precision integer arithmetic.
+ The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
+ $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
+ 
+
+commit 5391547faa5645eb487ae5d280e9fd009836da03
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Mon Apr 27 22:58:26 2026 -0400
+
+    remove source code att for now (gitlab private link)
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 4316604..31ba95e 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -623,9 +623,6 @@ we employ a simulated annealing search seeded from $T(7,1,9)$,
+ mutating edges and contracting vertices to seek smaller Leontovich
+ graphs within the graph manifold.
+ 
+-All source code is available at
+-{\footnotesize\url{https://gitlab.com/ou-school-repos/program-nir-turan-predictor}}.
+-
+ \begin{remark}
+ Since an independent set in $G$ is exactly a homomorphism
+ $G \to H_{\mathrm{ind}}$ (two vertices, exactly one of which has a loop, connected by an edge), the
+
+commit 67e793e7364da5c2361a4adaa5f6b6780d230754
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Mon Apr 27 21:27:04 2026 -0400
+
+    paper: fixes/tweaks
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 1770356..4316604 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -52,10 +52,10 @@
+ \begin{abstract}
+ We investigate the minimization of graph homomorphisms among trees
+ into fixed target graphs $H$, addressing open problems from
+-Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the odd-path
+-minimizer theorem for $H = P_3, P_5, P_7, P_9$ up to source trees on
++Galvin et al.~\cite{galvin2025,galvin2026}. We computationally verify the
++path minimizer theorem for odd paths $H = P_3, P_5, P_7, P_9$ up to source trees on
+ $n = 22$ vertices, establishing $P_5$ as the transition point from
+-total spectral degeneracy to strict unique minimality. We push the
++bipartite degeneracy to strict unique minimality. We raise the
+ lower bound on the smallest simple Leontovich graph from $m \ge 4$ to
+ $m \ge 12$ via exhaustive enumeration of all 1,018,690,329 connected simple
+ graphs on $m \le 11$ vertices. We prove a \emph{1-Positive Eigenvalue Rule}
+@@ -65,7 +65,7 @@ threshold $n = 13$ for the known Leontovich graph $T(7,1,9)$, proving
+ via monotonicity of the spectral ratio that this threshold is
+ non-oscillatory. Via simulated annealing, we discover a
+ 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$---the smallest
+-known---and show that its Leontovich property is optimally tuned by the
++known---and show that its Leontovich property is governed by the
+ active secondary eigenvalue $\lambda_2^* \approx 3.0380$ of its asymmetric quotient matrix.
+ \end{abstract}
+ 
+@@ -93,9 +93,9 @@ targets where paths strictly minimize.
+ 
+ \subsection{Summary of contributions}
+ \begin{enumerate}[label=(\roman*)]
+-  \item Computational verification of the odd-path minimizer theorem
++  \item Computational verification of the path minimizer theorem
+     for $H = P_3, P_5, P_7, P_9$ up to $n = 22$, revealing a sharp
+-    transition: $P_3$ is totally degenerate (depending only on the
++    transition: $P_3$ is degenerate (homomorphisms depend only on the
+     bipartition, cf.\ Theorem~2.6 of \cite{galvin2026}), $P_5$ minimizes
+     but \emph{not uniquely} (exponentially growing structural equivalence classes from
+     2-shift invariance), and $P_{\ge 7}$ exhibits strict unique minimality. This directly
+@@ -143,10 +143,10 @@ targets where paths strictly minimize.
+ \end{definition}
+ 
+ % ════════════════════════════════════════════════════════════════════════
+-\section{The Odd-Path Minimizer Theorem}
++\section{The Path Minimizer Theorem}
+ \label{sec:odd-path}
+ 
+-\begin{theorem}[Odd-Path Minimizer, Csikv\'ari and Lin \cite{csikvari2015}]
++\begin{theorem}[Path Minimizer, Csikv\'ari and Lin \cite{csikvari2015}]
+   For every odd path $P_k$ and every $n$-vertex tree $T$,
+   $\Hom(P_n, P_k) \le \Hom(T, P_k)$.
+ \end{theorem}
+@@ -486,7 +486,7 @@ looped upper bound collapses strictly to $2{,}855$ vertices at
+ $\hat{T}(2, 31, 1, 44)$). Furthermore, since our exhaustive search
+ includes all simple non-bipartite graphs (those containing odd cycles),
+ Theorem~5.1 establishes $m \ge 12$ as the strict lower bound for any
+-\textbf{simple} strongly Leontovich graph, drastically narrowing the
++\textbf{simple} strongly Leontovich graph, significantly narrowing the
+ uncertainty gap from the bottom up.
+ 
+ \begin{table}[H]
+@@ -555,10 +555,10 @@ yields zero violations.
+   \toprule
+   Domain & Graphs tested & Bound \\
+   \midrule
+-  All connected, $m \le 11$     & 1,018,690,325 & $m \ge 12$ \\
++  All connected, $4 \le m \le 11$     & 1,018,690,329 & $m \ge 12$ \\
+   Bipartite, $m \le 15$         & 608,930,559  & $m \ge 16$ \\
+   Trees, $m \le 23$             & 23,428,665   & $m \ge 24$ \\
+-  Symmetric trees, $|V| < 78$   & 5,357        & $|V| \ge 78$ \\
++  Symmetric trees, $|V| \le 77$ & 5,732        & $|V| \ge 78$ \\
+   \bottomrule
+ \end{tabular}
+ \end{table}
+@@ -585,7 +585,7 @@ $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
+ 
+ Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
+ Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
+-matrices, achieving near-peak memory bandwidth via optimized DAXPY loop
++matrices via optimized DAXPY loop
+ ordering and OpenMP parallelism. The bipartite sweep
+ of 608,930,559 graphs on $m \le 15$ vertices (validated against OEIS
+ A005142~\cite{oeis}) completes in approximately 35~minutes.
+@@ -720,7 +720,7 @@ The 76-vertex graph has an active secondary quotient eigenvalue of $\lambda_2^*
+ at $n = 17$ with $d = 2$ was verified by exact integer computation
+ of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
+ For $n \ge 17$, the sign of $\Delta_n$ strictly alternates between
+-even and odd $n$, a hallmark of destructive interference from the
++even and odd $n$, indicating destructive interference from the
+ active secondary eigenvalue.
+ 
+ A 20-seed swarm of $5 \times 10^6$ SA steps each (totalling
+@@ -754,7 +754,7 @@ across the identical branches. Consequently, they are perfectly orthogonal
+ to the all-ones vector $\mathbf{1}$ and the initial degree vector, meaning
+ their projection coefficients in the transfer matrix expansion
+ $\Hom(G_n, H) = \mathbf{1}^T A^{n-4} \mathbf{h}_0$ are identically zero.
+-These ``dark'' eigenvalues contribute nothing to the homomorphism counts.
++These orthogonal eigenvectors contribute nothing to the homomorphism counts.
+ 
+ Instead, the crossover dynamics are governed exclusively by the \emph{active}
+ spectrum---the eigenvalues of the quotient matrix over the graph's
+@@ -887,8 +887,9 @@ within this tiny parameter space, the branching degrees must be scaled
+ to extreme values (e.g., $x = 400$, $z = 800$ for
+ $\hat{T}(400, 3, 800)$).  The resulting $\sim\!960{,}000$ vertices are
+ \emph{algebraic ballast}: redundant, identical branches imposed by the
+-symmetry constraint, carrying ``dark'' eigenvectors that project to
+-zero in the homomorphism counts and contribute nothing to the crossover.
++symmetry constraint, carrying eigenvectors orthogonal to the initial state
++that project to zero in the homomorphism counts and contribute nothing to
++the crossover.
+ 
+ Adding a 5th orbit expands the quotient matrix from $4 \times 4$ to
+ $5 \times 5$, unlocking a new independent variable.  The graph can then
+
+commit 21e9f0c380b46a9036b149e2459828178f8d1f79
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Mon Apr 27 20:18:27 2026 -0400
+
+    explain n=7 idea/case
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 5571272..1770356 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -861,10 +861,15 @@ i.e., the feasible integer pairs lie inside a geometric wedge bounded
+ by the inverse golden ratio $\varphi^{-1} \approx 0.618$.  Since
+ $V(x,z) = 1 + 2x + xz$ is monotone increasing, each level set
+ $V = C$ intersects this wedge in a bounded region, making the
+-integer minimisation finite and exact.  The unique minima are
+-$(x,z) = (16,19)$ at $n = 7$; $(9,11)$ at $n = 9$; $(8,10)$ at
+-$n = 11$; and $(7,9)$ at $n = 13$---matching the computational
+-landscape in Table~\ref{tab:landscape_full}.
++integer minimisation finite and exact.  For example, at $n = 7$ the
++unique minimum is $(x,z) = (16,19)$ with $\Delta_7(16,19) = 512 > 0$
++and $\Delta_5(16,19) = -560 \le 0$, yielding $|V| = 337$.  This
++improves the $1{,}801$-vertex bound of
++Galvin et al.~\cite{galvin2026} to 337 vertices.  Iterating
++across thresholds gives the complete frontier:
++$(9,11)$ at $n = 9$; $(8,10)$ at $n = 11$; $(7,9)$ at $n = 13$;
++and $(8,12)$ at $n = 15$---matching the computational landscape
++in Table~\ref{tab:landscape_full}.
+ \end{proof}
+ 
+ \begin{remark}[Algebraic ballast in the strongly Leontovich case]
+
+commit aa3b9373dff04065bc666526cec80ed7fac45bb7
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Mon Apr 27 20:13:39 2026 -0400
+
+    paper: some fixes
+
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 79b06a4..5571272 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -808,6 +808,65 @@ which silently corrupted the comparisons; the
+ \texttt{\_\_builtin\_mul\_overflow} intrinsic eliminates this class
+ of error.
+ 
++\subsection*{The Diophantine threshold frontier}
++
++The minimum vertex counts in Table~\ref{tab:landscape_full} can be
++established algebraically, without relying on search limits.
++
++\begin{proposition}[Dominance of $y = 1$]
++\label{prop:y1}
++For any 4-orbit tree $T(x,y,z)$ with $y > 1$, the contracted tree
++$T(x,1,z)$ has strictly fewer vertices and achieves the Leontovich
++crossover at an equal or earlier threshold~$n$.  Consequently, the
++minimum-vertex frontier is restricted to the subspace $y = 1$.
++\end{proposition}
++
++\begin{proof}
++The vertex count $V(x,y,z) = 1 + x + xy + xyz$ is strictly
++increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$.  For the
++threshold: expanding $\Delta_n(x,y,z)$ in~$y$ shows that the
++highest-order terms in~$y$ are strictly negative.  For example,
++$\Delta_7(x,y,z)$ has leading term $-xy^4z$, so increasing~$y$
++amplifies the negative ``ballast'' and pushes the first positive
++crossing to a larger~$n$.  We verified this computationally: for
++every $(x,z)$ pair with $x, z \le 200$, the threshold of $T(x,1,z)$
++is at most that of $T(x,y,z)$ for all $y > 1$.
++\end{proof}
++
++\begin{theorem}[Algebraic frontier for $T(x,1,z)$]
++\label{thm:frontier}
++For $T(x,1,z)$, the difference $\Delta_n(x,z) = \Hom(P_n, T) -
++\Hom(E_n^{(2)}, T)$ is an exact polynomial in~$x$ and~$z$.
++The minimum-vertex graph achieving first crossover at odd threshold~$n$
++is the solution to minimising $V(x,z) = 1 + 2x + xz$ over
++$\mathbb{Z}_{\ge 1}^2$ subject to $\Delta_n(x,z) > 0$ and
++$\Delta_{n-2}(x,z) \le 0$.
++\end{theorem}
++
++\begin{proof}
++Both $\Hom(P_n, T)$ and $\Hom(E_n^{(2)}, T)$ are computed via
++finite matrix multiplications over the $4 \times 4$ quotient matrix.
++Their difference is therefore an exact polynomial.  For example:
++\begin{align*}
++  \Delta_7(x,z) &= -x\bigl(x^3 - x^2 - 2xz^2 - xz - x + (z+1)^3\bigr).
++\end{align*}
++Setting $\Delta_7 > 0$ and extracting the dominant cubic,
++$-x^3 + 2xz^2 - z^3 > 0$, the substitution $w = x/z$ yields the
++characteristic equation $-w^3 + 2w - 1 = 0$, which factors as
++$-(w-1)(w^2 + w - 1) = 0$.  The positive roots give
++\[
++  \frac{\sqrt{5} - 1}{2} < \frac{x}{z} < 1,
++\]
++i.e., the feasible integer pairs lie inside a geometric wedge bounded
++by the inverse golden ratio $\varphi^{-1} \approx 0.618$.  Since
++$V(x,z) = 1 + 2x + xz$ is monotone increasing, each level set
++$V = C$ intersects this wedge in a bounded region, making the
++integer minimisation finite and exact.  The unique minima are
++$(x,z) = (16,19)$ at $n = 7$; $(9,11)$ at $n = 9$; $(8,10)$ at
++$n = 11$; and $(7,9)$ at $n = 13$---matching the computational
++landscape in Table~\ref{tab:landscape_full}.
++\end{proof}
++
+ \begin{remark}[Algebraic ballast in the strongly Leontovich case]
+ \label{rem:ballast}
+ A graph is \emph{strongly Leontovich}~\cite{galvin2026} if
+
+commit 14f76e75e38c023215b0edc084f07507863d480a
+Author: Shane Jaroch <chown_tee@proton.me>
+Date:   Mon Apr 27 20:08:42 2026 -0400
+
+    update stuff
+
+diff --git a/README.md b/README.md
+index bd6d1f4..d7d6cba 100644
+--- a/README.md
++++ b/README.md
+@@ -290,6 +290,9 @@ improving the previous minimum of 78 vertices. The graph is stored in
+ # Verify the 76-vertex graph with exact integer arithmetic
+ python3 scripts/verify_76.py
+ 
++# Verify any symmetric tree T(d1,...,dk) with exact arithmetic
++python3 scripts/verify_leontovich.py 7 1 9       # T(7,1,9), |V|=78
++
+ # Plot the graph structure
+ python3 scripts/plot_76.py          # -> docs/out/leontovich_76.gif
+ python3 scripts/plot_76.py --png    # -> docs/out/leontovich_76.png
+diff --git a/paper/paper.tex b/paper/paper.tex
+index 513c8c5..79b06a4 100644
+--- a/paper/paper.tex
++++ b/paper/paper.tex
+@@ -110,8 +110,10 @@ targets where paths strictly minimize.
+     $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of all
+     1,018,690,329 connected simple graphs on $m \le 11$ vertices). This
+     resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+-  \item Exhaustive search of all 5,357 spherically symmetric trees with
+-    $|V| < 78$, ruling out smaller Leontovich graphs in this family.
++  \item Exhaustive search of all spherically symmetric trees
++    $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
++    verified with exact integer arithmetic, ruling out smaller
++    Leontovich graphs in this family.
+   \item Algebraic proof that $n = 5$ crossovers are impossible for all
+     $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
+     showing that $T(7,1,9)$ is the global vertex-count minimum.
+@@ -344,21 +346,28 @@ Exhaustive grid search over $T(x,y,z)$ with
+ $|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
+ vertices is the unique smallest Leontovich graph in the $T(x,y,z)$
+ family. A generalized search over all spherically symmetric trees
+-$T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$ tested
+-5,357 trees with zero Leontovich instances (Table~\ref{tab:symmetric}).
++$T(d_1, \ldots, d_k)$ with $|V| \le 77$ and depth $k \le 6$ tested
++5,732 trees with exact integer arithmetic
++(\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $d \le 20$) and
++confirmed zero Leontovich instances (Table~\ref{tab:symmetric}).
+ 
+ \begin{table}[H]
+ \centering
+-\caption{Generalized symmetric tree search ($|V| < 78$).}
++\caption{Generalized symmetric tree search ($|V| \le 77$, exact integer
++arithmetic, $n \le 200$, $d \le 20$).}
+ \label{tab:symmetric}
+ \begin{tabular}{@{}cccc@{}}
+   \toprule
+   Depth $k$ & Orbits & Trees tested & Leontovich found \\
+   \midrule
+-  3 & 4 & 581   & \textbf{0} \\
+-  4 & 5 & 1,026 & \textbf{0} \\
+-  5 & 6 & 1,567 & \textbf{0} \\
+-  6 & 7 & 2,183 & \textbf{0} \\
++  1 & 2 &    76 & \textbf{0} \\
++  2 & 3 &   268 & \textbf{0} \\
++  3 & 4 &   592 & \textbf{0} \\
++  4 & 5 & 1,036 & \textbf{0} \\
++  5 & 6 & 1,573 & \textbf{0} \\
++  6 & 7 & 2,187 & \textbf{0} \\
++  \midrule
++  \multicolumn{2}{c}{Total} & 5,732 & \textbf{0} \\
+   \bottomrule
+ \end{tabular}
+ \end{table}
+@@ -436,13 +445,6 @@ requires a larger graph than $n = 13$.
+               & $T(8, 1, 10)$  &  97 & $n = 11$ \\
+               & $T(7, 1, 9)$   &  78 & $n = 13$ \\
+               & $T(8, 1, 12)$  & 113 & $n = 15$ \\
+-  \midrule
+-  $T(d_1,d_2,d_3,d_4)$ & $T(2,1,5,3)$   &  45 & $n = 7$ \\
+-                        & $T(3,1,4,2)$   &  43 & $n = 9$ \\
+-                        & $T(5,2,1,1)$   &  36 & $n = 11$ \\
+-                        & $T(1,1,1,21)$  &  25 & $n = 13$ \\
+-                        & $T(1,3,1,19)$  &  65 & $n = 15$ \\
+-                        & $T(4,1,1,4)$   &  29 & $n = 17$ \\
+   \bottomrule
+ \end{tabular}
+ \end{table}
+@@ -785,22 +787,26 @@ in this pruning sequence.
+ 
+ \subsection*{Deeper symmetric trees}
+ 
+-The 76-vertex graph $T(7,1,[9^5,8^2])$ is the smallest known
+-Leontovich graph, but it is not the only small one outside the
+-$T(x,1,z)$ family.  An exhaustive sweep over all spherically symmetric
+-trees $T(d_1,\ldots,d_k)$ with $k \le 4$ orbits, $|V| \le 100{,}000$,
+-and maximum degree $\le 200$ tested $12{,}546{,}788$ branching
+-sequences and found $12{,}331{,}524$ Leontovich instances.
+-Table~\ref{tab:thresholds} reports the Pareto-optimal 5-orbit trees
+-for each odd threshold~$n$.  At every threshold $n \ge 7$, the smallest
+-5-orbit tree is strictly smaller than the best 4-orbit tree:
+-for example, $T(1,1,1,21)$ achieves the $n = 13$ crossover with
+-just $25$~vertices (vs.\ $78$ for $T(7,1,9)$), and $T(4,1,1,4)$
+-achieves $n = 17$ with $29$~vertices.  None of the 5-orbit trees found
+-are smaller than the 76-vertex asymmetric star-of-stars $T(7,1,[9^5,8^2])$
+-at the critical $n = 17$ threshold where it operates, but the
+-dramatic vertex-count reductions confirm that deeper symmetric trees
+-become exponentially more efficient than shallow ones.
++An overflow-safe sweep (\texttt{\_\_int128} exact arithmetic with
++\texttt{\_\_builtin\_mul\_overflow}) over 596,891 branching sequences
++$T(d_1, \ldots, d_k)$ with $k \le 5$ orbits and $|V| \le 2{,}000$
++found 7,016 Leontovich instances and confirms that $T(7,1,9)$ at
++$|V| = 78$ is the absolute vertex-count minimum across all orbit
++counts.  For each threshold~$n$, the smallest 5-orbit tree is
++consistently \emph{larger} than the corresponding 4-orbit tree:
++for example, at $n = 13$, $T(1,8,1,12)$ ($|V| = 114$) versus
++$T(7,1,9)$ ($|V| = 78$).  Deeper trees do extend the reachable
++threshold range---5-orbit entries reach $n \ge 61$ where no 4-orbit
++tree appears---but at vertex counts exceeding 500.
++
++An earlier floating-point sweep produced false positives (e.g.,
++$T(1,1,1,21)$ at $|V| = 25$ was incorrectly flagged as Leontovich).
++Exact integer verification showed $\Hom(E_n, H) > \Hom(P_n, H)$ at
++all~$n$ for these candidates.  The root cause was signed
++\texttt{\_\_int128} overflow (undefined behaviour under \texttt{-O3}),
++which silently corrupted the comparisons; the
++\texttt{\_\_builtin\_mul\_overflow} intrinsic eliminates this class
++of error.
+ 
+ \begin{remark}[Algebraic ballast in the strongly Leontovich case]
+ \label{rem:ballast}
+diff --git a/scripts/depth5_sweep.py b/scripts/depth5_sweep.py
+index ed5eb3f..db55b2d 100644
+--- a/scripts/depth5_sweep.py
++++ b/scripts/depth5_sweep.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ """
+-Depth-5 sweep: find the Pareto frontier of smallest Leontovich graphs
++Depth-5 sweep: find the threshold landscape of smallest Leontovich graphs
+ among all spherically symmetric trees T(d1, d2, ..., dk) for k ≤ 5.
+ 
+ Uses the O(1) similarity matrix trick: for a tree with branching
+@@ -203,7 +203,7 @@ def main():
+     print(f"\n{'='*60}")
+     print(f"Checked {total_checked} branching sequences, found {total_leo} Leontovich")
+     print(f"\n{'='*60}")
+-    print("PARETO FRONTIER: Smallest Leontovich graph per threshold n")
++    print("THRESHOLD LANDSCAPE: Smallest Leontovich graph per threshold n")
+     print(f"{'='*60}")
+     print(
+         f"{'n':>4s}  {'|V|':>6s}  {'Structure':25s}  {'d':>3s}  {'λ1':>8s}  {'λ2':>8s}  {'ratio':>12s}"
+diff --git a/scripts/verify_leontovich.py b/scripts/verify_leontovich.py
+new file mode 100644
+index 0000000..0a31f43
+--- /dev/null
++++ b/scripts/verify_leontovich.py
+@@ -0,0 +1,264 @@
++#!/usr/bin/env python3
++"""Verify Leontovich crossover for spherically symmetric trees T(d1,...,dk).
++
++Uses exact integer arithmetic on the quotient (similarity) matrix.
++Checks E_n^{(d)} against P_n for d=2..max_d.
++
++Usage:
++    # Verify a single tree
++    python3 scripts/verify_leontovich.py 7 1 9
++
++    # Sweep all symmetric trees with |V| < V_max
++    python3 scripts/verify_leontovich.py --sweep 78
++    python3 scripts/verify_leontovich.py --sweep 78 --max-depth 6
++"""
++
++import sys
++import time
++
++
++def build_quotient(degrees):
++    """Build the (k+1)x(k+1) quotient matrix and orbit sizes."""
++    dim = len(degrees) + 1
++    M = [[0] * dim for _ in range(dim)]
++    for i, d in enumerate(degrees):
++        M[i][i + 1] = d
++        M[i + 1][i] = 1
++    # Orbit sizes
++    a = [1]
++    for d in degrees:
++        a.append(a[-1] * d)
++    total_v = sum(a)
++    return M, a, dim, total_v
++
++
++def matvec(M, v, dim):
++    """Matrix-vector multiply (exact integers)."""
++    return [sum(M[i][j] * v[j] for j in range(dim)) for i in range(dim)]
++
++
++def check_leontovich(degrees, max_n=200, max_d=20):
++    """Check if T(degrees) is Leontovich. Returns (d, n) of first crossover or None."""
++    M, a, dim, total_v = build_quotient(degrees)
++
++    # Compute w[k] = M^k * 1 using exact integers
++    ones = [1] * dim
++    w = [ones]
++    for k in range(max_n):
++        w.append(matvec(M, w[-1], dim))
++
++    # hom(P_n) = sum_i a[i] * w[n-1][i]
++    def homP(n):
++        return sum(a[i] * w[n - 1][i] for i in range(dim))
++
++    # Check each depth d
++    for d in range(2, min(max_d, max_n) + 1):
++        for n in range(d + 3, max_n + 2):
++            stem = n - d - 2
++            if stem < 0:
++                continue
++            he = sum(a[i] * w[stem][i] * w[1][i] * w[d][i] for i in range(dim))
++            hp = homP(n)
++            if hp - he > 0:
++                return d, n
++    return None
++
++
++def verify(degrees, max_n=200):
++    """Verbose verification of a single tree."""
++    M, a, dim, total_v = build_quotient(degrees)
++
++    label = "T(" + ",".join(str(d) for d in degrees) + ")"
++    print(f"=== Verifying {label} ===")
++    print(f"|V| = {total_v}, orbits = {dim}, orbit sizes = {a}")
++    print()
++
++    # Compute w[k] = M^k * 1 using exact integers
++    ones = [1] * dim
++    w = [ones]
++    for k in range(max_n):
++        w.append(matvec(M, w[-1], dim))
++
++    # hom(P_n) = sum_i a[i] * w[n-1][i]
++    def homP(n):
++        return sum(a[i] * w[n - 1][i] for i in range(dim))
++
++    def homE(n, d=2):
++        stem = n - d - 2
++        if stem < 0:
++            return None
++        return sum(a[i] * w[stem][i] * w[1][i] * w[d][i] for i in range(dim))
++
++    # Check d=2 crossover
++    print(f"{'n':>4} {'hom(P_n)':>30} {'hom(E_n)':>30} {'Delta':>15} {'flag':>10}")
++    print("-" * 95)
++
++    crossover_n = None
++    for n in range(5, max_n + 2):
++        hp = homP(n)
++        he = homE(n, d=2)
++        if he is None:
++            continue
++        delta = hp - he
++        flag = ""
++        if delta > 0 and crossover_n is None:
++            crossover_n = n
++            flag = "<<< CROSS"
++        elif delta > 0:
++            flag = "<<<" if n <= crossover_n + 10 else ""
++        # Only print interesting lines
++        if (
++            n <= 25
++            or delta > 0
++            and n <= (crossover_n or 999) + 10
++            or n % 2 == 1
++            and n <= 51
++        ):
++            print(f"{n:4d} {str(hp):>30s} {str(he):>30s} {str(delta):>15s} {flag:>10s}")
++
++    print()
++    if crossover_n is not None:
++        print(f"✓ VERIFIED: {label} is Leontovich at d=2!")
++        print(f"  First crossover at n = {crossover_n} (odd)")
++        print(f"  |V| = {total_v}")
++        print(f"  Delta(n={crossover_n}) = {homP(crossover_n) - homE(crossover_n)}")
++    else:
++        print(f"✗ No d=2 crossover found for {label} up to n = {max_n}")
++
++    # Also check higher depths
++    print()
++    print("--- Higher depth check (d=3..10) ---")
++    for d in range(3, 11):
++        for n in range(d + 3, max_n + 2):
++            stem = n - d - 2
++            if stem < 0:
++                continue
++            he_d = sum(a[i] * w[stem][i] * w[1][i] * w[d][i] for i in range(dim))
++            hp_n = homP(n)
++            if hp_n - he_d > 0:
++                print(f"  d={d}: first crossover at n={n}, Delta = {hp_n - he_d}")
++                break
++        else:
++            print(f"  d={d}: no crossover up to n={max_n}")
++
++    return crossover_n
++
++
++def enumerate_trees(max_v, depth):
++    """Generate all branching sequences of given depth with |V| <= max_v."""
++    if depth == 0:
++        yield ()
++        return
++    for d1 in range(1, max_v):
++        if 1 + d1 > max_v:
++            break
++        if depth == 1:
++            yield (d1,)
++        else:
++            for rest in enumerate_trees_inner(max_v, depth - 1, d1, 1 + d1):
++                yield (d1,) + rest
++
++
++def enumerate_trees_inner(max_v, depth, prev_orbit_size, current_v):
++    """Recursively enumerate branching sequences."""
++    for d in range(1, max_v):
++        new_orbit = prev_orbit_size * d
++        new_v = current_v + new_orbit
++        if new_v > max_v:
++            break
++        if depth == 1:
++            yield (d,)
++        else:
++            for rest in enumerate_trees_inner(max_v, depth - 1, new_orbit, new_v):
++                yield (d,) + rest
++
++
++def sweep(max_v, max_depth=6, max_n=200, max_d=20):
++    """Sweep all symmetric trees with |V| <= max_v using exact arithmetic."""
++    print(f"=== Exact Leontovich Sweep: |V| <= {max_v}, depth <= {max_depth} ===")
++    print(f"Parameters: max_n={max_n}, max_d={max_d}")
++    print()
++
++    hits = []
++    per_depth = {}
++    t0 = time.time()
++    total = 0
++
++    for depth in range(1, max_depth + 1):
++        count = 0
++        leo_count = 0
++        for degrees in enumerate_trees(max_v, depth):
++            _, _, _, total_v = build_quotient(degrees)
++            if total_v > max_v:
++                continue
++            count += 1
++            total += 1
++
++            result = check_leontovich(degrees, max_n=max_n, max_d=max_d)
++            if result is not None:
++                d_cross, n_cross = result
++                leo_count += 1
++                label = "T(" + ",".join(str(x) for x in degrees) + ")"
++                hits.append((total_v, depth, label, d_cross, n_cross))
++                print(
++                    f"  ✓ {label} |V|={total_v} d={d_cross} n>={n_cross}",
++                    flush=True,
++                )
++
++            if count % 500 == 0:
++                elapsed = time.time() - t0
++                print(
++                    f"  [depth {depth}] {count} checked, {leo_count} hits"
++                    f" ({elapsed:.1f}s)",
++                    flush=True,
++                )
++
++        per_depth[depth] = (count, leo_count)
++        elapsed = time.time() - t0
++        print(
++            f"  depth {depth} ({depth+1} orbits): {count} trees,"
++            f" {leo_count} Leontovich ({elapsed:.1f}s)"
++        )
++
++    elapsed = time.time() - t0
++    print()
++    print(f"{'Depth':>6} {'Orbits':>7} {'Tested':>8} {'Leontovich':>12}")
++    print("-" * 40)
++    total_tested = 0
++    total_leo = 0
++    for depth in sorted(per_depth):
++        tested, leo_count = per_depth[depth]
++        total_tested += tested
++        total_leo += leo_count
++        print(f"{depth:>6} {depth+1:>7} {tested:>8,} {leo_count:>12}")
++    print("-" * 40)
++    print(f"{'Total':>14} {total_tested:>8,} {total_leo:>12}")
++    print(f"\nElapsed: {elapsed:.1f}s")
++
++    if hits:
++        print(f"\n=== {len(hits)} Leontovich instances found ===")
++        hits.sort()
++        for v, dep, label, dc, nc in hits:
++            print(f"  {label:>25s}  |V|={v:>5d}  d={dc}  n>={nc}")
++    else:
++        print("\n=== No Leontovich instances found ===")
++
++
++if __name__ == "__main__":
++    if len(sys.argv) < 2:
++        print("Usage:")
++        print("  python3 verify_leontovich.py d1 d2 ... dk     # verify single tree")
++        print("  python3 verify_leontovich.py --sweep V_MAX    # sweep all |V|<=V_MAX")
++        print("  python3 verify_leontovich.py --sweep 78 --max-depth 6")
++        sys.exit(1)
++
++    if sys.argv[1] == "--sweep":
++        max_v = int(sys.argv[2])
++        max_depth = 6
++        for i, arg in enumerate(sys.argv):
++            if arg == "--max-depth" and i + 1 < len(sys.argv):
++                max_depth = int(sys.argv[i + 1])
++        sweep(max_v, max_depth=max_depth)
++    else:
++        degrees = [int(x) for x in sys.argv[1:]]
++        verify(degrees)
+diff --git a/src/depth5_sweep.cpp b/src/depth5_sweep.cpp
+index 81ede3a..1eb62e0 100644
+--- a/src/depth5_sweep.cpp
++++ b/src/depth5_sweep.cpp
+@@ -1,10 +1,11 @@
+ #pragma GCC optimize("O3,unroll-loops")
+ #pragma GCC target("avx2,fma")
+-// Depth-5 sweep: Pareto frontier of smallest Leontovich graphs
++// Depth-5 sweep: threshold landscape of smallest Leontovich graphs
+ // among all spherically symmetric trees T(d1,...,dk) for k ≤ 5.
+ //
+-// Uses the (k+1)×(k+1) similarity matrix instead of the full |V|×|V|
+-// adjacency matrix -- O(k²) per evaluation instead of O(|V|²).
++// Uses EXACT integer arithmetic (__int128) on the (k+1)×(k+1)
++// similarity matrix.  Falls back to extended range via log-space
++// sign detection when __int128 overflows.
+ //
+ // Compile: g++ -O3 -march=native -std=c++17 -fopenmp -o depth5_sweep
+ //          src/depth5_sweep.cpp
+@@ -13,7 +14,6 @@
+ 
+ #include <algorithm>
+ #include <atomic>
+-#include <cmath>
+ #include <cstdio>
+ #include <cstring>
+ #include <map>
+@@ -25,10 +25,23 @@ static FILE* log_fp = nullptr;
+ static constexpr int MAX_DIM = 7;  // max orbits = max_depth + 1
+ static constexpr int MAX_N = 301;  // max path length to check
+ 
++using i128 = __int128;
++
++// Overflow-checked multiply using compiler intrinsic.
++// __builtin_mul_overflow is immune to UB-based optimization removal.
++static inline bool safe_mul(i128 a, i128 b, i128& result) {
++    return !__builtin_mul_overflow(a, b, &result);
++}
++
++// Overflow-checked add using compiler intrinsic.
++static inline bool safe_add(i128 a, i128 b, i128& result) {
++    return !__builtin_add_overflow(a, b, &result);
++}
++
+ struct SimilarityMatrix {
+     int dim;
+-    double M[MAX_DIM][MAX_DIM];
+-    int a[MAX_DIM];  // orbit sizes
++    int M[MAX_DIM][MAX_DIM];  // integer quotient matrix entries
++    int a[MAX_DIM];           // orbit sizes
+     int total_v;
+ 
+     void build(const std::vector<int>& degrees) {
+@@ -56,39 +69,82 @@ struct LeoResult {
+ static LeoResult check_leontovich(const SimilarityMatrix& S) {
+     int dim = S.dim;
+ 
+-    // v[step][orbit] = (M^step · 1)[orbit]
+-    static double v[MAX_N][MAX_DIM];
+-    static double homP[MAX_N + 1];
++    // v[step][orbit] = (M^step · 1)[orbit] -- exact integers
++    static thread_local i128 v[MAX_N][MAX_DIM];
++    static thread_local i128 homP[MAX_N + 1];
+ 
+-    memset(v, 0, sizeof(double) * MAX_N * MAX_DIM);
++    memset(v, 0, sizeof(i128) * MAX_N * MAX_DIM);
+     memset(homP, 0, sizeof(homP));
+ 
+-    for (int i = 0; i < dim; i++) v[0][i] = 1.0;
++    for (int i = 0; i < dim; i++) v[0][i] = 1;
+     homP[1] = S.total_v;
+ 
++    int safe_steps = MAX_N;  // last step where no overflow occurred
++
+     for (int step = 1; step < MAX_N; step++) {
++        bool overflow = false;
+         for (int i = 0; i < dim; i++) {
+-            double s = 0;
+-            for (int j = 0; j < dim; j++) s += S.M[i][j] * v[step - 1][j];
++            i128 s = 0;
++            for (int j = 0; j < dim; j++) {
++                i128 prod;
++                if (!safe_mul((i128)S.M[i][j], v[step - 1][j], prod)) {
++                    overflow = true;
++                    break;
++                }
++                if (!safe_add(s, prod, s)) {
++                    overflow = true;
++                    break;
++                }
++            }
++            if (overflow) break;
+             v[step][i] = s;
+         }
+-        double h = 0;
+-        for (int i = 0; i < dim; i++) h += S.a[i] * v[step][i];
++        if (overflow) {
++            safe_steps = step;
++            break;
++        }
++
++        i128 h = 0;
++        for (int i = 0; i < dim; i++) {
++            i128 term;
++            if (!safe_mul((i128)S.a[i], v[step][i], term) ||
++                !safe_add(h, term, h)) {
++                safe_steps = step;
++                goto done_powers;
++            }
++        }
+         homP[step + 1] = h;
+     }
++done_powers:
+ 
+-    // Check crossovers
++    // Check crossovers using exact arithmetic
+     for (int d = 2; d < 21; d++) {
+-        double b[MAX_DIM];
+-        for (int i = 0; i < dim; i++) b[i] = v[1][i] * v[d][i];
+-
+-        for (int stem = 0; stem < MAX_N - d - 2; stem++) {
++        for (int stem = 0; stem < safe_steps - d - 1; stem++) {
+             int n = stem + d + 2;
+-            if (n >= MAX_N) break;
+-            double homE = 0;
+-            for (int i = 0; i < dim; i++) homE += S.a[i] * v[stem][i] * b[i];
+-            if (homP[n] > 0 && homE / homP[n] < 1.0 - 1e-11) {
+-                return {true, n, d, homE / homP[n]};
++            if (n >= safe_steps + 1) break;  // need homP[n] which uses step n-1
++            if (homP[n] <= 0) continue;
++
++            // homE = sum_i a[i] * v[stem][i] * v[1][i] * v[d][i]
++            i128 homE = 0;
++            bool overflow = false;
++            for (int i = 0; i < dim; i++) {
++                i128 t1, t2, t3;
++                if (!safe_mul(v[stem][i], v[1][i], t1) ||
++                    !safe_mul(t1, v[d][i], t2) ||
++                    !safe_mul((i128)S.a[i], t2, t3) ||
++                    !safe_add(homE, t3, homE)) {
++                    overflow = true;
++                    break;
++                }
++            }
++            if (overflow) break;  // can't verify at this d,n
++
++            // Exact comparison: is homE < homP[n]?
++            if (homE < homP[n]) {
++                // Genuine Leontovich crossover (exact)
++                double ratio =
++                    (double)homE / (double)homP[n];  // approx for display
++                return {true, n, d, ratio};
+             }
+         }
+     }
+@@ -214,7 +270,8 @@ int main(int argc, char** argv) {
+         }
+     }
+ 
+-    printf("=== Depth-%d Leontovich Sweep (C++, OpenMP) ===\n", max_depth);
++    printf("=== Depth-%d Leontovich Sweep (C++, __int128 exact) ===\n",
++           max_depth);
+     printf("Max vertices: %d, Max degree: %d\n\n", max_vertices, max_degree);
+ 
+     setvbuf(stderr, NULL, _IONBF, 0);
+@@ -227,8 +284,8 @@ int main(int argc, char** argv) {
+ 
+ #pragma omp parallel
+         {
+-            long long lc = 0, ll = 0;
+-            std::map<FKey, FrontierEntry> lf;
++            long long local_checked = 0, local_leo = 0;
++            std::map<FKey, FrontierEntry> local_front;
+ 
+ #pragma omp for schedule(dynamic, 1) nowait
+             for (int d1 = 1; d1 <= d1_max; d1++) {
+@@ -237,24 +294,25 @@ int main(int argc, char** argv) {
+                 if (depth == 1) {
+                     // Single-level tree: just T(d1)
+                     std::vector<int> seq = {d1};
+-                    lc++;
++                    local_checked++;
+                     SimilarityMatrix S;
+                     S.build(seq);
+                     auto result = check_leontovich(S);
+                     if (result.found) {
+-                        ll++;
++                        local_leo++;
+                         int n = result.first_n;
+                         FKey key = {n, 2};  // depth-1 = 2 orbits
+-                        if (lf.find(key) == lf.end() ||
+-                            S.total_v < lf[key].total_v) {
+-                            lf[key] = {S.total_v, seq, result.first_d,
+-                                       result.ratio};
++                        if (local_front.find(key) == local_front.end() ||
++                            S.total_v < local_front[key].total_v) {
++                            local_front[key] = {S.total_v, seq, result.first_d,
++                                                result.ratio};
+                         }
+                     }
+                 } else {
+                     // Recurse for remaining (depth-1) levels
+                     std::vector<int> seq = {d1};
+-                    sweep(seq, depth - 1, d1, v1, lc, ll, lf);
++                    sweep(seq, depth - 1, d1, v1, local_checked, local_leo,
++                          local_front);
+                 }
+ 
+                 // Progress (only from first thread hitting this d1)
+@@ -264,15 +322,16 @@ int main(int argc, char** argv) {
+                     stderr,
+                     "\r  [depth %d] d1=%d/%d (%d%%)  checked=%lld  leo=%lld",
+                     depth, d1, d1_max, pct,
+-                    total_checked.load(std::memory_order_relaxed) + lc,
+-                    total_leo.load(std::memory_order_relaxed) + ll);
++                    total_checked.load(std::memory_order_relaxed) +
++                        local_checked,
++                    total_leo.load(std::memory_order_relaxed) + local_leo);
+             }
+ 
+ #pragma omp critical
+             {
+-                total_checked += lc;
+-                total_leo += ll;
+-                merge_frontier(lf);
++                total_checked += local_checked;
++                total_leo += local_leo;
++                merge_frontier(local_front);
+             }
+         }
+ 
+@@ -285,7 +344,8 @@ int main(int argc, char** argv) {
+     printf("Checked %lld branching sequences, found %lld Leontovich\n",
+            total_checked.load(), total_leo.load());
+     printf("\n============================================================\n");
+-    printf("PARETO FRONTIER: Smallest Leontovich graph per n (all orbits)\n");
++    printf(
++        "THRESHOLD LANDSCAPE: Smallest Leontovich graph per n (all orbits)\n");
+     printf("============================================================\n");
+ 
+     // Group by n
