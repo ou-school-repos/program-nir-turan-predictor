@@ -139,10 +139,16 @@ def build_leontovich_solver_partition(
     for k in range(1, n):
         # Rows: i < m1
         for i in range(m1):
-            s.add(w[k][i] == z3.Sum([B[i][j] * w[k - 1][m1 + j] for j in range(m2)]))
+            s.add(
+                w[k][i]
+                == z3.Sum([z3.If(B[i][j] == 1, w[k - 1][m1 + j], 0) for j in range(m2)])
+            )
         # Columns: j < m2 (i = m1 + j)
         for j in range(m2):
-            s.add(w[k][m1 + j] == z3.Sum([B[i][j] * w[k - 1][i] for i in range(m1)]))
+            s.add(
+                w[k][m1 + j]
+                == z3.Sum([z3.If(B[i][j] == 1, w[k - 1][i], 0) for i in range(m1)])
+            )
 
     # 6. Homomorphism Counts
     homP = z3.Int("homP")
@@ -150,10 +156,31 @@ def build_leontovich_solver_partition(
 
     b = [z3.Int(f"b_{i}") for i in range(m)]
     for i in range(m):
-        s.add(b[i] == w[1][i] * w[d][i])
+        s.add(
+            z3.Or(
+                [
+                    z3.And(w[1][i] == deg_val, b[i] == deg_val * w[d][i])
+                    for deg_val in range(1, m)
+                ]
+            )
+        )
+
+    prod_E = [z3.Int(f"prod_E_{i}") for i in range(m)]
+    for i in range(m):
+        if n - d - 2 == 1:
+            s.add(
+                z3.Or(
+                    [
+                        z3.And(w[1][i] == deg_val, prod_E[i] == deg_val * b[i])
+                        for deg_val in range(1, m)
+                    ]
+                )
+            )
+        else:
+            s.add(prod_E[i] == w[n - d - 2][i] * b[i])
 
     homE = z3.Int("homE")
-    s.add(homE == z3.Sum([w[n - d - 2][i] * b[i] for i in range(m)]))
+    s.add(homE == z3.Sum(prod_E))
 
     s.add(homP > 0)
     s.add(homE > 0)
@@ -200,7 +227,10 @@ def build_leontovich_solver_general(m, n, d=2, max_deg=None):
 
     for k in range(1, n):
         for i in range(m):
-            s.add(w[k][i] == z3.Sum([A[i][j] * w[k - 1][j] for j in range(m)]))
+            s.add(
+                w[k][i]
+                == z3.Sum([z3.If(A[i][j] == 1, w[k - 1][j], 0) for j in range(m)])
+            )
 
     # 6. Homomorphism Counts
     homP = z3.Int("homP")
@@ -208,10 +238,31 @@ def build_leontovich_solver_general(m, n, d=2, max_deg=None):
 
     b = [z3.Int(f"b_{i}") for i in range(m)]
     for i in range(m):
-        s.add(b[i] == w[1][i] * w[d][i])
+        s.add(
+            z3.Or(
+                [
+                    z3.And(w[1][i] == deg_val, b[i] == deg_val * w[d][i])
+                    for deg_val in range(1, m)
+                ]
+            )
+        )
+
+    prod_E = [z3.Int(f"prod_E_{i}") for i in range(m)]
+    for i in range(m):
+        if n - d - 2 == 1:
+            s.add(
+                z3.Or(
+                    [
+                        z3.And(w[1][i] == deg_val, prod_E[i] == deg_val * b[i])
+                        for deg_val in range(1, m)
+                    ]
+                )
+            )
+        else:
+            s.add(prod_E[i] == w[n - d - 2][i] * b[i])
 
     homE = z3.Int("homE")
-    s.add(homE == z3.Sum([w[n - d - 2][i] * b[i] for i in range(m)]))
+    s.add(homE == z3.Sum(prod_E))
 
     s.add(homP > 0)
     s.add(homE > 0)
