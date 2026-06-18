@@ -98,13 +98,13 @@ Evaluating the recurrence system yields the exact walk counts per group at each 
 At the crossover threshold of path length $n = 17$:
 
 1. **Path Homomorphism Count:**
-   $$\Hom(P_{17}, H_{18}) = \sum_{u} w_{16}(u) = \mathbf{14{,}801{,}051{,}732}$$
+   $$\operatorname{Hom}(P_{17}, H_{18}) = \sum_{u} w_{16}(u) = \mathbf{14{,}801{,}051{,}732}$$
 
 2. **Near-Path Homomorphism Count ($d=2$, so $n-d-2 = 13$):**
-   $$\Hom(E_{17}^{(2)}, H_{18}) = \sum_{u} w_{13}(u) \cdot w_1(u) \cdot w_2(u) = \mathbf{14{,}795{,}982{,}954}$$
+   $$\operatorname{Hom}(E_{17}^{(2)}, H_{18}) = \sum_{u} w_{13}(u) \cdot w_1(u) \cdot w_2(u) = \mathbf{14{,}795{,}982{,}954}$$
 
 3. **Comparison & Positive Margin:**
-   $$\Hom(E_{17}^{(2)}, H_{18}) < \Hom(P_{17}, H_{18})$$
-   $$\Delta_{\text{margin}} = \Hom(P_{17}, H_{18}) - \Hom(E_{17}^{(2)}, H_{18}) = \mathbf{+5{,}068{,}778}$$
+   $$\operatorname{Hom}(E_{17}^{(2)}, H_{18}) < \operatorname{Hom}(P_{17}, H_{18})$$
+   $$\Delta_{\text{margin}} = \operatorname{Hom}(P_{17}, H_{18}) - \operatorname{Hom}(E_{17}^{(2)}, H_{18}) = \mathbf{+5{,}068{,}778}$$
 
 This confirms with **$100\%$ exact integer arithmetic** that the path $P_{17}$ fails to minimize tree homomorphisms for target $H_{18}$, making $H_{18}$ the absolute smallest bipartite Leontovich graph in existence!
