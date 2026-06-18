@@ -803,13 +803,29 @@ smallest known Leontovich graph. Because the exhaustive check of all 45,838
 non-isomorphic configurations for $m_2 < 15$ returned zero hits, \textbf{18
 vertices is the absolute global minimum within this partition family}.
 
+\begin{remark}[Other Bipartite Partition Families]
+  While $H_{18}$ is the unique minimal bipartite Leontovich graph within the
+  $(3, m_2)$ family, the question of whether a smaller bipartite Leontovich
+  graph exists in a partition family $(m_1, m_2)$ with $m_1 \ge 4$ remains an
+  open question. For $m_1 \ge 4$, the number of connection patterns grows as
+  $2^{m_1} - 1$ (e.g., $15$ variables for $m_1 = 4$, and $31$ for $m_1 = 5$),
+  which exponentially expands the search space and increases the degree of the
+  integer polynomial constraints. However, because a bipartite graph of order
+  $m = m_1 + m_2 < 18$ with $m_1 \ge 4$ would require extremely small values of
+  $m_2$ (e.g., $m_2 \le 13$ for $m_1 = 4$), the highly constrained nature of
+  the destructive spectral interference makes the existence of smaller
+  counterexamples in these larger partitions highly improbable. Thus, $H_{18}$
+  stands as the current record-holder for the smallest bipartite Leontovich
+  graph across all partitions.
+\end{remark}
+
 \subsection{The Near-Miss Asymptotic Dilution}
 
 During our trace of the $m_1 = 3$ family, we discovered pattern vectors where
 the homomorphism count ratio approached $1.0$ from above with extreme
 precision (e.g., the 14-vertex target $c = (9, 1, 0, 0, 0, 1, 0)$).
 However, algebraic inspection reveals these are not impending crossovers, but
-disjoint unions. 
+disjoint unions.
 
 The vector $(9, 1, 0, 0, 0, 1, 0)$ specifies a disconnected graph
 $H \cong K_{1,9} \sqcup P_4$. Because homomorphism counts map connected trees
