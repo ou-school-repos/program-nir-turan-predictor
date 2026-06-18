@@ -152,10 +152,10 @@ done_powers:
 }
 
 struct FrontierEntry {
-    int total_v;
+    int total_v = 0;
     std::vector<int> degrees;
-    int d;
-    double ratio;
+    int d = 0;
+    double ratio = 0.0;
 };
 
 static int max_vertices = 400;

@@ -204,7 +204,7 @@ at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
 $\lambda_1^2 = 3$ exactly, and the ratio
-$\Hom(P_{n+2}, P_5) / \Hom(P_n, P_5) = 3$ for all odd $n$.
+$\Hom(P_{n+2}, P_5) / \allowbreak \Hom(P_n, P_5) = 3$ for all odd $n$.
 
 \subsubsection{Unique minimality}
 
@@ -289,7 +289,7 @@ exactly 2 positive eigenvalues.
 
 \subsection{The crossover threshold for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
 
-\begin{theorem}[Permanent crossover threshold]
+\begin{theorem}[Permanent Crossover]
   \label{thm:threshold}
   Let $H = T(7,1,9)$. Then $\Hom(E_n, H) < \Hom(P_n, H)$ for all
   odd $n \ge 13$, and $\Hom(P_n, H) \le \Hom(E_n, H)$ for all
@@ -643,6 +643,56 @@ index: degree-constrained trees that maximise independent sets are
 dual to trees that minimise homomorphisms into a specific non-bipartite looped target.
 \end{remark}
 
+\section{Discussion and Future Directions}
+\label{sec:discussion}
+
+The computational boundaries established in this work---exhaustively proving $m \ge 12$ for general target graphs and $m \ge 16$ for bipartite targets---highlight the steep combinatorial complexity of the Leontovich search space. While simulated annealing successfully pruned $T(7,1,9)$ from 78 down to 76 vertices, identifying global counterexamples on larger vertex counts remains a profound challenge. In this section, we propose and analyze a novel algebraic search framework based on Satisfiability Modulo Theories (SMT) solvers to bridge this computational gap.
+
+\subsection{SMT-Based Algebraic Search Formulation}
+
+To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices), the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP) over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
+
+Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms, we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables. For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
+\begin{align}
+  w_0(i) &= 1, \quad \forall i \in \{1, \dots, m\} \\
+  w_k(i) &= \sum_{j=1}^{m} A_{ij} \, w_{k-1}(j), \quad \forall k \ge 1
+\end{align}
+The homomorphism count for the path is given by the linear sum $\Hom(P_n, H) = \sum_{i=1}^{m} w_{n-1}(i)$. For the near-path family $E_n^{(d)}$ with a pendant edge attached at depth $d$, the count can be represented compactly as:
+\begin{equation}
+  \Hom(E_n^{(d)}, H) = \sum_{i=1}^{m} w_{n-d-2}(i) \, w_1(i) \, w_d(i)
+\end{equation}
+The search for a Leontovich target graph then reduces to solving the polynomial inequality:
+\begin{equation}
+  \label{eq:smt_ineq}
+  \Hom(E_n^{(d)}, H) < \Hom(P_n, H)
+\end{equation}
+subject to structural constraints. For example, bipartiteness can be enforced dynamically by introducing partition variables $x_i \in \{0, 1\}$ such that $A_{ij} = 1 \implies x_i \neq x_j$, while connectivity is guaranteed by defining distance levels from a root vertex.
+
+\subsection{Symmetry Breaking and Partition Collapse}
+
+To maximize solver efficiency, we can impose symmetry-breaking constraints to prune isomorphic graph representations. Specifically, we can order the degree sequence:
+\begin{equation}
+  \sum_{j=1}^{m} A_{1,j} \ge \sum_{j=1}^{m} A_{2,j} \ge \dots \ge \sum_{j=1}^{m} A_{m,j}
+\end{equation}
+Furthermore, if we restrict the search to bipartite targets of a pre-specified partition size $(m_1, m_2)$ where $m_1 + m_2 = m$, the decision variables collapse from the $m(m-1)/2$ entries of $A$ to the $m_1 \cdot m_2$ entries of a single off-diagonal block $B$. This block-matrix representation simplifies the walk recurrence to:
+\begin{align}
+  w_k(i) &= \sum_{j=1}^{m_2} B_{i,j} \, w_{k-1}(m_1 + j), \quad \forall i \le m_1 \\
+  w_k(m_1 + j) &= \sum_{i=1}^{m_1} B_{i,j} \, w_{k-1}(i), \quad \forall j \le m_2
+\end{align}
+which eliminates the partition variables $x_i$ entirely and reduces the search space of $m=30$ with partition $(2, 28)$ to only 56 binary variables.
+
+\subsection{Solver Limits and Hybrid Paradigms}
+
+Evaluating the SMT formulation in Z3 reveals sharp, fundamental boundaries in general-purpose solvers. For small thresholds $n$ or small vertex counts $m$, SMT solvers quickly prove unsatisfiability or locate satisfying structures. However, for the standard Leontovich threshold of $n \ge 13$, the walk values $w_k(i)$ exceed $1.5 \times 10^6$, and the non-linear products in $w_{n-d-2}(i) \, w_1(i) \, w_d(i)$ lead to high-degree, non-linear integer polynomial constraints.
+
+Because general-purpose SMT solvers are fundamentally optimized for logical reasoning rather than high-degree integer polynomial algebra, unconstrained search stalls for $m \ge 12$ and $n \ge 13$. Real-based continuous relaxations (LRA/NRA) do not yield significant speedups due to the complexity of Cylindrical Algebraic Decomposition (CAD) on high-degree polynomials.
+
+To pioneer larger searches (e.g., verifying up to $m = 30$ or $40$), future efforts must employ hybrid search paradigms:
+\begin{enumerate}
+  \item \textbf{Bit-Vector (BV) Encodings:} Modeling graph walk variables as fixed-width, modulo-arithmetic bit-vectors to utilize high-speed SAT-based conflict-driven clause learning (CDCL).
+  \item \textbf{Heuristic-SMT Coupling:} Using Simulated Annealing to discover candidate graphs, and applying SMT locally to solve for the exact minimal leaf/edge edit perturbations required to cross the Leontovich threshold.
+\end{enumerate}
+
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
 
@@ -842,7 +892,7 @@ every $(x,z)$ pair with $x, z \le 200$, the threshold of $T(x,1,z)$
 is at most that of $T(x,y,z)$ for all $y > 1$.
 \end{proof}
 
-\begin{theorem}[Algebraic frontier for $T(x,1,z)$]
+\begin{theorem}[Algebraic Frontier]
 \label{thm:frontier}
 For $T(x,1,z)$, the difference $\Delta_n(x,z) = \Hom(P_n, T) -
 \Hom(E_n^{(2)}, T)$ is an exact polynomial in~$x$ and~$z$.

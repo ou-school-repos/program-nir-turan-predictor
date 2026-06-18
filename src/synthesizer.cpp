@@ -85,10 +85,10 @@ static bool export_g6 = false;
 
 struct TargetGraph {
     std::string g6;
-    int h;
-    bool adj[32][32];
-    uint64_t path_score;
-    bool violation_found;
+    int h = 0;
+    bool adj[32][32] = {};
+    uint64_t path_score = 0;
+    bool violation_found = false;
 };
 
 static std::vector<TargetGraph> leontovich_targets;
@@ -251,7 +251,7 @@ static Hash128 tree_hash_128(int n) {
 struct ConstrainedBest {
     uint64_t score = 0;
     int max_degree = 0, leaves = 0, diameter = 0, n = 0;
-    int level_seq[MAX_N];
+    int level_seq[MAX_N] = {};
 };
 
 static ConstrainedBest best_d3, best_d4, best_any;

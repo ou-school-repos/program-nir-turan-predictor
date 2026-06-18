@@ -378,9 +378,10 @@ struct TTEntry {
 };
 
 struct GameConfig {
-    int gw, gh, nodes, depth;
-    int cat_spine, cat_legs;  // caterpillar params (0 = not a caterpillar)
-    bool sync_mode;           // true = Model B (spread-after-cut)
+    int gw = 0, gh = 0, nodes = 0, depth = 0;
+    int cat_spine = 0,
+        cat_legs = 0;        // caterpillar params (0 = not a caterpillar)
+    bool sync_mode = false;  // true = Model B (spread-after-cut)
     string label;
 };
 
