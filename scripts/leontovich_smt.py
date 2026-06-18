@@ -189,7 +189,7 @@ def build_leontovich_solver_partition(
     return s, B, homP, homE
 
 
-def build_leontovich_solver_general(m, n, d=2, max_deg=None):
+def build_leontovich_solver_general(m, n, d=2, max_deg=None, force_triangle=False):
     """Build a general-graph solver (unpartitioned, potentially non-bipartite)."""
     s = z3.Solver()
 
@@ -200,6 +200,14 @@ def build_leontovich_solver_general(m, n, d=2, max_deg=None):
         for j in range(i + 1, m):
             s.add(A[i][j] == A[j][i])
             s.add(z3.Or(A[i][j] == 0, A[i][j] == 1))
+
+    # Force a triangle on vertices 0, 1, 2 to break isomorphism and structural symmetry
+    if force_triangle:
+        if m < 3:
+            raise ValueError("force_triangle requires at least 3 vertices.")
+        s.add(A[0][1] == 1)
+        s.add(A[1][2] == 1)
+        s.add(A[2][0] == 1)
 
     # 2. Graph Connectivity Constraints
     dist = [z3.Int(f"dist_{i}") for i in range(m)]
@@ -272,7 +280,7 @@ def build_leontovich_solver_general(m, n, d=2, max_deg=None):
 
 
 def run_smt_search(
-    m, n, d=2, graph_type="bipartite", m1=None, m2=None, max_deg=None, timeout_ms=None
+    m, n, d=2, graph_type="bipartite", m1=None, m2=None, max_deg=None, timeout_ms=None, force_triangle=False
 ):
     """Run SMT search and return results."""
     print(
@@ -281,6 +289,8 @@ def run_smt_search(
     print(f"  Threshold n:      {n}")
     print(f"  Candidate:        E_n^({d})")
     print(f"  Graph Class:      {graph_type}")
+    if force_triangle and graph_type == "general":
+        print("  Force Triangle:   True (breaking symmetry on nodes 0, 1, 2)")
     if max_deg:
         print(f"  Max Degree:       {max_deg}")
     if timeout_ms:
@@ -359,7 +369,7 @@ def run_smt_search(
     else:
         # General graph search (unpartitioned)
         start_time = time.time()
-        s, A, homP, homE = build_leontovich_solver_general(m, n, d, max_deg)
+        s, A, homP, homE = build_leontovich_solver_general(m, n, d, max_deg, force_triangle)
         if timeout_ms is not None:
             s.set("timeout", timeout_ms)
 
@@ -428,6 +438,11 @@ def main():
         "--max-deg", type=int, default=None, help="Upper bound on vertex degrees in H"
     )
     parser.add_argument(
+        "--force-triangle",
+        action="store_true",
+        help="Force a triangle on vertices 0, 1, 2 to break isomorphism symmetry for non-bipartite search",
+    )
+    parser.add_argument(
         "--timeout", type=int, default=30000, help="Solver timeout in milliseconds"
     )
 
@@ -442,6 +457,7 @@ def main():
         m2=args.m2,
         max_deg=args.max_deg,
         timeout_ms=args.timeout,
+        force_triangle=args.force_triangle,
     )
 
 
