@@ -31,6 +31,8 @@ Because $H_{18}$ is bipartite, its vertices are partitioned into the **Left Set*
                (deg 7) v1  o-----o
 ```
 
+![H18 Bipartite Leontovich Graph Topology](walk_h18.png){ width=90% }
+
 ---
 
 ## 2. Graph Properties & Metadata

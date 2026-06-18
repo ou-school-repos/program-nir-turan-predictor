@@ -103,7 +103,7 @@ lean: ##H Build Lean 4 verifiers
 F ?= docs/SEQUENCE_DISCOVERY.md
 doc: ##H Convert markdown to PDF (F=docs/file.md)
 	@$(call print_info,Generating PDF from $(F))
-	pandoc $(F) --pdf-engine=xelatex -V geometry:margin=1in -o $(basename $(F)).pdf
+	pandoc $(F) --resource-path="$$(dirname "$(F)")" --pdf-engine=xelatex -V geometry:margin=1in -o $(basename $(F)).pdf
 	touch -r $(F) $(basename $(F)).pdf
 	@$(call print_success,$(basename $(F)).pdf)
 
@@ -111,7 +111,7 @@ doc: ##H Convert markdown to PDF (F=docs/file.md)
 docs: ##H Convert all tracked markdown files to PDF
 	@for f in $$(git ls-files '*.md'); do \
 		$(call print_info,$$f → $$(basename $$f .md).pdf); \
-		pandoc "$$f" --pdf-engine=xelatex -V geometry:margin=1in -o "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
+		pandoc "$$f" --resource-path="$$(dirname "$$f")" --pdf-engine=xelatex -V geometry:margin=1in -o "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
 		touch -r "$$f" "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
 	done
 	@$(call print_success,All PDFs generated.)
