@@ -24,20 +24,20 @@ def main():
         adj[r].append(0)
 
     # R_01: 1 node connected to L0 and L1
-    for l in [0, 1]:
-        adj[l].append(10)
-        adj[10].append(l)
+    for left_node in [0, 1]:
+        adj[left_node].append(10)
+        adj[10].append(left_node)
 
     # R_02: 1 node connected to L0 and L2
-    for l in [0, 2]:
-        adj[l].append(11)
-        adj[11].append(l)
+    for left_node in [0, 2]:
+        adj[left_node].append(11)
+        adj[11].append(left_node)
 
     # R_12: 6 nodes connected to L1 and L2
     for r in range(12, 18):
-        for l in [1, 2]:
-            adj[l].append(r)
-            adj[r].append(l)
+        for left_node in [1, 2]:
+            adj[left_node].append(r)
+            adj[r].append(left_node)
 
     # w[k][u]: walks of length k starting at u
     w = [[1] * m]
@@ -49,7 +49,8 @@ def main():
 
     print("=" * 105)
     print(
-        f"{'n':<4} | {'hom(P_n, H)':<15} | {'hom(E_n^(2), H)':<15} | {'Ratio':<8} | {'Growth Factor':<12} | {'Left Walk %':<12} | {'Right Walk %':<12}"
+        f"{'n':<4} | {'hom(P_n, H)':<15} | {'hom(E_n^(2), H)':<15} | {'Ratio':<8} | "
+        f"{'Growth Factor':<12} | {'Left Walk %':<12} | {'Right Walk %':<12}"
     )
     print("=" * 105)
 
@@ -83,13 +84,15 @@ def main():
     print("\nSTEP-BY-STEP SYMMETRY GROUPED WALK VECTORS (ALPHABETICAL ORDER):")
     print("-" * 105)
     print(
-        f"{'Step k':<8} | {'L0':<7} | {'L1':<7} | {'L2':<7} | {'R_01 (x1)':<9} | {'R_02 (x1)':<9} | {'R_12 (x6)':<9} | {'R_leaf_0 (x7)':<13} | {'Total Sum':<10}"
+        f"{'Step k':<8} | {'L0':<7} | {'L1':<7} | {'L2':<7} | {'R_01 (x1)':<9} | "
+        f"{'R_02 (x1)':<9} | {'R_12 (x6)':<9} | {'R_leaf_0 (x7)':<13} | {'Total Sum':<10}"
     )
     print("-" * 105)
     for k in range(6):
         total_sum = sum(w[k])
         print(
-            f"w_{k:<6} | {w[k][0]:<7d} | {w[k][1]:<7d} | {w[k][2]:<7d} | {w[k][10]:<9d} | {w[k][11]:<9d} | {w[k][12]:<9d} | {w[k][3]:<13d} | {total_sum:<10d}"
+            f"w_{k:<6} | {w[k][0]:<7d} | {w[k][1]:<7d} | {w[k][2]:<7d} | {w[k][10]:<9d} | "
+            f"{w[k][11]:<9d} | {w[k][12]:<9d} | {w[k][3]:<13d} | {total_sum:<10d}"
         )
     print("-" * 105)
 
