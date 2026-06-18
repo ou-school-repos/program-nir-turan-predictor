@@ -19,6 +19,8 @@ output.log
 *.gif
 *.png
 *.svg
+
+# g++ binaries
 synthesizer
 oracle
 dendro
@@ -28,6 +30,9 @@ leontovich_sa
 depth5_sweep
 firefighter
 landscape_txz
+verify_remainders
+
+# PDFs
 *.pdf
 
 # LaTeX build artifacts
