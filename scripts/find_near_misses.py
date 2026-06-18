@@ -103,6 +103,11 @@ def search_near_misses(max_m2=15, n=17):
                                 if c3 + c5 + c6 + c7 < 1:
                                     continue
 
+                                # L0, L1, L2 must be connected via shared right-vertices.
+                                # Either c7 connects all three, or we need at least two distinct pairwise bridges.
+                                if c7 == 0 and sum([c4 > 0, c5 > 0, c6 > 0]) < 2:
+                                    continue
+
                                 c_vec = (c1, c2, c3, c4, c5, c6, c7)
                                 ratio = get_min_ratio(c_vec, n=n)
 
