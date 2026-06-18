@@ -11,6 +11,20 @@
 \usepackage{graphicx}
 \usepackage[hidelinks,hypertexnames=false]{hyperref}
 \usepackage{enumitem}
+\usepackage{accsupp}
+\usepackage{eso-pic}
+
+\newcommand{\nocopytext}[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}
+
+% ── Preprint watermark ───────────────────────────────────────────────────
+\AddToShipoutPictureBG{%
+  \put(\LenToUnit{0.5\paperwidth},\LenToUnit{0.955\paperheight}){%
+    \makebox(0,0){\nocopytext{\textcolor{gray!25}{\large\textit{Preprint --- not peer reviewed}}}}%
+  }%
+  \put(\LenToUnit{0.5\paperwidth},\LenToUnit{0.04\paperheight}){%
+    \makebox(0,0){\nocopytext{\textcolor{gray!25}{\large\textit{Preprint --- not peer reviewed}}}}%
+  }%
+}
 
 % ── Theorem environments ────────────────────────────────────────────────
 \newtheorem{theorem}{Theorem}[section]
