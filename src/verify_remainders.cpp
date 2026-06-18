@@ -27,8 +27,8 @@ struct LeontovichHit {
     int m1 = 0;
     int m2 = 0;
     int n = 0;
-    unsigned __int128 homP = 0;
-    unsigned __int128 homE = 0;
+    double homP = 0.0;
+    double homE = 0.0;
 };
 
 // Global list of hits found, protected by an OpenMP lock
@@ -37,8 +37,8 @@ omp_nest_lock_t g_lock;
 
 // Function to verify if a given subset configuration is Leontovich
 bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
-                          int d, unsigned __int128& out_homP,
-                          unsigned __int128& out_homE, int& out_n) {
+                          int d, double& out_homP, double& out_homE,
+                          int& out_n) {
     int S = (1 << m1) - 1;
     int m = m1 + m2;
 
@@ -65,20 +65,19 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
     // DP table of size (max_n + 1) x m
     // To minimize allocations, we use pre-allocated buffers on the stack or
     // flat vectors
-    std::vector<std::vector<unsigned __int128>> w(
-        max_n + 1, std::vector<unsigned __int128>(m, 0));
+    std::vector<std::vector<double>> w(max_n + 1, std::vector<double>(m, 0.0));
 
     // Base case: walks of length 0
     for (int u = 0; u < m; ++u) {
-        w[0][u] = 1;
+        w[0][u] = 1.0;
     }
 
     // DP Recurrence: w[step][u] = \sum_{v \sim u} w[step-1][v]
     for (int step = 1; step <= max_n; ++step) {
         for (int u = 0; u < m; ++u) {
-            unsigned __int128 sum = std::accumulate(
-                adj[u].begin(), adj[u].end(), (unsigned __int128)0,
-                [&](unsigned __int128 s, int v) { return s + w[step - 1][v]; });
+            double sum = std::accumulate(
+                adj[u].begin(), adj[u].end(), 0.0,
+                [&](double s, int v) { return s + w[step - 1][v]; });
             w[step][u] = sum;
         }
     }
@@ -86,7 +85,7 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
     // Check crossovers at odd thresholds n
     for (int n = 5; n <= max_n; n += 2) {
         // homP = sum_{u=0}^{m-1} w[n-1][u]
-        unsigned __int128 homP = 0;
+        double homP = 0.0;
         for (int u = 0; u < m; ++u) {
             homP += w[n - 1][u];
         }
@@ -95,12 +94,14 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
         int stem = n - d - 2;
         if (stem < 0) continue;
 
-        unsigned __int128 homE = 0;
+        double homE = 0.0;
         for (int u = 0; u < m; ++u) {
             homE += w[stem][u] * w[1][u] * w[d][u];
         }
 
-        if (homE < homP) {
+        // Use standard relative-error margin (1e-11) to avoid floating point
+        // noise false-positives
+        if (homE < homP * (1.0 - 1e-11)) {
             out_homP = homP;
             out_homE = homE;
             out_n = n;
@@ -150,7 +151,7 @@ void generate_and_evaluate(int subset_idx, int remaining_m2, int m1, int m2,
             local_valid_count++;
 
             // 3. Evaluate the graph
-            unsigned __int128 homP = 0, homE = 0;
+            double homP = 0.0, homE = 0.0;
             int n = 0;
             if (verify_configuration(c, m1, m2, 51, 2, homP, homE, n)) {
                 omp_set_nest_lock(&g_lock);
@@ -170,10 +171,10 @@ void generate_and_evaluate(int subset_idx, int remaining_m2, int m1, int m2,
                         std::cout << c[j] << " ";
                     }
                     std::cout << "\n  Crossover threshold n: " << n << "\n";
-                    std::cout << "  hom(P_n, H):           ";
-                    print_int128(homP);
-                    std::cout << "\n  hom(E_n^(2), H):       ";
-                    print_int128(homE);
+                    std::cout << "  hom(P_n, H):           " << std::scientific
+                              << homP << "\n";
+                    std::cout << "  hom(E_n^(2), H):       " << std::scientific
+                              << homE << "\n";
                     std::cout << "\n";
                     if (current_partition_hits == 5) {
                         std::cout
