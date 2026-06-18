@@ -110,4 +110,4 @@ def prove_bipartite_partition2(max_m2=40, max_n=51):
 
 
 if __name__ == "__main__":
-    prove_bipartite_partition2(40)
+    prove_bipartite_partition2(100)
