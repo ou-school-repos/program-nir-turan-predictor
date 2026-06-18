@@ -280,7 +280,15 @@ def build_leontovich_solver_general(m, n, d=2, max_deg=None, force_triangle=Fals
 
 
 def run_smt_search(
-    m, n, d=2, graph_type="bipartite", m1=None, m2=None, max_deg=None, timeout_ms=None, force_triangle=False
+    m,
+    n,
+    d=2,
+    graph_type="bipartite",
+    m1=None,
+    m2=None,
+    max_deg=None,
+    timeout_ms=None,
+    force_triangle=False,
 ):
     """Run SMT search and return results."""
     print(
@@ -369,7 +377,9 @@ def run_smt_search(
     else:
         # General graph search (unpartitioned)
         start_time = time.time()
-        s, A, homP, homE = build_leontovich_solver_general(m, n, d, max_deg, force_triangle)
+        s, A, homP, homE = build_leontovich_solver_general(
+            m, n, d, max_deg, force_triangle
+        )
         if timeout_ms is not None:
             s.set("timeout", timeout_ms)
 
