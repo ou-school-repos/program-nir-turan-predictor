@@ -35,6 +35,17 @@ def main():
     g6 = to_graph6(adj)
     print(f"Generated Graph6: {g6}")
 
+    # Compute and print degree sequence and adjacency list
+    degrees = [sum(row) for row in adj]
+    sorted_degrees = sorted(degrees, reverse=True)
+    print(f"\nDegree Sequence (non-increasing): {sorted_degrees}")
+
+    print("\nCanonical Adjacency List (0-indexed):")
+    for u in range(m):
+        neighbors = [v for v in range(m) if adj[u][v] == 1]
+        print(f"  {u}: {neighbors}")
+    print()
+
     # Verify using the official exact verifier
     verify_graph(g6)
 
