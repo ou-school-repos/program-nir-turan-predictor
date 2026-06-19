@@ -1260,10 +1260,7 @@ coefficient.  For odd~$n$, both trees share the same
 unbalanced bipartition, allowing the secondary eigenvector to interfere
 and flip the overall count.
 
-We verified this computationally: across all target graphs tested
-(over 463~million bipartite graphs and 5.6~million trees), no
-even-$n$ crossover was observed.  This led to the hypothesis by Galvin et al.~\cite{galvin2026} that adding a loop to the root
-of $H$ (destroying bipartiteness) is structurally necessary to achieve even-$n$ crossovers.
+Based on earlier observations, Galvin et al.~\cite{galvin2026} hypothesized that adding a loop to the root of $H$ (destroying bipartiteness) is structurally necessary to achieve even-$n$ crossovers. We subsequently verified this hypothesis computationally over an extensive search space: across all target graphs tested (over 463~million bipartite graphs and 5.6~million trees), no even-$n$ crossover was observed.
 
 \textbf{However, we will formally disprove this conjecture in the following section}, demonstrating that massive bipartite double covers can mathematically silence the parity oscillation, allowing $E_n$ to permanently overtake $P_n$ at even thresholds.
 
