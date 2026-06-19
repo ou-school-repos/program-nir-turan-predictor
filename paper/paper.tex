@@ -1311,6 +1311,36 @@ Our computational sweeps and spectral analyses raise several intriguing open que
     Since our exhaustive simple graph sweeps up to $m \le 11$ found zero violations, the smallest simple strongly Leontovich graph must have at least 12 vertices. Do any exist for $m \ge 12$?
 \end{enumerate}
 
+\section{Exact Verification of the 242-Vertex Strongly Leontovich Target}
+\label{app:strong_verification}
+
+To explicitly demonstrate the mechanics of a strongly Leontovich crossover, we evaluate the exact step-by-step walk counts for the minimal 242-vertex looped symmetric tree $\hat{T}(1, 12, 1, 18)$.
+
+As defined by Galvin et al.~\cite{galvin2026}, a graph is \emph{strongly Leontovich} if the leading asymptotic projection coefficient for the near-path is strictly less than that of the straight path ($c_1' < c_1$). In contrast to standard (weakly) Leontovich bipartite graphs where the leading terms tie ($c_1' = c_1$) and the crossover is driven by the oscillatory destructive interference of a secondary eigenvalue (causing the margin to fluctuate between even and odd $n$), a strongly Leontovich target exhibits an absolute, exponential divergence. Once the crossover occurs, the straight path strictly dominates the near-path at all subsequent thresholds without parity oscillations.
+
+Table~\ref{tab:verify_strong} provides the exact homomorphism counts verified with infinite-precision integer arithmetic. The permanent strongly Leontovich crossover occurs exactly at threshold $n=13$.
+
+\begin{table}[H]
+\centering
+\caption{Exact step-by-step walk counts for the 242-vertex strongly Leontovich target $\hat{T}(1, 12, 1, 18)$. At $n=13$, the straight path $P_{13}$ overtakes the near-path $E_{13}$, and the positive margin $\Delta$ diverges exponentially.}
+\label{tab:verify_strong}
+\begin{tabular}{@{}rrrrc@{}}
+  \toprule
+  $n$ & $\Hom(P_n, \hat{T})$ & $\Hom(E_n^{(2)}, \hat{T})$ & $\Delta = P_n - E_n^{(2)}$ & Status \\
+  \midrule
+  5 & 95{,}965 & 96{,}734 & $-769$ & \\
+  7 & 1{,}951{,}186 & 1{,}958{,}940 & $-7{,}754$ & \\
+  9 & 39{,}906{,}845 & 39{,}971{,}254 & $-64{,}409$ & \\
+  11 & 818{,}948{,}633 & 819{,}204{,}630 & $-255{,}997$ & \\
+  13 & 16{,}838{,}121{,}922 & 16{,}831{,}482{,}476 & \textbf{+6{,}639{,}446} & Strongly Leontovich \\
+  15 & 346{,}575{,}849{,}145 & 346{,}308{,}209{,}166 & \textbf{+267{,}639{,}979} & Strongly Leontovich \\
+  17 & 7{,}137{,}841{,}920{,}533 & 7{,}130{,}925{,}316{,}846 & \textbf{+6{,}916{,}603{,}687} & Strongly Leontovich \\
+  19 & 147{,}056{,}656{,}519{,}010 & 146{,}899{,}858{,}390{,}716 & \textbf{+156{,}798{,}128{,}294} & Strongly Leontovich \\
+  21 & 3{,}030{,}309{,}029{,}885{,}461 & 3{,}026{,}948{,}781{,}770{,}630 & \textbf{+3{,}360{,}248{,}114{,}831} & Strongly Leontovich \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
 \bibliographystyle{plain}
 \bibliography{references}
 
