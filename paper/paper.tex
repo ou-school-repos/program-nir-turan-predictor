@@ -1260,9 +1260,17 @@ coefficient.  For odd~$n$, both trees share the same
 unbalanced bipartition, allowing the secondary eigenvector to interfere
 and flip the overall count.
 
-Based on earlier observations, Galvin et al.~\cite{galvin2026} hypothesized that adding a loop to the root of $H$ (destroying bipartiteness) is structurally necessary to achieve even-$n$ crossovers. We subsequently verified this hypothesis computationally over an extensive search space: across all target graphs tested (over 463~million bipartite graphs and 5.6~million trees), no even-$n$ crossover was observed.
+Based on earlier observations, Galvin et al.~\cite{galvin2026} hypothesized
+that adding a loop to the root of $H$ (destroying bipartiteness) is
+structurally necessary to achieve even-$n$ crossovers. We subsequently
+verified this hypothesis computationally over an extensive search space:
+across all target graphs tested (over 463~million bipartite graphs and
+5.6~million trees), no even-$n$ crossover was observed.
 
-\textbf{However, we will formally disprove this conjecture in the following section}, demonstrating that massive bipartite double covers can mathematically silence the parity oscillation, allowing $E_n$ to permanently overtake $P_n$ at even thresholds.
+\textbf{However, we will formally disprove this conjecture in the following
+section}, demonstrating that massive bipartite double covers can mathematically
+silence the parity oscillation, allowing $E_n$ to permanently overtake $P_n$
+at even thresholds.
 
 \begin{remark}
 The same parity phenomenon appears in the independent set
@@ -1276,39 +1284,84 @@ are possible in that setting.
 
 \section{The Bipartite Double Cover and Strongly Leontovich Graphs}
 
-A fundamental open question posed by Galvin et al.~\cite{galvin2025} is whether there exist \emph{simple} (non-looped, non-multigraph) target graphs that are Strongly Leontovich, or if the property intrinsically requires the topological acceleration provided by loops. We resolve this affirmatively using the categorical tensor product.
+A fundamental open question posed by Galvin et al.~\cite{galvin2025} is whether
+there exist \emph{simple} (non-looped, non-multigraph) target graphs that are
+Strongly Leontovich, or if the property intrinsically requires the topological
+acceleration provided by loops. We resolve this affirmatively using the
+categorical tensor product.
 
 \begin{definition}[Bipartite Double Cover]
-For any graph $H$, its bipartite double cover $B = H \times K_2$ is a bipartite graph on $2|V(H)|$ vertices. The vertex set is $V(H) \times \{0, 1\}$, with edges connecting $(u, 0)$ to $(v, 1)$ if and only if $(u, v) \in E(H)$. A loop at vertex $u$ in $H$ corresponds to a standard edge between $(u, 0)$ and $(u, 1)$ in $B$. Thus, $B$ is always a simple bipartite graph.
+For any graph $H$, its bipartite double cover $B = H \times K_2$ is a
+bipartite graph on $2|V(H)|$ vertices. The vertex set is $V(H) \times \{0, 1\}$,
+with edges connecting $(u, 0)$ to $(v, 1)$ if and only if $(u, v) \in E(H)$.
+A loop at vertex $u$ in $H$ corresponds to a standard edge between $(u, 0)$ and
+$(u, 1)$ in $B$. Thus, $B$ is always a simple bipartite graph.
 \end{definition}
 
 \begin{theorem}
 \label{thm:double_cover}
-A graph $H$ is Leontovich if and only if its bipartite double cover $B = H \times K_2$ is Leontovich. Furthermore, $H$ is Strongly Leontovich if and only if $B$ is Strongly Leontovich.
+A graph $H$ is Leontovich if and only if its bipartite double cover $B = H
+\times K_2$ is Leontovich. Furthermore, $H$ is Strongly Leontovich if and only
+if $B$ is Strongly Leontovich.
 \end{theorem}
 \begin{proof}
-Let $T$ be any connected tree. Because $T$ is bipartite, it admits exactly two proper 2-colorings. Consequently, any homomorphism $\phi \colon T \to H$ lifts to exactly two distinct homomorphisms $\Phi \colon T \to B$, corresponding to the two choices of mapping the color classes of $T$ to the partitions $\{0, 1\}$ of $B$. Therefore, for any tree $T$, $\Hom(T, B) = 2 \Hom(T, H)$.
+Let $T$ be any connected tree. Because $T$ is bipartite, it admits exactly two
+proper 2-colorings. Consequently, any homomorphism $\phi \colon T \to H$ lifts
+to exactly two distinct homomorphisms $\Phi \colon T \to B$, corresponding to
+the two choices of mapping the color classes of $T$ to the partitions $\{0, 1\}$
+of $B$. Therefore, for any tree $T$, $\Hom(T, B) = 2 \Hom(T, H)$.
 
 It follows immediately that for all $n$ and $d$:
 \[
   \Hom(P_n, B) - \Hom(E_n^{(d)}, B) = 2 \Bigl[ \Hom(P_n, H) - \Hom(E_n^{(d)}, H) \Bigr]
 \]
-Because the homomorphism difference scales by a strict positive constant, the crossover thresholds and the asymptotic ratio of the leading projection coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
+Because the homomorphism difference scales by a strict positive constant, the
+crossover thresholds and the asymptotic ratio of the leading projection
+coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
 \end{proof}
 
 \subsection{Resolution of Simple Strongly Leontovich Graphs}
 
-We previously established that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$ on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T}) \approx 0.999954 < 1$.
+We previously established that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$
+on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient
+ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
+\approx 0.999954 < 1$.
 
-By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T} \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less than 1, $B$ is a \textbf{Simple Strongly Leontovich graph}, resolving Open Problem 4.
+By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T}
+\times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite
+graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
+than 1, $B$ is a \textbf{Simple Strongly Leontovich graph}, resolving Open
+Problem 4.
 
-Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference. This serves as a formal disproof of the Universal Bipartite Parity Rule.
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
+for all sufficiently large $n$, both even and odd. Exact integer computation of
+the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$
+starting exactly at the even threshold $n = 17{,}340$. This demonstrates that
+even-$n$ crossovers do not require loops, but rather a sufficiently massive
+bipartite graph capable of delaying the destructive spectral interference. This
+serves as a formal disproof of the Universal Bipartite Parity Rule.
 
 \subsection{Resolution of Non-Bipartite Leontovich Graphs}
 
-The existence of the simple bipartite Strongly Leontovich graph $B$ allows us to definitively resolve the status of simple non-bipartite targets. If we perturb $B$ by adding a single edge $e$ between two terminal leaf vertices within the same partition, the resulting graph $B+e$ contains an odd cycle and is strictly non-bipartite.
+The existence of the simple bipartite Strongly Leontovich graph $B$ allows us to
+definitively resolve the status of simple non-bipartite targets. If we perturb
+$B$ by adding a single edge $e$ between two terminal leaf vertices within the
+same partition, the resulting graph $B+e$ contains an odd cycle and is strictly
+non-bipartite.
 
-Because the asymptotic ratio $0.999954$ of $B$ is strictly bounded away from 1, we must ensure the spectral perturbation is smaller than the margin $1 - 0.999954 = 4.6 \times 10^{-5}$. By Rayleigh quotient perturbation theory, the shift in the principal eigenvalue caused by adding an edge is proportional to $v_i v_j$. Because the principal eigenvector mass decays exponentially towards the leaves ($v_{\text{leaf}} \approx \mathcal{O}(\lambda_1^{-D})$), the perturbation is bounded by $\mathcal{O}(\lambda_1^{-2D})$. For $B = \hat{T}(1, 35, 1, 50) \times K_2$, $\lambda_1 \approx 7.28$ and maximum depth $D=3$, ensuring the perturbation is $\sim 10^{-6}$, which is safely an order of magnitude smaller than the $4.6 \times 10^{-5}$ Leontovich margin. Therefore, the perturbed graph $B+e$ remains Strongly Leontovich. This resolves Open Problem 2, proving that simple non-bipartite Leontovich targets do exist, provided their odd cycles are sufficiently dilute.
+Because the asymptotic ratio $0.999954$ of $B$ is strictly bounded away from
+1, we must ensure the spectral perturbation is smaller than the margin $1 -
+0.999954 = 4.6 \times 10^{-5}$. By Rayleigh quotient perturbation theory, the
+shift in the principal eigenvalue caused by adding an edge is proportional to
+$v_i v_j$. Because the principal eigenvector mass decays exponentially towards
+the leaves ($v_{\text{leaf}} \approx \mathcal{O}(\lambda_1^{-D})$), the
+perturbation is bounded by $\mathcal{O}(\lambda_1^{-2D})$. For $B = \hat{T}(1,
+35, 1, 50) \times K_2$, $\lambda_1 \approx 7.28$ and maximum depth $D=3$,
+ensuring the perturbation is $\sim 10^{-6}$, which is safely an order of
+magnitude smaller than the $4.6 \times 10^{-5}$ Leontovich margin. Therefore,
+the perturbed graph $B+e$ remains Strongly Leontovich. This resolves Open
+Problem 2, proving that simple non-bipartite Leontovich targets do exist,
+provided their odd cycles are sufficiently dilute.
 
 \bibliographystyle{plain}
 \bibliography{references}
