@@ -1196,8 +1196,27 @@ satisfy $c_1' < c_1$ using small, irregular branching degrees,
 completely shedding the redundant weight.  Indeed, an exhaustive search
 over 5-orbit looped symmetric trees $\hat{T}(d_1, d_2, d_3, d_4)$
 finds that \textbf{the \textit{strongly} Leontovich upper bound collapses from
-$961{,}601$ vertices to just $2{,}855$} at $\hat{T}(2, 31, 1, 44)$---a
-$336\times$ reduction from a single additional orbit.
+$961{,}601$ vertices to just $242$} at $\hat{T}(1, 12, 1, 18)$---a
+$3{,}973\times$ reduction from a single additional orbit.
+Table~\ref{tab:strong_frontier} details the minimal vertex frontier across various crossover thresholds.
+
+\begin{table}[H]
+\centering
+\caption{Frontier of minimal strongly Leontovich trees.}
+\label{tab:strong_frontier}
+\begin{tabular}{@{}ccl@{}}
+\toprule
+Threshold $n$ & $|V|$ & Parameters $(d_1, d_2, d_3, d_4)$ \\
+\midrule
+7 & 1,066 & $\hat{T}(1, 28, 1, 36)$ \\
+9 & 370 & $\hat{T}(1, 16, 1, 21)$ \\
+11 & 262 & $\hat{T}(1, 13, 1, 18)$ \\
+13 & 242 & $\hat{T}(1, 12, 1, 18)$ \\
+15 & 546 & $\hat{T}(1, 17, 1, 30)$ \\
+17 & 422 & $\hat{T}(1, 15, 1, 26)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{remark}
 
 \subsection*{Non-oscillatory threshold}
@@ -1283,7 +1302,7 @@ Our computational sweeps and spectral analyses raise several intriguing open que
     Our exhaustive sweeps established $m \ge 12$ as a strict lower bound for any such target, but we hypothesize that the odd cycles in any simple non-bipartite graph permanently accelerate walk counts, making a standard Leontovich crossover mathematically impossible. Is this conjecture provably true?
 
     \item \textbf{Minimal Looped Strongly Leontovich Targets:}
-    Our 5-orbit looped symmetric tree $\hat{T}(2, 31, 1, 44)$ on 2,855 vertices is the smallest strongly Leontovich target currently known, collapsing the previous 4-orbit upper bound of 961,601 vertices by over $336\times$.
+    Our 5-orbit looped symmetric tree $\hat{T}(1, 12, 1, 18)$ on 242 vertices is the smallest strongly Leontovich target currently known, collapsing the previous 4-orbit upper bound of 961,601 vertices by over $3{,}973\times$.
     Can a smaller strongly Leontovich target with loops be constructed, perhaps by further expanding the orbits or breaking the spherical symmetry entirely?
 
     \item \textbf{Existence of Simple Strongly Leontovich Graphs:}

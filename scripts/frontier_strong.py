@@ -50,13 +50,13 @@ def evaluate_strong_leontovich(d1, d2, d3, d4):
     crossover = False
     threshold = -1
 
-    # Check if E_n beats P_n asymptotically (strong condition)
+    # Check if P_n beats E_n asymptotically (strong condition)
     # Check deep values n=101, 103, 105 to ensure it STAYS crossed over (c'_1 < c_1)
-    if homE(101) > homP(101) and homE(103) > homP(103) and homE(105) > homP(105):
+    if homP(101) > homE(101) and homP(103) > homE(103) and homP(105) > homE(105):
         crossover = True
         # Find exact threshold
         for n in range(5, 105, 2):
-            if homE(n) > homP(n):
+            if homP(n) > homE(n):
                 threshold = n
                 break
 
