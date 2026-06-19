@@ -173,10 +173,12 @@ void search(int idx, int remain, int* c, int m2) {
             if (sum == 0) return;
         }
 
-        // Guaranteed to be canonical because of the partial backtrack checks!
-        #pragma omp atomic
-        total_graphs++;
-        evaluate(m2, c);
+        // Run full canonicity check at the leaf since we bypassed checks for idx < 12
+        if (is_partial_canonical(1, c)) {
+            #pragma omp atomic
+            total_graphs++;
+            evaluate(m2, c);
+        }
         return;
     }
     
@@ -189,7 +191,8 @@ void search(int idx, int remain, int* c, int m2) {
 
     for (int v = min_val; v <= remain; v++) {
         c[idx] = v;
-        if (is_partial_canonical(idx, c)) {
+        // Only run partial canonicity check at upper levels (idx >= 12) to avoid recursive overhead at the wide bottom of the tree
+        if (idx < 12 || is_partial_canonical(idx, c)) {
             search(idx - 1, remain - v, c, m2);
         }
     }
@@ -197,7 +200,7 @@ void search(int idx, int remain, int* c, int m2) {
 
 int main() {
     auto t0 = chrono::steady_clock::now();
-    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Group Backtrack Edition)\033[0m\n";
+    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Threshold Pruning Edition)\033[0m\n";
     cout << "=========================================================\n";
     
     for (int m1 = 4; m1 <= 8; m1++) {
