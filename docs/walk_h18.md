@@ -162,6 +162,6 @@ PROOF COMPLETED in 19.230 seconds.
 ============================================================
 ```
 
-Furthermore, to mathematically guarantee that $H_{18}$ is the absolute **global vertex-count minimum** across all simple bipartite target graphs (including partitions with $m_1 \ge 4$), we executed an exhaustive sweep of all remaining partition classes up to $m \le 17$ vertices using `scripts/verify_bipartite_m17.cpp`. 
+Furthermore, to mathematically guarantee that $H_{18}$ is the absolute **global vertex-count minimum** across all simple bipartite target graphs (including partitions with $m_1 \ge 4$), we executed an exhaustive sweep of all remaining partition classes up to $m \le 17$ vertices using `scripts/verify_bipartite_m17.cpp`.
 
 Running with **100% exact arbitrary-precision 256-bit integer arithmetic** (`uint256_t`) and multi-threaded **Group Backtrack Pruning** at all intermediate recursion levels, the sweep evaluated all canonical graphs in these families and returned **exactly 0 Leontovich violations**. This rigorously establishes that **no bipartite Leontovich target graph exists of order $m \le 17$**, sealing the global minimality of $H_{18}$ in infinite-precision stone.

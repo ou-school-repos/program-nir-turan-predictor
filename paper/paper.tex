@@ -129,7 +129,7 @@ targets where paths strictly minimize.
   \item Improving the lower bound on the smallest simple Leontovich
     graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
     all 1,018,680,329 connected simple graphs on $m \le 11$ vertices).
-    This resolves Problem~4.3 of \cite{galvin2025} for simple graphs.
+    This bounds Problem~4.3 of \cite{galvin2025} for simple graphs.
   \item Exhaustive search of all spherically symmetric trees
     $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
     verified with exact integer arithmetic, ruling out smaller
@@ -1266,22 +1266,22 @@ are possible in that setting.
 Our computational sweeps and spectral analyses raise several intriguing open questions for future research:
 
 \begin{enumerate}
-    \item \textbf{The Smallest Leontovich Tree:} 
-    While we have established that the smallest bipartite Leontovich graph is exactly $H_{18}$ on 18 vertices, the smallest known Leontovich \emph{tree} is our 76-vertex tree $T_{76}$ (improving on Nir's original 78-vertex tree). 
-    We have computationally ruled out any tree Leontovich graphs on $m \le 23$ vertices. 
+    \item \textbf{The Smallest Leontovich Tree:}
+    While we have established that the smallest bipartite Leontovich graph is exactly $H_{18}$ on 18 vertices, the smallest known Leontovich \emph{tree} is our 76-vertex tree $T_{76}$ (improving on Nir's original 78-vertex tree).
+    We have computationally ruled out any tree Leontovich graphs on $m \le 23$ vertices.
     Can the gap be narrowed further? Is the minimal Leontovich tree (either weakly or strongly) strictly larger than 23 vertices, and does it lie close to 76?
-    
-    \item \textbf{Existence of Simple Non-Bipartite Leontovich Graphs:} 
-    Do there exist any simple (non-looped, non-multigraph) non-bipartite target graphs $H$ that exhibit a Leontovich violation? 
+
+    \item \textbf{Existence of Simple Non-Bipartite Leontovich Graphs:}
+    Do there exist any simple (non-looped, non-multigraph) non-bipartite target graphs $H$ that exhibit a Leontovich violation?
     Our exhaustive sweeps established $m \ge 12$ as a strict lower bound for any such target, but we hypothesize that the odd cycles in any simple non-bipartite graph permanently accelerate walk counts, making a standard Leontovich crossover mathematically impossible. Is this conjecture provably true?
-    
-    \item \textbf{Minimal Looped Strongly Leontovich Targets:} 
-    Our 5-orbit looped symmetric tree $\hat{T}(2, 31, 1, 44)$ on 2,855 vertices is the smallest strongly Leontovich target currently known, collapsing the previous 4-orbit upper bound of 961,601 vertices by over $336\times$. 
+
+    \item \textbf{Minimal Looped Strongly Leontovich Targets:}
+    Our 5-orbit looped symmetric tree $\hat{T}(2, 31, 1, 44)$ on 2,855 vertices is the smallest strongly Leontovich target currently known, collapsing the previous 4-orbit upper bound of 961,601 vertices by over $336\times$.
     Can a smaller strongly Leontovich target with loops be constructed, perhaps by further expanding the orbits or breaking the spherical symmetry entirely?
-    
-    \item \textbf{Existence of Simple Strongly Leontovich Graphs:} 
-    Does there exist any \emph{simple} (non-looped, non-multigraph) graph that is strongly Leontovich (i.e., satisfying the asymptotic projection inequality $c_1' < c_1$)? 
-    By Proposition~B.2, any strongly Leontovich graph must be non-bipartite. 
+
+    \item \textbf{Existence of Simple Strongly Leontovich Graphs:}
+    Does there exist any \emph{simple} (non-looped, non-multigraph) graph that is strongly Leontovich (i.e., satisfying the asymptotic projection inequality $c_1' < c_1$)?
+    By Proposition~B.2, any strongly Leontovich graph must be non-bipartite.
     Since our exhaustive simple graph sweeps up to $m \le 11$ found zero violations, the smallest simple strongly Leontovich graph must have at least 12 vertices. Do any exist for $m \ge 12$?
 \end{enumerate}
 
