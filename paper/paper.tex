@@ -176,7 +176,7 @@ targets where paths strictly minimize.
 To investigate the uniqueness of the path minimizer, we computationally
 evaluated homomorphism counts for $H \in \{P_3, P_5, P_7, P_9\}$ and all
 $n$-vertex trees with $n \le 22$. Tree enumeration uses the
-Beyer--Hedetniemi canonical level-sequence algorithm implemented in C++,
+Beyer--Hedetniemi canonical level-sequence algorithm~\cite{BeyerH80} implemented in C++,
 producing all non-isomorphic trees. Tree counts are cross-validated
 against OEIS A000055~\cite{oeis_A000055}.
 
@@ -594,7 +594,7 @@ yields zero violations.
 \label{sec:computation}
 
 Tree enumeration uses the Beyer--Hedetniemi canonical level-sequence
-algorithm, generating all non-isomorphic trees on $n$ vertices in
+algorithm~\cite{BeyerH80}, generating all non-isomorphic trees on $n$ vertices in
 $O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
 trees in graph6 format on \texttt{stdout}, which is piped to the
 \texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
