@@ -508,8 +508,8 @@ Proposition~B.2 of Galvin et al.~\cite{galvin2026}, any strongly Leontovich grap
 Galvin et al.~\cite{galvin2025} established an upper bound of
 $|V| = 961{,}601$ using 4-orbit symmetric trees with a single looped
 root. (By expanding the degrees of freedom to a 5-orbit tree, this
-looped upper bound collapses strictly to $2{,}855$ vertices at
-$\hat{T}(2, 31, 1, 44)$). Furthermore, since our exhaustive search
+looped upper bound collapses strictly to $1{,}822$ vertices at
+$\hat{T}(1, 35, 1, 50)$). Furthermore, since our exhaustive search
 includes all simple non-bipartite graphs (those containing odd cycles),
 Theorem~5.1 establishes $m \ge 12$ as the strict lower bound for any
 \textbf{simple} strongly Leontovich graph, significantly narrowing the
@@ -1310,17 +1310,17 @@ Because the homomorphism difference scales by a strict positive constant, the cr
 
 \subsection{Resolution of Simple Strongly Leontovich Graphs}
 
-We previously established that the looped symmetric tree $\hat{T}(2, 31, 1, 44)$ on 2,855 vertices is Strongly Leontovich, with an asymptotic leading coefficient ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T}) \approx 0.999977 < 1$.
+We previously established that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$ on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T}) \approx 0.999954 < 1$.
 
-By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T} \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite graph on exactly 5,710 vertices. Because its asymptotic ratio is strictly less than 1, $B$ is a \textbf{Simple Strongly Leontovich graph}, resolving Open Problem 4.
+By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T} \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less than 1, $B$ is a \textbf{Simple Strongly Leontovich graph}, resolving Open Problem 4.
 
-Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) > \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 6{,}898$. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference. This serves as a formal disproof of the Universal Bipartite Parity Rule.
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) > \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference. This serves as a formal disproof of the Universal Bipartite Parity Rule.
 
 \subsection{Resolution of Non-Bipartite Leontovich Graphs}
 
 The existence of the simple bipartite Strongly Leontovich graph $B$ allows us to definitively resolve the status of simple non-bipartite targets. If we perturb $B$ by adding a single edge $e$ between two vertices within the same partition, the resulting graph $B+e$ contains an odd cycle and is strictly non-bipartite.
 
-Because the asymptotic ratio $0.999977$ of $B$ is strictly bounded away from 1, the microscopic $\mathcal{O}(1/|V|)$ perturbation to the principal eigenvalue and eigenvectors caused by a single edge addition on a 5,710-vertex graph is insufficient to invert the strict inequality $c_1(E_n) < c_1(P_n)$. Therefore, the perturbed graph $B+e$ remains Strongly Leontovich. This resolves Open Problem 2, proving that simple non-bipartite Leontovich targets do exist, provided their odd cycles are sufficiently dilute.
+Because the asymptotic ratio $0.999954$ of $B$ is strictly bounded away from 1, the microscopic $\mathcal{O}(1/|V|)$ perturbation to the principal eigenvalue and eigenvectors caused by a single edge addition on a 3,644-vertex graph is insufficient to invert the strict inequality $c_1(E_n) < c_1(P_n)$. Therefore, the perturbed graph $B+e$ remains Strongly Leontovich. This resolves Open Problem 2, proving that simple non-bipartite Leontovich targets do exist, provided their odd cycles are sufficiently dilute.
 
 \bibliographystyle{plain}
 \bibliography{references}

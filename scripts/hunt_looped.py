@@ -4,7 +4,6 @@ Uses the Perron-Frobenius principal eigenvector to evaluate the asymptotic
 Leontovich ratio in O(1) matrix operations, bypassing dynamic programming.
 """
 
-import itertools
 import time
 
 import numpy as np
@@ -47,39 +46,47 @@ def check_looped_ratio(degrees, d=2):
 
 
 def main():
-    """Main method to run detection script."""
-
     print(
         "\n\033[1;36mHunting Minimal Looped Strongly Leontovich Graphs (Problem 3)\033[0m"
     )
     print("Previous Record: T_loop(2, 31, 1, 44) | V = 2,855\n")
 
     best_v = 2855
-    best_graph = None
+    best_graph = (2, 31, 1, 44)
     t0 = time.time()
 
-    # Sweep depths (number of orbits)
-    for depth in range(3, 7):
-        print(f"Sweeping Depth {depth}...")
-        for degrees in itertools.product(range(1, 40), repeat=depth):
-            V = 1
-            term = 1
-            for deg in degrees:
-                term *= deg
-                V += term
-                if V >= best_v:
-                    break
+    def hunt(depth, current_degrees, current_V, current_term, b_v, b_g):
+        if len(current_degrees) == depth:
+            R = check_looped_ratio(current_degrees)
+            if R < 1.0:
+                b_v = current_V
+                b_g = current_degrees
+                deg_str = ",".join(map(str, current_degrees))
+                print(
+                    f"\033[1;32m  >>> NEW RECORD! T_loop({deg_str}) "
+                    f"| Vertices: {current_V} | R: {R:.5f}\033[0m"
+                )
+            return b_v, b_g
 
-            if V < best_v:
-                R = check_looped_ratio(degrees)
-                if R < 1.0:
-                    best_v = V
-                    best_graph = degrees
-                    deg_str = ",".join(map(str, degrees))
-                    print(
-                        f"\033[1;32m  >>> NEW RECORD! T_loop({deg_str}) "
-                        f"| Vertices: {V} | R: {R:.5f}\033[0m"
-                    )
+        for deg in range(1, b_v):
+            next_term = current_term * deg
+            next_V = current_V + next_term
+            if next_V >= b_v:
+                break
+            b_v, b_g = hunt(
+                depth,
+                current_degrees + (deg,),
+                next_V,
+                next_term,
+                b_v,
+                b_g,
+            )
+        return b_v, b_g
+
+    # Sweep depths (number of orbits)
+    for depth in range(3, 8):
+        print(f"Sweeping Depth {depth}...")
+        best_v, best_graph = hunt(depth, (), 1, 1, best_v, best_graph)
 
     best_str = ",".join(map(str, best_graph)) if best_graph else "None"
     print(
