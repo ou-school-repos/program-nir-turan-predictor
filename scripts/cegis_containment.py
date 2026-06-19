@@ -5,7 +5,8 @@ Couples Z3 (NP-Synthesis) with C++ Dendro (PSPACE-Evaluation) to
 discover Adversarial Extremal Graphs.
 """
 
-import itertools
+import json
+import subprocess
 import sys
 import time
 
@@ -48,9 +49,6 @@ def build_synthesis_model(N, E_target, max_deg):
     return s, A
 
 
-import subprocess
-import json
-
 def to_graph6(adj_matrix, N):
     """Converts adjacency matrix to Graph6 string format."""
     b = []
@@ -61,9 +59,17 @@ def to_graph6(adj_matrix, N):
         b.append(0)
     g6 = [chr(N + 63)]
     for i in range(0, len(b), 6):
-        val = (b[i]<<5) | (b[i+1]<<4) | (b[i+2]<<3) | (b[i+3]<<2) | (b[i+4]<<1) | b[i+5]
+        val = (
+            (b[i] << 5)
+            | (b[i + 1] << 4)
+            | (b[i + 2] << 3)
+            | (b[i + 3] << 2)
+            | (b[i + 4] << 1)
+            | b[i + 5]
+        )
         g6.append(chr(val + 63))
     return "graph6:" + "".join(g6)
+
 
 def call_dendro_oracle(adj_matrix, N, cuts):
     """Calls the real C++ Dendro PSPACE Oracle."""
@@ -71,7 +77,9 @@ def call_dendro_oracle(adj_matrix, N, cuts):
     try:
         result = subprocess.run(
             ["./dendro", "adversarial", "tmp.lean", g6, "--sync", "--cegis"],
-            capture_output=True, text=True, check=True
+            capture_output=True,
+            text=True,
+            check=True,
         )
         data = json.loads(result.stdout.strip())
         nash = data["nash"]
@@ -131,8 +139,21 @@ def run_cegis(N, E_target, tau, cuts):
             print(f"  -> Burner exploited topology! Damage = {actual_nash}")
             print(f"  -> Core Attack Path extracted: {attack_edges}")
 
-            # The CEGIS Magic: Ban the specific ATTACK PATH, not the whole graph.
-            blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
+            if len(attack_edges) > 0:
+                # The CEGIS Magic: Ban the specific ATTACK PATH
+                blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
+            else:
+                # If no specific path was traced, ban the entire graph to force exploration
+                blocking_clause = z3.Not(
+                    z3.And(
+                        [
+                            A[i][j] == adj_matrix[i][j]
+                            for i in range(N)
+                            for j in range(N)
+                        ]
+                    )
+                )
+
             s.add(blocking_clause)
             print("  -> Blocking Constraint added to Z3. Rerunning...\n")
 

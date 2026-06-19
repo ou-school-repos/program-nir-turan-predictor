@@ -661,7 +661,7 @@ void run_adversarial(const string& lean_fn, const string& preset,
     }
 
     if (preset.substr(0, 7) == "graph6:") {
-        init_graph6(preset);
+        init_graph6(preset.substr(7));
     } else {
         init_graph(cfg);
     }

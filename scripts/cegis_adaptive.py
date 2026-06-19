@@ -143,7 +143,9 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
             adj_matrix, N, velocity_v, builder_curve
         )
 
-        if len(attack_edges) == 0:
+        if (
+            actual_damage < N / 2
+        ):  # Success condition (matched call_adaptive_oracle logic)
             print("\033[1;32mSUCCESS!\033[0m")
             print(
                 "\n\033[1;32m✓ PROOF COMPLETE: Synthesized Modularity (Islands & Bridges).\033[0m"
@@ -157,8 +159,21 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
             )
             print(f"  -> Flank extracted: {attack_edges}")
 
-            # Ban the specific high-bandwidth corridor
-            blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
+            if len(attack_edges) > 0:
+                # Ban the specific high-bandwidth corridor
+                blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
+            else:
+                # Ban the exact graph to force exploration
+                blocking_clause = z3.Not(
+                    z3.And(
+                        [
+                            A[i][j] == adj_matrix[i][j]
+                            for i in range(N)
+                            for j in range(N)
+                        ]
+                    )
+                )
+
             s.add(blocking_clause)
             print("  -> Blocking Corridor in Z3. Rerunning...\n")
 
