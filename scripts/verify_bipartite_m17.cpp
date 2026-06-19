@@ -87,26 +87,27 @@ long long total_graphs = 0;
 long long leo_count = 0;
 
 void evaluate(int m2, const int* c) {
+    // Correct Alternating Bipartite DP
+    // wL and wR are declared on the stack without zero-initialization to avoid memory clearing overheads
     uint256_t wL[61][8];
-    uint256_t wR_curr[256];
+    uint256_t wR[61][256];
 
     for(int i=0; i<m1_g; i++) wL[0][i] = uint256_t(1);
-    for(int p=1; p<=num_subsets; p++) wR_curr[p] = uint256_t(1);
+    for(int p=1; p<=num_subsets; p++) wR[0][p] = uint256_t(1);
 
-    // Hyper-fast Left-Projection Matrix DP: Only store 1D wR_curr
     for(int s=1; s<=60; s++) {
         for(int p=1; p<=num_subsets; p++) {
             uint256_t sum;
             for(int i=0; i<m1_g; i++) {
                 if ((p >> i) & 1) sum = sum + wL[s-1][i];
             }
-            wR_curr[p] = sum;
+            wR[s][p] = sum;
         }
         for(int i=0; i<m1_g; i++) {
             uint256_t sum;
             for(int p=1; p<=num_subsets; p++) {
                 if ((p >> i) & 1) {
-                    sum = sum + (wR_curr[p] * c[p]);
+                    sum = sum + (wR[s-1][p] * c[p]);
                 }
             }
             wL[s][i] = sum;
@@ -118,12 +119,7 @@ void evaluate(int m2, const int* c) {
         uint256_t s;
         for(int i=0; i<m1_g; i++) s = s + wL[n-1][i];
         for(int p=1; p<=num_subsets; p++) {
-            // Recalculate wR[n-1][p] on-the-fly from wL[n-2] to avoid 500KB matrix
-            uint256_t wR_val;
-            for(int i=0; i<m1_g; i++) {
-                if ((p >> i) & 1) wR_val = wR_val + wL[n-2][i];
-            }
-            s = s + (wR_val * c[p]);
+            s = s + (wR[n-1][p] * c[p]);
         }
         homP[n] = s;
     }
@@ -134,14 +130,7 @@ void evaluate(int m2, const int* c) {
         bL[i] = (uint64_t)wL[1][i].low * (uint64_t)wL[d][i].low;
     }
     for(int p=1; p<=num_subsets; p++) {
-        // wR[1][p] = sum_{i in p} wL[0][i] = size of subset p
-        // wR[2][p] = sum_{i in p} wL[1][i]
-        uint64_t wr1 = __builtin_popcount(p);
-        uint64_t wr2 = 0;
-        for(int i=0; i<m1_g; i++) {
-            if ((p >> i) & 1) wr2 += (uint64_t)wL[1][i].low;
-        }
-        bR[p] = wr1 * wr2;
+        bR[p] = (uint64_t)wR[1][p].low * (uint64_t)wR[d][p].low;
     }
 
     for(int n=5; n<=61; n+=2) {
@@ -153,17 +142,8 @@ void evaluate(int m2, const int* c) {
             homE = homE + (wL[stem][i] * bL[i]);
         }
         for(int p=1; p<=num_subsets; p++) {
-            // Compute wR[stem][p] on the fly
-            uint256_t wR_stem;
-            if (stem == 0) {
-                wR_stem = uint256_t(1);
-            } else {
-                for(int i=0; i<m1_g; i++) {
-                    if ((p >> i) & 1) wR_stem = wR_stem + wL[stem-1][i];
-                }
-            }
             uint64_t scalar = (uint64_t)c[p] * bR[p];
-            homE = homE + (wR_stem * scalar);
+            homE = homE + (wR[stem][p] * scalar);
         }
 
         if (homE < homP[n]) {
@@ -210,7 +190,7 @@ void search(int idx, int remain, int* c, int m2) {
 
 int main() {
     auto t0 = chrono::steady_clock::now();
-    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Hyper-Optimized L1 Edition)\033[0m\n";
+    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Hyper-Optimized Alternating Edition)\033[0m\n";
     cout << "=========================================================\n";
     
     for (int m1 = 4; m1 <= 8; m1++) {
