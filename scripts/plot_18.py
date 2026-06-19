@@ -108,20 +108,20 @@ def main():
             sizes.append(500)
             labels[v] = f"r{v}"
 
-    # Setup the plot with dark background
+    # Setup the plot with light background
     fig, ax = plt.subplots(1, 1, figsize=(15, 12))
-    ax.set_facecolor("#16162a")
-    fig.patch.set_facecolor("#16162a")
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
 
     # Draw elements
-    nx.draw_networkx_edges(G, pos, ax=ax, edge_color="#667788", width=1.5, alpha=0.7)
+    nx.draw_networkx_edges(G, pos, ax=ax, edge_color="#333333", width=1.5, alpha=0.7)
     nx.draw_networkx_nodes(
         G,
         pos,
         ax=ax,
         node_color=colors,
         node_size=sizes,
-        edgecolors="white",
+        edgecolors="black",
         linewidths=1.2,
     )
     nx.draw_networkx_labels(
@@ -130,14 +130,14 @@ def main():
         labels,
         ax=ax,
         font_size=11,
-        font_color="white",
+        font_color="black",
         font_weight="bold",
     )
 
     # Title & Legend
     ax.set_title(
         r"$H_{18}$  —  Minimal 18-Vertex Bipartite Leontovich Graph",
-        color="white",
+        color="black",
         fontsize=22,
         pad=25,
         fontweight="bold",
@@ -146,27 +146,27 @@ def main():
     legend_elements = [
         Patch(
             facecolor="#FF4444",
-            edgecolor="white",
+            edgecolor="black",
             label="Left Partition Nodes (L0, L1, L2)",
         ),
         Patch(
             facecolor="#88CC88",
-            edgecolor="white",
+            edgecolor="black",
             label="R_leaf_0: Leaves of L0 (7 nodes)",
         ),
         Patch(
             facecolor="#9b59b6",
-            edgecolor="white",
+            edgecolor="black",
             label="R_01: Cross-Connector of {L0, L1} (1 node)",
         ),
         Patch(
             facecolor="#e056fd",
-            edgecolor="white",
+            edgecolor="black",
             label="R_02: Cross-Connector of {L0, L2} (1 node)",
         ),
         Patch(
             facecolor="#FFAA00",
-            edgecolor="white",
+            edgecolor="black",
             label="R_12: Core Connected to {L1, L2} (6 nodes)",
         ),
     ]
@@ -174,14 +174,14 @@ def main():
         handles=legend_elements,
         loc="upper right",
         fontsize=12,
-        facecolor="#2a2a4e",
-        edgecolor="#667788",
-        labelcolor="white",
+        facecolor="#f8f9fa",
+        edgecolor="#333333",
+        labelcolor="black",
     )
 
     # Adjust limits to fit comfortably
-    ax.set_xlim(-1.5, 5.5)
-    ax.set_ylim(-6.5, 8.5)
+    ax.set_xlim(-1.5, 6.0)
+    ax.set_ylim(-6.5, 10.0)
     ax.set_aspect("equal")
     ax.axis("off")
     plt.tight_layout()
