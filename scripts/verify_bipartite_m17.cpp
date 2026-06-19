@@ -72,12 +72,18 @@ void init_perms(int m1) {
     num_perms = inv_perms.size();
 }
 
-bool is_canonical(const int* c) {
+// Hyper-fast Group Backtrack Pruning: Checks if chosen elements c[idx...num_subsets] are canonical
+bool is_partial_canonical(int idx, const int* c) {
     for (int p = 1; p < num_perms; p++) {
-        for (int i = num_subsets; i >= 1; i--) {
+        for (int i = num_subsets; i >= idx; i--) {
             int mapped_i = inv_perms[p][i];
-            if (c[mapped_i] > c[i]) return false;
-            if (c[mapped_i] < c[i]) break;
+            if (mapped_i >= idx) {
+                if (c[mapped_i] > c[i]) return false;
+                if (c[mapped_i] < c[i]) break; // this perm makes it lexicographically smaller on chosen elements
+            } else {
+                // mapped_i is not yet chosen, so we can't make a complete lexicographical decision
+                break;
+            }
         }
     }
     return true;
@@ -167,11 +173,10 @@ void search(int idx, int remain, int* c, int m2) {
             if (sum == 0) return;
         }
 
-        if (is_canonical(c)) {
-            #pragma omp atomic
-            total_graphs++;
-            evaluate(m2, c);
-        }
+        // Guaranteed to be canonical because of the partial backtrack checks!
+        #pragma omp atomic
+        total_graphs++;
+        evaluate(m2, c);
         return;
     }
     
@@ -184,13 +189,15 @@ void search(int idx, int remain, int* c, int m2) {
 
     for (int v = min_val; v <= remain; v++) {
         c[idx] = v;
-        search(idx - 1, remain - v, c, m2);
+        if (is_partial_canonical(idx, c)) {
+            search(idx - 1, remain - v, c, m2);
+        }
     }
 }
 
 int main() {
     auto t0 = chrono::steady_clock::now();
-    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Hyper-Optimized Alternating Edition)\033[0m\n";
+    cout << "\033[1;36mExhaustive Verification of Bipartite Partitions m <= 17 (Group Backtrack Edition)\033[0m\n";
     cout << "=========================================================\n";
     
     for (int m1 = 4; m1 <= 8; m1++) {
