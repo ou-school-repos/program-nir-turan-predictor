@@ -150,6 +150,15 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
             print(
                 "\n\033[1;32m✓ PROOF COMPLETE: Synthesized Modularity (Islands & Bridges).\033[0m"
             )
+            g6 = to_graph6(adj_matrix, N)
+            winning_edges = []
+            for i in range(N):
+                for j in range(i + 1, N):
+                    if adj_matrix[i][j] == 1:
+                        winning_edges.append((i, j))
+            print("\n\033[1;36mOptimal Topology Discovered:\033[0m")
+            print(f"  Graph6: {g6}")
+            print(f"  Edges:  {winning_edges}")
             return True
 
         else:
