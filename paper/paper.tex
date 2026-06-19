@@ -1314,15 +1314,30 @@ Our computational sweeps and spectral analyses raise several intriguing open que
 \section{Exact Verification of the 242-Vertex Strongly Leontovich Target}
 \label{app:strong_verification}
 
-To explicitly demonstrate the mechanics of a strongly Leontovich crossover, we evaluate the exact step-by-step walk counts for the minimal 242-vertex looped symmetric tree $\hat{T}(1, 12, 1, 18)$.
+To explicitly demonstrate the mechanics of a strongly Leontovich crossover, we
+evaluate the exact step-by-step walk counts for the minimal 242-vertex looped
+symmetric tree $\hat{T}(1, 12, 1, 18)$.
 
-As defined by Galvin et al.~\cite{galvin2026}, a graph is \emph{strongly Leontovich} if the leading asymptotic projection coefficient for the near-path is strictly less than that of the straight path ($c_1' < c_1$). In contrast to standard (weakly) Leontovich bipartite graphs where the leading terms tie ($c_1' = c_1$) and the crossover is driven by the oscillatory destructive interference of a secondary eigenvalue (causing the margin to fluctuate between even and odd $n$), a strongly Leontovich target exhibits an absolute, exponential divergence. Once the crossover occurs, the straight path strictly dominates the near-path at all subsequent thresholds without parity oscillations.
+As defined by Galvin et al.~\cite{galvin2026}, a graph is \emph{strongly
+Leontovich} if the leading asymptotic projection coefficient for the near-path
+is strictly less than that of the straight path ($c_1' < c_1$). In contrast to
+standard (weakly) Leontovich bipartite graphs where the leading terms tie
+($c_1' = c_1$) and the crossover is driven by the oscillatory destructive
+interference of a secondary eigenvalue (causing the margin to fluctuate between
+even and odd $n$), a strongly Leontovich target exhibits an absolute,
+exponential divergence. Once the crossover occurs, the straight path strictly
+dominates the near-path at all subsequent thresholds without parity oscillations.
 
-Table~\ref{tab:verify_strong} provides the exact homomorphism counts verified with infinite-precision integer arithmetic. The permanent strongly Leontovich crossover occurs exactly at threshold $n=13$.
+Table~\ref{tab:verify_strong} provides the exact homomorphism counts verified
+with infinite-precision integer arithmetic. The permanent strongly Leontovich
+crossover occurs exactly at threshold $n=13$.
 
 \begin{table}[H]
 \centering
-\caption{Exact step-by-step walk counts for the 242-vertex strongly Leontovich target $\hat{T}(1, 12, 1, 18)$. At $n=13$, the straight path $P_{13}$ overtakes the near-path $E_{13}$, and the positive margin $\Delta$ diverges exponentially.}
+\caption{Exact step-by-step walk counts for the 242-vertex strongly Leontovich
+  target $\hat{T}(1, 12, 1, 18)$. At $n=13$, the straight path $P_{13}$
+  overtakes the near-path $E_{13}$, and the positive margin $\Delta$ diverges
+  exponentially.}
 \label{tab:verify_strong}
 \begin{tabular}{@{}rrrrc@{}}
   \toprule
