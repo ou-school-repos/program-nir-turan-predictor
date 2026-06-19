@@ -67,9 +67,7 @@ def call_dendro_oracle(adj_matrix, N, cuts):
 
 
 def run_cegis(N, E_target, tau, cuts):
-    print(
-        f"\n\033[1;36m=== CEGIS Loop: Adversarial Extremal Graph Synthesis ===\033[0m"
-    )
+    print("\n\033[1;36m=== CEGIS Loop: Adversarial Extremal Graph Synthesis ===\033[0m")
     print(f"Nodes: {N} | Target Edges: >= {E_target}")
     print(f"Constraint: Nash_{cuts}(G) <= {tau}\n")
 
@@ -88,10 +86,10 @@ def run_cegis(N, E_target, tau, cuts):
         start_z3 = time.time()
 
         if s.check() != z3.sat:
-            print(f"\n\033[1;31m[!] UNSAT: Mathematical Proof generated.\033[0m")
+            print("\n\033[1;31m[!] UNSAT: Mathematical Proof generated.\033[0m")
             print(f"No graph with {E_target} edges can survive {tau} damage.")
             print(
-                f"The network density has mathematically overpowered the Builder's c-cut capacity!"
+                "The network density has mathematically overpowered the Builder's c-cut capacity!"
             )
             return False
 
@@ -99,21 +97,21 @@ def run_cegis(N, E_target, tau, cuts):
         adj_matrix = [[model[A[i][j]].as_long() for j in range(N)] for i in range(N)]
         print(f"Done ({time.time() - start_z3:.2f}s)")
 
-        print(f"  -> Passing Candidate to C++ Dendro Oracle... ", end="", flush=True)
+        print("  -> Passing Candidate to C++ Dendro Oracle... ", end="", flush=True)
 
         # ── PSPACE ORACLE CALL ──
         actual_nash, attack_edges = call_dendro_oracle(adj_matrix, N, cuts)
 
         if actual_nash <= tau:
-            print(f"\033[1;32mSUCCESS!\033[0m")
+            print("\033[1;32mSUCCESS!\033[0m")
             print(
-                f"\n\033[1;32m✓ PROOF COMPLETE: Synthesized Bulletproof Network.\033[0m"
+                "\n\033[1;32m✓ PROOF COMPLETE: Synthesized Bulletproof Network.\033[0m"
             )
             print(f"  Edges: {E_target} | Nash Value: {actual_nash} (<= {tau})")
             return True
 
         else:
-            print(f"\033[1;31mFAILED.\033[0m")
+            print("\033[1;31mFAILED.\033[0m")
             print(f"  -> Burner exploited topology! Damage = {actual_nash}")
             print(f"  -> Core Attack Path extracted: {attack_edges}")
 
