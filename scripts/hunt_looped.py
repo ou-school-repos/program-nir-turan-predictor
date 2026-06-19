@@ -11,6 +11,8 @@ import numpy as np
 
 
 def check_looped_ratio(degrees, d=2):
+    """Check ratio to detect matches."""
+
     k = len(degrees)
     dim = k + 1
     Q = np.zeros((dim, dim))
@@ -45,6 +47,8 @@ def check_looped_ratio(degrees, d=2):
 
 
 def main():
+    """Main method to run detection script."""
+
     print(
         "\n\033[1;36mHunting Minimal Looped Strongly Leontovich Graphs (Problem 3)\033[0m"
     )
@@ -71,12 +75,16 @@ def main():
                 if R < 1.0:
                     best_v = V
                     best_graph = degrees
+                    deg_str = ",".join(map(str, degrees))
                     print(
-                        f"\033[1;32m  >>> NEW RECORD! T_loop({','.join(map(str, degrees))}) | Vertices: {V} | R: {R:.5f}\033[0m"
+                        f"\033[1;32m  >>> NEW RECORD! T_loop({deg_str}) "
+                        f"| Vertices: {V} | R: {R:.5f}\033[0m"
                     )
 
+    best_str = ",".join(map(str, best_graph)) if best_graph else "None"
     print(
-        f"\n\033[1;32mAbsolute Minimum Looped Strong Leontovich Found: T_loop({','.join(map(str, best_graph))}) with {best_v} vertices!\033[0m"
+        f"\n\033[1;32mAbsolute Minimum Looped Strong Leontovich Found: "
+        f"T_loop({best_str}) with {best_v} vertices!\033[0m"
     )
     print(f"Elapsed: {time.time() - t0:.2f}s")
 
