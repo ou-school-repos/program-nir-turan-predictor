@@ -31,6 +31,7 @@ depth5_sweep
 firefighter
 landscape_txz
 verify_remainders
+verify_bipartite_m17
 
 # PDFs
 *.pdf
