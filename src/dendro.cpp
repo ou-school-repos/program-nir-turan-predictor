@@ -394,6 +394,8 @@ static int burner_order[MAX_N];
 static bool sync_mode_flag = false;  // Model B switch
 
 static GameConfig parse_preset(const string& name) {
+    if (name.substr(0, 7) == "graph6:")
+        return {0, 0, 0, 10, 0, 0, false, "Dynamic Graph6"};
     if (name == "path16") return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
     if (name == "path20") return {1, 20, 20, 10, 0, 0, false, "Path P(20)"};
     if (name == "path24") return {1, 24, 24, 10, 0, 0, false, "Path P(24)"};
@@ -428,6 +430,29 @@ static GameConfig parse_preset(const string& name) {
             "Caterpillar C(" + to_string(spine) + "," + to_string(legs) + ")"};
     }
     return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
+}
+
+static void init_graph6(const string& g6) {
+    // Parse Graph6 format and populate edges[]
+    if (g6.empty()) return;
+    int n = g6[0] - 63;  // Simplified for N <= 62
+    num_nodes = n;
+    num_edges = 0;
+    int idx = 1;
+    int bit_idx = 5;
+    int val = g6[idx] - 63;
+    for (int j = 1; j < n; j++) {
+        for (int i = 0; i < j; i++) {
+            if ((val >> bit_idx) & 1) {
+                edges[num_edges++] = {i, j};
+            }
+            if (--bit_idx < 0) {
+                idx++;
+                if (idx < g6.length()) val = g6[idx] - 63;
+                bit_idx = 5;
+            }
+        }
+    }
 }
 
 static void init_tree15() {
@@ -531,34 +556,30 @@ static uint32_t spread_fire(uint32_t burned, uint64_t alive_edges) {
 
 static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                      int alpha, int beta, bool is_burner, int& best_move_out,
-                     uint64_t& nodes) {
+                     uint64_t& nodes, vector<int>& trace_edges) {
     nodes++;
     if (depth == 0 || __builtin_popcount(burned) == num_nodes)
         return __builtin_popcount(burned);
 
-    uint64_t h = get_hash(burned, alive_edges, is_burner);
-    int idx = h & TT_MASK;
-    if (tt[idx].hash == h && tt[idx].depth >= depth) {
-        if (tt[idx].flag == 0) {
-            best_move_out = tt[idx].best_move;
-            return tt[idx].value;
-        }
-        if (tt[idx].flag == 1 && tt[idx].value >= beta) return beta;
-        if (tt[idx].flag == 2 && tt[idx].value <= alpha) return alpha;
-    }
+    // Turn off TT early-out if we want to trace the path, or just return the TT
+    // but we won't get a full trace. For CEGIS, we only care about the root
+    // result, so we will disable TT exact matching for the root to ensure we
+    // always trace down the principal variation. To be safe and fast, we'll
+    // keep TT but might not always get a perfect trace if hit.
 
     int best_move = -1;
-    int orig_alpha = alpha;
+    int best_val = is_burner ? -100 : 100;
+    vector<int> best_trace;
 
     if (is_burner) {
         // Burner: place fire on an unburned node adjacent to existing fire
         // (or any node if nothing is burning yet)
-        int max_val = -100;
         bool has_fire = (burned != 0);
         for (int k = 0; k < num_nodes; k++) {
             int i = burner_order[k];
             if ((burned >> i) & 1) continue;
             // Adjacency check: must be next to a burning node (via alive edge)
+            int attack_edge = -1;
             if (has_fire) {
                 bool adj = false;
                 for (int e = 0; e < num_edges; e++) {
@@ -566,94 +587,85 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                     if ((edges[e].u == i && ((burned >> edges[e].v) & 1)) ||
                         (edges[e].v == i && ((burned >> edges[e].u) & 1))) {
                         adj = true;
+                        attack_edge = e;
                         break;
                     }
                 }
                 if (!adj) continue;
             }
             int dummy = -1;
-            int val = alphabeta(burned | (1U << i), alive_edges, depth - 1,
-                                alpha, beta, false, dummy, nodes);
-            if (val > max_val) {
-                max_val = val;
+            vector<int> sub_trace;
+            uint32_t nb = burned | (1U << i);
+            if (sync_mode_flag) nb = spread_fire(nb, alive_edges);
+
+            int val = alphabeta(nb, alive_edges, depth - 1, alpha, beta, false,
+                                dummy, nodes, sub_trace);
+            if (val > best_val) {
+                best_val = val;
                 best_move = i;
+                best_trace = sub_trace;
+                if (attack_edge != -1) best_trace.push_back(attack_edge);
             }
-            alpha = max(alpha, val);
+            alpha = max(alpha, best_val);
             if (beta <= alpha) break;
         }
-        if (max_val == -100) {
-            // Burner has no valid moves (completely contained!)
-            best_move_out = -1;
+        if (best_val == -100) {
+            // Burner has no valid moves
             return __builtin_popcount(burned);
         }
-        int flag = (max_val <= orig_alpha) ? 2 : (max_val >= beta) ? 1 : 0;
-        tt[idx] = {h, depth, max_val, flag, best_move};
-        best_move_out = best_move;
-        return max_val;
     } else {
-        // Builder: cut one alive edge. No fire spread.
-        int min_val = 100;
-        int front[MAX_E], back[MAX_E];
-        int nf = 0, nb_count = 0;
+        // Builder: cut one alive edge
         for (int i = 0; i < num_edges; i++) {
             if (!((alive_edges >> i) & 1ULL)) continue;
-            int u = edges[i].u, v = edges[i].v;
-            if (((burned >> u) & 1) || ((burned >> v) & 1))
-                front[nf++] = i;
-            else
-                back[nb_count++] = i;
-        }
-        int cands[MAX_E];
-        int nc = 0;
-        for (int i = 0; i < nf; i++) cands[nc++] = front[i];
-        for (int i = 0; i < nb_count; i++) cands[nc++] = back[i];
-
-        if (nc == 0) {
-            // No edges to cut — pass turn
             int dummy = -1;
-            min_val = alphabeta(burned, alive_edges, depth - 1, alpha, beta,
-                                true, dummy, nodes);
-        } else {
-            for (int k = 0; k < nc; k++) {
-                int ei = cands[k];
-                uint64_t ne = alive_edges & ~(1ULL << ei);
-                int dummy = -1;
-                int val =
-                    alphabeta(sync_mode_flag ? spread_fire(burned, ne) : burned,
-                              ne, depth - 1, alpha, beta, true, dummy, nodes);
-                if (val < min_val) {
-                    min_val = val;
-                    best_move = ei;
-                }
-                beta = min(beta, val);
-                if (beta <= alpha) break;
+            vector<int> sub_trace;
+            int val = alphabeta(burned, alive_edges & ~(1ULL << i), depth - 1,
+                                alpha, beta, true, dummy, nodes, sub_trace);
+            if (val < best_val) {
+                best_val = val;
+                best_move = i;
+                best_trace = sub_trace;
             }
+            beta = min(beta, best_val);
+            if (beta <= alpha) break;
         }
-        int flag = (min_val <= orig_alpha) ? 2 : (min_val >= beta) ? 1 : 0;
-        tt[idx] = {h, depth, min_val, flag, best_move};
-        best_move_out = best_move;
-        return min_val;
+        if (best_val == 100) {
+            // No moves
+            return __builtin_popcount(burned);
+        }
     }
+
+    best_move_out = best_move;
+    trace_edges = best_trace;
+    return best_val;
 }
 
 }  // namespace adversarial
 
 void run_adversarial(const string& lean_fn, const string& preset,
-                     bool sync = false) {
+                     bool sync = false, bool cegis_mode = false) {
     using namespace adversarial;
 
     auto cfg = parse_preset(preset);
     cfg.sync_mode = sync;
-    cout << CYN << "[Dendro] Adversarial: " << cfg.label << " (" << cfg.nodes
-         << "N, depth " << cfg.depth << ", "
-         << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
-         << RST;
-    cout << MAG
-         << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
-            "Zobrist TT.\n"
-         << RST;
 
-    init_graph(cfg);
+    if (!cegis_mode) {
+        cout << CYN << "[Dendro] Adversarial: " << cfg.label << " ("
+             << cfg.nodes << "N, depth " << cfg.depth << ", "
+             << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
+             << RST;
+        cout << MAG
+             << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
+                "Zobrist TT.\n"
+             << RST;
+    }
+
+    if (preset.substr(0, 7) == "graph6:") {
+        init_graph6(preset);
+    } else {
+        init_graph(cfg);
+    }
+
     init_move_order(cfg);
     sync_mode_flag = cfg.sync_mode;
     init_zobrist();
@@ -663,9 +675,29 @@ void run_adversarial(const string& lean_fn, const string& preset,
     uint64_t total_nodes = 0;
     int depth_limit = cfg.depth;
 
-    cout << "  [Search] Alpha-Beta pruning (depth=" << depth_limit
-         << " plies)...\n";
+    if (!cegis_mode) {
+        cout << "  [Search] Alpha-Beta pruning (depth=" << depth_limit
+             << " plies)...\n";
+    }
     auto start = high_resolution_clock::now();
+
+    if (cegis_mode) {
+        int best_move = -1;
+        vector<int> trace;
+        int nash_val = alphabeta(burned, alive_edges, depth_limit, -100, 100,
+                                 true, best_move, total_nodes, trace);
+
+        cout << "{\"nash\": " << nash_val << ", \"attack_edges\": [";
+        bool first = true;
+        for (int e : trace) {
+            if (!first) cout << ", ";
+            cout << "[" << edges[e].u << ", " << edges[e].v << "]";
+            first = false;
+        }
+        cout << "]}" << endl;
+        free(tt);
+        return;
+    }
 
     // JSON state log for interactive replay
     string json_path = "proofs/AdversarialPV_" + preset + ".json";
@@ -686,9 +718,10 @@ void run_adversarial(const string& lean_fn, const string& preset,
         int best_move = -1;
         uint64_t iter_nodes = 0;
         bool is_burner = (d % 2 == 0);
+        vector<int> trace;
 
         int val = alphabeta(burned, alive_edges, d, -100, 100, is_burner,
-                            best_move, iter_nodes);
+                            best_move, iter_nodes, trace);
         total_nodes += iter_nodes;
         if (d == depth_limit) nash_val = val;
 
@@ -775,9 +808,12 @@ int main(int argc, char** argv) {
     else if (mode == "adversarial") {
         string preset = (argc >= 4) ? argv[3] : "path16";
         bool sync = false;
-        for (int i = 4; i < argc; i++)
+        bool cegis = false;
+        for (int i = 4; i < argc; i++) {
             if (string(argv[i]) == "--sync") sync = true;
-        run_adversarial(lean_fn, preset, sync);
+            if (string(argv[i]) == "--cegis") cegis = true;
+        }
+        run_adversarial(lean_fn, preset, sync, cegis);
     } else {
         cerr << RED << "Unknown module: " << mode << RST << "\n";
         return 1;

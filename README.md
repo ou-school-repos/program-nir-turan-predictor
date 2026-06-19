@@ -96,6 +96,7 @@ See [docs/CATERPILLAR_NASH.md](docs/CATERPILLAR_NASH.md) for more details.
 Transitioning from static graph properties to Active Network Synthesis, we have developed a groundbreaking **Counterexample-Guided Inductive Synthesis (CEGIS)** loop. This framework structurally connects the Burner/Builder adversarial game to extremal Turán limits and Moore Graphs.
 
 **The PSPACE Bypass:** Solving game-theoretic minimax optimizations directly in SMT requires evaluating nested alternating quantifiers ($\exists \forall \exists \dots$), a PSPACE-complete problem that causes Z3 to hang or timeout on large graphs. Our CEGIS architecture completely bypasses this:
+
 1. **The Synthesizer (Z3 in NP):** Operates under purely mathematical limits to synthesize a candidate network topology containing $N$ nodes and $E$ edges.
 2. **The Oracle (C++ Dendro in PSPACE):** Ingests the candidate graph and simulates the Burner vs. Builder Alpha-Beta game to perfection.
 3. **The Vulnerability Witness:** If the Burner breaches the network ($\text{Nash} > \tau$), the Oracle extracts the exact **Contagion Subgraph** (the core attack path) and feeds it back to Z3 as a strict topological blocking clause.
@@ -103,8 +104,9 @@ Transitioning from static graph properties to Active Network Synthesis, we have 
 By forcing Z3 to learn from adversarial vulnerabilities, the engine computationally proves that optimal resilience requires massive topological delay (Islands and Bridges). We mathematically enforce a **Security Tax**, demonstrating that a network must drastically sacrifice its theoretical Turán edge density to achieve cyber-physical containment.
 
 **Tools:**
-* `scripts/cegis_containment.py`: CEGIS loop proving Adversarial Extremal Bounds (Moore Graph Convergence).
-* `scripts/cegis_adaptive.py`: Adaptive CEGIS model supporting variable Burner velocity ($v$) against a lagging Builder curve ($c(t)$), enforcing Modular/Bridged topologies.
+
+- `scripts/cegis_containment.py`: CEGIS loop proving Adversarial Extremal Bounds (Moore Graph Convergence).
+- `scripts/cegis_adaptive.py`: Adaptive CEGIS model supporting variable Burner velocity ($v$) against a lagging Builder curve ($c(t)$), enforcing Modular/Bridged topologies.
 
 ---
 

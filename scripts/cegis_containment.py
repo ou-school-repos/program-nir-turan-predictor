@@ -48,22 +48,38 @@ def build_synthesis_model(N, E_target, max_deg):
     return s, A
 
 
-def call_dendro_oracle(adj_matrix, N, cuts):
-    """
-    Mock integration for the C++ Dendro engine.
-    In production: write `adj_matrix` to a tmp file, call `./dendro --sync --cuts c`,
-    and parse the exact Nash Value and the 'Contagion Subgraph' from stdout.
-    """
-    # SIMULATION OF C++ ORACLE:
-    # If the graph contains a triangle, the Burner flanks the Builder and wins.
-    for i, j, k in itertools.combinations(range(N), 3):
-        if adj_matrix[i][j] == 1 and adj_matrix[j][k] == 1 and adj_matrix[k][i] == 1:
-            # Burner exploits this specific triangle!
-            attack_edges = [(i, j), (j, k), (k, i)]
-            return N, attack_edges  # Nash = N (Total destruction)
+import subprocess
+import json
 
-    # If safe (no un-blockable cycles), Builder contains the fire easily.
-    return cuts + 1, []
+def to_graph6(adj_matrix, N):
+    """Converts adjacency matrix to Graph6 string format."""
+    b = []
+    for j in range(1, N):
+        for i in range(j):
+            b.append(adj_matrix[i][j])
+    while len(b) % 6 != 0:
+        b.append(0)
+    g6 = [chr(N + 63)]
+    for i in range(0, len(b), 6):
+        val = (b[i]<<5) | (b[i+1]<<4) | (b[i+2]<<3) | (b[i+3]<<2) | (b[i+4]<<1) | b[i+5]
+        g6.append(chr(val + 63))
+    return "graph6:" + "".join(g6)
+
+def call_dendro_oracle(adj_matrix, N, cuts):
+    """Calls the real C++ Dendro PSPACE Oracle."""
+    g6 = to_graph6(adj_matrix, N)
+    try:
+        result = subprocess.run(
+            ["./dendro", "adversarial", "tmp.lean", g6, "--sync", "--cegis"],
+            capture_output=True, text=True, check=True
+        )
+        data = json.loads(result.stdout.strip())
+        nash = data["nash"]
+        attack_edges = [tuple(e) for e in data["attack_edges"]]
+        return nash, attack_edges
+    except Exception as e:
+        print(f"\nOracle Error: {e}")
+        sys.exit(1)
 
 
 def run_cegis(N, E_target, tau, cuts):

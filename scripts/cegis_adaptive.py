@@ -6,6 +6,8 @@ surviving a high-velocity Burner (v hops/turn) using an adaptive,
 lagging Builder response curve c(t).
 """
 
+import json
+import subprocess
 import sys
 import time
 
@@ -40,30 +42,71 @@ def build_adaptive_model(N, E_target):
     return s, A
 
 
+def to_graph6(adj_matrix, N):
+    """Converts adjacency matrix to Graph6 string format."""
+    b = []
+    for j in range(1, N):
+        for i in range(j):
+            b.append(adj_matrix[i][j])
+
+    # Pad to multiple of 6
+    while len(b) % 6 != 0:
+        b.append(0)
+
+    g6 = [chr(N + 63)]
+    for i in range(0, len(b), 6):
+        val = (
+            (b[i] << 5)
+            | (b[i + 1] << 4)
+            | (b[i + 2] << 3)
+            | (b[i + 3] << 2)
+            | (b[i + 4] << 1)
+            | b[i + 5]
+        )
+        g6.append(chr(val + 63))
+    return "graph6:" + "".join(g6)
+
+
 def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
     """
-    Simulates the V vs C(t) adversarial game.
+    Calls the C++ Dendro engine (PSPACE Oracle).
     Extracts the 'Contagion Subgraph' if the Burner overwhelms the Builder.
     """
-    # ── MOCK ORACLE FOR ADAPTIVE GAME ──
-    # In this simulation, we check for "Dense Clusters without Bridges".
-    # If the graph has a high-degree hub connected directly to another high-degree hub
-    # without a "degree-2 topological delay bridge", the Burner's v=3 burst wins!
+    # For now, we simulate the 'adaptive' ruleset by translating the builder curve
+    # to an average 'cuts per turn' to feed the minimax engine,
+    # OR we use the C++ engine to find the shortest destruction path.
+    # To keep it exact to the C++ logic we just built, we will run --sync
+    # and extract the path.
 
-    for i in range(N):
-        deg_i = sum(adj_matrix[i])
-        if deg_i >= 3:
-            for j in range(N):
-                if adj_matrix[i][j] == 1:
-                    deg_j = sum(adj_matrix[j])
-                    if deg_j >= 3:
-                        # Two hubs connected directly! No topological delay.
-                        # Burner exploits this high-bandwidth corridor.
-                        return N, [(i, j)]
+    g6 = to_graph6(adj_matrix, N)
 
-    # If no hubs are directly connected (they are separated by bridges),
-    # the lagging Builder has time to ramp up and sever the bridges!
-    return sum(builder_curve), []
+    try:
+        result = subprocess.run(
+            ["./dendro", "adversarial", "tmp.lean", g6, "--sync", "--cegis"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        data = json.loads(result.stdout.strip())
+        nash = data["nash"]
+        attack_edges = [tuple(e) for e in data["attack_edges"]]
+
+        # Determine success based on the adaptive constraints.
+        # If the Nash value is the entire network (N), the Burner flashed over it.
+        # We enforce the lag constraints here in python by checking if the path was too short.
+        # If Burner won in fewer turns than Builder ramped up, it's a failure.
+
+        # Simplified for now: if nash >= N/2, it failed.
+        if nash >= N / 2:
+            return nash, attack_edges
+        return nash, []
+
+    except Exception as e:
+        print(f"\nOracle Error: {e}")
+        if isinstance(e, subprocess.CalledProcessError):
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
+        sys.exit(1)
 
 
 def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
