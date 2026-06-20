@@ -8,9 +8,9 @@
 #include <vector>
 
 // Exact 128-bit integer print helper
-void print_int128(unsigned __int128 n) {
+void print_int128(std::ostream& os, unsigned __int128 n) {
     if (n == 0) {
-        std::cout << "0";
+        os << "0";
         return;
     }
     std::string s;
@@ -19,16 +19,51 @@ void print_int128(unsigned __int128 n) {
         n /= 10;
     }
     std::reverse(s.begin(), s.end());
-    std::cout << s;
+    os << s;
 }
+
+struct uint256_t {
+    unsigned __int128 high = 0, low = 0;
+    uint256_t() = default;
+    explicit uint256_t(unsigned __int128 v) : low(v) {}
+
+    // Exact DP Addition
+    uint256_t operator+(const uint256_t& o) const {
+        uint256_t r;
+        r.low = low + o.low;
+        r.high = high + o.high + (r.low < low ? 1 : 0);
+        return r;
+    }
+
+    // Exact Scalar Multiplication (for b[u] = w[1][u] * w[d][u])
+    uint256_t operator*(uint64_t v) const {
+        uint256_t r;
+        unsigned __int128 p_low = (low & 0xFFFFFFFFFFFFFFFFULL) * v;
+        unsigned __int128 p_mid = (low >> 64) * v + (p_low >> 64);
+        r.low = (p_low & 0xFFFFFFFFFFFFFFFFULL) | (p_mid << 64);
+        r.high = high * v + (p_mid >> 64);
+        return r;
+    }
+
+    bool operator<(const uint256_t& o) const {
+        return high != o.high ? high < o.high : low < o.low;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const uint256_t& val) {
+        if (val.high == 0) {
+            print_int128(os, val.low);
+        } else {
+            os << "<large uint256_t>";
+        }
+        return os;
+    }
+};
 
 // Struct to store Leontovich hits found during the sweep
 struct LeontovichHit {
     int m1 = 0;
     int m2 = 0;
     int n = 0;
-    double homP = 0.0;
-    double homE = 0.0;
 };
 
 // Global list of hits found, protected by an OpenMP lock
@@ -37,7 +72,7 @@ omp_nest_lock_t g_lock;
 
 // Function to verify if a given subset configuration is Leontovich
 bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
-                          int d, double& out_homP, double& out_homE,
+                          int d, uint256_t& out_homP, uint256_t& out_homE,
                           int& out_n) {
     int S = (1 << m1) - 1;
     int m = m1 + m2;
@@ -65,43 +100,43 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
     // DP table of size (max_n + 1) x m
     // To minimize allocations, we use pre-allocated buffers on the stack or
     // flat vectors
-    std::vector<std::vector<double>> w(max_n + 1, std::vector<double>(m, 0.0));
+    std::vector<std::vector<uint256_t>> w(
+        max_n + 1, std::vector<uint256_t>(m, uint256_t(0)));
 
     // Base case: walks of length 0
     for (int u = 0; u < m; ++u) {
-        w[0][u] = 1.0;
+        w[0][u] = uint256_t(1);
     }
 
     // DP Recurrence: w[step][u] = \sum_{v \sim u} w[step-1][v]
     for (int step = 1; step <= max_n; ++step) {
         for (int u = 0; u < m; ++u) {
-            double sum = std::accumulate(
-                adj[u].begin(), adj[u].end(), 0.0,
-                [&](double s, int v) { return s + w[step - 1][v]; });
-            w[step][u] = sum;
+            w[step][u] = std::accumulate(
+                adj[u].begin(), adj[u].end(), uint256_t(0),
+                [&](const uint256_t& s, int v) { return s + w[step - 1][v]; });
         }
     }
 
     // Check crossovers at odd thresholds n
     for (int n = 5; n <= max_n; n += 2) {
         // homP = sum_{u=0}^{m-1} w[n-1][u]
-        double homP = 0.0;
+        uint256_t homP(0);
         for (int u = 0; u < m; ++u) {
-            homP += w[n - 1][u];
+            homP = homP + w[n - 1][u];
         }
 
         // homE = sum_{u=0}^{m-1} w[stem][u] * w[1][u] * w[d][u]
         int stem = n - d - 2;
         if (stem < 0) continue;
 
-        double homE = 0.0;
+        uint256_t homE(0);
         for (int u = 0; u < m; ++u) {
-            homE += w[stem][u] * w[1][u] * w[d][u];
+            uint64_t factor = (uint64_t)w[1][u].low * (uint64_t)w[d][u].low;
+            homE = homE + (w[stem][u] * factor);
         }
 
-        // Use standard relative-error margin (1e-11) to avoid floating point
-        // noise false-positives
-        if (homE < homP * (1.0 - 1e-11)) {
+        // Exact comparison using 256-bit integers
+        if (homE < homP) {
             out_homP = homP;
             out_homE = homE;
             out_n = n;
@@ -151,11 +186,11 @@ void generate_and_evaluate(int subset_idx, int remaining_m2, int m1, int m2,
             local_valid_count++;
 
             // 3. Evaluate the graph
-            double homP = 0.0, homE = 0.0;
+            uint256_t homP(0), homE(0);
             int n = 0;
             if (verify_configuration(c, m1, m2, 51, 2, homP, homE, n)) {
                 omp_set_nest_lock(&g_lock);
-                g_hits.push_back({m1, m2, n, homP, homE});
+                g_hits.push_back({m1, m2, n});
 
                 int current_partition_hits = std::count_if(
                     g_hits.begin(), g_hits.end(), [&](const LeontovichHit& h) {
@@ -171,10 +206,8 @@ void generate_and_evaluate(int subset_idx, int remaining_m2, int m1, int m2,
                         std::cout << c[j] << " ";
                     }
                     std::cout << "\n  Crossover threshold n: " << n << "\n";
-                    std::cout << "  hom(P_n, H):           " << std::scientific
-                              << homP << "\n";
-                    std::cout << "  hom(E_n^(2), H):       " << std::scientific
-                              << homE << "\n";
+                    std::cout << "  hom(P_n, H):           " << homP << "\n";
+                    std::cout << "  hom(E_n^(2), H):       " << homE << "\n";
                     std::cout << "\n";
                     if (current_partition_hits == 5) {
                         std::cout
