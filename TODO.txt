@@ -27,4 +27,3 @@
   - Perturbed non-bipartite construction: could become analytic if you explicitly derive the quotient matrix after perturbation and prove its leading coefficient ratio is < 1.
 
   Best paper strategy: present finite exact computations as certified arithmetic lemmas, not pretend everything is hand-analytic. Then reserve “theorem” for claims whose quantifiers are fully covered by proof or exhaustive certificate.
-

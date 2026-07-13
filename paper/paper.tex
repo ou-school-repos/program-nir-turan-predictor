@@ -1353,9 +1353,12 @@ simple-target existence question.
 
 Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$ and remains ahead through the verified range. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference.
 
-\subsection{Resolution of Non-Bipartite Leontovich Graphs}
+\subsection{A Perturbed Non-Bipartite Certificate}
 
-The existence of simple bipartite Strongly Leontovich graphs allows us to definitively resolve the status of simple non-bipartite targets. If we perturb a bipartite graph $B$ by adding a single edge $e$ between two vertices within the same partition, the resulting graph $B+e$ contains an odd cycle and is strictly non-bipartite.
+The existence of simple bipartite Strongly Leontovich graphs suggests a route
+to simple non-bipartite targets. If we perturb a bipartite graph $B$ by adding a
+single edge $e$ between two vertices within the same partition, the resulting
+graph $B+e$ contains an odd cycle and is strictly non-bipartite.
 
 However, we must carefully select $B$ to ensure the perturbation introduced by
 $e$ does not destroy the asymptotic Leontovich inequality. Consider the looped
@@ -1365,25 +1368,31 @@ $1 - 0.999713 = 2.87 \times 10^{-4}$. Its bipartite double cover
 $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a simple bipartite strongly
 Leontovich graph on 6,806 vertices with the exact same margin.
 
-Add an edge $e$ between two \emph{terminal leaf vertices} within the same
-partition of $B'$. Direct numerical evaluation of the finite quotient matrix for the
-perturbed target $B' + e$ gives asymptotic ratio
+Add an edge $e$ between two sibling \emph{terminal leaf vertices} within the
+same partition of $B'$. The script \texttt{scripts/verify\_perturbed\_cert.py}
+constructs the full 6,806-vertex graph $B' + e$, computes the coarsest
+equitable partition by color refinement, verifies equitability
+vertex-by-vertex with exact integer arithmetic, and obtains an 18-cell quotient
+matrix. On this quotient, the leading-coefficient ratio is
 \[
   \lim_{n \to \infty}
   \frac{\Hom(E_n^{(2)}, B' + e)}{\Hom(P_n, B' + e)}
-  \approx 0.999952 < 1.
+  \approx 0.999952140676 < 1.
 \]
-This supports the claim that the perturbed graph remains strongly Leontovich.
-The Rayleigh quotient
-estimate $\Delta\lambda_1 \approx 2v_{\mathrm{leaf}}^2$ explains why this
-particular edge is a stable perturbation: the principal eigenvector mass on
-terminal leaves is exponentially small. The decisive check, however, is the
-direct asymptotic-ratio computation above, not a comparison between an
-eigenvalue shift and a leading-coefficient margin. The construction gives a
-candidate simple non-bipartite Leontovich target, with the odd cycle confined
-to a region of very small eigenvector mass; a reviewer-facing version should
-include the quotient matrix and direct ratio computation as a separate
-reproducible certificate.
+The same pipeline reproduces the unperturbed ratio
+$0.999713000053\ldots$ for $B'$, providing an independent check on the
+construction.
+
+The Rayleigh quotient estimate explains why this particular edge is a stable
+perturbation: the principal eigenvector mass on terminal leaves is
+exponentially small, and the measured shift is
+$\Delta\lambda_1 \approx 1.77 \times 10^{-4}$. The decisive check, however, is
+the quotient leading-coefficient computation above, not a comparison between an
+eigenvalue shift and a leading-coefficient margin. The construction is therefore
+a reproducible computational certificate for a simple non-bipartite
+strongly-Leontovich target in the leading-coefficient sense. A fully formal
+reviewer-facing certificate should replace the high-precision eigencomputation
+with interval arithmetic or an explicit Rayleigh-residual bound.
 
 \bibliographystyle{plain}
 \bibliography{references}

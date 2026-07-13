@@ -51,6 +51,16 @@ Run the fast exact witness check:
 python3 scripts/verify_core_claims.py
 ```
 
+Run the perturbed non-bipartite certificate:
+
+```bash
+python3 scripts/verify_perturbed_cert.py
+```
+
+This constructs the full 6,806-vertex graph, verifies its 18-cell equitable
+quotient exactly, and reproduces the leading-coefficient ratio
+`0.999952140676...`.
+
 ## Repository Layout
 
 - `paper/`: LaTeX manuscript and bibliography.
@@ -78,6 +88,7 @@ For review, prioritize:
 ```bash
 python3 scripts/verify_core_claims.py
 python3 scripts/verify_strong.py
+python3 scripts/verify_perturbed_cert.py
 cd paper && pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex
 ```
 

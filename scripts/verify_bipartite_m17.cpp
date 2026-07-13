@@ -10,8 +10,11 @@
 
 using namespace std;
 
-// Lightweight 256-bit unsigned integer struct for exact arbitrary-precision
-// arithmetic
+// Lightweight 256-bit unsigned integer struct for exact arithmetic in this
+// bounded sweep. Here m1 <= 8, m2 <= 13, n <= 61, and max degree <= 13, so
+// w_s(u) <= 13^60 < 2^223. The path sums stay below 2^227, and the E_n^(2)
+// scalar products stay below roughly 2^226 before summing. This leaves more
+// than 25 bits of headroom inside uint256_t for the evaluated search range.
 struct uint256_t {
     unsigned __int128 high = 0;
     unsigned __int128 low = 0;
@@ -99,9 +102,9 @@ long long total_graphs = 0;
 long long leo_count = 0;
 
 void evaluate(int m2, const int* c) {
-    // Correct Alternating Bipartite DP
-    // wL and wR are declared on the stack without zero-initialization to avoid
-    // memory clearing overheads
+    // Correct alternating bipartite DP for the depth-2 near-path family only.
+    // Rows are stack-allocated without bulk zeroing; every row entry used below
+    // is fully assigned before it is read.
     uint256_t wL[61][8];
     uint256_t wR[61][256];
 
@@ -137,7 +140,7 @@ void evaluate(int m2, const int* c) {
         homP[n] = s;
     }
 
-    int d = 2;
+    int d = 2;  // This verifier is intentionally scoped to E_n^(2).
     uint64_t bL[8], bR[256];
     for (int i = 0; i < m1_g; i++) {
         bL[i] = (uint64_t)wL[1][i].low * (uint64_t)wL[d][i].low;
@@ -238,7 +241,9 @@ int main() {
     cout << "=========================================================\n";
     cout << "COMPLETED IN " << chrono::duration<double>(t1 - t0).count()
          << " SECONDS.\n";
-    cout << "\033[1;32mTHEOREM: H_18 is the absolute global minimal bipartite "
-            "Leontovich graph.\033[0m\n";
+    cout << "\033[1;32mCERTIFICATE: no depth-2 bipartite Leontovich hit was "
+            "found in the tested m1 >= 4, m <= 17 partition families. H_18 "
+            "remains the scoped depth-2 witness; H* is the smaller "
+            "general-depth witness.\033[0m\n";
     return 0;
 }
