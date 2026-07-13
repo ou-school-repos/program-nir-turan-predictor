@@ -7,13 +7,17 @@ headline witness values with Python integers:
 * H* is a 15-vertex depth-dependent bipartite Leontovich graph.
 * H18 has the corrected quotient walk table and n=17 depth-2 margin.
 * The 5-orbit strong-frontier audit has the expected open/close windows.
+* The m1=2 transfer identity matches exact homomorphism counts on a grid.
 * The double-cover source graph T^(1,35,1,50) has first even d=2 crossover
   at n=17340, hence so does its bipartite double cover.
+* The printed T^(1,35,1,50) asymptotic-ratio approximation is reproduced by
+  exact integer counts at high n.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal, getcontext
 
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
 
@@ -118,6 +122,32 @@ def verify_h18() -> None:
     print("H18: walk table and n=17 depth-2 margin verified")
 
 
+def verify_m1_equals_2_identity() -> None:
+    """Check the closed-form m1=2 identity against exact quotient walks."""
+    for c1 in range(8):
+        for c2 in range(8):
+            for c3 in range(1, 8):
+                sizes = [1, 1, c1, c2, c3]
+                w = [[1] * 5]
+                for _ in range(5):
+                    prev = w[-1]
+                    w.append(
+                        [
+                            c1 * prev[2] + c3 * prev[4],
+                            c2 * prev[3] + c3 * prev[4],
+                            prev[0],
+                            prev[1],
+                            prev[0] + prev[1],
+                        ]
+                    )
+
+                hp = hom_path(sizes, w, 5)
+                he = hom_near_path(sizes, w, 5, 2)
+                expected = -c3 * ((c1 - c2) ** 2 + c1 + c2)
+                assert hp - he == expected, (c1, c2, c3, hp - he, expected)
+    print("m1=2 identity: exact finite-grid check verified")
+
+
 @dataclass(frozen=True)
 class LoopedSymmetricTree:
     degrees: tuple[int, ...]
@@ -153,6 +183,18 @@ def tree_delta(
         for i, size in enumerate(sizes)
     )
     return hp - he
+
+
+def tree_counts(
+    tree: LoopedSymmetricTree, walks: list[list[int]], n: int, d: int = 2
+) -> tuple[int, int]:
+    sizes = tree.sizes
+    hp = sum(size * walks[n - 1][i] for i, size in enumerate(sizes))
+    he = sum(
+        size * walks[n - d - 2][i] * walks[1][i] * walks[d][i]
+        for i, size in enumerate(sizes)
+    )
+    return hp, he
 
 
 def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 1600) -> list[int]:
@@ -203,11 +245,25 @@ def verify_even_crossover() -> None:
     print("Even crossover: n=17340 threshold verified through n=20000")
 
 
+def verify_t135_ratio() -> None:
+    tree = LoopedSymmetricTree((1, 35, 1, 50))
+    n = 15_001
+    walks = tree.walks(n)
+    hp, he = tree_counts(tree, walks, n)
+    getcontext().prec = 40
+    ratio = Decimal(he) / Decimal(hp)
+    assert ratio < Decimal(1)
+    assert ratio.quantize(Decimal("0.000001")) == Decimal("0.999865"), ratio
+    print(f"T^(1,35,1,50): high-n ratio check verified ({ratio:.12f})")
+
+
 def main() -> None:
     verify_h_star()
     verify_h18()
+    verify_m1_equals_2_identity()
     verify_table8()
     verify_even_crossover()
+    verify_t135_ratio()
     print("All core exact checks passed.")
 
 

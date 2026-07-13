@@ -937,8 +937,8 @@ producing the optimal conditions for destructive eigenvalue interference. By
 systematically mapping the phase space of $\mathcal{B}(x,y)$ using this
 quotient matrix, we establish that $\mathcal{B}(x,y)$ is Leontovich for all
 sufficiently large $x$ and $y$, forming an infinite class of bipartite
-counterexamples to the path minimizer conjecture, of which $H_{18}$ is the
-absolute minimum element.
+counterexamples to the path minimizer conjecture. Within the depth-2
+$(3,m_2)$ block-pattern sweep, $H_{18}$ is the first such example.
 
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
@@ -1286,10 +1286,9 @@ verified this hypothesis computationally over an extensive search space:
 across all target graphs tested (over 463~million bipartite graphs and
 5.6~million trees), no even-$n$ crossover was observed.
 
-\textbf{However, we will formally disprove this conjecture in the following
-section}, demonstrating that massive bipartite double covers can mathematically
-silence the parity oscillation, allowing $E_n$ to permanently overtake $P_n$
-at even thresholds.
+The double-cover construction below gives explicit computational evidence
+against this conjecture: massive bipartite double covers can silence the parity
+oscillation, allowing $E_n$ to overtake $P_n$ at even thresholds.
 
 \begin{remark}
 The same parity phenomenon appears in the independent set
@@ -1352,7 +1351,7 @@ graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
 than 1, $B$ is a \textbf{simple strongly Leontovich graph}, addressing the
 simple-target existence question.
 
-Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference. This serves as a formal disproof of the Universal Bipartite Parity Conjecture.
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$ and remains ahead through the verified range. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference.
 
 \subsection{Resolution of Non-Bipartite Leontovich Graphs}
 
@@ -1367,21 +1366,24 @@ $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a simple bipartite strongly
 Leontovich graph on 6,806 vertices with the exact same margin.
 
 Add an edge $e$ between two \emph{terminal leaf vertices} within the same
-partition of $B'$. Direct evaluation of the finite quotient matrix for the
+partition of $B'$. Direct numerical evaluation of the finite quotient matrix for the
 perturbed target $B' + e$ gives asymptotic ratio
 \[
   \lim_{n \to \infty}
   \frac{\Hom(E_n^{(2)}, B' + e)}{\Hom(P_n, B' + e)}
   \approx 0.999952 < 1.
 \]
-Thus the perturbed graph remains strongly Leontovich. The Rayleigh quotient
+This supports the claim that the perturbed graph remains strongly Leontovich.
+The Rayleigh quotient
 estimate $\Delta\lambda_1 \approx 2v_{\mathrm{leaf}}^2$ explains why this
 particular edge is a stable perturbation: the principal eigenvector mass on
 terminal leaves is exponentially small. The decisive check, however, is the
 direct asymptotic-ratio computation above, not a comparison between an
-eigenvalue shift and a leading-coefficient margin. This gives a simple
-non-bipartite Leontovich target, with the odd cycle confined to a region of
-very small eigenvector mass.
+eigenvalue shift and a leading-coefficient margin. The construction gives a
+candidate simple non-bipartite Leontovich target, with the odd cycle confined
+to a region of very small eigenvector mass; a reviewer-facing version should
+include the quotient matrix and direct ratio computation as a separate
+reproducible certificate.
 
 \bibliographystyle{plain}
 \bibliography{references}
