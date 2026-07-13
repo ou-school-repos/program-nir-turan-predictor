@@ -1,0 +1,30 @@
+› can these results be proven analytically
+
+
+• Some can, some probably need computational certificates.
+
+  Likely Analytically Provable
+
+  - m1 = 2 universal bound: yes. The polynomial identity
+    -c3((c1-c2)^2+c1+c2) is already an analytic proof.
+
+  - T(7,1,9) permanent crossover: yes. The quotient has a small spectral form; once the sign flips and the subdominant ratio decays monotonically, permanence is analytic.
+  - Double-cover lemma: yes. Pure homomorphism lifting argument.
+  - B(x,y) spectral family: yes. The 2x2 quotient gives exact eigenvalues and likely an analytic infinite-family theorem.
+  - H18 walk-table/margin: the existence at n=17 is exact finite arithmetic, but can be written as an analytic calculation from the quotient matrix.
+
+  Maybe Analytically Provable, But Needs Work
+
+  - Strongness of T^(1,28,1,36): probably. Need a spectral decomposition / recurrence proof showing the leading coefficient for E_n is smaller than for P_n, then separately handle pre-asymptotic sign.
+  - H* as 15-vertex Leontovich: existence is finite exact arithmetic. Minimality below 15 likely remains computational unless you derive structural inequalities for all smaller bipartite pattern vectors.
+  - The n=17340 even crossover: existence/threshold can be exact recurrence arithmetic; “no earlier even crossover” is computational unless you prove monotonicity over the recurrence tail and check a finite prefix.
+
+  Hard / Probably Computational
+
+  - “No graph on m <= 11 is Leontovich”: very hard analytically because it quantifies over all target graphs and all source trees. Current near-path filter is not enough.
+  - “No smaller bipartite depth-2 graph exists”: likely computational enumeration unless reduced to a tractable finite symbolic inequality.
+  - 76-vertex leaf-pruning minimality: computational certificate / exhaustive family proof, not naturally analytic.
+  - Perturbed non-bipartite construction: could become analytic if you explicitly derive the quotient matrix after perturbation and prove its leading coefficient ratio is < 1.
+
+  Best paper strategy: present finite exact computations as certified arithmetic lemmas, not pretend everything is hand-analytic. Then reserve “theorem” for claims whose quantifiers are fully covered by proof or exhaustive certificate.
+
