@@ -1349,8 +1349,8 @@ ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
 By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T}
 \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite
 graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
-than 1, $B$ is a \textbf{Simple Strongly Leontovich graph}, resolving Open
-Problem 4.
+than 1, $B$ is a \textbf{simple strongly Leontovich graph}, addressing the
+simple-target existence question.
 
 Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ permanently overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference. This serves as a formal disproof of the Universal Bipartite Parity Conjecture.
 
@@ -1358,11 +1358,30 @@ Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ f
 
 The existence of simple bipartite Strongly Leontovich graphs allows us to definitively resolve the status of simple non-bipartite targets. If we perturb a bipartite graph $B$ by adding a single edge $e$ between two vertices within the same partition, the resulting graph $B+e$ contains an odd cycle and is strictly non-bipartite.
 
-However, we must carefully select $B$ to ensure the spectral perturbation introduced by $e$ does not destroy the Leontovich margin. Consider the looped symmetric tree $\hat{T}(2, 34, 1, 48)$ on 3,403 vertices. Its asymptotic ratio is $\approx 0.999713$, yielding a strictly positive margin of $1 - 0.999713 = 2.87 \times 10^{-4}$. Its bipartite double cover $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a simple bipartite Strongly Leontovich graph on 6,806 vertices with the exact same margin.
+However, we must carefully select $B$ to ensure the perturbation introduced by
+$e$ does not destroy the asymptotic Leontovich inequality. Consider the looped
+symmetric tree $\hat{T}(2, 34, 1, 48)$ on 3,403 vertices. Its asymptotic ratio is
+$\approx 0.999713$, yielding a strictly positive margin
+$1 - 0.999713 = 2.87 \times 10^{-4}$. Its bipartite double cover
+$B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a simple bipartite strongly
+Leontovich graph on 6,806 vertices with the exact same margin.
 
-If we add an edge $e$ between two \emph{terminal leaf vertices} within the same partition of $B'$, the shift in the principal eigenvalue is bounded by Rayleigh quotient perturbation theory as $\Delta \lambda_1 \approx 2 v_{\text{leaf}}^2$. Because the principal eigenvector mass decays exponentially towards the leaves ($v_{\text{leaf}} \approx \mathcal{O}(\lambda_1^{-D})$), this perturbation is extremely small. Exact computation yields $\Delta \lambda_1 \approx 2.49 \times 10^{-4}$.
-
-Because $2.49 \times 10^{-4} < 2.87 \times 10^{-4}$, the perturbation is strictly smaller than the margin. (Exact evaluation of the perturbed matrix confirms the new asymptotic ratio is $\approx 0.999952 < 1$). Therefore, the perturbed graph $B'+e$ remains Strongly Leontovich. This resolves Open Problem 2, proving that simple non-bipartite Leontovich targets do exist, provided their odd cycles are confined to regions of exponentially low eigenvector density.
+Add an edge $e$ between two \emph{terminal leaf vertices} within the same
+partition of $B'$. Direct evaluation of the finite quotient matrix for the
+perturbed target $B' + e$ gives asymptotic ratio
+\[
+  \lim_{n \to \infty}
+  \frac{\Hom(E_n^{(2)}, B' + e)}{\Hom(P_n, B' + e)}
+  \approx 0.999952 < 1.
+\]
+Thus the perturbed graph remains strongly Leontovich. The Rayleigh quotient
+estimate $\Delta\lambda_1 \approx 2v_{\mathrm{leaf}}^2$ explains why this
+particular edge is a stable perturbation: the principal eigenvector mass on
+terminal leaves is exponentially small. The decisive check, however, is the
+direct asymptotic-ratio computation above, not a comparison between an
+eigenvalue shift and a leading-coefficient margin. This gives a simple
+non-bipartite Leontovich target, with the odd cycle confined to a region of
+very small eigenvector mass.
 
 \bibliographystyle{plain}
 \bibliography{references}
