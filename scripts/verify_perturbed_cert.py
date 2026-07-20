@@ -40,8 +40,9 @@ Expected output values:
   rho(B'+e) = 0.999952140676...  < 1;
   rho(B')   = 0.999713000053...  (validation).
 """
-from collections import defaultdict
+
 import json
+from collections import defaultdict
 
 D1, D2, D3, D4 = 2, 34, 1, 48
 
@@ -51,30 +52,45 @@ def build_perturbed():
     nid = 1
     children = []
     for _ in range(D1):
-        adjH[0].add(nid); adjH[nid].add(0); children.append(nid); nid += 1
+        adjH[0].add(nid)
+        adjH[nid].add(0)
+        children.append(nid)
+        nid += 1
     gcs = []
     for c in children:
         for _ in range(D2):
-            adjH[c].add(nid); adjH[nid].add(c); gcs.append(nid); nid += 1
+            adjH[c].add(nid)
+            adjH[nid].add(c)
+            gcs.append(nid)
+            nid += 1
     ggcs = []
     for g in gcs:
         for _ in range(D3):
-            adjH[g].add(nid); adjH[nid].add(g); ggcs.append(nid); nid += 1
+            adjH[g].add(nid)
+            adjH[nid].add(g)
+            ggcs.append(nid)
+            nid += 1
     leaves = []
     for h in ggcs:
         for _ in range(D4):
-            adjH[h].add(nid); adjH[nid].add(h); leaves.append(nid); nid += 1
+            adjH[h].add(nid)
+            adjH[nid].add(h)
+            leaves.append(nid)
+            nid += 1
     NH = nid
     assert NH == 3403
     # double cover; loop at root -> cross edge (0,0)-(0,1)
     adj = defaultdict(set)
     for u in range(NH):
         for v in adjH[u]:
-            adj[u].add(v + NH); adj[v + NH].add(u)
-    adj[0].add(NH); adj[NH].add(0)
+            adj[u].add(v + NH)
+            adj[v + NH].add(u)
+    adj[0].add(NH)
+    adj[NH].add(0)
     # perturbing edge between two same-layer sibling leaves
     l1, l2 = leaves[0], leaves[1]
-    adj[l1].add(l2); adj[l2].add(l1)
+    adj[l1].add(l2)
+    adj[l2].add(l1)
     return adj, 2 * NH
 
 
@@ -106,8 +122,9 @@ def equitable_quotient(adj, N):
             row = defaultdict(int)
             for v in adj[u]:
                 row[color[v]] += 1
-            assert all(Q[c][c2] == row.get(c2, 0) for c2 in range(K)), \
-                "partition not equitable"
+            assert all(
+                Q[c][c2] == row.get(c2, 0) for c2 in range(K)
+            ), "partition not equitable"
     return Q, sizes, K
 
 
@@ -135,12 +152,13 @@ def exact_scan(Q, sizes, K, max_n=4001):
 
 def leading_ratio(Q, sizes, K):
     import mpmath as mp
+
     mp.mp.dps = 50
     S = [mp.mpf(s) for s in sizes]
     B = mp.matrix(K, K)
     for i in range(K):
         for j in range(K):
-            B[i, j] = Q[i][j] * mp.sqrt(S[i] / S[j])   # symmetric similarity
+            B[i, j] = Q[i][j] * mp.sqrt(S[i] / S[j])  # symmetric similarity
     E, V = mp.eigsy(B)
     lam1 = E[K - 1]
     u1 = [V[i, K - 1] / mp.sqrt(S[i]) for i in range(K)]
@@ -151,28 +169,40 @@ def leading_ratio(Q, sizes, K):
     w1 = [sum(Q[i][j] * one[j] for j in range(K)) for i in range(K)]
     w2 = [sum(Q[i][j] * w1[j] for j in range(K)) for i in range(K)]
     num = sum(sizes[i] * w1[i] * w2[i] * u1[i] for i in range(K))
-    den = lam1 ** 3 * sum(sizes[i] * u1[i] for i in range(K))
+    den = lam1**3 * sum(sizes[i] * u1[i] for i in range(K))
     lam2 = max(abs(E[i]) for i in range(K - 1))
     return lam1, lam2, num / den
 
 
 def main():
     import mpmath as mp
+
     adj, N = build_perturbed()
     Q, sizes, K = equitable_quotient(adj, N)
-    print(f"B'+e: {N} vertices -> equitable quotient with {K} cells "
-          f"(verified exactly)")
+    print(
+        f"B'+e: {N} vertices -> equitable quotient with {K} cells "
+        f"(verified exactly)"
+    )
     flips, _ = exact_scan(Q, sizes, K)
-    print(f"exact odd-n sign scan (n <= 3997): flips at {flips} "
-          f"(expected [9], single opening)")
+    print(
+        f"exact odd-n sign scan (n <= 3997): flips at {flips} "
+        f"(expected [9], single opening)"
+    )
     lam1, lam2, rho = leading_ratio(Q, sizes, K)
     print(f"lambda1 = {mp.nstr(lam1, 12)}   |lambda2| = {mp.nstr(lam2, 12)}")
-    print(f"leading-coefficient ratio rho = {mp.nstr(rho, 12)}  "
-          f"({'<1: strongly Leontovich (coefficient sense)' if rho < 1 else '>=1'})")
+    print(
+        f"leading-coefficient ratio rho = {mp.nstr(rho, 12)}  "
+        f"({'<1: strongly Leontovich (coefficient sense)' if rho < 1 else '>=1'})"
+    )
 
     # validation on unperturbed B' via its known 10-cell quotient
-    QH = [[1, D1, 0, 0, 0], [1, 0, D2, 0, 0], [0, 1, 0, D3, 0],
-          [0, 0, 1, 0, D4], [0, 0, 0, 1, 0]]
+    QH = [
+        [1, D1, 0, 0, 0],
+        [1, 0, D2, 0, 0],
+        [0, 1, 0, D3, 0],
+        [0, 0, 1, 0, D4],
+        [0, 0, 0, 1, 0],
+    ]
     a = [1, D1, D1 * D2, D1 * D2 * D3, D1 * D2 * D3 * D4]
     K2 = 10
     QB = [[0] * K2 for _ in range(K2)]
@@ -181,10 +211,14 @@ def main():
             QB[i][5 + j] = QH[i][j]
             QB[5 + i][j] = QH[i][j]
     lam1u, _, rhou = leading_ratio(QB, a + a, K2)
-    print(f"validation, unperturbed B': rho = {mp.nstr(rhou, 12)} "
-          f"(must be 0.999713000...)")
-    print(f"Delta lambda1 = {mp.nstr(lam1 - lam1u, 8)} "
-          f"(NOTE: 1.77e-4, not the 2.49e-4 previously printed)")
+    print(
+        f"validation, unperturbed B': rho = {mp.nstr(rhou, 12)} "
+        f"(must be 0.999713000...)"
+    )
+    print(
+        f"Delta lambda1 = {mp.nstr(lam1 - lam1u, 8)} "
+        f"(NOTE: 1.77e-4, not the 2.49e-4 previously printed)"
+    )
     with open("quotient_Bpe.json", "w") as fh:
         json.dump({"dim": K, "sizes": sizes, "Q": Q}, fh)
     print("quotient matrix archived to quotient_Bpe.json")

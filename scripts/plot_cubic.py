@@ -4,8 +4,8 @@ import os
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import networkx as nx
+import matplotlib.pyplot as plt  # noqa: E402
+import networkx as nx  # noqa: E402
 
 # The exact Graph6 string synthesized by CEGIS
 g6_string = "GcWsjO"

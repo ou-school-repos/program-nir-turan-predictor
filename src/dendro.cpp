@@ -355,26 +355,15 @@ void run_finance(const string& lean_fn, const string& dot_fn) {
 }
 
 // ============================================================================
-// MODULE: ADVERSARIAL (Maker-Breaker Minimax with Zobrist Hashing)
+// MODULE: ADVERSARIAL (Maker-Breaker Minimax)
 // ============================================================================
 namespace adversarial {
 
 constexpr int MAX_N = 32;  // bitmask limit
-constexpr int MAX_E = 64;  // uint64_t edge mask limit
-constexpr int TT_BITS = 22;
-constexpr int TT_SIZE = 1 << TT_BITS;
-constexpr int TT_MASK = TT_SIZE - 1;
+constexpr int MAX_E = 63;  // uint64_t edge mask uses shifts by edge index
 
 struct Edge {
     int u, v;
-};
-
-struct TTEntry {
-    uint64_t hash;
-    int depth;
-    int value;
-    int flag;  // 0=EXACT, 1=LOWER, 2=UPPER
-    int best_move;
 };
 
 struct GameConfig {
@@ -388,8 +377,6 @@ struct GameConfig {
 static Edge edges[MAX_E];
 static int num_edges;
 static int num_nodes;
-static uint64_t z_node[MAX_N], z_edge[MAX_E], z_turn;
-static TTEntry* tt;
 static int burner_order[MAX_N];
 static bool sync_mode_flag = false;  // Model B switch
 
@@ -432,38 +419,48 @@ static GameConfig parse_preset(const string& name) {
     return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
 }
 
-static void init_graph6(const string& g6) {
+static bool init_graph6(const string& g6, string& error) {
     // Parse Graph6 format (single-byte header; N <= 62) and populate edges[].
-    if (g6.size() < 2) {
-        num_nodes = 0;
-        num_edges = 0;
-        return;
+    if (g6.empty()) {
+        error = "empty graph6 input";
+        return false;
     }
-    int n = g6[0] - 63;
-    if (n <= 0 || n > MAX_N) {
-        num_nodes = 0;
-        num_edges = 0;
-        return;
+    int n = g6[0] - 63;  // Simplified for N <= 62
+    if (n < 0 || n > MAX_N) {
+        error = "graph6 node count exceeds Dendro's 32-node mask limit";
+        return false;
     }
     num_nodes = n;
     num_edges = 0;
     int idx = 1;
     int bit_idx = 5;
-    int val = g6[idx] - 63;
+    int val = idx < (int)g6.size() ? g6[idx] - 63 : 0;
     for (int j = 1; j < n; j++) {
         for (int i = 0; i < j; i++) {
             if ((val >> bit_idx) & 1) {
-                if (num_edges >= MAX_E) return;
+                if (num_edges >= MAX_E) {
+                    error =
+                        "graph6 edge count exceeds Dendro's 63-edge mask limit";
+                    return false;
+                }
                 edges[num_edges++] = {i, j};
             }
             if (--bit_idx < 0) {
                 idx++;
-                if (idx >= (int)g6.size()) return;
-                val = g6[idx] - 63;
+                if (idx >= (int)g6.size()) {
+                    if (i + 1 < j || j + 1 < n) {
+                        error = "truncated graph6 input";
+                        return false;
+                    }
+                    val = 0;
+                } else {
+                    val = g6[idx] - 63;
+                }
                 bit_idx = 5;
             }
         }
     }
+    return true;
 }
 
 static void init_tree15() {
@@ -533,25 +530,6 @@ static void init_move_order(const GameConfig& cfg) {
     });
 }
 
-static void init_zobrist() {
-    mt19937_64 rng(42);
-    for (int i = 0; i < num_nodes; i++) z_node[i] = rng();
-    for (int i = 0; i < num_edges; i++) z_edge[i] = rng();
-    z_turn = rng();
-    tt = static_cast<TTEntry*>(calloc(TT_SIZE, sizeof(TTEntry)));
-}
-
-static uint64_t get_hash(uint32_t burned, uint64_t alive_edges,
-                         bool is_burner) {
-    uint64_t h = 0;
-    for (int i = 0; i < num_nodes; i++)
-        if ((burned >> i) & 1) h ^= z_node[i];
-    for (int i = 0; i < num_edges; i++)
-        if ((alive_edges >> i) & 1ULL) h ^= z_edge[i];
-    if (is_burner) h ^= z_turn;
-    return h;
-}
-
 static uint32_t spread_fire(uint32_t burned, uint64_t alive_edges) {
     uint32_t nb = burned;
     for (int i = 0; i < num_edges; i++) {
@@ -571,12 +549,6 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
     nodes++;
     if (depth == 0 || __builtin_popcount(burned) == num_nodes)
         return __builtin_popcount(burned);
-
-    // Turn off TT early-out if we want to trace the path, or just return the TT
-    // but we won't get a full trace. For CEGIS, we only care about the root
-    // result, so we will disable TT exact matching for the root to ensure we
-    // always trace down the principal variation. To be safe and fast, we'll
-    // keep TT but might not always get a perfect trace if hit.
 
     int best_move = -1;
     int best_val = is_burner ? -100 : 100;
@@ -607,7 +579,6 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
             int dummy = -1;
             vector<int> sub_trace;
             uint32_t nb = burned | (1U << i);
-            if (sync_mode_flag) nb = spread_fire(nb, alive_edges);
 
             int val = alphabeta(nb, alive_edges, depth - 1, alpha, beta, false,
                                 dummy, nodes, sub_trace);
@@ -630,8 +601,11 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
             if (!((alive_edges >> i) & 1ULL)) continue;
             int dummy = -1;
             vector<int> sub_trace;
-            int val = alphabeta(burned, alive_edges & ~(1ULL << i), depth - 1,
-                                alpha, beta, true, dummy, nodes, sub_trace);
+            uint64_t cut_edges = alive_edges & ~(1ULL << i);
+            uint32_t next_burned =
+                sync_mode_flag ? spread_fire(burned, cut_edges) : burned;
+            int val = alphabeta(next_burned, cut_edges, depth - 1, alpha, beta,
+                                true, dummy, nodes, sub_trace);
             if (val < best_val) {
                 best_val = val;
                 best_move = i;
@@ -666,13 +640,16 @@ void run_adversarial(const string& lean_fn, const string& preset,
              << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
              << RST;
         cout << MAG
-             << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
-                "Zobrist TT.\n"
+             << "  -> Burner (Max) vs Builder (Min). Alpha-Beta search.\n"
              << RST;
     }
 
     if (preset.substr(0, 7) == "graph6:") {
-        init_graph6(preset.substr(7));
+        string graph_error;
+        if (!init_graph6(preset.substr(7), graph_error)) {
+            cerr << "Dendro graph6 error: " << graph_error << "\n";
+            return;
+        }
         cfg.nodes = num_nodes;
         cfg.gw = 0;
         cfg.gh = num_nodes;
@@ -681,7 +658,6 @@ void run_adversarial(const string& lean_fn, const string& preset,
     }
     init_move_order(cfg);
     sync_mode_flag = cfg.sync_mode;
-    init_zobrist();
 
     uint32_t burned = 0;
     uint64_t alive_edges = (1ULL << num_edges) - 1;
@@ -708,7 +684,6 @@ void run_adversarial(const string& lean_fn, const string& preset,
             first = false;
         }
         cout << "]}" << endl;
-        free(tt);
         return;
     }
 
@@ -784,9 +759,6 @@ void run_adversarial(const string& lean_fn, const string& preset,
         << "def search_depth : Nat := " << depth_limit << "\n\n"
         << "theorem optimal_defense : nash_value < grid_size "
         << ":= by decide\n";
-
-    free(tt);
-    tt = nullptr;
 }
 
 // ============================================================================

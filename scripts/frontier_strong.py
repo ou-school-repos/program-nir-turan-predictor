@@ -11,8 +11,10 @@ A 5-orbit looped tree T-hat(d1, d2, d3, d4) has quotient matrix:
 
 import time
 
+MAX_ODD_N = 17501
 
-def evaluate_strong_leontovich(d1, d2, d3, d4):
+
+def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
     # Total vertices V = 1 + d1 + d1*d2 + d1*d2*d3 + d1*d2*d3*d4
     V = 1 + d1 + d1 * d2 + d1 * d2 * d3 + d1 * d2 * d3 * d4
 
@@ -30,7 +32,7 @@ def evaluate_strong_leontovich(d1, d2, d3, d4):
 
     # Build w[k] = Q^k * 1
     w = [[1, 1, 1, 1, 1]]
-    for k in range(150):  # up to n=151
+    for _ in range(max_odd_n):
         nxt = [0, 0, 0, 0, 0]
         for i in range(5):
             nxt[i] = sum(Q_int[i][j] * w[-1][j] for j in range(5))
@@ -47,19 +49,18 @@ def evaluate_strong_leontovich(d1, d2, d3, d4):
             return 0
         return sum(a[i] * w[stem][i] * w[1][i] * w[2][i] for i in range(5))
 
-    crossover = False
     threshold = -1
+    crossed = False
 
-    # Quick filter, then confirm strongness with a longer exact scan.
-    if homP(101) > homE(101) and homP(103) > homE(103) and homP(105) > homE(105):
-        from verify_strong import analyze
+    for n in range(5, max_odd_n + 1, 2):
+        positive = homP(n) > homE(n)
+        if positive and threshold == -1:
+            threshold = n
+        if threshold != -1 and not positive:
+            return False, V, -1
+        crossed = crossed or positive
 
-        _, flips, leo, strong = analyze(d1, d2, d3, d4, max_n=1600)
-        if strong:
-            threshold = flips[0] if flips else 5
-            return True, V, threshold
-
-    return False, V, -1
+    return crossed, V, threshold
 
 
 def main():
@@ -86,7 +87,10 @@ def main():
     print("\n--- LaTeX Table ---")
     print("\\begin{table}[H]")
     print("\\centering")
-    print("\\caption{Frontier of minimal strongly Leontovich trees.}")
+    print(
+        "\\caption{Frontier of minimal strongly Leontovich trees within the "
+        f"targeted grid, verified for odd $n \\le {MAX_ODD_N}$.}}"
+    )
     print("\\label{tab:strong_frontier}")
     print("\\begin{tabular}{@{}ccl@{}}")
     print("  \\toprule")

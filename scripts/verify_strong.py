@@ -14,7 +14,7 @@ again, so finite-window (ordinary) graphs were mislabeled as strong.
 """
 
 
-def analyze(d1, d2, d3, d4, max_n=1600):
+def analyze(d1, d2, d3, d4, max_n=17501):
     Q = [
         [1, d1, 0, 0, 0],
         [1, 0, d2, 0, 0],
@@ -43,19 +43,20 @@ def analyze(d1, d2, d3, d4, max_n=1600):
     saw_positive = False
     for n in range(5, max_n - 3, 2):
         s = 1 if homP(n) - homE(n) > 0 else -1  # +1 == P beats E == Leontovich at n
-        saw_positive |= (s == 1)
+        saw_positive |= s == 1
         if prev is not None and s != prev:
             flips.append(n)
         prev = s
-    asymptotic_positive = homP(max_n - 5) - homE(max_n - 5) > 0
+    last_odd = max_n if max_n % 2 == 1 else max_n - 1
+    asymptotic_positive = homP(last_odd) - homE(last_odd) > 0
 
     leontovich = saw_positive
     strong = leontovich and asymptotic_positive and prev == 1 and len(flips) <= 1
-    return V, flips, leontovich, strong
+    return V, flips, leontovich, strong, last_odd
 
 
 def report(params):
-    V, flips, leo, strong = analyze(*params)
+    V, flips, leo, strong, last_odd = analyze(*params)
     verdict = (
         "STRONGLY Leontovich"
         if strong
@@ -64,7 +65,10 @@ def report(params):
     win = "" if not flips else f"  window opens at n={flips[0]}"
     if len(flips) >= 2:
         win += f", closes at n={flips[1]} (P wins again -> NOT strong)"
-    print(f"T^{params}: |V|={V:5d} | crossovers at odd n={flips} | {verdict}{win}")
+    print(
+        f"T^{params}: |V|={V:5d} | crossovers at odd n={flips} "
+        f"| scanned odd n<= {last_odd} | {verdict}{win}"
+    )
 
 
 if __name__ == "__main__":

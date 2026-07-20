@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <string>
 #include <vector>
 
 // Exact 128-bit integer print helper
@@ -52,13 +53,35 @@ struct uint256_t {
     friend std::ostream& operator<<(std::ostream& os, const uint256_t& val) {
         if (val.high == 0) {
             print_int128(os, val.low);
-        } else {
-            os << "<uint256 high=";
-            print_int128(os, val.high);
-            os << ", low=";
-            print_int128(os, val.low);
-            os << ">";
+            return os;
         }
+
+        uint256_t n = val;
+        std::string s;
+        while (n.high != 0 || n.low != 0) {
+            uint256_t quotient;
+            unsigned remainder = 0;
+            for (int bit = 255; bit >= 0; --bit) {
+                remainder <<= 1;
+                bool set = bit >= 128 ? ((n.high >> (bit - 128)) & 1)
+                                      : ((n.low >> bit) & 1);
+                if (set) remainder |= 1;
+                if (remainder >= 10) {
+                    remainder -= 10;
+                    if (bit >= 128) {
+                        quotient.high |=
+                            (static_cast<unsigned __int128>(1) << (bit - 128));
+                    } else {
+                        quotient.low |=
+                            (static_cast<unsigned __int128>(1) << bit);
+                    }
+                }
+            }
+            s += static_cast<char>('0' + remainder);
+            n = quotient;
+        }
+        std::reverse(s.begin(), s.end());
+        os << s;
         return os;
     }
 };

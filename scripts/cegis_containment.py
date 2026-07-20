@@ -10,6 +10,8 @@ import subprocess
 import sys
 import time
 
+from graph6 import to_graph6
+
 try:
     import z3
 except ImportError:
@@ -49,30 +51,10 @@ def build_synthesis_model(N, E_target, max_deg):
     return s, A
 
 
-def to_graph6(adj_matrix, N):
-    """Converts adjacency matrix to Graph6 string format."""
-    b = []
-    for j in range(1, N):
-        for i in range(j):
-            b.append(adj_matrix[i][j])
-    while len(b) % 6 != 0:
-        b.append(0)
-    g6 = [chr(N + 63)]
-    for i in range(0, len(b), 6):
-        val = (
-            (b[i] << 5)
-            | (b[i + 1] << 4)
-            | (b[i + 2] << 3)
-            | (b[i + 3] << 2)
-            | (b[i + 4] << 1)
-            | b[i + 5]
-        )
-        g6.append(chr(val + 63))
-    return "graph6:" + "".join(g6)
-
-
 def call_dendro_oracle(adj_matrix, N, cuts):
     """Calls the real C++ Dendro PSPACE Oracle."""
+    if cuts != 1:
+        raise ValueError("Dendro graph6 oracle currently supports cuts=1 only")
     g6 = to_graph6(adj_matrix, N)
     try:
         result = subprocess.run(

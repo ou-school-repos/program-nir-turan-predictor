@@ -11,6 +11,8 @@ import subprocess
 import sys
 import time
 
+from graph6 import to_graph6
+
 try:
     import z3
 except ImportError:
@@ -42,41 +44,17 @@ def build_adaptive_model(N, E_target):
     return s, A
 
 
-def to_graph6(adj_matrix, N):
-    """Converts adjacency matrix to Graph6 string format."""
-    b = []
-    for j in range(1, N):
-        for i in range(j):
-            b.append(adj_matrix[i][j])
-
-    # Pad to multiple of 6
-    while len(b) % 6 != 0:
-        b.append(0)
-
-    g6 = [chr(N + 63)]
-    for i in range(0, len(b), 6):
-        val = (
-            (b[i] << 5)
-            | (b[i + 1] << 4)
-            | (b[i + 2] << 3)
-            | (b[i + 3] << 2)
-            | (b[i + 4] << 1)
-            | b[i + 5]
-        )
-        g6.append(chr(val + 63))
-    return "graph6:" + "".join(g6)
-
-
 def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
     """
     Calls the C++ Dendro engine (PSPACE Oracle).
     Extracts the 'Contagion Subgraph' if the Burner overwhelms the Builder.
     """
-    # For now, we simulate the 'adaptive' ruleset by translating the builder curve
-    # to an average 'cuts per turn' to feed the minimax engine,
-    # OR we use the C++ engine to find the shortest destruction path.
-    # To keep it exact to the C++ logic we just built, we will run --sync
-    # and extract the path.
+    if velocity_v != 1:
+        raise ValueError("Dendro graph6 oracle currently supports velocity_v=1 only")
+    if builder_curve != [1]:
+        raise ValueError(
+            "Dendro graph6 oracle currently supports builder_curve=[1] only"
+        )
 
     g6 = to_graph6(adj_matrix, N)
 
@@ -91,12 +69,6 @@ def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
         nash = data["nash"]
         attack_edges = [tuple(e) for e in data["attack_edges"]]
 
-        # Determine success based on the adaptive constraints.
-        # If the Nash value is the entire network (N), the Burner flashed over it.
-        # We enforce the lag constraints here in python by checking if the path was too short.
-        # If Burner won in fewer turns than Builder ramped up, it's a failure.
-
-        # Simplified for now: if nash >= N/2, it failed.
         if nash >= N / 2:
             return nash, attack_edges
         return nash, []
@@ -192,4 +164,4 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
 if __name__ == "__main__":
     # Test Case: N=8, E=8
     # Burner: v=3 burst. Builder: lagging response [1, 5, 10]
-    run_adaptive_cegis(N=8, E_target=8, velocity_v=3, builder_curve=[1, 5, 10])
+    run_adaptive_cegis(N=8, E_target=8, velocity_v=1, builder_curve=[1])
