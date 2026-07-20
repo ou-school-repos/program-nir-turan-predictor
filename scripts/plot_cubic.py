@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-
 import tempfile
 
 if not os.environ.get("MPLCONFIGDIR"):
