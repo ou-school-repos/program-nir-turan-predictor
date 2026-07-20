@@ -68,10 +68,12 @@ def bipartite_walks(
 
 
 def hom_path(sizes: list[int], walks: list[list[int]], n: int) -> int:
+    """Return exact hom(P_n, H) from precomputed quotient walk vectors."""
     return sum(size * walks[n - 1][i] for i, size in enumerate(sizes))
 
 
 def hom_near_path(sizes: list[int], walks: list[list[int]], n: int, d: int) -> int:
+    """Return exact hom(E_n^(d), H) from precomputed quotient walk vectors."""
     stem = n - d - 2
     if stem < 0:
         raise ValueError(f"invalid near-path parameters n={n}, d={d}")
@@ -82,6 +84,7 @@ def hom_near_path(sizes: list[int], walks: list[list[int]], n: int, d: int) -> i
 
 
 def verify_h_star() -> None:
+    """Verify the scoped claims for the 15-vertex depth-dependent witness."""
     pattern = (0, 1, 6, 4, 1, 0, 0)
     sizes, walks = bipartite_walks(pattern, 200)
     delta = hom_path(sizes, walks, 49) - hom_near_path(sizes, walks, 49, 16)
@@ -109,6 +112,7 @@ def verify_h_star() -> None:
 
 
 def verify_h18() -> None:
+    """Verify the H18 walk table and n=17 depth-2 crossover margin."""
     pattern = (7, 0, 0, 1, 1, 6, 0)
     sizes, walks = bipartite_walks(pattern, 20)
     orbit_order = [0, 1, 2, 3, 6, 7, 8]
@@ -161,16 +165,20 @@ def verify_m1_equals_2_identity() -> None:
 
 @dataclass(frozen=True)
 class LoopedSymmetricTree:
+    """Quotient data for a looped spherically symmetric tree."""
+
     degrees: tuple[int, ...]
 
     @property
     def sizes(self) -> list[int]:
+        """Return orbit sizes induced by the branching degrees."""
         out = [1]
         for d in self.degrees:
             out.append(out[-1] * d)
         return out
 
     def walks(self, max_step: int) -> list[list[int]]:
+        """Return exact quotient walk vectors up to max_step."""
         dim = len(self.degrees) + 1
         w = [[1] * dim]
         for _ in range(max_step):
@@ -187,6 +195,7 @@ class LoopedSymmetricTree:
 def tree_delta(
     tree: LoopedSymmetricTree, walks: list[list[int]], n: int, d: int = 2
 ) -> int:
+    """Return hom(P_n)-hom(E_n^(d)) for a looped symmetric tree."""
     sizes = tree.sizes
     hp = sum(size * walks[n - 1][i] for i, size in enumerate(sizes))
     he = sum(
@@ -199,6 +208,7 @@ def tree_delta(
 def tree_counts(
     tree: LoopedSymmetricTree, walks: list[list[int]], n: int, d: int = 2
 ) -> tuple[int, int]:
+    """Return exact hom(P_n) and hom(E_n^(d)) counts."""
     sizes = tree.sizes
     hp = sum(size * walks[n - 1][i] for i, size in enumerate(sizes))
     he = sum(
@@ -209,6 +219,7 @@ def tree_counts(
 
 
 def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 17501) -> list[int]:
+    """List odd n where the exact sign of hom(P_n)-hom(E_n^(2)) flips."""
     walks = tree.walks(max_n)
     flips: list[int] = []
     prev = None
@@ -221,6 +232,7 @@ def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 17501) -> list[int]:
 
 
 def verify_table8() -> None:
+    """Verify finite open/close crossover windows for the Table 8 entries."""
     expected = {
         (1, 28, 1, 36): [7, 1827],
         (1, 16, 1, 21): [9, 251],
@@ -236,6 +248,7 @@ def verify_table8() -> None:
 
 
 def verify_even_crossover() -> None:
+    """Verify the even n=17340 double-cover crossover threshold."""
     tree = LoopedSymmetricTree((1, 35, 1, 50))
     max_n = 20_000
     walks = tree.walks(max_n)
@@ -257,6 +270,7 @@ def verify_even_crossover() -> None:
 
 
 def verify_t135_ratio() -> None:
+    """Verify leading and high-n ratios for T-hat(1,35,1,50)."""
     tree = LoopedSymmetricTree((1, 35, 1, 50))
     rho = Decimal(str(leading_ratio((1, 35, 1, 50))))
     check(rho < Decimal(1), rho)
@@ -279,6 +293,7 @@ def verify_t135_ratio() -> None:
 
 
 def main() -> None:
+    """Run every exact core-claim verification."""
     verify_h_star()
     verify_h18()
     verify_m1_equals_2_identity()

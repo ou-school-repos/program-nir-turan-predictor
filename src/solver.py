@@ -23,6 +23,7 @@ class Visualizer:
 
     @staticmethod
     def export_burning(fn, adj, seq):
+        """Export the epidemiology burning sequence as a DOT graph."""
         n = 64
         with open(fn, "w") as f:
             f.write(f"""\
@@ -106,6 +107,7 @@ graph Epidemiology {{
 
     @staticmethod
     def export_finance(fn, adj, risk, fraud):
+        """Export the Turan systemic-risk audit as a DOT graph."""
         # N=64 implicit in adj bitmask layout
         n_fraud = len(fraud)
         total_risk = sum(r for r in risk if r > 0)
@@ -211,6 +213,7 @@ graph Epidemiology {{
 
     @staticmethod
     def export_surveillance(fn, adj, probes):
+        """Export the surveillance probe sequence as a DOT graph."""
         with open(fn, "w") as f:
             f.write(f"""\
 graph Surveillance {{
@@ -250,6 +253,7 @@ graph Surveillance {{
 
     @staticmethod
     def export_spectrum(fn, n, adj, p_ans, l_ans):
+        """Export the spectrum anomaly witness as a DOT graph."""
         hub1_deg = len(adj[1])
         hub3_deg = len(adj[3])
         with open(fn, "w") as f:
@@ -289,6 +293,7 @@ graph Spectrum {{
 
     @staticmethod
     def export_synthesized(fn, n, adj, p_score, s_score):
+        """Export the synthesized tree anomaly as a DOT graph."""
         # Auto-detect hubs (degree >= 3)
         hubs = set()
         for i in range(n):
@@ -342,6 +347,7 @@ graph SynthDiscovery {{
 
 
 def popcount(x):
+    """Return the number of set bits in x."""
     return bin(x).count("1")
 
 
@@ -349,8 +355,11 @@ def popcount(x):
 # MODULE 1: EPIDEMIOLOGY (Exact Branch & Bound BNC)
 # =========================================================================
 class EpidemiologyModule:
+    """Generate a Lean certificate for the comb-graph burning policy."""
+
     @staticmethod
     def _iddfs(depth, max_depth, burned, adj, path, counter):
+        """Search for a bounded burning sequence with iterative deepening."""
         counter[0] += 1
         if burned == (1 << 64) - 1:
             return True
@@ -383,6 +392,7 @@ class EpidemiologyModule:
 
     @staticmethod
     def execute(fn):
+        """Run the epidemiology solver and emit its Lean witness file."""
         print(
             f"{CYN}[Solver] Initializing Spatial Comb Graph (N=64) "
             f"for BNC Verification.{RST}"
@@ -444,8 +454,11 @@ class EpidemiologyModule:
 # MODULE 2: SURVEILLANCE (POMDP Binary Tree)
 # =========================================================================
 class SurveillanceModule:
+    """Generate a Lean certificate for the binary-tree localization policy."""
+
     @staticmethod
     def execute(fn):
+        """Run the surveillance solver and emit its Lean witness file."""
         print(f"{CYN}[Solver] Initializing POMDP Tracker (Binary Tree, N=63).{RST}")
 
         adj = [0] * 64
@@ -507,8 +520,11 @@ class SurveillanceModule:
 # MODULE 3: SPECTRUM (Independent Sets / H-Coloring)
 # =========================================================================
 class SpectrumModule:
+    """Generate a Lean certificate for the independent-set anomaly."""
+
     @staticmethod
     def _count_is(u, parent, adj):
+        """Return excluded/included independent-set DP counts for a rooted tree."""
         excl, incl = 1, 1
         for v in adj[u]:
             if v == parent:
@@ -520,6 +536,7 @@ class SpectrumModule:
 
     @staticmethod
     def execute(fn):
+        """Run the spectrum solver and emit its Lean witness file."""
         print(f"{CYN}[Solver] Evaluating Spectrum Fragility (Independent Sets).{RST}")
 
         N = 21
@@ -570,8 +587,11 @@ class SpectrumModule:
 # MODULE 4: FINANCE (Turán / Supersaturation)
 # =========================================================================
 class FinanceModule:
+    """Generate a Lean certificate for Turan supersaturation."""
+
     @staticmethod
     def execute(fn):
+        """Run the finance solver and emit its Lean witness file."""
         N = 64
         print(f"{CYN}[Solver] Turan Limits & Bipartite Supersaturation (N={N}).{RST}")
 
@@ -738,8 +758,11 @@ class GraphInvariants:
 # MODULE 5: SYNTHESIZER (Unsupervised Topology Discovery)
 # =========================================================================
 class SynthesizerModule:
+    """Generate Lean and DOT artifacts for synthesized tree anomalies."""
+
     @staticmethod
     def execute(fn):
+        """Run the synthesis backend and emit the selected witness artifacts."""
         import json
         import subprocess
 
@@ -907,6 +930,7 @@ class DendroModule:
 
     @staticmethod
     def execute(module_name, fn):
+        """Run the requested C++ Dendro module."""
         import subprocess
 
         dendro_bin = os.path.join(

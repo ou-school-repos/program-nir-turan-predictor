@@ -55,6 +55,7 @@ def check(condition, detail):
 
 
 def build_perturbed():
+    """Build the explicit perturbed double-cover graph B'+e."""
     adjH = defaultdict(set)
     nid = 1
     children = []
@@ -102,6 +103,7 @@ def build_perturbed():
 
 
 def equitable_quotient(adj, N):
+    """Compute and exactly verify the coarsest equitable quotient."""
     color = [0] * N
     while True:
         sig, new = {}, [0] * N
@@ -137,15 +139,18 @@ def equitable_quotient(adj, N):
 
 
 def exact_scan(Q, sizes, K, max_n=4001):
+    """Scan exact odd-n signs for the perturbed quotient."""
     w = [[1] * K]
     for _ in range(max_n):
         p = w[-1]
         w.append([sum(Q[i][j] * p[j] for j in range(K)) for i in range(K)])
 
     def hom_p(n):
+        """Return exact hom(P_n) on the quotient."""
         return sum(sizes[i] * w[n - 1][i] for i in range(K))
 
     def hom_e(n, d=2):
+        """Return exact hom(E_n^(d)) on the quotient."""
         s = n - d - 2
         return sum(sizes[i] * w[s][i] * w[1][i] * w[d][i] for i in range(K))
 
@@ -159,6 +164,7 @@ def exact_scan(Q, sizes, K, max_n=4001):
 
 
 def leading_ratio(Q, sizes, K):
+    """Compute the high-precision Perron leading-coefficient ratio."""
     import mpmath as mp
 
     mp.mp.dps = 50
@@ -183,6 +189,7 @@ def leading_ratio(Q, sizes, K):
 
 
 def main():
+    """Run the perturbed-candidate certificate pipeline."""
     import mpmath as mp
 
     adj, N = build_perturbed()

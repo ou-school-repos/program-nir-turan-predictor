@@ -57,6 +57,7 @@ def sweep(cap: int, max_levels: int, tolerance: float):
     near_best = (float("inf"), None)
 
     def rec(degrees: list[int], vertices: int, prod: int) -> None:
+        """Enumerate degree prefixes while respecting the vertex cap."""
         nonlocal count, near_best
         if len(degrees) >= 2:
             params = tuple(degrees)

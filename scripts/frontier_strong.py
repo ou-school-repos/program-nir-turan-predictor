@@ -17,6 +17,7 @@ MAX_ODD_N = 17501
 
 
 def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
+    """Return coefficient-strong verdict, vertex count, and first odd threshold."""
     if leading_ratio((d1, d2, d3, d4)) >= 1.0:
         V = 1 + d1 + d1 * d2 + d1 * d2 * d3 + d1 * d2 * d3 * d4
         return False, V, -1
@@ -39,6 +40,7 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
     w = [[1, 1, 1, 1, 1]]
 
     def extend_walks(target):
+        """Extend exact quotient walks until target is available."""
         while len(w) <= target:
             prev = w[-1]
             nxt = [0, 0, 0, 0, 0]
@@ -47,9 +49,11 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
             w.append(nxt)
 
     def homP(n):
+        """Return exact hom(P_n) for the current quotient."""
         return sum(a[i] * w[n - 1][i] for i in range(5))
 
     def homE(n):
+        """Return exact hom(E_n^(2)) for the current quotient."""
         # E_n^(2) at depth d=2
         # center vertex connects to a path of length (n-2-2) = n-4, a path of length 1, and a path of length 2
         stem = n - 4
@@ -69,6 +73,7 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
 
 
 def main():
+    """Sweep the targeted frontier grid and print a LaTeX table."""
     print("Sweeping 5-orbit looped symmetric trees T-hat(d1,d2,d3,d4)...")
     frontier = {}
 

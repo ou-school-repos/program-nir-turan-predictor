@@ -17,6 +17,7 @@ from strong_coeff import leading_ratio
 
 
 def analyze(d1, d2, d3, d4, max_n=17501):
+    """Analyze finite crossovers and coefficient strongness for one tree."""
     params = (d1, d2, d3, d4)
     Q = [
         [1, d1, 0, 0, 0],
@@ -35,9 +36,11 @@ def analyze(d1, d2, d3, d4, max_n=17501):
         w.append([sum(Q[i][j] * p[j] for j in range(5)) for i in range(5)])
 
     def homP(n):
+        """Return exact hom(P_n) for the current tree quotient."""
         return sum(a[i] * w[n - 1][i] for i in range(5))
 
     def homE(n, d=2):  # E_n^(d), pendant at depth d
+        """Return exact hom(E_n^(d)) for the current tree quotient."""
         stem = n - d - 2
         return sum(a[i] * w[stem][i] * w[1][i] * w[d][i] for i in range(5))
 
@@ -59,6 +62,7 @@ def analyze(d1, d2, d3, d4, max_n=17501):
 
 
 def report(params):
+    """Print one human-readable strongness audit row."""
     V, flips, leo, strong, last_odd, rho = analyze(*params)
     verdict = (
         "STRONGLY Leontovich"

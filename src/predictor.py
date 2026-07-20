@@ -20,6 +20,7 @@ GRAY = "\033[1;30m"
 
 
 def popcount(n):
+    """Return the number of set bits in n."""
     return bin(n).count("1")
 
 
@@ -29,10 +30,12 @@ def E_seq(R):
 
 
 def bit_length(x):
+    """Return the binary length of x."""
     return x.bit_length()
 
 
 def sum_bit_length(R):
+    """Return the cumulative bit length for positive integers below R."""
     return sum(bit_length(i) for i in range(1, R))
 
 
@@ -47,6 +50,7 @@ def star_constant(R):
 
 
 def audit(R):
+    """Print the arrangement-graph extraconnectivity audit for radius R."""
     start = time.perf_counter()
 
     bar = "=" * 89
@@ -140,6 +144,7 @@ def audit(R):
 
 
 def generate_csv(max_R, filename):
+    """Write asymptotic prediction rows up to max_R."""
     print(f"[INFO] Generating asymptotic predictions up to R={max_R}...")
 
     start = time.perf_counter()
