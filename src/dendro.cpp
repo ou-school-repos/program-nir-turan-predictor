@@ -433,9 +433,18 @@ static GameConfig parse_preset(const string& name) {
 }
 
 static void init_graph6(const string& g6) {
-    // Parse Graph6 format and populate edges[]
-    if (g6.empty()) return;
-    int n = g6[0] - 63;  // Simplified for N <= 62
+    // Parse Graph6 format (single-byte header; N <= 62) and populate edges[].
+    if (g6.size() < 2) {
+        num_nodes = 0;
+        num_edges = 0;
+        return;
+    }
+    int n = g6[0] - 63;
+    if (n <= 0 || n > MAX_N) {
+        num_nodes = 0;
+        num_edges = 0;
+        return;
+    }
     num_nodes = n;
     num_edges = 0;
     int idx = 1;
@@ -444,11 +453,13 @@ static void init_graph6(const string& g6) {
     for (int j = 1; j < n; j++) {
         for (int i = 0; i < j; i++) {
             if ((val >> bit_idx) & 1) {
+                if (num_edges >= MAX_E) return;
                 edges[num_edges++] = {i, j};
             }
             if (--bit_idx < 0) {
                 idx++;
-                if (idx < g6.length()) val = g6[idx] - 63;
+                if (idx >= (int)g6.size()) return;
+                val = g6[idx] - 63;
                 bit_idx = 5;
             }
         }
