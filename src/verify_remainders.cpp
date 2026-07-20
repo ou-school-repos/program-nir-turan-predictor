@@ -53,7 +53,11 @@ struct uint256_t {
         if (val.high == 0) {
             print_int128(os, val.low);
         } else {
-            os << "<large uint256_t>";
+            os << "<uint256 high=";
+            print_int128(os, val.high);
+            os << ", low=";
+            print_int128(os, val.low);
+            os << ">";
         }
         return os;
     }

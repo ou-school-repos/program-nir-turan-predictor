@@ -662,10 +662,12 @@ void run_adversarial(const string& lean_fn, const string& preset,
 
     if (preset.substr(0, 7) == "graph6:") {
         init_graph6(preset.substr(7));
+        cfg.nodes = num_nodes;
+        cfg.gw = 0;
+        cfg.gh = num_nodes;
     } else {
         init_graph(cfg);
     }
-
     init_move_order(cfg);
     sync_mode_flag = cfg.sync_mode;
     init_zobrist();

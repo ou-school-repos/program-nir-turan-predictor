@@ -50,17 +50,16 @@ def evaluate_strong_leontovich(d1, d2, d3, d4):
     crossover = False
     threshold = -1
 
-    # Check if P_n beats E_n asymptotically (strong condition)
-    # Check deep values n=101, 103, 105 to ensure it STAYS crossed over (c'_1 < c_1)
+    # Quick filter, then confirm strongness with a longer exact scan.
     if homP(101) > homE(101) and homP(103) > homE(103) and homP(105) > homE(105):
-        crossover = True
-        # Find exact threshold
-        for n in range(5, 105, 2):
-            if homP(n) > homE(n):
-                threshold = n
-                break
+        from verify_strong import analyze
 
-    return crossover, V, threshold
+        _, flips, leo, strong = analyze(d1, d2, d3, d4, max_n=1600)
+        if strong:
+            threshold = flips[0] if flips else 5
+            return True, V, threshold
+
+    return False, V, -1
 
 
 def main():

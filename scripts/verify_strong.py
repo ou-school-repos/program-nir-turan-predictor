@@ -40,15 +40,17 @@ def analyze(d1, d2, d3, d4, max_n=1600):
 
     # sign of Delta = homP - homE over odd n; a strong graph keeps Delta>0 forever
     flips, prev = [], None
+    saw_positive = False
     for n in range(5, max_n - 3, 2):
-        s = 1 if homP(n) - homE(n) > 0 else -1  # +1 == E beats P == Leontovich at n
+        s = 1 if homP(n) - homE(n) > 0 else -1  # +1 == P beats E == Leontovich at n
+        saw_positive |= (s == 1)
         if prev is not None and s != prev:
             flips.append(n)
         prev = s
-    asymptotic_E_wins = homP(max_n - 5) - homE(max_n - 5) > 0
+    asymptotic_positive = homP(max_n - 5) - homE(max_n - 5) > 0
 
-    leontovich = len(flips) >= 1
-    strong = leontovich and asymptotic_E_wins and len(flips) == 1
+    leontovich = saw_positive
+    strong = leontovich and asymptotic_positive and prev == 1 and len(flips) <= 1
     return V, flips, leontovich, strong
 
 

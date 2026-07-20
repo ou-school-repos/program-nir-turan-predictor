@@ -41,7 +41,7 @@ def check_looped_ratio(degrees, d=2):
 
     # Asymptotic Ratio R = c_E / c_P
     num = np.sum(a * v * w1 * wd)
-    den = (lam1**3) * np.sum(a * v)
+    den = (lam1 ** (d + 1)) * np.sum(a * v)
     return num / den
 
 
@@ -90,7 +90,7 @@ def main():
 
     best_str = ",".join(map(str, best_graph)) if best_graph else "None"
     print(
-        f"\n\033[1;32mAbsolute Minimum Looped Strong Leontovich Found: "
+        f"\n\033[1;33mSmallest floating-point candidate in the depth-3..7 sweep: "
         f"T_loop({best_str}) with {best_v} vertices!\033[0m"
     )
     print(f"Elapsed: {time.time() - t0:.2f}s")
