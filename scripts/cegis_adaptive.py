@@ -13,6 +13,9 @@ import time
 
 from graph6 import to_graph6
 
+DENDRO_MAX_NODES = 32
+DENDRO_MAX_EDGES = 63
+
 try:
     import z3
 except ImportError:
@@ -54,6 +57,11 @@ def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
     if builder_curve != [1]:
         raise ValueError(
             "Dendro graph6 oracle currently supports builder_curve=[1] only"
+        )
+    edge_count = sum(adj_matrix[i][j] for i in range(N) for j in range(i + 1, N))
+    if not 1 <= N <= DENDRO_MAX_NODES or edge_count > DENDRO_MAX_EDGES:
+        raise ValueError(
+            "Dendro graph6 oracle supports 1-32 nodes and at most 63 edges"
         )
 
     g6 = to_graph6(adj_matrix, N)
@@ -140,23 +148,18 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
             )
             print(f"  -> Flank extracted: {attack_edges}")
 
-            if len(attack_edges) > 0:
-                # Ban the specific high-bandwidth corridor
-                blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
-            else:
-                # Ban the exact graph to force exploration
-                blocking_clause = z3.Not(
-                    z3.And(
-                        [
-                            A[i][j] == adj_matrix[i][j]
-                            for i in range(N)
-                            for j in range(N)
-                        ]
-                    )
+            blocking_clause = z3.Not(
+                z3.And(
+                    [
+                        A[i][j] == adj_matrix[i][j]
+                        for i in range(N)
+                        for j in range(i + 1, N)
+                    ]
                 )
+            )
 
             s.add(blocking_clause)
-            print("  -> Blocking Corridor in Z3. Rerunning...\n")
+            print("  -> Blocking exact failed graph in Z3. Rerunning...\n")
 
         iteration += 1
 

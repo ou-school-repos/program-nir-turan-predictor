@@ -6,7 +6,7 @@ headline witness values with Python integers:
 
 * H* is a 15-vertex depth-dependent bipartite Leontovich graph.
 * H18 has the corrected quotient walk table and n=17 depth-2 margin.
-* The 5-orbit strong-frontier audit has the expected open/close windows.
+* The 5-orbit Table 8 finite-window audit has the expected open/close windows.
 * The m1=2 transfer identity matches exact homomorphism counts on a grid.
 * The double-cover source graph T^(1,35,1,50) has first even d=2 crossover
   at n=17340, hence so does its bipartite double cover.
@@ -221,7 +221,7 @@ def verify_table8() -> None:
     for degrees, flips in expected.items():
         actual = crossover_flips(LoopedSymmetricTree(degrees))
         assert actual == flips, (degrees, actual, flips)
-    print("Table 8: finite-window and strong-frontier verdicts verified")
+    print("Table 8: finite-window open/close crossover audit verified")
 
 
 def verify_even_crossover() -> None:

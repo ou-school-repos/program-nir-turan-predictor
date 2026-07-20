@@ -12,6 +12,8 @@ import time
 
 from graph6 import to_graph6
 
+GRAPH6_DEPTH_LIMIT = 10
+
 try:
     import z3
 except ImportError:
@@ -55,11 +57,14 @@ def call_dendro_oracle(adj_matrix, N, cuts):
     """Calls the real C++ Dendro PSPACE Oracle."""
     if cuts != 1:
         raise ValueError("Dendro graph6 oracle currently supports cuts=1 only")
-    edge_count = sum(
-        adj_matrix[i][j] for i in range(N) for j in range(i + 1, N)
-    )
+    edge_count = sum(adj_matrix[i][j] for i in range(N) for j in range(i + 1, N))
     if not 1 <= N <= 32 or edge_count >= 64:
         raise ValueError("Dendro supports 1-32 nodes and at most 63 edges")
+    if 2 * N - 1 > GRAPH6_DEPTH_LIMIT:
+        raise ValueError(
+            "Dendro graph6 containment oracle has a fixed 10-ply horizon; "
+            f"{N} nodes can require {2 * N - 1} plies for a full-game certificate"
+        )
     g6 = to_graph6(adj_matrix, N)
     try:
         result = subprocess.run(
