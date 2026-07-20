@@ -242,7 +242,7 @@ int main() {
     cout << "COMPLETED IN " << chrono::duration<double>(t1 - t0).count()
          << " SECONDS.\n";
     cout << "\033[1;32mCERTIFICATE: no depth-2 bipartite Leontovich hit was "
-            "found in the tested m1 >= 4, m <= 17 partition families. H_18 "
+            "found for odd n = 5..61 in the tested m1 >= 4, m <= 17 partition "
             "remains the scoped depth-2 witness; H* is the smaller "
             "general-depth witness.\033[0m\n";
     return 0;
