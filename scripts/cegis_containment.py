@@ -13,6 +13,7 @@ import time
 from graph6 import to_graph6
 
 GRAPH6_DEPTH_LIMIT = 10
+ORACLE_TIMEOUT_SECONDS = 60
 
 try:
     import z3
@@ -72,6 +73,7 @@ def call_dendro_oracle(adj_matrix, N, cuts):
             capture_output=True,
             text=True,
             check=True,
+            timeout=ORACLE_TIMEOUT_SECONDS,
         )
         data = json.loads(result.stdout.strip())
         nash = data["nash"]
@@ -79,6 +81,9 @@ def call_dendro_oracle(adj_matrix, N, cuts):
         return nash, attack_edges
     except Exception as e:
         print(f"\nOracle Error: {e}")
+        if isinstance(e, subprocess.CalledProcessError):
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
         sys.exit(1)
 
 

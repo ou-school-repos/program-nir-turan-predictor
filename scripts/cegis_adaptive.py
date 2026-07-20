@@ -15,6 +15,7 @@ from graph6 import to_graph6
 
 DENDRO_MAX_NODES = 32
 DENDRO_MAX_EDGES = 63
+ORACLE_TIMEOUT_SECONDS = 60
 
 try:
     import z3
@@ -72,15 +73,21 @@ def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
             capture_output=True,
             text=True,
             check=True,
+            timeout=ORACLE_TIMEOUT_SECONDS,
         )
         data = json.loads(result.stdout.strip())
         nash = data["nash"]
         attack_edges = [tuple(e) for e in data["attack_edges"]]
 
-        if nash >= N / 2:
+        if nash >= (N + 1) // 2:
             return nash, attack_edges
         return nash, []
 
+    except subprocess.TimeoutExpired as e:
+        print(f"\nOracle Error: Dendro timed out after {e.timeout} seconds")
+        print(f"Stdout: {e.stdout}")
+        print(f"Stderr: {e.stderr}")
+        sys.exit(1)
     except Exception as e:
         print(f"\nOracle Error: {e}")
         if isinstance(e, subprocess.CalledProcessError):

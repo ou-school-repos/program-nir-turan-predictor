@@ -1,15 +1,23 @@
 """Shared graph6 helpers for repository synthesis scripts."""
 
+DENDRO_MAX_NODES = 32
+DENDRO_MAX_EDGES = 63
+
 
 def to_graph6(adj_matrix, n):
     """Convert an adjacency matrix to the graph6 preset string Dendro uses."""
-    if n > 62:
-        raise ValueError("graph6 encoder only supports n <= 62")
+    if not 1 <= n <= DENDRO_MAX_NODES:
+        raise ValueError("Dendro graph6 encoder supports 1-32 nodes")
 
     bits = []
+    edge_count = 0
     for j in range(1, n):
         for i in range(j):
-            bits.append(adj_matrix[i][j])
+            bit = adj_matrix[i][j]
+            edge_count += bit
+            bits.append(bit)
+    if edge_count > DENDRO_MAX_EDGES:
+        raise ValueError("Dendro graph6 encoder supports at most 63 edges")
 
     while len(bits) % 6 != 0:
         bits.append(0)

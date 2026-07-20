@@ -30,13 +30,15 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
         [0, 0, 0, 1, 0],
     ]
 
-    # Build w[k] = Q^k * 1
     w = [[1, 1, 1, 1, 1]]
-    for _ in range(max_odd_n):
-        nxt = [0, 0, 0, 0, 0]
-        for i in range(5):
-            nxt[i] = sum(Q_int[i][j] * w[-1][j] for j in range(5))
-        w.append(nxt)
+
+    def extend_walks(target):
+        while len(w) <= target:
+            prev = w[-1]
+            nxt = [0, 0, 0, 0, 0]
+            for i in range(5):
+                nxt[i] = sum(Q_int[i][j] * prev[j] for j in range(5))
+            w.append(nxt)
 
     def homP(n):
         return sum(a[i] * w[n - 1][i] for i in range(5))
@@ -50,17 +52,16 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
         return sum(a[i] * w[stem][i] * w[1][i] * w[2][i] for i in range(5))
 
     threshold = -1
-    crossed = False
 
     for n in range(5, max_odd_n + 1, 2):
+        extend_walks(n - 1)
         positive = homP(n) > homE(n)
         if positive and threshold == -1:
             threshold = n
         if threshold != -1 and not positive:
             return False, V, -1
-        crossed = crossed or positive
 
-    return crossed, V, threshold
+    return threshold != -1, V, threshold
 
 
 def main():
@@ -88,8 +89,9 @@ def main():
     print("\\begin{table}[H]")
     print("\\centering")
     print(
-        "\\caption{Frontier of minimal strongly Leontovich trees within the "
-        f"targeted grid, verified for odd $n \\le {MAX_ODD_N}$.}}"
+        "\\caption{Frontier of minimal finite-window Leontovich candidates "
+        "within the targeted grid, verified for odd "
+        f"$n \\le {MAX_ODD_N}$.}}"
     )
     print("\\label{tab:strong_frontier}")
     print("\\begin{tabular}{@{}ccl@{}}")
