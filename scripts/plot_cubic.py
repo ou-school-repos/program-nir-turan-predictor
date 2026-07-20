@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 import os
 
-os.environ.setdefault("MPLCONFIGDIR", "/tmp")
+import tempfile
+
+if not os.environ.get("MPLCONFIGDIR"):
+    _mplconfig = tempfile.TemporaryDirectory(prefix="plot-cubic-mpl-")
+    os.environ["MPLCONFIGDIR"] = _mplconfig.name
 
 import matplotlib  # noqa: E402
 
