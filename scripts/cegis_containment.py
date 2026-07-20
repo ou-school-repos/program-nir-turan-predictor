@@ -146,23 +146,18 @@ def run_cegis(N, E_target, tau, cuts):
             print(f"  -> Burner exploited topology! Damage = {actual_nash}")
             print(f"  -> Core Attack Path extracted: {attack_edges}")
 
-            if len(attack_edges) > 0:
-                # The CEGIS Magic: Ban the specific ATTACK PATH
-                blocking_clause = z3.Or([A[u][v] == 0 for u, v in attack_edges])
-            else:
-                # If no specific path was traced, ban the entire graph to force exploration
-                blocking_clause = z3.Not(
-                    z3.And(
-                        [
-                            A[i][j] == adj_matrix[i][j]
-                            for i in range(N)
-                            for j in range(N)
-                        ]
-                    )
+            blocking_clause = z3.Not(
+                z3.And(
+                    [
+                        A[i][j] == adj_matrix[i][j]
+                        for i in range(N)
+                        for j in range(i + 1, N)
+                    ]
                 )
+            )
 
             s.add(blocking_clause)
-            print("  -> Blocking Constraint added to Z3. Rerunning...\n")
+            print("  -> Blocking exact failed graph in Z3. Rerunning...\n")
 
         iteration += 1
 
