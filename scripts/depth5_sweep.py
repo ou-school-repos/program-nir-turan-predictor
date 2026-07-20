@@ -200,11 +200,11 @@ def main():
                 file=sys.stderr,
             )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Checked {total_checked} branching sequences, found {total_leo} Leontovich")
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("THRESHOLD LANDSCAPE: Smallest Leontovich graph per threshold n")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(
         f"{'n':>4s}  {'|V|':>6s}  {'Structure':25s}  {'d':>3s}  {'λ1':>8s}  {'λ2':>8s}  {'ratio':>12s}"
     )

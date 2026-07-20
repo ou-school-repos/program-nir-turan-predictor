@@ -38,7 +38,9 @@ print(f"\nSequence: {','.join(str(x) for x in seq)}")
 # Growth ratios
 print("\n--- Growth Ratios a(n)/a(n-1) ---")
 for i in range(1, len(seq)):
-    print(f"  N={i+3:2d}: {seq[i]:>8,} / {seq[i-1]:>8,} = {seq[i]/seq[i-1]:.4f}")
+    print(
+        f"  N={i + 3:2d}: {seq[i]:>8,} / {seq[i - 1]:>8,} = {seq[i] / seq[i - 1]:.4f}"
+    )
 
 # Check for linear recurrence of order k
 print("\n--- Recurrence Hunting ---")
@@ -71,7 +73,7 @@ for order in range(2, 7):
                 c = coeffs[j]
                 if abs(c - round(c)) < 0.01:
                     c = int(round(c))
-                terms.append(f"{c}*a(n-{j+1})")
+                terms.append(f"{c}*a(n-{j + 1})")
             print(f"  a(n) = {' + '.join(terms)}")
             print(f"  Max error: {max_err:.6f}")
             break
@@ -94,4 +96,4 @@ if len(seq) >= 4:
     print("\n--- Asymptotic ---")
     print(f"  Last ratio: {growth:.6f}")
     print(f"  Geometric mean base: {base:.6f}")
-    print(f"  (Compare: golden ratio = {(1+math.sqrt(5))/2:.6f})")
+    print(f"  (Compare: golden ratio = {(1 + math.sqrt(5)) / 2:.6f})")

@@ -216,7 +216,7 @@ def sweep(max_v, max_depth=6, max_n=200, max_d=20):
         per_depth[depth] = (count, leo_count)
         elapsed = time.time() - t0
         print(
-            f"  depth {depth} ({depth+1} orbits): {count} trees,"
+            f"  depth {depth} ({depth + 1} orbits): {count} trees,"
             f" {leo_count} Leontovich ({elapsed:.1f}s)"
         )
 
@@ -230,7 +230,7 @@ def sweep(max_v, max_depth=6, max_n=200, max_d=20):
         tested, leo_count = per_depth[depth]
         total_tested += tested
         total_leo += leo_count
-        print(f"{depth:>6} {depth+1:>7} {tested:>8,} {leo_count:>12}")
+        print(f"{depth:>6} {depth + 1:>7} {tested:>8,} {leo_count:>12}")
     print("-" * 40)
     print(f"{'Total':>14} {total_tested:>8,} {total_leo:>12}")
     print(f"\nElapsed: {elapsed:.1f}s")

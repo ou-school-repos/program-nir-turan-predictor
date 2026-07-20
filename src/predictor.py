@@ -52,9 +52,7 @@ def audit(R):
     bar = "=" * 89
     print(f"\n{MAG}{BOLD}{bar}{RST}")
     print(f"{BOLD}[ SYSTEM ] ARRANGEMENT GRAPH EXTRACONNECTIVITY PREDICTOR{RST}")
-    print(
-        "[ SYSTEM ] Evaluating Supercomputer Datacenter " "Interconnection Topologies"
-    )
+    print("[ SYSTEM ] Evaluating Supercomputer Datacenter Interconnection Topologies")
     print(f"{MAG}{BOLD}{bar}{RST}\n")
 
     print(
@@ -89,28 +87,23 @@ def audit(R):
     print("    Bounded envelope for the external failure boundary |N(V')|:\n")
 
     # Sparse limit
-    print(f"    {BOLD}UpperBound: Sparse Limit (Fault Isolation " f"Maximized){RST}")
+    print(f"    {BOLD}UpperBound: Sparse Limit (Fault Isolation Maximized){RST}")
     print(f"      ├─ Topology         : Star Graph K_{{1, {R - 1}}}")
-    print(f"      ├─ Algebraic Defect : {sparse_e} " f"(Minimum unique roots saved)")
-    print(
-        f"      ├─ Collision Factor : {sparse_c} " f"(Triangular inclusion-exclusion)"
-    )
-    print(f"      └─ Boundary Eq      : ({R}k - {sparse_e})" f"(n - k) - {sparse_c}\n")
+    print(f"      ├─ Algebraic Defect : {sparse_e} (Minimum unique roots saved)")
+    print(f"      ├─ Collision Factor : {sparse_c} (Triangular inclusion-exclusion)")
+    print(f"      └─ Boundary Eq      : ({R}k - {sparse_e})(n - k) - {sparse_c}\n")
 
     # Dense limit
-    print(
-        f"    {BOLD}LowerBound: Dense Limit (Minimum Cut / " f"Worst-Case Cascade){RST}"
-    )
+    print(f"    {BOLD}LowerBound: Dense Limit (Minimum Cut / Worst-Case Cascade){RST}")
     print("      ├─ Topology         : Lexicographic Hamming Ball")
     print(
-        f"      ├─ Algebraic Defect : {dense_e} "
-        f"(OEIS A000788 maximum internal edges)"
+        f"      ├─ Algebraic Defect : {dense_e} (OEIS A000788 maximum internal edges)"
     )
     print(
         f"      ├─ Collision Factor : {dense_c} "
         f"(Kruskal-Katona maximal shadow overlaps)"
     )
-    print(f"      └─ Boundary Eq      : ({R}k - {dense_e})" f"(n - k) - {dense_c}")
+    print(f"      └─ Boundary Eq      : ({R}k - {dense_e})(n - k) - {dense_c}")
 
     # Edge case audit
     print(f"\n  {YEL}[TOPOLOGICAL EDGE CASE AUDIT]{RST}")
@@ -138,7 +131,7 @@ def audit(R):
     elapsed_us = (time.perf_counter() - start) * 1_000_000
 
     print(f"\n{MAG}{BOLD}{bar}{RST}")
-    print(f"{GRN}[SUCCESS]{RST} Algebraic Defect Squeeze bounds " f"strictly isolated.")
+    print(f"{GRN}[SUCCESS]{RST} Algebraic Defect Squeeze bounds strictly isolated.")
     print(
         f"{GRAY}[SYSTEM]  Engine executed O(R^4) structural derivation "
         f"in {elapsed_us:.0f} µs.{RST}"

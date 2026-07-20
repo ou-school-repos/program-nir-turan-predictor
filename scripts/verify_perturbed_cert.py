@@ -179,10 +179,7 @@ def main():
 
     adj, N = build_perturbed()
     Q, sizes, K = equitable_quotient(adj, N)
-    print(
-        f"B'+e: {N} vertices -> equitable quotient with {K} cells "
-        f"(verified exactly)"
-    )
+    print(f"B'+e: {N} vertices -> equitable quotient with {K} cells (verified exactly)")
     flips, _ = exact_scan(Q, sizes, K)
     print(
         f"exact odd-n sign scan (n <= 3997): flips at {flips} "

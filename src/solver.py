@@ -200,16 +200,13 @@ graph Epidemiology {{
             for a in range(0, 32, 8):
                 for b in range(32, 64, 8):
                     f.write(
-                        f"  {a} -- {b} [style=dashed, "
-                        f"color=gray70, penwidth=0.5];\n"
+                        f"  {a} -- {b} [style=dashed, color=gray70, penwidth=0.5];\n"
                     )
             f.write("\n")
 
             # Fraud edges (visible)
             for i, j in sorted(fraud):
-                f.write(
-                    f"  {i} -- {j} [color=red, penwidth=3.0, " f'label=" FRAUD"];\n'
-                )
+                f.write(f'  {i} -- {j} [color=red, penwidth=3.0, label=" FRAUD"];\n')
             f.write("}\n")
 
     @staticmethod
@@ -415,10 +412,7 @@ class EpidemiologyModule:
                 f"{GRN}  [Solver] Achieved full saturation in "
                 f"{len(seq)} steps. (BNC Verified ✓){RST}"
             )
-            print(
-                f"  [Telemetry] Searched {counter[0]} states in "
-                f"{elapsed_ms:.0f} ms."
-            )
+            print(f"  [Telemetry] Searched {counter[0]} states in {elapsed_ms:.0f} ms.")
 
         dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
         Visualizer.export_burning(dot_path, adj, seq)
@@ -452,7 +446,7 @@ class EpidemiologyModule:
 class SurveillanceModule:
     @staticmethod
     def execute(fn):
-        print(f"{CYN}[Solver] Initializing POMDP Tracker " f"(Binary Tree, N=63).{RST}")
+        print(f"{CYN}[Solver] Initializing POMDP Tracker (Binary Tree, N=63).{RST}")
 
         adj = [0] * 64
         for i in range(31):
@@ -479,14 +473,10 @@ class SurveillanceModule:
             probes.append(best_p)
             belief = best_m
             if steps % 8 == 0:
-                print(
-                    f"  [Turn {steps + 1:2d}] Entropy Reduced To: " f"{min_nb} nodes."
-                )
+                print(f"  [Turn {steps + 1:2d}] Entropy Reduced To: {min_nb} nodes.")
             steps += 1
 
-        print(
-            f"{GRN}  [Solver] Target mathematically trapped in " f"{steps} steps.{RST}"
-        )
+        print(f"{GRN}  [Solver] Target mathematically trapped in {steps} steps.{RST}")
 
         dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
         Visualizer.export_surveillance(dot_path, adj, probes)
@@ -530,9 +520,7 @@ class SpectrumModule:
 
     @staticmethod
     def execute(fn):
-        print(
-            f"{CYN}[Solver] Evaluating Spectrum Fragility " f"(Independent Sets).{RST}"
-        )
+        print(f"{CYN}[Solver] Evaluating Spectrum Fragility (Independent Sets).{RST}")
 
         N = 21
         p_adj = [[] for _ in range(N)]
@@ -557,7 +545,7 @@ class SpectrumModule:
         p_ans = p_dp[0] + p_dp[1]
         l_ans = l_dp[0] + l_dp[1]
 
-        print(f"  [Path P21] Allocs: {p_ans} | " f"[Leontovich L21] Allocs: {l_ans}")
+        print(f"  [Path P21] Allocs: {p_ans} | [Leontovich L21] Allocs: {l_ans}")
         if l_ans < p_ans:
             print(
                 f"{RED}  [Solver] ANOMALY DETECTED! Structural "
@@ -585,9 +573,7 @@ class FinanceModule:
     @staticmethod
     def execute(fn):
         N = 64
-        print(
-            f"{CYN}[Solver] Turan Limits & Bipartite " f"Supersaturation (N={N}).{RST}"
-        )
+        print(f"{CYN}[Solver] Turan Limits & Bipartite Supersaturation (N={N}).{RST}")
 
         adj = [0] * 64
         edges = 0
@@ -621,10 +607,7 @@ class FinanceModule:
         k3 //= 3
         elapsed_us = (time.perf_counter() - start) * 1_000_000
 
-        print(
-            f"{GRN}  [SIMD] Discovered {k3} risk cycles in "
-            f"{elapsed_us:.0f} us.{RST}"
-        )
+        print(f"{GRN}  [SIMD] Discovered {k3} risk cycles in {elapsed_us:.0f} us.{RST}")
 
         dot_path = os.path.join("docs", os.path.basename(fn) + ".dot")
         Visualizer.export_finance(dot_path, adj, risk, fraud_set)
@@ -762,7 +745,7 @@ class SynthesizerModule:
 
         N = int(os.environ.get("SYNTH_N", "21"))
         top_k = int(os.environ.get("SYNTH_TOP", "10"))
-        print(f"{CYN}[Synthesizer] Unsupervised Tree Enumeration " f"(N={N}).{RST}")
+        print(f"{CYN}[Synthesizer] Unsupervised Tree Enumeration (N={N}).{RST}")
 
         synth_bin = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -787,8 +770,7 @@ class SynthesizerModule:
         tps = data["trees_per_sec"]
 
         print(
-            f"  [Telemetry] {trees:,} trees in {elapsed:.0f} ms "
-            f"({tps:,.0f} trees/sec)"
+            f"  [Telemetry] {trees:,} trees in {elapsed:.0f} ms ({tps:,.0f} trees/sec)"
         )
 
         top_list = data.get("top_k", [])
@@ -866,8 +848,8 @@ class SynthesizerModule:
                 f" (N={N})</FONT></B></TD></TR>\n"
                 f'        <TR><TD><FONT POINT-SIZE="12"'
                 f' COLOR="#8b949e">Path: {p_score:,} IS |'
-                f' Top: {top["score"]:,} IS'
-                f' ({top["ratio"]:.2f}x)</FONT></TD></TR>\n'
+                f" Top: {top['score']:,} IS"
+                f" ({top['ratio']:.2f}x)</FONT></TD></TR>\n"
                 f'        <TR><TD><FONT POINT-SIZE="11"'
                 f' COLOR="#58a6ff">λ_max={spec_rad:.4f} |'
                 f" Wiener={wiener:,}</FONT></TD></TR>\n"
@@ -903,7 +885,7 @@ class SynthesizerModule:
                 )
             for u, v in edges:
                 w = (len(adj_list[u]) + len(adj_list[v])) / 2.0
-                f.write(f"  {u} -- {v} [penwidth={w:.1f}," f' color="#495057"];\n')
+                f.write(f'  {u} -- {v} [penwidth={w:.1f}, color="#495057"];\n')
             f.write("}\n")
 
         with open(lean_path, "w") as out:
@@ -942,9 +924,7 @@ class DendroModule:
             stderr=None,
         )
         if result.returncode != 0:
-            print(
-                f"{RED}  [Error] Dendro exited with code " f"{result.returncode}{RST}"
-            )
+            print(f"{RED}  [Error] Dendro exited with code {result.returncode}{RST}")
             sys.exit(1)
 
 
@@ -966,9 +946,9 @@ def generate_dashboard():
 
     # Render SVGs from existing DOTs
     dot_cmds = [
-        "fdp -Tsvg docs/VectorDeployment.lean.dot" " -o docs/epidemiology.svg",
-        "dot -Tsvg docs/ThreatHunting.lean.dot" " -o docs/surveillance.svg",
-        "sfdp -Tsvg docs/RiskAudit.lean.dot" " -o docs/finance.svg",
+        "fdp -Tsvg docs/VectorDeployment.lean.dot -o docs/epidemiology.svg",
+        "dot -Tsvg docs/ThreatHunting.lean.dot -o docs/surveillance.svg",
+        "sfdp -Tsvg docs/RiskAudit.lean.dot -o docs/finance.svg",
     ]
     for cmd in dot_cmds:
         os.system(cmd)

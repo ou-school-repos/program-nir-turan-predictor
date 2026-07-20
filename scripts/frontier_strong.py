@@ -11,10 +11,16 @@ A 5-orbit looped tree T-hat(d1, d2, d3, d4) has quotient matrix:
 
 import time
 
+from strong_coeff import leading_ratio
+
 MAX_ODD_N = 17501
 
 
 def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
+    if leading_ratio((d1, d2, d3, d4)) >= 1.0:
+        V = 1 + d1 + d1 * d2 + d1 * d2 * d3 + d1 * d2 * d3 * d4
+        return False, V, -1
+
     # Total vertices V = 1 + d1 + d1*d2 + d1*d2*d3 + d1*d2*d3*d4
     V = 1 + d1 + d1 * d2 + d1 * d2 * d3 + d1 * d2 * d3 * d4
 
@@ -58,8 +64,6 @@ def evaluate_strong_leontovich(d1, d2, d3, d4, max_odd_n=MAX_ODD_N):
         positive = homP(n) > homE(n)
         if positive and threshold == -1:
             threshold = n
-        if threshold != -1 and not positive:
-            return False, V, -1
 
     return threshold != -1, V, threshold
 
@@ -84,14 +88,14 @@ def main():
                                 f"New Best for n={threshold}: V={V} at ({d1},{d2},{d3},{d4})"
                             )
 
-    print(f"\nCompleted {count} evaluations in {time.time()-start:.2f}s")
+    print(f"\nCompleted {count} evaluations in {time.time() - start:.2f}s")
     print("\n--- LaTeX Table ---")
     print("\\begin{table}[H]")
     print("\\centering")
     print(
-        "\\caption{Frontier of minimal finite-window Leontovich candidates "
-        "within the targeted grid, verified for odd "
-        f"$n \\le {MAX_ODD_N}$.}}"
+        "\\caption{Frontier of minimal strongly Leontovich candidates within "
+        "the targeted grid, using the Perron leading-coefficient criterion "
+        f"and locating first odd crossover for $n \\le {MAX_ODD_N}$.}}"
     )
     print("\\label{tab:strong_frontier}")
     print("\\begin{tabular}{@{}ccl@{}}")

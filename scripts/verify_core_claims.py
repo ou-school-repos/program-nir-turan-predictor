@@ -10,14 +10,16 @@ headline witness values with Python integers:
 * The m1=2 transfer identity matches exact homomorphism counts on a grid.
 * The double-cover source graph T^(1,35,1,50) has first even d=2 crossover
   at n=17340, hence so does its bipartite double cover.
-* The printed T^(1,35,1,50) asymptotic-ratio approximation is reproduced by
-  exact integer counts at high n.
+* The printed T^(1,35,1,50) leading-coefficient ratio and high-n finite ratio
+  are reproduced.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, getcontext
+
+from strong_coeff import leading_ratio
 
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
 
@@ -197,7 +199,7 @@ def tree_counts(
     return hp, he
 
 
-def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 1600) -> list[int]:
+def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 17501) -> list[int]:
     walks = tree.walks(max_n)
     flips: list[int] = []
     prev = None
@@ -211,7 +213,7 @@ def crossover_flips(tree: LoopedSymmetricTree, max_n: int = 1600) -> list[int]:
 
 def verify_table8() -> None:
     expected = {
-        (1, 28, 1, 36): [7],
+        (1, 28, 1, 36): [7, 1827],
         (1, 16, 1, 21): [9, 251],
         (1, 13, 1, 18): [11, 141],
         (1, 12, 1, 18): [13, 127],
@@ -247,6 +249,10 @@ def verify_even_crossover() -> None:
 
 def verify_t135_ratio() -> None:
     tree = LoopedSymmetricTree((1, 35, 1, 50))
+    rho = Decimal(str(leading_ratio((1, 35, 1, 50))))
+    assert rho < Decimal(1)
+    assert rho.quantize(Decimal("0.000000000001")) == Decimal("0.999953714414")
+
     n = 15_001
     walks = tree.walks(n)
     hp, he = tree_counts(tree, walks, n)
@@ -254,7 +260,10 @@ def verify_t135_ratio() -> None:
     ratio = Decimal(he) / Decimal(hp)
     assert ratio < Decimal(1)
     assert ratio.quantize(Decimal("0.000001")) == Decimal("0.999865"), ratio
-    print(f"T^(1,35,1,50): high-n ratio check verified ({ratio:.12f})")
+    print(
+        "T^(1,35,1,50): leading and high-n ratio checks verified "
+        f"(rho={rho:.12f}, n={n}: {ratio:.12f})"
+    )
 
 
 def main() -> None:

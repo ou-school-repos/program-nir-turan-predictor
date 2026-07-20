@@ -124,7 +124,7 @@ def search_near_misses(max_m2=15, n=17):
     for i, (ratio, m2, c_vec) in enumerate(candidates[:10]):
         diff_pct = (ratio - 1.0) * 100
         print(
-            f" {i+1:2d}. Vector: {c_vec} | Vertices: 3+{m2:<2d} | Ratio: {ratio:.8f} (+{diff_pct:.6f}%)"
+            f" {i + 1:2d}. Vector: {c_vec} | Vertices: 3+{m2:<2d} | Ratio: {ratio:.8f} (+{diff_pct:.6f}%)"
         )
     print("=" * 70)
     print(f"Search completed in {time.time() - start_time:.3f} seconds.")

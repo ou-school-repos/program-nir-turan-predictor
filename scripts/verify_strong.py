@@ -13,8 +13,11 @@ for any single Delta>0. That cannot see a SECOND crossover where P overtakes E
 again, so finite-window (ordinary) graphs were mislabeled as strong.
 """
 
+from strong_coeff import leading_ratio
+
 
 def analyze(d1, d2, d3, d4, max_n=17501):
+    params = (d1, d2, d3, d4)
     Q = [
         [1, d1, 0, 0, 0],
         [1, 0, d2, 0, 0],
@@ -42,21 +45,21 @@ def analyze(d1, d2, d3, d4, max_n=17501):
     flips, prev = [], None
     saw_positive = False
     for n in range(5, max_n - 3, 2):
-        s = 1 if homP(n) - homE(n) > 0 else -1  # +1 == P beats E == Leontovich at n
+        s = 1 if homP(n) - homE(n) > 0 else -1  # +1 == E beats P as minimizer
         saw_positive |= s == 1
         if prev is not None and s != prev:
             flips.append(n)
         prev = s
     last_odd = max_n if max_n % 2 == 1 else max_n - 1
-    asymptotic_positive = homP(last_odd) - homE(last_odd) > 0
+    rho = leading_ratio(params)
 
     leontovich = saw_positive
-    strong = leontovich and asymptotic_positive and prev == 1 and len(flips) <= 1
-    return V, flips, leontovich, strong, last_odd
+    strong = leontovich and rho < 1.0
+    return V, flips, leontovich, strong, last_odd, rho
 
 
 def report(params):
-    V, flips, leo, strong, last_odd = analyze(*params)
+    V, flips, leo, strong, last_odd, rho = analyze(*params)
     verdict = (
         "STRONGLY Leontovich"
         if strong
@@ -67,7 +70,7 @@ def report(params):
         win += f", closes at n={flips[1]} (P wins again -> NOT strong)"
     print(
         f"T^{params}: |V|={V:5d} | crossovers at odd n={flips} "
-        f"| scanned odd n<= {last_odd} | {verdict}{win}"
+        f"| rho={rho:.12f} | scanned odd n<= {last_odd} | {verdict}{win}"
     )
 
 

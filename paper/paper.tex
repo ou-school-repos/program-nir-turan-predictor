@@ -84,8 +84,8 @@ witness $T(7,1,[9^5, 8^2])$ as the smallest candidate not ruled out by that
 bounded audit. For strongly Leontovich
 graphs, we audit a five-orbit frontier family, separate finite-window
 Leontovich behavior from true asymptotic strong behavior, and identify
-$\hat{T}(1,28,1,36)$ on 1,066 vertices as the smallest strongly
-Leontovich witness in that table. Finally, block-pattern searches identify
+$\hat{T}(1,35,1,50)$ on 1,822 vertices as the smallest strongly
+Leontovich witness in that sweep. Finally, block-pattern searches identify
 a \textbf{15-vertex bipartite Leontovich graph} $H^*$ whose first detected
 near-path crossover is $\Hom(E_{49}^{(16)},H^*)<\Hom(P_{49},H^*)$, a distinct
 \textbf{18-vertex depth-2 bipartite Leontovich graph} $H_{18}$ with triplet
@@ -518,10 +518,9 @@ of~\cite{galvin2026}.
 Galvin et al.~\cite{galvin2025} established an upper bound of
 $|V| = 961{,}601$ using 4-orbit symmetric trees with a single looped
 root. Expanding the degrees of freedom to 5-orbit looped symmetric trees
-gives a smaller verified strongly Leontovich example on $1{,}066$ vertices
-at $\hat{T}(1, 28, 1, 36)$; the larger
-$\hat{T}(1, 35, 1, 50)$ will be used below because its stronger margin is
-convenient for the double-cover construction. Furthermore, since our exhaustive search
+gives a smaller verified strongly Leontovich example on $1{,}822$ vertices
+at $\hat{T}(1, 35, 1, 50)$, which will be used below because its stronger
+margin is convenient for the double-cover construction. Furthermore, since our exhaustive search
 includes all simple non-bipartite graphs (those containing odd cycles), this
 sweep gives lower-bound evidence for simple strongly Leontovich graphs within
 the tested near-path regime, significantly narrowing the uncertainty gap from
@@ -1212,8 +1211,8 @@ asymptotically rather than by observing a finite crossover window.  A corrected
 exact audit of 5-orbit looped symmetric trees
 $\hat{T}(d_1, d_2, d_3, d_4)$ finds that the smallest verified
 \textit{strongly} Leontovich example in this sweep is
-$\hat{T}(1, 28, 1, 36)$ on $1{,}066$ vertices.  This still improves the
-$961{,}601$-vertex 4-orbit upper bound by roughly a factor of $902$, but the
+$\hat{T}(1, 35, 1, 50)$ on $1{,}822$ vertices.  This still improves the
+$961{,}601$-vertex 4-orbit upper bound by roughly a factor of $528$, while the
 smaller examples in Table~\ref{tab:strong_frontier} are ordinary finite-window
 Leontovich graphs rather than strongly Leontovich graphs.
 
@@ -1225,12 +1224,13 @@ Leontovich graphs rather than strongly Leontovich graphs.
 \toprule
 Opening $n$ & $|V|$ & Parameters $(d_1, d_2, d_3, d_4)$ & Verdict \\
 \midrule
-7 & 1,066 & $\hat{T}(1, 28, 1, 36)$ & strongly Leontovich \\
+7 & 1,066 & $\hat{T}(1, 28, 1, 36)$ & ordinary only; closes at $n=1827$ \\
 9 & 370 & $\hat{T}(1, 16, 1, 21)$ & ordinary only; closes at $n=251$ \\
 11 & 262 & $\hat{T}(1, 13, 1, 18)$ & ordinary only; closes at $n=141$ \\
 13 & 242 & $\hat{T}(1, 12, 1, 18)$ & ordinary only; closes at $n=127$ \\
 15 & 546 & $\hat{T}(1, 17, 1, 30)$ & ordinary only; closes at $n=261$ \\
 17 & 422 & $\hat{T}(1, 15, 1, 26)$ & ordinary only; closes at $n=133$ \\
+7 & 1,822 & $\hat{T}(1, 35, 1, 50)$ & strongly Leontovich \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1351,7 +1351,9 @@ coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
 The coefficient calculation in this section establishes that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$
 on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient
 ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
-\approx 0.999865 < 1$.
+\approx 0.999953714414 < 1$.  Exact finite counts at $n=15001$ give the
+still-unconverged ratio $0.999864892078$, reflecting the very slow decay of the
+near-surviving secondary mode.
 
 By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T}
 \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite

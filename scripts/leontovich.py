@@ -152,8 +152,7 @@ def task_c():
                         best_params = (x, y, z)
                         best_n = n
                         print(
-                            f"  New best: T({x},{y},{z}), |V|={V}, "
-                            f"Leontovich at n={n}"
+                            f"  New best: T({x},{y},{z}), |V|={V}, Leontovich at n={n}"
                         )
                         break
 
