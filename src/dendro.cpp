@@ -381,8 +381,14 @@ static int burner_order[MAX_N];
 static bool sync_mode_flag = false;  // Model B switch
 
 static GameConfig parse_preset(const string& name) {
-    if (name.substr(0, 7) == "graph6:")
-        return {0, 0, 0, 10, 0, 0, false, "Dynamic Graph6"};
+    if (name.substr(0, 7) == "graph6:") {
+        int n = 0;
+        if (name.length() > 7) {
+            n = name[7] - 63;
+            if (n < 0 || n > MAX_N) n = 0;
+        }
+        return {0, n, n, 10, 0, 0, false, "Dynamic Graph6"};
+    }
     if (name == "path16") return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
     if (name == "path20") return {1, 20, 20, 10, 0, 0, false, "Path P(20)"};
     if (name == "path24") return {1, 24, 24, 10, 0, 0, false, "Path P(24)"};

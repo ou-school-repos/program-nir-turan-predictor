@@ -1,0 +1,33 @@
+{
+  "grid_w": 0,
+  "grid_h": 12,
+  "depth": 10,
+  "preset": "graph6:KhCGGC@?G?_@",
+  "label": "Dynamic Graph6",
+  "edges": [
+    [0,1],
+    [1,2],
+    [2,3],
+    [3,4],
+    [4,5],
+    [5,6],
+    [6,7],
+    [7,8],
+    [8,9],
+    [9,10],
+    [10,11]
+  ],
+  "states": [
+    {"b": 0, "e": 2047, "move": -1, "actor": "Init"},
+    {"b": 32, "e": 2047, "move": 5, "actor": "Burner"},
+    {"b": 32, "e": 2031, "move": 4, "actor": "Builder"},
+    {"b": 96, "e": 2031, "move": 6, "actor": "Burner"},
+    {"b": 96, "e": 1967, "move": 6, "actor": "Builder"},
+    {"b": 96, "e": 1966, "move": 0, "actor": "Builder"},
+    {"b": 96, "e": 1964, "move": 1, "actor": "Builder"},
+    {"b": 96, "e": 1960, "move": 2, "actor": "Builder"}
+  ],
+  "nash_value": 3,
+  "nodes_searched": 37955,
+  "time_ms": 5
+}
