@@ -54,6 +54,7 @@ python3 scripts/verify_core_claims.py
 Run the perturbed non-bipartite certificate:
 
 ```bash
+python3 -m pip install -r requirements.txt
 python3 scripts/verify_perturbed_cert.py
 ```
 
@@ -86,6 +87,7 @@ The repository includes exploratory scripts and historical generated artifacts.
 For review, prioritize:
 
 ```bash
+python3 -m pip install -r requirements.txt
 python3 scripts/verify_core_claims.py
 python3 scripts/verify_strong.py
 python3 scripts/verify_perturbed_cert.py

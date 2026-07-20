@@ -3,7 +3,7 @@ import os
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp")
 
-import matplotlib
+import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
