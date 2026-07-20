@@ -42,9 +42,16 @@ Expected output values:
 """
 
 import json
+import os
 from collections import defaultdict
 
 D1, D2, D3, D4 = 2, 34, 1, 48
+
+
+def check(condition, detail):
+    """Raise a certificate failure that is not stripped by python -O."""
+    if not condition:
+        raise RuntimeError(f"perturbed certificate check failed: {detail}")
 
 
 def build_perturbed():
@@ -78,7 +85,7 @@ def build_perturbed():
             leaves.append(nid)
             nid += 1
     NH = nid
-    assert NH == 3403
+    check(NH == 3403, NH)
     # double cover; loop at root -> cross edge (0,0)-(0,1)
     adj = defaultdict(set)
     for u in range(NH):
@@ -122,9 +129,10 @@ def equitable_quotient(adj, N):
             row = defaultdict(int)
             for v in adj[u]:
                 row[color[v]] += 1
-            assert all(
-                Q[c][c2] == row.get(c2, 0) for c2 in range(K)
-            ), "partition not equitable"
+            check(
+                all(Q[c][c2] == row.get(c2, 0) for c2 in range(K)),
+                "partition not equitable",
+            )
     return Q, sizes, K
 
 
@@ -164,7 +172,7 @@ def leading_ratio(Q, sizes, K):
     u1 = [V[i, K - 1] / mp.sqrt(S[i]) for i in range(K)]
     if u1[0] < 0:
         u1 = [-x for x in u1]
-    assert all(x > 0 for x in u1)
+    check(all(x > 0 for x in u1), "Perron vector has non-positive entry")
     one = [mp.mpf(1)] * K
     w1 = [sum(Q[i][j] * one[j] for j in range(K)) for i in range(K)]
     w2 = [sum(Q[i][j] * w1[j] for j in range(K)) for i in range(K)]
@@ -185,12 +193,16 @@ def main():
         f"exact odd-n sign scan (n <= 3997): flips at {flips} "
         f"(expected [9], single opening)"
     )
+    if flips != [9]:
+        raise RuntimeError(f"expected a single opening flip at [9], got {flips}")
     lam1, lam2, rho = leading_ratio(Q, sizes, K)
     print(f"lambda1 = {mp.nstr(lam1, 12)}   |lambda2| = {mp.nstr(lam2, 12)}")
     print(
         f"leading-coefficient ratio rho = {mp.nstr(rho, 12)}  "
         f"({'<1: strongly Leontovich (coefficient sense)' if rho < 1 else '>=1'})"
     )
+    if not rho < 1:
+        raise RuntimeError(f"expected perturbed leading ratio < 1, got {rho}")
 
     # validation on unperturbed B' via its known 10-cell quotient
     QH = [
@@ -212,12 +224,24 @@ def main():
         f"validation, unperturbed B': rho = {mp.nstr(rhou, 12)} "
         f"(must be 0.999713000...)"
     )
+    expected_rhou = mp.mpf("0.999713000053")
+    if abs(rhou - expected_rhou) > mp.mpf("1e-12"):
+        raise RuntimeError(f"unexpected unperturbed ratio {rhou}")
     print(
         f"Delta lambda1 = {mp.nstr(lam1 - lam1u, 8)} "
         f"(NOTE: 1.77e-4, not the 2.49e-4 previously printed)"
     )
-    with open("quotient_Bpe.json", "w") as fh:
-        json.dump({"dim": K, "sizes": sizes, "Q": Q}, fh)
+    archive = {"dim": K, "sizes": sizes, "Q": Q}
+    path = "quotient_Bpe.json"
+    if os.path.exists(path):
+        with open(path) as fh:
+            existing = json.load(fh)
+        if existing == archive:
+            print("quotient matrix archive already up to date")
+            return
+    with open(path, "w") as fh:
+        json.dump(archive, fh, indent=2, sort_keys=True)
+        fh.write("\n")
     print("quotient matrix archived to quotient_Bpe.json")
 
 

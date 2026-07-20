@@ -24,6 +24,12 @@ from strong_coeff import leading_ratio
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
 
 
+def check(condition: bool, detail: object) -> None:
+    """Raise a non-optimized verification failure when a claim check fails."""
+    if not condition:
+        raise RuntimeError(f"core claim check failed: {detail}")
+
+
 def bipartite_walks(
     pattern: tuple[int, ...], max_step: int
 ) -> tuple[list[int], list[list[int]]]:
@@ -80,7 +86,7 @@ def verify_h_star() -> None:
     sizes, walks = bipartite_walks(pattern, 200)
     delta = hom_path(sizes, walks, 49) - hom_near_path(sizes, walks, 49, 16)
     expected = 41_377_493_496_440_451_164
-    assert delta == expected, delta
+    check(delta == expected, delta)
 
     hits = []
     for d in range(2, 21):
@@ -89,12 +95,15 @@ def verify_h_star() -> None:
                 dlt = hom_path(sizes, walks, n) - hom_near_path(sizes, walks, n, d)
                 if dlt > 0:
                     hits.append((n, d))
-    assert len(hits) == 300, len(hits)
-    assert min(hits) == (49, 16), min(hits)
-    assert {d for _, d in hits} == {14, 16, 18, 20}
-    assert all(
-        hom_path(sizes, walks, n) <= hom_near_path(sizes, walks, n, 2)
-        for n in range(5, 200, 2)
+    check(len(hits) == 300, len(hits))
+    check(min(hits) == (49, 16), min(hits))
+    check({d for _, d in hits} == {14, 16, 18, 20}, {d for _, d in hits})
+    check(
+        all(
+            hom_path(sizes, walks, n) <= hom_near_path(sizes, walks, n, 2)
+            for n in range(5, 200, 2)
+        ),
+        "H* has unexpected depth-2 hit",
     )
     print("H*: exact 15-vertex depth-dependent witness verified")
 
@@ -114,13 +123,13 @@ def verify_h18() -> None:
     for step, expected in enumerate(expected_rows):
         row = [walks[step][i] for i in orbit_order]
         row.append(hom_path(sizes, walks, step + 1) if step > 0 else sum(sizes))
-        assert row == expected, (step, row, expected)
+        check(row == expected, (step, row, expected))
 
     hp = hom_path(sizes, walks, 17)
     he = hom_near_path(sizes, walks, 17, 2)
-    assert hp == 14_801_051_732, hp
-    assert he == 14_795_982_954, he
-    assert hp - he == 5_068_778
+    check(hp == 14_801_051_732, hp)
+    check(he == 14_795_982_954, he)
+    check(hp - he == 5_068_778, hp - he)
     print("H18: walk table and n=17 depth-2 margin verified")
 
 
@@ -146,7 +155,7 @@ def verify_m1_equals_2_identity() -> None:
                 hp = hom_path(sizes, w, 5)
                 he = hom_near_path(sizes, w, 5, 2)
                 expected = -c3 * ((c1 - c2) ** 2 + c1 + c2)
-                assert hp - he == expected, (c1, c2, c3, hp - he, expected)
+                check(hp - he == expected, (c1, c2, c3, hp - he, expected))
     print("m1=2 identity: exact finite-grid check verified")
 
 
@@ -222,7 +231,7 @@ def verify_table8() -> None:
     }
     for degrees, flips in expected.items():
         actual = crossover_flips(LoopedSymmetricTree(degrees))
-        assert actual == flips, (degrees, actual, flips)
+        check(actual == flips, (degrees, actual, flips))
     print("Table 8: finite-window open/close crossover audit verified")
 
 
@@ -240,26 +249,29 @@ def verify_even_crossover() -> None:
         if first is not None and positive != previous_positive and n != first:
             later_flips.append(n)
         previous_positive = positive
-    assert first == 17_340, first
-    assert not later_flips, later_flips[:5]
-    assert tree_delta(tree, walks, 17_338) < 0
-    assert tree_delta(tree, walks, 17_340) > 0
+    check(first == 17_340, first)
+    check(not later_flips, later_flips[:5])
+    check(tree_delta(tree, walks, 17_338) < 0, "expected negative at 17338")
+    check(tree_delta(tree, walks, 17_340) > 0, "expected positive at 17340")
     print("Even crossover: n=17340 threshold verified through n=20000")
 
 
 def verify_t135_ratio() -> None:
     tree = LoopedSymmetricTree((1, 35, 1, 50))
     rho = Decimal(str(leading_ratio((1, 35, 1, 50))))
-    assert rho < Decimal(1)
-    assert rho.quantize(Decimal("0.000000000001")) == Decimal("0.999953714414")
+    check(rho < Decimal(1), rho)
+    check(
+        rho.quantize(Decimal("0.000000000001")) == Decimal("0.999953714414"),
+        rho,
+    )
 
     n = 15_001
     walks = tree.walks(n)
     hp, he = tree_counts(tree, walks, n)
     getcontext().prec = 40
     ratio = Decimal(he) / Decimal(hp)
-    assert ratio < Decimal(1)
-    assert ratio.quantize(Decimal("0.000001")) == Decimal("0.999865"), ratio
+    check(ratio < Decimal(1), ratio)
+    check(ratio.quantize(Decimal("0.000001")) == Decimal("0.999865"), ratio)
     print(
         "T^(1,35,1,50): leading and high-n ratio checks verified "
         f"(rho={rho:.12f}, n={n}: {ratio:.12f})"

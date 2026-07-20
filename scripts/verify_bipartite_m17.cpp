@@ -8,42 +8,9 @@
 #include <iostream>
 #include <vector>
 
+#include "../src/uint256.hpp"
+
 using namespace std;
-
-// Lightweight 256-bit unsigned integer struct for exact arithmetic in this
-// bounded sweep. Here m1 <= 8, m2 <= 13, n <= 61, and max degree <= 13, so
-// w_s(u) <= 13^60 < 2^223. The path sums stay below 2^227, and the E_n^(2)
-// scalar products stay below roughly 2^226 before summing. This leaves more
-// than 25 bits of headroom inside uint256_t for the evaluated search range.
-struct uint256_t {
-    unsigned __int128 high = 0;
-    unsigned __int128 low = 0;
-    uint256_t() = default;
-    explicit uint256_t(unsigned __int128 v) : low(v), high(0) {}
-
-    // DP Addition
-    uint256_t operator+(const uint256_t& o) const {
-        uint256_t r;
-        r.low = low + o.low;
-        r.high = high + o.high + (r.low < low ? 1 : 0);
-        return r;
-    }
-
-    // Final Scalar Multiplication
-    uint256_t operator*(uint64_t v) const {
-        uint256_t r;
-        unsigned __int128 p_low = (low & 0xFFFFFFFFFFFFFFFFULL) * v;
-        unsigned __int128 p_mid = (low >> 64) * v + (p_low >> 64);
-        r.low = (p_low & 0xFFFFFFFFFFFFFFFFULL) | (p_mid << 64);
-        r.high = high * v + (p_mid >> 64);
-        return r;
-    }
-
-    bool operator<(const uint256_t& o) const {
-        if (high != o.high) return high < o.high;
-        return low < o.low;
-    }
-};
 
 int m1_g;
 int num_subsets;

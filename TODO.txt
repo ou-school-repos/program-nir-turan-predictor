@@ -5,8 +5,9 @@
 
   Likely Analytically Provable
 
-  - m1 = 2 universal bound: yes. The polynomial identity
-    -c3((c1-c2)^2+c1+c2) is already an analytic proof.
+  - m1 = 2 base case: yes. The polynomial identity
+    -c3((c1-c2)^2+c1+c2) proves the P_5 versus E_5^(2) sign. A universal
+    all-threshold/all-source-tree argument remains outstanding.
 
   - T(7,1,9) permanent crossover: yes. The quotient has a small spectral form; once the sign flips and the subdominant ratio decays monotonically, permanence is analytic.
   - Double-cover lemma: yes. Pure homomorphism lifting argument.

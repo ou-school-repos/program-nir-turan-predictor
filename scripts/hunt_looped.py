@@ -7,6 +7,7 @@ Leontovich ratio in O(1) matrix operations, bypassing dynamic programming.
 import time
 
 import numpy as np
+from strong_coeff import leading_ratio
 
 
 def check_looped_ratio(degrees, d=2):
@@ -46,6 +47,7 @@ def check_looped_ratio(degrees, d=2):
 
 
 def main():
+    """Sweep looped symmetric families for smaller certified candidates."""
     print(
         "\n\033[1;36mHunting Minimal Looped Strongly Leontovich Graphs (Problem 3)\033[0m"
     )
@@ -59,12 +61,15 @@ def main():
         if len(current_degrees) == depth:
             R = check_looped_ratio(current_degrees)
             if R < 1.0:
+                certified = leading_ratio(current_degrees)
+                if certified >= 1.0:
+                    return b_v, b_g
                 b_v = current_V
                 b_g = current_degrees
                 deg_str = ",".join(map(str, current_degrees))
                 print(
                     f"\033[1;32m  >>> NEW RECORD! T_loop({deg_str}) "
-                    f"| Vertices: {current_V} | R: {R:.5f}\033[0m"
+                    f"| Vertices: {current_V} | R: {certified:.12f}\033[0m"
                 )
             return b_v, b_g
 

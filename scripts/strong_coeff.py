@@ -4,6 +4,7 @@ import math
 
 
 def quotient_data(degrees):
+    """Return the looped symmetric quotient matrix and orbit sizes."""
     dim = len(degrees) + 1
     q = [[0.0] * dim for _ in range(dim)]
     q[0][0] = 1.0
@@ -18,10 +19,12 @@ def quotient_data(degrees):
 
 
 def matvec(q, v):
+    """Multiply a dense square matrix by a vector."""
     return [sum(row[j] * v[j] for j in range(len(v))) for row in q]
 
 
 def symmetric_eigenpairs(matrix, sweeps=100, tolerance=1e-14):
+    """Compute eigenpairs of a small symmetric matrix by Jacobi rotations."""
     n = len(matrix)
     a = [row[:] for row in matrix]
     vectors = [[1.0 if i == j else 0.0 for j in range(n)] for i in range(n)]
@@ -70,6 +73,7 @@ def symmetric_eigenpairs(matrix, sweeps=100, tolerance=1e-14):
 
 
 def leading_ratio(degrees):
+    """Return the Perron leading-coefficient ratio for E_n^(2) versus P_n."""
     q, sizes = quotient_data(degrees)
     dim = len(q)
     b = [

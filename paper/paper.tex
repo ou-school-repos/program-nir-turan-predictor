@@ -89,10 +89,10 @@ Leontovich witness in that sweep. Finally, block-pattern searches identify
 a \textbf{15-vertex bipartite Leontovich graph} $H^*$ whose first detected
 near-path crossover is $\Hom(E_{49}^{(16)},H^*)<\Hom(P_{49},H^*)$, a distinct
 \textbf{18-vertex depth-2 bipartite Leontovich graph} $H_{18}$ with triplet
-signature $(7,0,0,1,1,6,0)$ and a depth-2 crossover at $n=17$, and a
-certificate-backed simple non-bipartite strongly-Leontovich target obtained
-by perturbing a bipartite double cover, with leading-coefficient ratio
-$0.999952140676<1$.
+signature $(7,0,0,1,1,6,0)$ and a depth-2 crossover at $n=17$, and
+high-precision numerical evidence for a simple non-bipartite
+strongly-Leontovich candidate obtained by perturbing a bipartite double cover,
+with leading-coefficient ratio $0.999952140676<1$.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -1267,14 +1267,14 @@ $n \ge 17$ (checked through $n = 43$), with the gap growing
 exponentially from $\Delta_{17} = 1{,}993{,}646$ to
 $\Delta_{43} > 10^{17}$.
 
-\subsection*{The Bipartite Parity Conjecture}
+\subsection*{A Disproved Bipartite Parity Hypothesis}
 
-\begin{conjecture}[Universal Bipartite Parity]
+\begin{remark}[Disproved universal bipartite parity hypothesis]
 For any bipartite target graph $H$, $\Hom(E_n^{(d)}, H) \ge
 \Hom(P_n, H)$ for all even~$n$.  That is, the path $P_n$ is
 always the minimiser among trees on $n$ vertices when $n$ is even
 and $H$ is bipartite.
-\end{conjecture}
+\end{remark}
 
 \noindent
 When $n$ is even, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
@@ -1287,16 +1287,12 @@ coefficient.  For odd~$n$, both trees share the same
 unbalanced bipartition, allowing the secondary eigenvector to interfere
 and flip the overall count.
 
-Based on earlier observations, Galvin et al.~\cite{galvin2026} hypothesized
-that adding a loop to the root of $H$ (destroying bipartiteness) is
-structurally necessary to achieve even-$n$ crossovers. We subsequently
-verified this hypothesis computationally over an extensive search space:
+This was a useful working hypothesis suggested by extensive finite searches:
 across all target graphs tested (over 463~million bipartite graphs and
-5.6~million trees), no even-$n$ crossover was observed.
-
-The double-cover construction below gives explicit computational evidence
-against this conjecture: massive bipartite double covers can silence the parity
-oscillation, allowing $E_n$ to overtake $P_n$ at even thresholds.
+5.6~million trees), no even-$n$ crossover was observed. The double-cover
+construction below disproves the universal statement: massive bipartite double
+covers can silence the parity oscillation, allowing $E_n$ to overtake $P_n$ at
+even thresholds.
 
 \begin{remark}
 The same parity phenomenon appears in the independent set
@@ -1310,11 +1306,11 @@ are possible in that setting.
 
 \section{The Bipartite Double Cover and Strongly Leontovich Graphs}
 
-A fundamental open question posed by Galvin et al.~\cite{galvin2025} is whether
-there exist \emph{simple} (non-looped, non-multigraph) target graphs that are
-Strongly Leontovich, or if the property intrinsically requires the topological
-acceleration provided by loops. We resolve this affirmatively using the
-categorical tensor product.
+A natural way to remove a loop from a target is to pass to the bipartite double
+cover; Galvin et al.~\cite{galvin2026} note the equivalent two-copy
+root-joining construction in this setting. We use the double-cover language to
+record the exact preservation statement and to quantify the even crossover
+threshold for the resulting simple bipartite graph.
 
 \begin{definition}[Bipartite Double Cover]
 For any graph $H$, its bipartite double cover $B = H \times K_2$ is a
@@ -1399,8 +1395,8 @@ exponentially small, and the measured shift is
 $\Delta\lambda_1 \approx 1.77 \times 10^{-4}$. The decisive check, however, is
 the quotient leading-coefficient computation above, not a comparison between an
 eigenvalue shift and a leading-coefficient margin. The construction is therefore
-a reproducible computational certificate for a simple non-bipartite
-strongly-Leontovich target in the leading-coefficient sense. A fully formal
+reproducible high-precision numerical evidence for a simple non-bipartite
+strongly-Leontovich candidate in the leading-coefficient sense. A fully formal
 reviewer-facing certificate should replace the high-precision eigencomputation
 with interval arithmetic or an explicit Rayleigh-residual bound.
 

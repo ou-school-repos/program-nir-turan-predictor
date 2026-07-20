@@ -17,6 +17,7 @@ from strong_coeff import leading_ratio
 
 
 def vertex_count(degrees: tuple[int, ...]) -> int:
+    """Return the total vertex count of T-hat(degrees)."""
     total = 1
     prod = 1
     for degree in degrees:
@@ -26,6 +27,7 @@ def vertex_count(degrees: tuple[int, ...]) -> int:
 
 
 def rho_float(degrees: tuple[int, ...]) -> float:
+    """Fast float prescreen for the leading-coefficient ratio."""
     dim = len(degrees) + 1
     q = np.zeros((dim, dim), dtype=float)
     q[0, 0] = 1.0
@@ -49,6 +51,7 @@ def rho_float(degrees: tuple[int, ...]) -> float:
 
 
 def sweep(cap: int, max_levels: int, tolerance: float):
+    """Enumerate candidates and certify rho < 1 hits."""
     count = 0
     candidates = []
     near_best = (float("inf"), None)
@@ -85,6 +88,7 @@ def sweep(cap: int, max_levels: int, tolerance: float):
 
 
 def main() -> None:
+    """Run the command-line frontier sweep."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--cap", type=int, default=4200)
     parser.add_argument("--max-levels", type=int, default=6)
