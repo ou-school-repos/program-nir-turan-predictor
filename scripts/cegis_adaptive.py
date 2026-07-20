@@ -130,9 +130,7 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
             adj_matrix, N, velocity_v, builder_curve
         )
 
-        if (
-            actual_damage < N / 2
-        ):  # Success condition (matched call_adaptive_oracle logic)
+        if actual_damage < (N + 1) // 2:
             print("\033[1;32mSUCCESS!\033[0m")
             print(
                 "\n\033[1;32m✓ PROOF COMPLETE: Synthesized Modularity (Islands & Bridges).\033[0m"
