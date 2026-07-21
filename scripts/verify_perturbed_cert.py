@@ -231,7 +231,7 @@ def main():
     print(f"Delta lambda1 = {mp.nstr(lam1 - lam1u, 8)}")
     archive = {"dim": K, "sizes": sizes, "Q": Q}
     path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "quotient_Bpe.json"
+        os.path.dirname(os.path.abspath(__file__)), "..", "data", "quotient_Bpe.json"
     )
     if os.path.exists(path):
         with open(path) as fh:
@@ -242,7 +242,7 @@ def main():
     with open(path, "w") as fh:
         json.dump(archive, fh, indent=2, sort_keys=True)
         fh.write("\n")
-    print("quotient matrix archived to quotient_Bpe.json")
+    print("quotient matrix archived to data/quotient_Bpe.json")
 
 
 if __name__ == "__main__":

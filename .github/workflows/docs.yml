@@ -23,12 +23,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             pandoc \
+            python3-pip \
             texlive-bibtex-extra \
             texlive-fonts-recommended \
             texlive-latex-extra \
             texlive-lang-english \
-            texlive-xetex \
-            zip
+            texlive-xetex
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt matplotlib networkx pillow
 
@@ -42,19 +42,25 @@ jobs:
       - name: Build paper and markdown PDFs
         run: make docs paper
 
-      - name: Package PDFs
+      - name: Stage PDFs for upload
         run: |
+          mkdir -p all-pdfs
           mapfile -t pdfs < <(find . -type f -name '*.pdf' \
             -not -path './.git/*' \
             -not -path './.github/*' \
             -not -path './.lake/*' \
             -not -path './.tmp/*' \
+            -not -path './all-pdfs/*' \
             | sort)
-          zip -q all-pdfs.zip "${pdfs[@]}"
+          for pdf in "${pdfs[@]}"; do
+            rel=${pdf#./}
+            mkdir -p "all-pdfs/$(dirname "$rel")"
+            cp "$pdf" "all-pdfs/$rel"
+          done
 
-      - name: Upload all-pdfs.zip
+      - name: Upload all-pdfs
         uses: actions/upload-artifact@v4
         with:
-          name: all-pdfs.zip
-          path: all-pdfs.zip
+          name: all-pdfs
+          path: all-pdfs
           if-no-files-found: error
