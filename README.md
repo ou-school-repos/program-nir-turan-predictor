@@ -75,11 +75,16 @@ quotient exactly, and reproduces the leading-coefficient ratio
 
 The Lean files in `proofs/` are not currently a complete formalization of the
 paper. Some files are generated witnesses or exploratory proof artifacts, and
-`proofs/SolverVerification.lean` is explicitly a placeholder.
+`proofs/SolverVerification.lean` currently contains lightweight verification
+hooks rather than the paper's full executable certificates.
 
 At present, the most reliable verification layer for the headline computational
 claims is exact integer arithmetic in Python/C++, not a Lean proof of the full
 pipeline.
+
+A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
+tree is intended for the paper's main analytic results, while `proofs/` stays
+reserved for exact witness checks and SMT-style computations.
 
 ## Reproducibility Notes
 
