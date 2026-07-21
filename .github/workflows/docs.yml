@@ -1,0 +1,60 @@
+---
+name: docs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-pdfs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pandoc \
+            texlive-bibtex-extra \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            texlive-lang-english \
+            texlive-xetex \
+            zip
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt matplotlib networkx pillow
+
+      - name: Build paper figures
+        run: |
+          mkdir -p docs/out
+          python3 scripts/plot_18.py
+          python3 scripts/plot_76.py --pdf
+          python3 scripts/plot_anomaly.py
+
+      - name: Build paper and markdown PDFs
+        run: make docs paper
+
+      - name: Package PDFs
+        run: |
+          mapfile -t pdfs < <(find . -type f -name '*.pdf' \
+            -not -path './.git/*' \
+            -not -path './.github/*' \
+            -not -path './.lake/*' \
+            -not -path './.tmp/*' \
+            | sort)
+          zip -q all-pdfs.zip "${pdfs[@]}"
+
+      - name: Upload all-pdfs.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-pdfs.zip
+          path: all-pdfs.zip
+          if-no-files-found: error

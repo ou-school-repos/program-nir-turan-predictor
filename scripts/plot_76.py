@@ -156,4 +156,5 @@ if __name__ == "__main__":
 
     fmt = "pdf" if args.pdf else ("png" if args.png else "gif")
     out = f"docs/out/leontovich_76.{fmt}"
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     plot(out, fmt)
