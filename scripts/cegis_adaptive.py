@@ -11,10 +11,9 @@ import subprocess
 import sys
 import time
 
-from graph6 import to_graph6
+from graph6 import DENDRO_MAX_EDGES, DENDRO_MAX_NODES, to_graph6
 
-DENDRO_MAX_NODES = 32
-DENDRO_MAX_EDGES = 63
+GRAPH6_DEPTH_LIMIT = 10
 ORACLE_TIMEOUT_SECONDS = 60
 
 try:
@@ -63,6 +62,11 @@ def call_adaptive_oracle(adj_matrix, N, velocity_v, builder_curve):
     if not 1 <= N <= DENDRO_MAX_NODES or edge_count > DENDRO_MAX_EDGES:
         raise ValueError(
             "Dendro graph6 oracle supports 1-32 nodes and at most 63 edges"
+        )
+    if 2 * N - 1 > GRAPH6_DEPTH_LIMIT:
+        raise ValueError(
+            "Dendro graph6 adaptive oracle has a fixed 10-ply horizon; "
+            f"{N} nodes can require {2 * N - 1} plies for a full-game certificate"
         )
 
     g6 = to_graph6(adj_matrix, N)
@@ -170,6 +174,6 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
 
 
 if __name__ == "__main__":
-    # Test Case: N=8, E=8
+    # Test Case: N=5, E=8 (largest N supported by the fixed 10-ply Dendro depth)
     # Burner: v=3 burst. Builder: lagging response [1, 5, 10]
-    run_adaptive_cegis(N=8, E_target=8, velocity_v=1, builder_curve=[1])
+    run_adaptive_cegis(N=5, E_target=8, velocity_v=1, builder_curve=[1])

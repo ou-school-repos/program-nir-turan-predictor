@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 
-from graph6 import to_graph6
+from graph6 import DENDRO_MAX_EDGES, DENDRO_MAX_NODES, to_graph6
 
 GRAPH6_DEPTH_LIMIT = 10
 ORACLE_TIMEOUT_SECONDS = 60
@@ -59,12 +59,13 @@ def call_dendro_oracle(adj_matrix, N, cuts):
     if cuts != 1:
         raise ValueError("Dendro graph6 oracle currently supports cuts=1 only")
     edge_count = sum(adj_matrix[i][j] for i in range(N) for j in range(i + 1, N))
-    if not 1 <= N <= 32 or edge_count >= 64:
+    if not 1 <= N <= DENDRO_MAX_NODES or edge_count > DENDRO_MAX_EDGES:
         raise ValueError("Dendro supports 1-32 nodes and at most 63 edges")
-    # NOTE: The Dendro graph6 preset currently uses a fixed 10-ply search depth.
-    # This oracle is therefore a bounded-depth oracle (not a full-game certificate)
-    # for larger N.
-    # If a full-game certificate is needed, the C++ preset depth must be increased.
+    if 2 * N - 1 > GRAPH6_DEPTH_LIMIT:
+        raise ValueError(
+            "Dendro graph6 containment oracle has a fixed 10-ply horizon; "
+            f"{N} nodes can require {2 * N - 1} plies for a full-game certificate"
+        )
     g6 = to_graph6(adj_matrix, N)
     try:
         result = subprocess.run(
@@ -78,6 +79,11 @@ def call_dendro_oracle(adj_matrix, N, cuts):
         nash = data["nash"]
         attack_edges = [tuple(e) for e in data["attack_edges"]]
         return nash, attack_edges
+    except subprocess.TimeoutExpired as e:
+        print(f"\nOracle Error: Dendro timed out after {e.timeout} seconds")
+        print(f"Stdout: {e.stdout}")
+        print(f"Stderr: {e.stderr}")
+        sys.exit(1)
     except Exception as e:
         print(f"\nOracle Error: {e}")
         if isinstance(e, subprocess.CalledProcessError):

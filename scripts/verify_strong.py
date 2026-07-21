@@ -71,7 +71,9 @@ def report(params):
     )
     win = "" if not flips else f"  window opens at n={flips[0]}"
     if len(flips) >= 2:
-        win += f", closes at n={flips[1]} (P wins again -> NOT strong)"
+        win += f", closes at n={flips[1]}"
+        if not strong:
+            win += " (P wins again -> NOT strong)"
     print(
         f"T^{params}: |V|={V:5d} | crossovers at odd n={flips} "
         f"| rho={rho:.12f} | scanned odd n<= {last_odd} | {verdict}{win}"

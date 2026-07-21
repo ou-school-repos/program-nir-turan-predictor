@@ -81,7 +81,17 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
 
         uint256_t homE(0);
         for (int u = 0; u < m; ++u) {
-            uint64_t factor = (uint64_t)w[1][u].low * (uint64_t)w[d][u].low;
+            if (w[1][u].high != 0 || w[d][u].high != 0 ||
+                w[1][u].low > UINT64_MAX || w[d][u].low > UINT64_MAX) {
+                return false;  // walk count exceeds uint64_t; caller
+                               // assumptions violated
+            }
+            unsigned __int128 factor_wide = w[1][u].low * w[d][u].low;
+            if (factor_wide > UINT64_MAX) {
+                return false;  // product exceeds uint64_t; caller assumptions
+                               // violated
+            }
+            uint64_t factor = (uint64_t)factor_wide;
             homE = homE + (w[stem][u] * factor);
         }
 
