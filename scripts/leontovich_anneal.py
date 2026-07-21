@@ -345,7 +345,7 @@ def anneal(
 
     print("\n=== Final Results ===", file=sys.stderr)
     print(
-        f"Best Leontovich graph: |V|={best_m}, " f"found={best_is_leo}",
+        f"Best Leontovich graph: |V|={best_m}, found={best_is_leo}",
         file=sys.stderr,
     )
     print(f"Total hits below seed size: {len(hits)}", file=sys.stderr)

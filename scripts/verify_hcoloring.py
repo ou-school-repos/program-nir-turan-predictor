@@ -118,7 +118,7 @@ def main():
     print(f"--- Results (n={n}, target=P_{k}) ---")
     print(f"  trees:     {tree_count}")
     print(f"  path:      hom(P_{n}, P_{k}) = {path_score}")
-    print(f"  star:      hom(K_1,{n-1}, P_{k}) = {star}")
+    print(f"  star:      hom(K_1,{n - 1}, P_{k}) = {star}")
     print(f"  min:       {min_score}  (Delta_max={min_deg}, is_path={is_path})")
     print(f"  2nd-min:   {second_min}")
     print(f"  checksum:  {checksum}")

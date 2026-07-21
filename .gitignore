@@ -21,6 +21,7 @@ output.log
 *.svg
 
 # g++ binaries
+*.o
 synthesizer
 oracle
 dendro

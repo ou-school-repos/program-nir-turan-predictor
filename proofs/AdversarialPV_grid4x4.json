@@ -33,15 +33,15 @@
   "states": [
     { "b": 0, "e": 16777215, "move": -1, "actor": "Init" },
     { "b": 8192, "e": 16777215, "move": 13, "actor": "Burner" },
-    { "b": 8192, "e": 16646143, "move": 17, "actor": "Builder" },
-    { "b": 24576, "e": 16646143, "move": 14, "actor": "Burner" },
-    { "b": 24576, "e": 16121855, "move": 19, "actor": "Builder" },
-    { "b": 28672, "e": 16121855, "move": 12, "actor": "Burner" },
-    { "b": 28672, "e": 16089087, "move": 15, "actor": "Builder" },
-    { "b": 61440, "e": 16089087, "move": 15, "actor": "Burner" },
-    { "b": 61440, "e": 15040511, "move": 20, "actor": "Builder" }
+    { "b": 8192, "e": 16777214, "move": 0, "actor": "Builder" },
+    { "b": 24576, "e": 16777214, "move": 14, "actor": "Burner" },
+    { "b": 24576, "e": 16777212, "move": 1, "actor": "Builder" },
+    { "b": 25088, "e": 16777212, "move": 9, "actor": "Burner" },
+    { "b": 25088, "e": 16777208, "move": 2, "actor": "Builder" },
+    { "b": 26112, "e": 16777208, "move": 10, "actor": "Burner" },
+    { "b": 26112, "e": 16777200, "move": 3, "actor": "Builder" }
   ],
   "nash_value": 4,
-  "nodes_searched": 55196,
-  "time_ms": 8
+  "nodes_searched": 588114,
+  "time_ms": 5
 }

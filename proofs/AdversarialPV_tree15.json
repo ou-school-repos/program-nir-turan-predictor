@@ -30,10 +30,10 @@
     { "b": 69, "e": 16364, "move": 4, "actor": "Builder" },
     { "b": 8261, "e": 16364, "move": 13, "actor": "Burner" },
     { "b": 8261, "e": 8172, "move": 13, "actor": "Builder" },
-    { "b": 8261, "e": 8140, "move": 5, "actor": "Builder" },
-    { "b": 8261, "e": 4044, "move": 12, "actor": "Builder" }
+    { "b": 8261, "e": 8168, "move": 2, "actor": "Builder" },
+    { "b": 8261, "e": 8160, "move": 3, "actor": "Builder" }
   ],
   "nash_value": 4,
-  "nodes_searched": 239145,
-  "time_ms": 29
+  "nodes_searched": 14860710,
+  "time_ms": 577
 }

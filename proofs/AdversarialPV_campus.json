@@ -26,21 +26,21 @@
   "states": [
     { "b": 0, "e": 131071, "move": -1, "actor": "Init" },
     { "b": 8, "e": 131071, "move": 3, "actor": "Burner" },
-    { "b": 8, "e": 131067, "move": 2, "actor": "Builder" },
-    { "b": 12, "e": 131067, "move": 2, "actor": "Burner" },
-    { "b": 12, "e": 131065, "move": 1, "actor": "Builder" },
-    { "b": 268, "e": 131065, "move": 8, "actor": "Burner" },
-    { "b": 268, "e": 130937, "move": 7, "actor": "Builder" },
-    { "b": 780, "e": 130937, "move": 9, "actor": "Burner" },
-    { "b": 780, "e": 130681, "move": 8, "actor": "Builder" },
-    { "b": 1804, "e": 130681, "move": 10, "actor": "Burner" },
-    { "b": 1804, "e": 130169, "move": 9, "actor": "Builder" },
-    { "b": 3852, "e": 130169, "move": 11, "actor": "Burner" },
-    { "b": 3852, "e": 129145, "move": 10, "actor": "Builder" },
-    { "b": 7948, "e": 129145, "move": 12, "actor": "Burner" },
-    { "b": 7948, "e": 127097, "move": 11, "actor": "Builder" }
+    { "b": 8, "e": 131070, "move": 0, "actor": "Builder" },
+    { "b": 12, "e": 131070, "move": 2, "actor": "Burner" },
+    { "b": 12, "e": 131068, "move": 1, "actor": "Builder" },
+    { "b": 268, "e": 131068, "move": 8, "actor": "Burner" },
+    { "b": 268, "e": 131064, "move": 2, "actor": "Builder" },
+    { "b": 780, "e": 131064, "move": 9, "actor": "Burner" },
+    { "b": 780, "e": 131056, "move": 3, "actor": "Builder" },
+    { "b": 1804, "e": 131056, "move": 10, "actor": "Burner" },
+    { "b": 1804, "e": 131040, "move": 4, "actor": "Builder" },
+    { "b": 3852, "e": 131040, "move": 11, "actor": "Burner" },
+    { "b": 3852, "e": 131008, "move": 5, "actor": "Builder" },
+    { "b": 7948, "e": 131008, "move": 12, "actor": "Burner" },
+    { "b": 7948, "e": 130944, "move": 6, "actor": "Builder" }
   ],
   "nash_value": 7,
-  "nodes_searched": 2379372,
-  "time_ms": 139
+  "nodes_searched": 1135925106,
+  "time_ms": 25449
 }

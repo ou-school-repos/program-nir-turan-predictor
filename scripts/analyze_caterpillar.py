@@ -33,7 +33,7 @@ def main():
     print("-" * 30)
     for k in sorted(data.keys()):
         for s, n, nash in data[k]:
-            print(f"{k:>3} {s:>6} {n:>5} {nash:>5} {nash/n:>8.3f}")
+            print(f"{k:>3} {s:>6} {n:>5} {nash:>5} {nash / n:>8.3f}")
         print()
 
     print("--- Constant Builder Limit Conjecture ---")

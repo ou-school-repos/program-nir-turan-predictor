@@ -44,7 +44,7 @@ def verify():
     pos = sorted([e for e in evals if e > 1e-10], reverse=True)
     print(f"λ₁ = {pos[0]:.8f}")
     print(f"λ₂ = {pos[1]:.8f}  (√10 = {np.sqrt(10):.8f})")
-    print(f"r = λ₂/λ₁ = {pos[1]/pos[0]:.8f}")
+    print(f"r = λ₂/λ₁ = {pos[1] / pos[0]:.8f}")
     print()
 
     # Compute w[k] = A^k * 1  (exact integer arithmetic via pure Python)

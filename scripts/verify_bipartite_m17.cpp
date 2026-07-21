@@ -8,39 +8,9 @@
 #include <iostream>
 #include <vector>
 
+#include "../src/uint256.hpp"
+
 using namespace std;
-
-// Lightweight 256-bit unsigned integer struct for exact arbitrary-precision
-// arithmetic
-struct uint256_t {
-    unsigned __int128 high = 0;
-    unsigned __int128 low = 0;
-    uint256_t() = default;
-    explicit uint256_t(unsigned __int128 v) : low(v), high(0) {}
-
-    // DP Addition
-    uint256_t operator+(const uint256_t& o) const {
-        uint256_t r;
-        r.low = low + o.low;
-        r.high = high + o.high + (r.low < low ? 1 : 0);
-        return r;
-    }
-
-    // Final Scalar Multiplication
-    uint256_t operator*(uint64_t v) const {
-        uint256_t r;
-        unsigned __int128 p_low = (low & 0xFFFFFFFFFFFFFFFFULL) * v;
-        unsigned __int128 p_mid = (low >> 64) * v + (p_low >> 64);
-        r.low = (p_low & 0xFFFFFFFFFFFFFFFFULL) | (p_mid << 64);
-        r.high = high * v + (p_mid >> 64);
-        return r;
-    }
-
-    bool operator<(const uint256_t& o) const {
-        if (high != o.high) return high < o.high;
-        return low < o.low;
-    }
-};
 
 int m1_g;
 int num_subsets;
@@ -99,9 +69,9 @@ long long total_graphs = 0;
 long long leo_count = 0;
 
 void evaluate(int m2, const int* c) {
-    // Correct Alternating Bipartite DP
-    // wL and wR are declared on the stack without zero-initialization to avoid
-    // memory clearing overheads
+    // Correct alternating bipartite DP for the depth-2 near-path family only.
+    // Rows are stack-allocated without bulk zeroing; every row entry used below
+    // is fully assigned before it is read.
     uint256_t wL[61][8];
     uint256_t wR[61][256];
 
@@ -137,7 +107,7 @@ void evaluate(int m2, const int* c) {
         homP[n] = s;
     }
 
-    int d = 2;
+    int d = 2;  // This verifier is intentionally scoped to E_n^(2).
     uint64_t bL[8], bR[256];
     for (int i = 0; i < m1_g; i++) {
         bL[i] = (uint64_t)wL[1][i].low * (uint64_t)wL[d][i].low;
@@ -238,7 +208,9 @@ int main() {
     cout << "=========================================================\n";
     cout << "COMPLETED IN " << chrono::duration<double>(t1 - t0).count()
          << " SECONDS.\n";
-    cout << "\033[1;32mTHEOREM: H_18 is the absolute global minimal bipartite "
-            "Leontovich graph.\033[0m\n";
+    cout << "\033[1;32mCERTIFICATE: no depth-2 bipartite Leontovich hit was "
+            "found for odd n = 5..61 in the tested m1 >= 4, m <= 17 partition "
+            "families. H_18 remains the scoped depth-2 witness; H* is the "
+            "smaller general-depth witness.\033[0m\n";
     return 0;
 }

@@ -19,6 +19,7 @@ using namespace std::chrono;
 #define MAG "\033[1;35m"
 #define CYN "\033[1;36m"
 #define RED "\033[1;31m"
+#define YEL "\033[1;33m"
 
 // ============================================================================
 // MODULE: EPIDEMIOLOGY (Decreasing Radius APSP)
@@ -355,26 +356,15 @@ void run_finance(const string& lean_fn, const string& dot_fn) {
 }
 
 // ============================================================================
-// MODULE: ADVERSARIAL (Maker-Breaker Minimax with Zobrist Hashing)
+// MODULE: ADVERSARIAL (Maker-Breaker Minimax)
 // ============================================================================
 namespace adversarial {
 
 constexpr int MAX_N = 32;  // bitmask limit
-constexpr int MAX_E = 64;  // uint64_t edge mask limit
-constexpr int TT_BITS = 22;
-constexpr int TT_SIZE = 1 << TT_BITS;
-constexpr int TT_MASK = TT_SIZE - 1;
+constexpr int MAX_E = 63;  // uint64_t edge mask uses shifts by edge index
 
 struct Edge {
     int u, v;
-};
-
-struct TTEntry {
-    uint64_t hash;
-    int depth;
-    int value;
-    int flag;  // 0=EXACT, 1=LOWER, 2=UPPER
-    int best_move;
 };
 
 struct GameConfig {
@@ -388,12 +378,18 @@ struct GameConfig {
 static Edge edges[MAX_E];
 static int num_edges;
 static int num_nodes;
-static uint64_t z_node[MAX_N], z_edge[MAX_E], z_turn;
-static TTEntry* tt;
 static int burner_order[MAX_N];
 static bool sync_mode_flag = false;  // Model B switch
 
 static GameConfig parse_preset(const string& name) {
+    if (name.substr(0, 7) == "graph6:") {
+        int n = 0;
+        if (name.length() > 7) {
+            n = name[7] - 63;
+            if (n < 0 || n > MAX_N) n = 0;
+        }
+        return {0, n, n, 10, 0, 0, false, "Dynamic Graph6"};
+    }
     if (name == "path16") return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
     if (name == "path20") return {1, 20, 20, 10, 0, 0, false, "Path P(20)"};
     if (name == "path24") return {1, 24, 24, 10, 0, 0, false, "Path P(24)"};
@@ -428,6 +424,50 @@ static GameConfig parse_preset(const string& name) {
             "Caterpillar C(" + to_string(spine) + "," + to_string(legs) + ")"};
     }
     return {1, 16, 16, 12, 0, 0, false, "Path P(16)"};
+}
+
+static bool init_graph6(const string& g6, string& error) {
+    // Parse Graph6 format (single-byte header; N <= 62) and populate edges[].
+    if (g6.empty()) {
+        error = "empty graph6 input";
+        return false;
+    }
+    int n = g6[0] - 63;  // Simplified for N <= 62
+    if (n < 0 || n > MAX_N) {
+        error = "graph6 node count exceeds Dendro's 32-node mask limit";
+        return false;
+    }
+    num_nodes = n;
+    num_edges = 0;
+    int idx = 1;
+    int bit_idx = 5;
+    int val = idx < (int)g6.size() ? g6[idx] - 63 : 0;
+    for (int j = 1; j < n; j++) {
+        for (int i = 0; i < j; i++) {
+            if ((val >> bit_idx) & 1) {
+                if (num_edges >= MAX_E) {
+                    error =
+                        "graph6 edge count exceeds Dendro's 63-edge mask limit";
+                    return false;
+                }
+                edges[num_edges++] = {i, j};
+            }
+            if (--bit_idx < 0) {
+                idx++;
+                if (idx >= (int)g6.size()) {
+                    if (i + 1 < j || j + 1 < n) {
+                        error = "truncated graph6 input";
+                        return false;
+                    }
+                    val = 0;
+                } else {
+                    val = g6[idx] - 63;
+                }
+                bit_idx = 5;
+            }
+        }
+    }
+    return true;
 }
 
 static void init_tree15() {
@@ -497,25 +537,6 @@ static void init_move_order(const GameConfig& cfg) {
     });
 }
 
-static void init_zobrist() {
-    mt19937_64 rng(42);
-    for (int i = 0; i < num_nodes; i++) z_node[i] = rng();
-    for (int i = 0; i < num_edges; i++) z_edge[i] = rng();
-    z_turn = rng();
-    tt = static_cast<TTEntry*>(calloc(TT_SIZE, sizeof(TTEntry)));
-}
-
-static uint64_t get_hash(uint32_t burned, uint64_t alive_edges,
-                         bool is_burner) {
-    uint64_t h = 0;
-    for (int i = 0; i < num_nodes; i++)
-        if ((burned >> i) & 1) h ^= z_node[i];
-    for (int i = 0; i < num_edges; i++)
-        if ((alive_edges >> i) & 1ULL) h ^= z_edge[i];
-    if (is_burner) h ^= z_turn;
-    return h;
-}
-
 static uint32_t spread_fire(uint32_t burned, uint64_t alive_edges) {
     uint32_t nb = burned;
     for (int i = 0; i < num_edges; i++) {
@@ -531,34 +552,24 @@ static uint32_t spread_fire(uint32_t burned, uint64_t alive_edges) {
 
 static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                      int alpha, int beta, bool is_burner, int& best_move_out,
-                     uint64_t& nodes) {
+                     uint64_t& nodes, vector<int>& trace_edges) {
     nodes++;
     if (depth == 0 || __builtin_popcount(burned) == num_nodes)
         return __builtin_popcount(burned);
 
-    uint64_t h = get_hash(burned, alive_edges, is_burner);
-    int idx = h & TT_MASK;
-    if (tt[idx].hash == h && tt[idx].depth >= depth) {
-        if (tt[idx].flag == 0) {
-            best_move_out = tt[idx].best_move;
-            return tt[idx].value;
-        }
-        if (tt[idx].flag == 1 && tt[idx].value >= beta) return beta;
-        if (tt[idx].flag == 2 && tt[idx].value <= alpha) return alpha;
-    }
-
     int best_move = -1;
-    int orig_alpha = alpha;
+    int best_val = is_burner ? -100 : 100;
+    vector<int> best_trace;
 
     if (is_burner) {
         // Burner: place fire on an unburned node adjacent to existing fire
         // (or any node if nothing is burning yet)
-        int max_val = -100;
         bool has_fire = (burned != 0);
         for (int k = 0; k < num_nodes; k++) {
             int i = burner_order[k];
             if ((burned >> i) & 1) continue;
             // Adjacency check: must be next to a burning node (via alive edge)
+            int attack_edge = -1;
             if (has_fire) {
                 bool adj = false;
                 for (int e = 0; e < num_edges; e++) {
@@ -566,106 +577,126 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
                     if ((edges[e].u == i && ((burned >> edges[e].v) & 1)) ||
                         (edges[e].v == i && ((burned >> edges[e].u) & 1))) {
                         adj = true;
+                        attack_edge = e;
                         break;
                     }
                 }
                 if (!adj) continue;
             }
             int dummy = -1;
-            int val = alphabeta(burned | (1U << i), alive_edges, depth - 1,
-                                alpha, beta, false, dummy, nodes);
-            if (val > max_val) {
-                max_val = val;
+            vector<int> sub_trace;
+            uint32_t nb = burned | (1U << i);
+
+            int val = alphabeta(nb, alive_edges, depth - 1, alpha, beta, false,
+                                dummy, nodes, sub_trace);
+            if (val > best_val) {
+                best_val = val;
                 best_move = i;
+                best_trace = sub_trace;
+                if (attack_edge != -1) best_trace.push_back(attack_edge);
             }
-            alpha = max(alpha, val);
+            alpha = max(alpha, best_val);
             if (beta <= alpha) break;
         }
-        if (max_val == -100) {
-            // Burner has no valid moves (completely contained!)
+        if (best_val == -100) {
+            // Burner has no valid moves
             best_move_out = -1;
+            trace_edges.clear();
             return __builtin_popcount(burned);
         }
-        int flag = (max_val <= orig_alpha) ? 2 : (max_val >= beta) ? 1 : 0;
-        tt[idx] = {h, depth, max_val, flag, best_move};
-        best_move_out = best_move;
-        return max_val;
     } else {
-        // Builder: cut one alive edge. No fire spread.
-        int min_val = 100;
-        int front[MAX_E], back[MAX_E];
-        int nf = 0, nb_count = 0;
+        // Builder: cut one alive edge
         for (int i = 0; i < num_edges; i++) {
             if (!((alive_edges >> i) & 1ULL)) continue;
-            int u = edges[i].u, v = edges[i].v;
-            if (((burned >> u) & 1) || ((burned >> v) & 1))
-                front[nf++] = i;
-            else
-                back[nb_count++] = i;
-        }
-        int cands[MAX_E];
-        int nc = 0;
-        for (int i = 0; i < nf; i++) cands[nc++] = front[i];
-        for (int i = 0; i < nb_count; i++) cands[nc++] = back[i];
-
-        if (nc == 0) {
-            // No edges to cut — pass turn
             int dummy = -1;
-            min_val = alphabeta(burned, alive_edges, depth - 1, alpha, beta,
-                                true, dummy, nodes);
-        } else {
-            for (int k = 0; k < nc; k++) {
-                int ei = cands[k];
-                uint64_t ne = alive_edges & ~(1ULL << ei);
-                int dummy = -1;
-                int val =
-                    alphabeta(sync_mode_flag ? spread_fire(burned, ne) : burned,
-                              ne, depth - 1, alpha, beta, true, dummy, nodes);
-                if (val < min_val) {
-                    min_val = val;
-                    best_move = ei;
-                }
-                beta = min(beta, val);
-                if (beta <= alpha) break;
+            vector<int> sub_trace;
+            uint64_t cut_edges = alive_edges & ~(1ULL << i);
+            uint32_t next_burned =
+                sync_mode_flag ? spread_fire(burned, cut_edges) : burned;
+            int val = alphabeta(next_burned, cut_edges, depth - 1, alpha, beta,
+                                true, dummy, nodes, sub_trace);
+            if (val < best_val) {
+                best_val = val;
+                best_move = i;
+                best_trace = sub_trace;
             }
+            beta = min(beta, best_val);
+            if (beta <= alpha) break;
         }
-        int flag = (min_val <= orig_alpha) ? 2 : (min_val >= beta) ? 1 : 0;
-        tt[idx] = {h, depth, min_val, flag, best_move};
-        best_move_out = best_move;
-        return min_val;
+        if (best_val == 100) {
+            // No moves
+            best_move_out = -1;
+            trace_edges.clear();
+            return __builtin_popcount(burned);
+        }
     }
+
+    best_move_out = best_move;
+    trace_edges = best_trace;
+    return best_val;
 }
 
 }  // namespace adversarial
 
 void run_adversarial(const string& lean_fn, const string& preset,
-                     bool sync = false) {
+                     bool sync = false, bool cegis_mode = false) {
     using namespace adversarial;
 
     auto cfg = parse_preset(preset);
     cfg.sync_mode = sync;
-    cout << CYN << "[Dendro] Adversarial: " << cfg.label << " (" << cfg.nodes
-         << "N, depth " << cfg.depth << ", "
-         << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
-         << RST;
-    cout << MAG
-         << "  -> Burner (Max) vs Builder (Min). Alpha-Beta with "
-            "Zobrist TT.\n"
-         << RST;
 
-    init_graph(cfg);
+    if (!cegis_mode) {
+        cout << CYN << "[Dendro] Adversarial: " << cfg.label << " ("
+             << cfg.nodes << "N, depth " << cfg.depth << ", "
+             << (cfg.sync_mode ? "sync/Model B" : "async/Model A") << ").\n"
+             << RST;
+        cout << MAG
+             << "  -> Burner (Max) vs Builder (Min). Alpha-Beta search.\n"
+             << RST;
+    }
+
+    if (preset.substr(0, 7) == "graph6:") {
+        string graph_error;
+        if (!init_graph6(preset.substr(7), graph_error)) {
+            cerr << "Dendro graph6 error: " << graph_error << "\n";
+            return;
+        }
+        cfg.nodes = num_nodes;
+        cfg.gw = 0;
+        cfg.gh = num_nodes;
+    } else {
+        init_graph(cfg);
+    }
     init_move_order(cfg);
     sync_mode_flag = cfg.sync_mode;
-    init_zobrist();
 
     uint32_t burned = 0;
     uint64_t alive_edges = (1ULL << num_edges) - 1;
     uint64_t total_nodes = 0;
     int depth_limit = cfg.depth;
 
-    cout << "  [Search] Alpha-Beta pruning (depth=" << depth_limit
-         << " plies)...\n";
+    if (!cegis_mode) {
+        cout << "  [Search] Alpha-Beta pruning (depth=" << depth_limit
+             << " plies)...\n";
+    }
     auto start = high_resolution_clock::now();
+
+    if (cegis_mode) {
+        int best_move = -1;
+        vector<int> trace;
+        int nash_val = alphabeta(burned, alive_edges, depth_limit, -100, 100,
+                                 true, best_move, total_nodes, trace);
+
+        cout << "{\"nash\": " << nash_val << ", \"attack_edges\": [";
+        bool first = true;
+        for (int e : trace) {
+            if (!first) cout << ", ";
+            cout << "[" << edges[e].u << ", " << edges[e].v << "]";
+            first = false;
+        }
+        cout << "]}" << endl;
+        return;
+    }
 
     // JSON state log for interactive replay
     string json_path = "proofs/AdversarialPV_" + preset + ".json";
@@ -686,9 +717,10 @@ void run_adversarial(const string& lean_fn, const string& preset,
         int best_move = -1;
         uint64_t iter_nodes = 0;
         bool is_burner = (d % 2 == 0);
+        vector<int> trace;
 
         int val = alphabeta(burned, alive_edges, d, -100, 100, is_burner,
-                            best_move, iter_nodes);
+                            best_move, iter_nodes, trace);
         total_nodes += iter_nodes;
         if (d == depth_limit) nash_val = val;
 
@@ -719,9 +751,16 @@ void run_adversarial(const string& lean_fn, const string& preset,
     auto stop = high_resolution_clock::now();
     auto ms = duration_cast<milliseconds>(stop - start).count();
 
+    // A full-game (not merely depth-bounded) certificate needs enough plies
+    // for the game to run to completion: 2*nodes-1 in the worst case (every
+    // node burned or every edge severed). Below that, nash_val is only a
+    // depth-limited search value, not a proven game-theoretic optimum.
+    bool full_game = depth_limit >= 2 * cfg.nodes - 1;
+
     json_out << "\n  ],\n  \"nash_value\": " << nash_val
              << ",\n  \"nodes_searched\": " << total_nodes
-             << ",\n  \"time_ms\": " << ms << "\n}\n";
+             << ",\n  \"time_ms\": " << ms << ",\n  \"full_game_certificate\": "
+             << (full_game ? "true" : "false") << "\n}\n";
     json_out.close();
 
     cout << GRN << "  [Nash Equilibrium] Builder limits destruction to "
@@ -729,18 +768,36 @@ void run_adversarial(const string& lean_fn, const string& preset,
          << RST;
     cout << "  [Telemetry] " << total_nodes << " states searched in " << ms
          << " ms\n";
+    if (!full_game) {
+        cout << YEL << "  [Warning] search_depth=" << depth_limit
+             << " < 2*nodes-1=" << (2 * cfg.nodes - 1)
+             << "; nash_value is depth-bounded, not a full-game optimum.\n"
+             << RST;
+    }
 
     // Lean witness
     ofstream out(lean_fn);
-    out << "import Mathlib.Tactic\n\n"
-        << "def grid_size : Nat := " << cfg.nodes << "\n"
-        << "def nash_value : Nat := " << nash_val << "\n"
-        << "def search_depth : Nat := " << depth_limit << "\n\n"
-        << "theorem optimal_defense : nash_value < grid_size "
-        << ":= by decide\n";
-
-    free(tt);
-    tt = nullptr;
+    if (full_game) {
+        out << "import Mathlib.Tactic\n\n"
+            << "def grid_size : Nat := " << cfg.nodes << "\n"
+            << "def nash_value : Nat := " << nash_val << "\n"
+            << "def search_depth : Nat := " << depth_limit << "\n\n"
+            << "theorem optimal_defense : nash_value < grid_size "
+            << ":= by decide\n";
+    } else {
+        out << "import Mathlib.Tactic\n\n"
+            << "-- NOTE: search_depth (" << depth_limit << ") is below the "
+            << (2 * cfg.nodes - 1)
+            << " plies a full-game certificate would need for " << cfg.nodes
+            << " nodes.\n"
+            << "-- bounded_search_value is a depth-limited alpha-beta result, "
+            << "not a proven game-theoretic optimum.\n"
+            << "def grid_size : Nat := " << cfg.nodes << "\n"
+            << "def bounded_search_value : Nat := " << nash_val << "\n"
+            << "def search_depth : Nat := " << depth_limit << "\n\n"
+            << "theorem bounded_search_value_lt_grid_size : "
+            << "bounded_search_value < grid_size := by decide\n";
+    }
 }
 
 // ============================================================================
@@ -775,9 +832,12 @@ int main(int argc, char** argv) {
     else if (mode == "adversarial") {
         string preset = (argc >= 4) ? argv[3] : "path16";
         bool sync = false;
-        for (int i = 4; i < argc; i++)
+        bool cegis = false;
+        for (int i = 4; i < argc; i++) {
             if (string(argv[i]) == "--sync") sync = true;
-        run_adversarial(lean_fn, preset, sync);
+            if (string(argv[i]) == "--cegis") cegis = true;
+        }
+        run_adversarial(lean_fn, preset, sync, cegis);
     } else {
         cerr << RED << "Unknown module: " << mode << RST << "\n";
         return 1;

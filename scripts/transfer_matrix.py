@@ -21,7 +21,7 @@ for k in [3, 5, 7, 9]:
     terms = []
     for i, c in enumerate(coeffs):
         if c != 0:
-            terms.append(f"{c:+d}x^{k-i}")
+            terms.append(f"{c:+d}x^{k - i}")
     print(f"Char poly: {' '.join(terms)}")
 
     # Compute hom(P_n, P_k) for n=1..20
@@ -33,9 +33,9 @@ for k in [3, 5, 7, 9]:
 
     print(f"hom(P_n, P_{k}) for n=1..20:")
     for n in [5, 10, 15, 20]:
-        print(f"  n={n}: {vals[n-1]}")
+        print(f"  n={n}: {vals[n - 1]}")
 
     # Growth ratio
     for n in [15, 20]:
         ratio = vals[n - 1] / vals[n - 2]
-        print(f"  ratio s_{n}/s_{n-1} = {ratio:.6f} (→ {eigs[0]:.6f})")
+        print(f"  ratio s_{n}/s_{n - 1} = {ratio:.6f} (→ {eigs[0]:.6f})")

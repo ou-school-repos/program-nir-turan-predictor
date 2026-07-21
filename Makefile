@@ -16,13 +16,8 @@ endef
 # --- Simulation Scaling ---
 SCALE ?= 64
 ITER  ?= 1000
-R     ?= 9
 
 # --- Unified Execution & Certification ---
-
-.PHONY: run/predict
-run/predict: ##H Run the Arrangement Graph Interconnection Predictor
-	@$(PYTHON) src/predictor.py $(R)
 
 .PHONY: verify/epidemiology
 verify/epidemiology: ##H Generate and certify Wolbachia deployment
