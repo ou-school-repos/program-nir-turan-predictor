@@ -175,5 +175,7 @@ def run_adaptive_cegis(N, E_target, velocity_v, builder_curve):
 
 if __name__ == "__main__":
     # Test Case: N=5, E=8 (largest N supported by the fixed 10-ply Dendro depth)
-    # Burner: v=3 burst. Builder: lagging response [1, 5, 10]
+    # Burner: v=1 burst. Builder: static response [1]
+    # (velocity_v=1 and builder_curve=[1] are the only values the current
+    # Dendro oracle supports; higher velocity/lag are unimplemented.)
     run_adaptive_cegis(N=5, E_target=8, velocity_v=1, builder_curve=[1])

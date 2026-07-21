@@ -54,7 +54,7 @@ def analyze(d1, d2, d3, d4, max_n=17501):
             flips.append(n)
         prev = s
     last_odd = max_n if max_n % 2 == 1 else max_n - 1
-    rho = leading_ratio(params)
+    rho = float(leading_ratio(params))
 
     leontovich = saw_positive
     strong = leontovich and rho < 1.0

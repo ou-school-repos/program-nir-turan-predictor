@@ -68,7 +68,7 @@ def sweep(cap: int, max_levels: int, tolerance: float):
             if rho < 1.0 - tolerance:
                 certified = leading_ratio(params)
                 if certified < 1.0:
-                    candidates.append((vertices, params, certified))
+                    candidates.append((vertices, params, float(certified)))
 
         if len(degrees) == max_levels:
             return

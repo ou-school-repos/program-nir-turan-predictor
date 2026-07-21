@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""hunt_looped.py — Shatter the 2855-vertex record for Problem 3.
+"""hunt_looped.py — Shatter the 1,822-vertex record for Problem 3.
 Uses the Perron-Frobenius principal eigenvector to evaluate the asymptotic
 Leontovich ratio in O(1) matrix operations, bypassing dynamic programming.
 """
@@ -51,10 +51,14 @@ def main():
     print(
         "\n\033[1;36mHunting Minimal Looped Strongly Leontovich Graphs (Problem 3)\033[0m"
     )
-    print("Previous Record: T_loop(2, 31, 1, 44) | V = 2,855\n")
+    # NOTE: T_loop(2, 31, 1, 44) | V = 2,855 was a prior claimed record; it was
+    # retracted after verify_strong.py's finite-window scan was found to
+    # mislabel graphs whose crossover window closes again as strong. The
+    # current verified record is T_loop(1, 35, 1, 50) | V = 1,822.
+    print("Previous Record: T_loop(1, 35, 1, 50) | V = 1,822\n")
 
-    best_v = 2855
-    best_graph = (2, 31, 1, 44)
+    best_v = 1822
+    best_graph = (1, 35, 1, 50)
     t0 = time.time()
 
     def hunt(depth, current_degrees, current_V, current_term, b_v, b_g):
@@ -69,7 +73,7 @@ def main():
                 deg_str = ",".join(map(str, current_degrees))
                 print(
                     f"\033[1;32m  >>> NEW RECORD! T_loop({deg_str}) "
-                    f"| Vertices: {current_V} | R: {certified:.12f}\033[0m"
+                    f"| Vertices: {current_V} | R: {float(certified):.12f}\033[0m"
                 )
             return b_v, b_g
 

@@ -19,6 +19,7 @@ using namespace std::chrono;
 #define MAG "\033[1;35m"
 #define CYN "\033[1;36m"
 #define RED "\033[1;31m"
+#define YEL "\033[1;33m"
 
 // ============================================================================
 // MODULE: EPIDEMIOLOGY (Decreasing Radius APSP)
@@ -750,9 +751,16 @@ void run_adversarial(const string& lean_fn, const string& preset,
     auto stop = high_resolution_clock::now();
     auto ms = duration_cast<milliseconds>(stop - start).count();
 
+    // A full-game (not merely depth-bounded) certificate needs enough plies
+    // for the game to run to completion: 2*nodes-1 in the worst case (every
+    // node burned or every edge severed). Below that, nash_val is only a
+    // depth-limited search value, not a proven game-theoretic optimum.
+    bool full_game = depth_limit >= 2 * cfg.nodes - 1;
+
     json_out << "\n  ],\n  \"nash_value\": " << nash_val
              << ",\n  \"nodes_searched\": " << total_nodes
-             << ",\n  \"time_ms\": " << ms << "\n}\n";
+             << ",\n  \"time_ms\": " << ms << ",\n  \"full_game_certificate\": "
+             << (full_game ? "true" : "false") << "\n}\n";
     json_out.close();
 
     cout << GRN << "  [Nash Equilibrium] Builder limits destruction to "
@@ -760,15 +768,36 @@ void run_adversarial(const string& lean_fn, const string& preset,
          << RST;
     cout << "  [Telemetry] " << total_nodes << " states searched in " << ms
          << " ms\n";
+    if (!full_game) {
+        cout << YEL << "  [Warning] search_depth=" << depth_limit
+             << " < 2*nodes-1=" << (2 * cfg.nodes - 1)
+             << "; nash_value is depth-bounded, not a full-game optimum.\n"
+             << RST;
+    }
 
     // Lean witness
     ofstream out(lean_fn);
-    out << "import Mathlib.Tactic\n\n"
-        << "def grid_size : Nat := " << cfg.nodes << "\n"
-        << "def nash_value : Nat := " << nash_val << "\n"
-        << "def search_depth : Nat := " << depth_limit << "\n\n"
-        << "theorem optimal_defense : nash_value < grid_size "
-        << ":= by decide\n";
+    if (full_game) {
+        out << "import Mathlib.Tactic\n\n"
+            << "def grid_size : Nat := " << cfg.nodes << "\n"
+            << "def nash_value : Nat := " << nash_val << "\n"
+            << "def search_depth : Nat := " << depth_limit << "\n\n"
+            << "theorem optimal_defense : nash_value < grid_size "
+            << ":= by decide\n";
+    } else {
+        out << "import Mathlib.Tactic\n\n"
+            << "-- NOTE: search_depth (" << depth_limit << ") is below the "
+            << (2 * cfg.nodes - 1)
+            << " plies a full-game certificate would need for " << cfg.nodes
+            << " nodes.\n"
+            << "-- bounded_search_value is a depth-limited alpha-beta result, "
+            << "not a proven game-theoretic optimum.\n"
+            << "def grid_size : Nat := " << cfg.nodes << "\n"
+            << "def bounded_search_value : Nat := " << nash_val << "\n"
+            << "def search_depth : Nat := " << depth_limit << "\n\n"
+            << "theorem bounded_search_value_lt_grid_size : "
+            << "bounded_search_value < grid_size := by decide\n";
+    }
 }
 
 // ============================================================================
