@@ -93,6 +93,48 @@ lean: ##H Build Lean 4 verifiers
 	$(ensure_lake_packages)
 	cd proofs && lake build
 
+.PHONY: lean-analytic
+lean-analytic: ##H Build the analytic LeanLeontovich project
+	@mkdir -p $(HOME)/.cache/lake
+	@mkdir -p LeanLeontovich/.lake
+	@if [ ! -L LeanLeontovich/.lake ]; then \
+		rm -rf LeanLeontovich/.lake; \
+		ln -s $(HOME)/.cache/lake/LeanLeontovich-proofs LeanLeontovich/.lake; \
+	fi
+	set -o pipefail; cd LeanLeontovich && lake build | tee lean.log
+	@printf "\n\033[1;32m--- Verification Complete ---\033[0m\n"
+	@printf "\033[1;36mMapped Theorems & Definitions:\033[0m\n"
+	@awk 'BEGIN {last_file=""} \
+		/^(theorem|lemma|def|axiom|class|instance|structure) / { \
+			if (in_decl) process_buf(); \
+			buf = $$0; in_decl = 1; \
+			if (buf ~ /(:=|:= by|by|where|=>)/) process_buf(); \
+			next; \
+		} \
+		in_decl { \
+			gsub(/^[[:space:]]+/, " ", $$0); \
+			buf = buf $$0; \
+			if ($$0 ~ /(:=|:= by|by|where|=>)/) process_buf(); \
+		} \
+		function process_buf() { \
+			gsub(/[[:space:]]+/, " ", buf); \
+			file = FILENAME; sub(/^LeanLeontovich\//, "", file); \
+			if (file != last_file) { \
+				printf "\n\033[1;33m%s:\033[0m\n", file; \
+				last_file = file; \
+			} \
+			printf "  %s\n", buf; \
+			buf = ""; in_decl = 0; \
+		} \
+		END { if (in_decl) process_buf(); }' \
+		LeanLeontovich/LeanLeontovich/*.lean 2>/dev/null || true
+	@printf "\033[1;32m--------------------------------\033[0m\n"
+	@$(call print_success,LeanLeontovich proofs verified.)
+
+.PHONY: lean-analytic-cache
+lean-analytic-cache: ##H Download mathlib cache for LeanLeontovich
+	cd LeanLeontovich && lake exe cache get
+
 
 .PHONY: doc
 F ?= docs/SEQUENCE_DISCOVERY.md
