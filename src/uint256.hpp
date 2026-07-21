@@ -37,6 +37,16 @@ struct uint256_t {
 
     uint256_t operator*(uint64_t v) const {
         uint256_t r;
+        if (v == 0) return r;
+
+        // Detect overflow beyond 256 bits (i.e., high*v doesn't fit in 128
+        // bits).
+        constexpr unsigned __int128 U128_MAX =
+            ~static_cast<unsigned __int128>(0);
+        if (high != 0 && high > U128_MAX / v) {
+            __builtin_trap();
+        }
+
         unsigned __int128 p_low = (low & 0xFFFFFFFFFFFFFFFFULL) * v;
         unsigned __int128 p_mid = (low >> 64) * v + (p_low >> 64);
         r.low = (p_low & 0xFFFFFFFFFFFFFFFFULL) | (p_mid << 64);
