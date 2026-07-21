@@ -599,6 +599,8 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
         }
         if (best_val == -100) {
             // Burner has no valid moves
+            best_move_out = -1;
+            trace_edges.clear();
             return __builtin_popcount(burned);
         }
     } else {
@@ -622,6 +624,8 @@ static int alphabeta(uint32_t burned, uint64_t alive_edges, int depth,
         }
         if (best_val == 100) {
             // No moves
+            best_move_out = -1;
+            trace_edges.clear();
             return __builtin_popcount(burned);
         }
     }
