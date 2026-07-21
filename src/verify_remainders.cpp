@@ -83,13 +83,15 @@ bool verify_configuration(const std::vector<int>& c, int m1, int m2, int max_n,
         for (int u = 0; u < m; ++u) {
             if (w[1][u].high != 0 || w[d][u].high != 0 ||
                 w[1][u].low > UINT64_MAX || w[d][u].low > UINT64_MAX) {
-                std::cerr << "verify_configuration overflow: w[1] or w[d] exceeds uint64_t at n="
+                std::cerr << "verify_configuration overflow: w[1] or w[d] "
+                             "exceeds uint64_t at n="
                           << n << " u=" << u << "\n";
                 __builtin_trap();
             }
             unsigned __int128 factor_wide = w[1][u].low * w[d][u].low;
             if (factor_wide > UINT64_MAX) {
-                std::cerr << "verify_configuration overflow: w[1]*w[d] exceeds uint64_t at n="
+                std::cerr << "verify_configuration overflow: w[1]*w[d] exceeds "
+                             "uint64_t at n="
                           << n << " u=" << u << "\n";
                 __builtin_trap();
             }
