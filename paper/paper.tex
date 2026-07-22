@@ -9,6 +9,7 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{graphicx}
+\usepackage{tikz}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!70!black,hypertexnames=false]{hyperref}
 \usepackage{enumitem}
 \usepackage{accsupp}
@@ -48,6 +49,10 @@
 
 % ── Notation shortcuts ──────────────────────────────────────────────────
 \newcommand{\Hom}{\mathrm{hom}}
+\DeclareMathOperator{\Sp}{Sp}
+\newcommand{\Aut}{\mathrm{Aut}}
+\newcommand{\Wt}[1]{w_{#1}}
+\newcommand{\ip}[2]{\langle #1, #2 \rangle_{\mathbf{s}}}
 
 \title{%
   \textbf{Path Minimizers and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
@@ -66,108 +71,27 @@
 
 \begin{abstract}
 We investigate the minimization of graph homomorphisms from trees to fixed
-target graphs $H$, addressing open problems from Galvin et
-al.~\cite{galvin2025,galvin2026}. We computationally verify the path
-minimizer theorem for odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to source
-trees on $n=22$ vertices, observing a transition from structural
-degeneracy in $P_3$ and $P_5$ to unique minimality in $P_{\ge 7}$. A
-large-scale near-path sweep of all 1,018,680,329 connected simple graphs on
-$m \le 11$ vertices finds no crossover in the tested $E_n^{(d)}$ range,
-providing conditional computational evidence around the small simple-target
-frontier. For rooted bipartite targets whose active automorphism quotient has
-exactly one positive eigenvalue, we prove that no Leontovich crossover can
-occur, ruling out all 2- and 3-orbit spherically symmetric trees. We
-determine the permanent crossover threshold $n=13$ for the known
-Leontovich graph $T(7,1,9)$. Within the $T(7,1,9)$ leaf-pruning basin, a
-finite integer constraint search through $n \le 31$ identifies the 76-vertex
-witness $T(7,1,[9^5, 8^2])$ as the smallest candidate not ruled out by that
-bounded audit. For strongly Leontovich
-graphs, we audit a five-orbit frontier family, separate finite-window
-Leontovich behavior from true asymptotic strong behavior, and identify
-$\hat{T}(1,35,1,50)$ on 1,822 vertices as the smallest strongly
-Leontovich witness in that sweep. Finally, block-pattern searches identify
-a \textbf{15-vertex bipartite Leontovich graph} $H^*$ whose first detected
-near-path crossover is $\Hom(E_{49}^{(16)},H^*)<\Hom(P_{49},H^*)$, a distinct
-\textbf{18-vertex depth-2 bipartite Leontovich graph} $H_{18}$ with triplet
-signature $(7,0,0,1,1,6,0)$ and a depth-2 crossover at $n=17$, and
-high-precision numerical evidence for a simple non-bipartite
-strongly-Leontovich candidate obtained by perturbing a bipartite double cover,
-with leading-coefficient ratio $0.999952140676<1$.
+target graphs $H$, addressing open questions surrounding Leontovich graphs and
+the path minimizer conjecture. By combining exact computational sweeps with
+quotient-matrix reductions, we prove the impossibility of a crossover at $n=5$
+for the spherically symmetric family $T(x,y,z)$ and verify the $n=6$ residue
+computationally.
+Within the threshold landscape studied here, the smallest crossover threshold
+witnessed is $n=7$; the threshold is attained by $T(16,1,19)$. For targets
+possessing symmetric automorphism orbits, quotient-eigenbasis expansions reduce
+odd near-path crossover detection to a finite base-case sign check, covering
+all 2-orbit and 3-orbit symmetric trees.
+For the 4-orbit tree $T(7,1,9)$, we provide the first complete written proof
+that its crossover threshold at $n=13$ is permanent. Finally, we prove that the
+bipartite double cover operation strictly preserves the Leontovich property,
+which allows bounded computational sweeps of simple graphs to formally rule
+out small looped targets. Through SMT-based search and symmetric pruning, we
+identify the smallest known Leontovich graphs, including a 15-vertex bipartite
+target and a 3,644-vertex simple strongly Leontovich target.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
-\section{Introduction}
-
-For graphs $G$ and $H$, a \emph{graph homomorphism} $\varphi \colon
-V(G) \to V(H)$ is a map preserving adjacency. The number of such maps,
-$\Hom(G, H)$, encodes fundamental combinatorial information.
-Sidorenko~\cite{sidorenko1991} established that stars maximize
-$\Hom(T, H)$ among trees $T$ on $n$ vertices for any target $H$.
-
-The dual question---which trees \emph{minimize} homomorphisms---remains
-largely open. Galvin and Tetali~\cite{galvin-tetali} conjectured that
-the path $P_n$ minimizes $\Hom(T, H)$ among $n$-vertex trees for all
-$H$. Leontovich~\cite{leontovich1989} first observed that this fails
-for certain targets;
-Csikv\'ari and Lin~\cite{csikvari-lin} systematically developed the
-theory via the KC-transformation. Recently, Galvin, McMillon, Redlich,
-and Nir~\cite{galvin2025} demonstrated explicit bipartite counterexamples,
-coining \emph{Leontovich graphs}: targets $H$ for which $P_n$ does not
-minimize $\Hom(T, H)$ among trees. Subsequent work by Galvin et al.~\cite{galvin2026}
-introduced the dual concept of \emph{Hoffman-London graphs} to classify
-targets where paths strictly minimize.
-
-\subsection{Summary of contributions}
-\begin{enumerate}[label=(\roman*)]
-  \item Computational verification of the path minimizer theorem for
-    odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
-    illustrating a transition from structural degeneracy in $P_3$ and
-    $P_5$ (with $P_5$ exhibiting large structural equivalence classes
-    due to 2-shift invariance) to unique minimality for $P_{\ge 7}$.
-    This directly addresses Problem~6.3 of \cite{galvin2026}
-    (Section~\ref{sec:odd-path}).
-  \item An analytical proof (Theorem~\ref{thm:spectral}) demonstrating
-    that target graphs whose quotient matrices possess exactly one
-    positive eigenvalue cannot be Leontovich, which analytically rules
-    out all 2-orbit and 3-orbit spherically symmetric trees.
-  \item An analytical proof determining the crossover threshold $n = 13$
-    for the known Leontovich graph $T(7,1,9)$, showing this threshold
-    is permanent (Theorem~\ref{thm:threshold}).
-  \item Improving the lower bound on the smallest simple Leontovich
-    graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
-    all 1,018,680,329 connected simple graphs on $m \le 11$ vertices).
-    This bounds Problem~4.3 of \cite{galvin2025} for simple graphs.
-  \item Exhaustive search of all spherically symmetric trees
-    $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
-    verified with exact integer arithmetic, ruling out smaller
-    Leontovich graphs in this family.
-  \item Algebraic proof that $n = 5$ crossovers are impossible for all
-    $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
-    showing that $T(7,1,9)$ is the minimum-order graph in this family.
-\end{enumerate}
-
-% ════════════════════════════════════════════════════════════════════════
-\section{Preliminaries}
-\label{sec:prelim}
-
-\begin{definition}[$E_n$]
-  The \emph{near-path tree} $E_n$ is the tree on $n$ vertices obtained
-  from the path $P_{n-1}$ by attaching a pendant vertex to the
-  third-from-last vertex.
-\end{definition}
-
-\begin{definition}[$T(x,y,z)$]
-  For positive integers $x, y, z$, the \emph{spherically symmetric tree}
-  $T(x,y,z)$ is a rooted tree with 4 orbits: a root (orbit~0, 1~vertex),
-  $x$ children of the root (orbit~1), $xy$ grandchildren (orbit~2),
-  and $xyz$ leaves (orbit~3). Total vertices: $|V| = 1 + x + xy + xyz$.
-\end{definition}
-
-\begin{definition}[$E_n^{(d)}$]
-  The \emph{near-path family} $E_n^{(d)}$ consists of trees on $n$
-  vertices obtained from $P_{n-1}$ by attaching a pendant vertex at
-  depth $d$ from the end. When $d = 2$, this recovers $E_n$.
-\end{definition}
+\input{intro_preliminaries}
 
 % ════════════════════════════════════════════════════════════════════════
 \section{The Path Minimizer Theorem}
@@ -189,7 +113,7 @@ against OEIS A000055~\cite{oeis_A000055}.
 
 \subsection{Regimes of minimality}
 
-The spectral structure of $P_k$ governs the degree of uniqueness with
+The eigenvalues of $P_k$ govern the degree of uniqueness with
 which $P_n$ minimizes homomorphisms. We identify three regimes.
 
 \subsubsection{Structural degeneracy}
@@ -225,11 +149,13 @@ homomorphism count into $P_5$: the number of walks of length 3
 originating from any vertex $v$ is exactly three times the number of
 length-1 walks originating from $v$. Thus pendant relocations that
 shift by 2 steps produce identical walk sums. This generates
-exponentially growing structural equivalence classes ($\sim\!200$ ties
-at $n = 20$).
+exponentially growing tie classes ($\sim\!200$ ties at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
-$\lambda_1^2 = 3$ exactly, and the ratio
+$\lambda_1^2 = 3$ exactly. In the language of
+Lemma~\ref{lem:active_recurrence}, the active spectrum is
+$\{\sqrt{3}, 0, -\sqrt{3}\}$ and the walk counts satisfy
+$w_{k+2} = 3w_k$ for $k \ge 1$. The ratio
 $\Hom(P_{n+2}, P_5) / \allowbreak \Hom(P_n, P_5) = 3$ for all odd $n$.
 
 \subsubsection{Unique minimality}
@@ -244,23 +170,24 @@ For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is
 irrational. This irrationality breaks any potential integer
 shift-symmetry of the form $A^m \mathbf{1} = cA \mathbf{1}$ (which
 would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
-\mathbb{Q}$), establishing $P_n$ as the unique minimizer.
+\mathbb{Q}$). In the computations above, this is exactly the mechanism
+that separates the $P_5$ tie classes from the verified unique
+minimality of $P_n$ for odd $n \ge 7$.
 
 \begin{remark}[Irrationality]
-  The transition to unique minimality occurs exactly at $P_7$ because it
-  is the first odd path whose squared spectral radius ($2+\sqrt{2}$)
-  is irrational. While still constructible in real radicals, its
-  irrationality prevents the formation of the exact degeneracy classes
-  seen in $P_5$.
+  The verified transition to unique minimality occurs at $P_7$, the
+  first odd path whose squared spectral radius ($2+\sqrt{2}$) is
+  irrational. While still constructible in real radicals, that
+  irrationality prevents the exact degeneracy classes seen in $P_5$.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
 \section{Analytical Properties of Leontovich Graphs}
 \label{sec:leontovich}
 
-\subsection{A spectral condition for Leontovich graphs}
+\subsection{An eigenvalue condition that forbids crossovers}
 
-\begin{theorem}[Single Positive Eigenvalue Condition]
+\begin{theorem}[Single Positive Eigenvalue Obstruction]
   \label{thm:spectral}
   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
   the bipartition (i.e., no orbit contains vertices from both sides).
@@ -269,30 +196,45 @@ would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
 \end{theorem}
 
 \begin{proof}
-  Since the orbits respect the bipartition, the quotient matrix is
-  itself bipartite, so its spectrum is symmetric about zero.
+  Since the orbits respect the bipartition, the quotient matrix has
+  block form $\left[\begin{smallmatrix}0&B\\B^T&0\end{smallmatrix}\right]$
+  after ordering the cells by side, so its nonzero spectrum is symmetric
+  about zero.
   Because the base vector $\mathbf{1}$ and the initial degree vector
   are constant on automorphism orbits, the entire dynamic programming
   sequence $\{A^k \mathbf{1}\}$ remains in the column space of the
   quotient matrix, so the full adjacency spectrum is unnecessary.
-  If there is exactly one positive eigenvalue $\lambda_1$, the non-zero
-  active spectrum is $\{\lambda_1, -\lambda_1\}$. By the transfer matrix
-  decomposition over this quotient space,
+  If there is exactly one positive eigenvalue $\lambda_1$, then every
+  other nonzero eigenvalue is $-\lambda_1$, and the active spectrum is
+  contained in $\{\lambda_1, 0, -\lambda_1\}$. By the quotient-eigenbasis
+  expansion and Lemma~\ref{lem:active_recurrence},
   \[
     \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
   \]
-  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$. There are no
-  secondary exponential terms: the ratio $\Hom(E_n, H) / \Hom(P_n, H)$
-  is constant for all odd $n$. Since $P_n$ minimizes the count at
-  small $n$ (verified computationally), it remains the minimizer for
-  all odd $n$.
+  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$, and the kernel
+  component vanishes once the exponent is at least $1$. There are no
+  secondary exponential terms, so the ratio
+  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. Thus the
+  eigenvalue condition reduces any odd near-path crossover question to
+  the sign of one verified odd base case in the family being studied.
 \end{proof}
 
 \begin{corollary}
   \label{cor:2_and_3_orbit_trees}
   All 2-orbit trees (stars $S_m$) and 3-orbit trees $T(x,y)$ have
-  exactly one positive eigenvalue. Hence no star or 3-orbit tree is
-  Leontovich.
+  exactly one positive quotient eigenvalue. For these families, the
+  eigenvalue condition reduces odd near-path crossover detection to a
+  single base-case sign check.
+\end{corollary}
+
+\begin{corollary}[Double-cover transfer for small sweeps]
+  \label{cor:loopy_transfer}
+  If no connected simple graph on at most $2m$ vertices is Leontovich,
+  then no connected graph on at most $m$ vertices, loops allowed, is
+  Leontovich. In particular, the simple-graph sweep up to $11$ vertices
+  transfers to looped targets on at most $5$ vertices, and the bipartite
+  sweep up to $14$ vertices transfers to looped targets on at most
+  $7$ vertices.
 \end{corollary}
 
 \subsection{Four-orbit trees}
@@ -336,7 +278,7 @@ exactly 2 positive eigenvalues.
     \qquad
     \lambda_2 = \sqrt{\frac{17 - \sqrt{37}}{2}} \approx 2.3364.
   \]
-  For odd $n$, the spectral decomposition yields
+  For odd $n$, the quotient-eigenbasis expansion yields
   \[
     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
     \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
@@ -367,7 +309,7 @@ exactly 2 positive eigenvalues.
   a smaller projection onto the dominant eigenvector. For odd depths
   (e.g., $d=1$), $E_n^{(d)}$ is forced into an unbalanced
   $(n/2+1, n/2-1)$ bipartition, giving it a strictly larger leading
-  coefficient. This structural advantage shields the path from being
+  coefficient. This parity effect keeps the path from being
   beaten at any even~$n$. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same
   unbalanced bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$,
   enabling the secondary eigenvector to interfere and drive the crossover.
@@ -457,6 +399,20 @@ arithmetic, $n \le 200$, $d \le 20$).}
   the difference is strictly negative.
 \end{proof}
 
+\begin{remark}[Verified-plus-conjecture $n=6$ residue]
+  \label{rem:n6_residue}
+  The six trees on six vertices split into four proved cases and two
+  checked cases. The path is the reference case; the star $K_{1,5}$
+  follows from Sidorenko's theorem; the balanced near-path $\Sp(2,2,1)$
+  is controlled by Theorem~\ref{thm:spectral}; and the double star
+  $S_{2,2}$ is covered by the Cauchy--Schwarz bound above.
+  The remaining two six-vertex trees, $\Sp(3,1,1)$ and
+  $\Sp(2,1,1,1)$, are supported by exact computation only. We therefore
+  record the $n=6$ conclusion as verified-plus-conjecture: the proven
+  cases are (P), the two stubborn trees remain (E), and the near-path
+  sufficiency conjecture stays open.
+\end{remark}
+
 \subsection{Minimum threshold landscape}
 
 Sweeping the generator over all $T(x,y,z)$ with $|V| \le 500$ and
@@ -513,8 +469,8 @@ Problem~4.3 of Galvin et al.~\cite{galvin2025}; it should not be read as an
 unconditional proof that no other source-tree shape can beat the path for
 $m=10,11$. Because our search space comprised simple graphs (generated by
 \texttt{geng}), this evidence also does not exclude the possibility of a
-looped graph on fewer than 12 vertices being strongly Leontovich in the sense
-of~\cite{galvin2026}.
+looped or general graph on fewer than 12 vertices being strongly Leontovich
+in the sense of~\cite{galvin2026}.
 Galvin et al.~\cite{galvin2025} established an upper bound of
 $|V| = 961{,}601$ using 4-orbit symmetric trees with a single looped
 root. Expanding the degrees of freedom to 5-orbit looped symmetric trees
@@ -553,9 +509,9 @@ the bottom up.
 $n \in \{5,\ldots,15\}$ vertices was tested (brute-force); the
 Operations column counts hom evaluations. For $m = 10, 11$, only
 near-path trees $E_n^{(d)}$ ($n \le 200$, $d \le 20$) were used
-via the $E_n^{(d)}$ filter (wall-clock time shown); justified by
-Corollary~\ref{cor:2_and_3_orbit_trees} and
-Remark~\ref{prop:pf}.}
+via the $E_n^{(d)}$ filter (wall-clock time shown). These rows are
+bounded filter results in the sense of Remark~\ref{prop:pf}, not
+full all-tree sweeps.}
 \end{table}
 
 \subsection{Asymptotic defense via Perron--Frobenius}
@@ -695,9 +651,13 @@ solvers to bridge this computational gap and discover ultra-small targets.
 
 \subsection{SMT-Based Algebraic Search Formulation}
 
-To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices), the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP) over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
+To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices),
+the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP)
+over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
 
-Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms, we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables. For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
+Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms,
+we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables.
+For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
 \begin{align}
   w_0(i) &= 1, \quad \forall i \in \{1, \dots, m\} \\
   w_k(i) &= \sum_{j=1}^{m} A_{ij} \, w_{k-1}(j), \quad \forall k \ge 1
@@ -714,12 +674,13 @@ The search for a Leontovich target graph then reduces to solving the polynomial 
   \label{eq:smt_ineq}
   \Hom(E_n^{(d)}, H) < \Hom(P_n, H)
 \end{equation}
-subject to structural constraints. Bipartiteness can be enforced dynamically
+subject to adjacency constraints. Bipartiteness can be enforced dynamically
 by introducing partition variables $x_i \in \{0, 1\}$ such that $A_{ij} = 1
 \implies x_i \neq x_j$, while connectivity is guaranteed by defining
 distance levels from a root vertex.
 
 \subsection{Local SMT Leaf-Pruning Proof for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+\label{sec:local-pruning-audit}
 
 To evaluate the optimality of our 76-vertex Leontovich graph
 $T(7,1,[9^5, 8^2])$ discovered by simulated annealing, we formulated a
@@ -777,9 +738,13 @@ For $H$ to be connected, we must have $c_3 \ge 1$. Direct algebraic expansion of
 \[
   \Hom(P_5, H) - \Hom(E_5^{(2)}, H) = -c_3 \bigl( (c_1 - c_2)^2 + c_1 + c_2 \bigr).
 \]
-Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is strictly non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
+Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
 
-Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector). Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual depth-2 dominance. We therefore use this as a structural obstruction and leave any stronger all-threshold, all-source-tree statement to a separate Hoffman--London verification.
+Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients
+for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector).
+Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual
+depth-2 dominance. We therefore use this as a two-part obstruction and leave any stronger all-threshold,
+all-source-tree statement to a separate Hoffman--London verification.
 \end{proof}
 
 However, for $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
@@ -815,7 +780,7 @@ exhaustive check of all 45,838 non-isomorphic configurations for $m_2 < 15$
 returned zero depth-2 hits, \textbf{18 vertices is the depth-2 minimum within
 this partition family}.
 
-\subsubsection{Structural Topology and Step-by-Step Walk Iteration of $H_{18}$}
+\subsubsection{Topological Characteristics and Step-by-Step Walk Iteration of $H_{18}$}
 
 \begin{figure}[H]
   \centering
@@ -825,7 +790,7 @@ this partition family}.
 \end{figure}
 
 To make the mechanics of the Leontovich crossover transparent, we detail the
-structural topology and walk recurrence vectors for $H_{18}$.
+orbit decomposition and walk recurrences for $H_{18}$.
 By partitioning the $18$ vertices into canonical symmetry groups, we reduce the
 $18 \times 18$ transition adjacency representation into a $7 \times 7$ quotient system. The seven symmetry groups are:
 \begin{enumerate}
@@ -838,7 +803,8 @@ $18 \times 18$ transition adjacency representation into a $7 \times 7$ quotient 
   \item $R_{12}$: Bipartite core connected to $\{v_1, v_2\}$ ($6$ nodes, degree $2$).
 \end{enumerate}
 
-The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks of length $k$ starting at $u$) are governed by the following exact coupled system:
+The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks of length $k$ starting at $u$)
+are governed by the following exact coupled system:
 \begin{align*}
   w_k(L_0) &= 7 w_{k-1}(R_{\mathrm{leaf},0}) + w_{k-1}(R_{01}) + w_{k-1}(R_{02}) \\
   w_k(L_1) &= w_{k-1}(R_{01}) + 6 w_{k-1}(R_{12}) \\
@@ -848,7 +814,8 @@ The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks 
   w_k(R_{02}) &= w_{k-1}(L_0) + w_{k-1}(L_2) \\
   w_k(R_{12}) &= w_{k-1}(L_1) + w_{k-1}(L_2)
 \end{align*}
-with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit numerical values for the first five steps are shown in Table~\ref{tab:walk_h18}. This iteration can be carried out exactly to $w_{16}(u)$.
+with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit numerical values for the
+first five steps are shown in Table~\ref{tab:walk_h18}. This iteration can be carried out exactly to $w_{16}(u)$.
 
 \begin{table}[H]
 \centering
@@ -868,7 +835,8 @@ with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit nu
 \end{tabular}
 \end{table}
 
-The path count is given by the sum $\Hom(P_{17}, H_{18}) = \sum_u w_{16}(u)$, while the near-path count is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yielding the exact margin reported above.
+The path count is given by the sum $\Hom(P_{17}, H_{18}) = \sum_u w_{16}(u)$, while the near-path count
+is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yielding the exact margin reported above.
 
 \begin{remark}[Rigorous Resolution of Other Bipartite Families]
   To determine whether smaller depth-2 examples occur in other bipartite
@@ -895,7 +863,7 @@ The vector $(9, 1, 0, 0, 0, 1, 0)$ specifies a disconnected graph
 $H \cong K_{1,9} \sqcup P_4$. Because homomorphism counts map connected trees
 entirely into a single connected component, they are strictly additive over
 disjoint components: $\Hom(T, H) = \Hom(T, K_{1,9}) + \Hom(T, P_4)$. The star
-$K_{1,9}$ is structurally degenerate (Proposition~\ref{prop:p3}) and yields
+$K_{1,9}$ is degenerate (Proposition~\ref{prop:p3}) and yields
 identical counts for $P_n$ and $E_n^{(2)}$, contributing a massive
 $O(3^n)$ perfect tie term. The path $P_4$ provides a strict positive margin,
 but at a much slower growth rate $O(1.618^n)$. The ratio approaches $1.0$
@@ -918,8 +886,8 @@ automorphism orbit. The random walks restricted to the left partition taking
 steps of length 2 are governed by a $3 \times 3$ matrix. However, the
 antisymmetric eigenvector $(0, 1, -1)^T$ has an exact eigenvalue of $\lambda^2=1$,
 but is perfectly orthogonal to the all-ones initial state vector $\mathbf{1}$.
-Thus, it contributes nothing to the homomorphism counts. The entire active
-spectral dynamics collapse into the $2 \times 2$ asymmetric quotient matrix:
+Thus, it contributes nothing to the homomorphism counts. The active dynamics
+collapse into the $2 \times 2$ asymmetric quotient matrix:
 \begin{equation}
   M = A^2|_L = \begin{pmatrix} x+2 & 2 \\ 1 & 2y+1 \end{pmatrix}.
 \end{equation}
@@ -932,14 +900,14 @@ of the characteristic polynomial of $M$:
 
 For our record-breaking graph $H_{18}$, we evaluate $\mathcal{B}(7,6)$. The
 characteristic polynomial simplifies to $\lambda^2 - 22\lambda + 115 = 0$,
-yielding exact squared eigenvalues of $11 \pm \sqrt{6}$. The active spectral
+yielding exact squared eigenvalues of $11 \pm \sqrt{6}$. The active eigenvalue
 ratio governing the crossover is thus exactly:
 \begin{equation}
   r = \sqrt{\frac{11 - \sqrt{6}}{11 + \sqrt{6}}} \approx 0.797.
 \end{equation}
 
 By extracting the discriminant $\Delta = (x-2y+1)^2 + 8$, we observe that the
-spectral ratio is maximized precisely along the ``resonance line'' $x = 2y - 1$,
+ratio is maximized precisely along the ``resonance line'' $x = 2y - 1$,
 producing the optimal conditions for destructive eigenvalue interference. By
 systematically mapping the phase space of $\mathcal{B}(x,y)$ using this
 quotient matrix, we establish that $\mathcal{B}(x,y)$ is Leontovich for all
@@ -950,8 +918,8 @@ $(3,m_2)$ block-pattern sweep, $H_{18}$ is the first such example.
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
 
-The author thanks J.\,D.\ Nir for advising this project and for
-the foundational results in~\cite{galvin2025, galvin2026} that motivated this work.
+The author thanks JD Nir for helpful correspondence and David Galvin
+for the bipartite double-cover idea, both of which furthered this work.
 
 \appendix
 \section{Threshold Landscape Data}
@@ -989,7 +957,7 @@ at $n = 13$ is a true global minimum within the $T(x,y,z)$ family.
 $|V| = 1 + 2x + xz \le 10{,}000{,}000$ were tested exhaustively
 against $E_n^{(2)}$ for odd $n \le 51$ (4\,min, 6 threads).
 Each minimizer is unique: a tie would require distinct $(x_1,z_1),(x_2,z_2)$
-with $x_1(2{+}z_1)=x_2(2{+}z_2)$ and identical spectral crossover threshold,
+with $x_1(2{+}z_1)=x_2(2{+}z_2)$ and the same crossover threshold,
 a Diophantine coincidence that does not occur in this range.}
 \end{table}
 
@@ -1058,7 +1026,7 @@ the first crossover from $n=13$ to $n=17$.}
 
 \subsection*{Symmetry breaking and the active quotient spectrum}
 
-The spectral structure of the pruning sequence admits a clean analytic
+The pruning sequence admits a clean analytic
 description that resolves the crossover behaviour. In the fully symmetric
 graph $T(7,1,[9^7])$, the adjacency matrix possesses highly degenerate
 eigenvalues at $\lambda = \sqrt{10}$ (arising from the isolated 9-leaf hubs).
@@ -1087,16 +1055,15 @@ $\lambda_1$ decreases while the active secondary eigenvalue $\lambda_2^*$
 increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
 At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
 sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
-$n = 17$. However, at $|V| = 75$, the gap has narrowed too much ($\lambda_2^* = 3.0581$),
-suppressing the secondary interference coefficient so the Perron mode
-of the path strictly dominates at all odd $n$, and the crossover never occurs.
+$n = 17$. However, at $|V| = 75$, the audited odd thresholds $n \le 31$ do
+not produce a crossover.
 
-This yields a sharp structural characterisation: \emph{within the star-of-stars
-basin, asymmetric pruning breaks orbital symmetry and lifts new active
-eigenvalues into the quotient spectrum.} The Leontovich property is lost when
-this symmetry-breaking pushes the active secondary eigenvalue too close to the
-spectral radius, establishing the 76-vertex graph as the unique minimal size
-in this pruning sequence.
+This yields a clean dichotomy: \emph{within the star-of-stars basin,
+asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
+into the quotient spectrum.} The Leontovich property is lost when this
+symmetry-breaking pushes the active secondary eigenvalue too close to the
+spectral radius, establishing the 76-vertex graph as the smallest size not
+excluded by the local audit of Section~\ref{sec:local-pruning-audit}.
 
 \subsection*{Deeper symmetric trees}
 
@@ -1124,7 +1091,7 @@ of error.
 \subsection*{The Diophantine threshold frontier}
 
 The minimum vertex counts in Table~\ref{tab:landscape_full} can be
-established algebraically, without relying on search limits.
+established algebraically, without search bounds.
 
 \begin{proposition}[Dominance of $y = 1$]
 \label{prop:y1}
@@ -1188,16 +1155,16 @@ in Table~\ref{tab:landscape_full}.
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
 \label{rem:ballast}
 A graph is \emph{strongly Leontovich}~\cite{galvin2026} if
-$E_n$ beats the path asymptotically, i.e.\ the leading projection
-coefficient satisfies $c_1' < c_1$.  This is strictly harder than
+$E_n$ beats the path asymptotically, i.e.\ the leading coefficient ratio
+satisfies $\rho_d(H) < 1$ in Eq.~\eqref{eq:rho}.  This is harder than
 the standard Leontovich condition, which only requires destructive
 interference at \emph{some} odd~$n$.
 
-Under 4-orbit symmetry, the entire spectral dynamics is governed by a
+Under 4-orbit symmetry, the quotient dynamics are governed by a
 $4 \times 4$ quotient matrix with only 3 integer degrees of freedom
-$(x, y, z)$.  To force the strict eigenvector inequality $c_1' < c_1$
-within this tiny parameter space, the branching degrees must be scaled
-to extreme values (e.g., $x = 400$, $z = 800$ for
+$(x, y, z)$.  To force the strict ratio inequality $\rho_d(H) < 1$ in
+Eq.~\eqref{eq:rho} within this tiny parameter space, the branching degrees
+must be scaled to extreme values (e.g., $x = 400$, $z = 800$ for
 $\hat{T}(400, 3, 800)$).  The resulting $\sim\!960{,}000$ vertices are
 \emph{algebraic ballast}: redundant, identical branches imposed by the
 symmetry constraint, carrying eigenvectors orthogonal to the initial state
@@ -1247,7 +1214,7 @@ odd~$n$ can change sign at most once.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
-By spectral decomposition, the homomorphism counts for large $n$
+By quotient-eigenbasis expansion, the homomorphism counts for large $n$
 are dominated by two terms:
 \[
   \Delta_{\mathrm{odd}}(n) = A\,\lambda_1^n + B\,\lambda_2^n
@@ -1306,6 +1273,7 @@ are possible in that setting.
 \end{remark}
 
 \section{The Bipartite Double Cover and Strongly Leontovich Graphs}
+\label{sec:doublecover}
 
 A natural way to remove a loop from a target is to pass to the bipartite double
 cover; Galvin et al.~\cite{galvin2026} note the equivalent two-copy
@@ -1343,12 +1311,15 @@ crossover thresholds and the asymptotic ratio of the leading projection
 coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
 \end{proof}
 
-\subsection{Resolution of Simple Strongly Leontovich Graphs}
+\subsection{A Simple Strongly Leontovich Graph}
 
-The coefficient calculation in this section establishes that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$
-on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient
-ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
-\approx 0.999953714414 < 1$.  Exact finite counts at $n=15001$ give the
+The coefficient calculation in this section establishes that the looped symmetric
+tree $\hat{T}(1, 35, 1, 50)$ on 1,822 vertices is Strongly Leontovich, with an asymptotic leading
+coefficient ratio of
+
+$\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
+\approx 0.999953714414 < 1$.
+Exact finite counts at $n=15001$ give the
 still-unconverged ratio $0.999864892078$, reflecting the very slow decay of the
 near-surviving secondary mode.
 
@@ -1358,7 +1329,12 @@ graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
 than 1, $B$ is a \textbf{simple strongly Leontovich graph}, addressing the
 simple-target existence question.
 
-Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$ and remains ahead through the verified range. This demonstrates that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying the destructive spectral interference.
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
+for all sufficiently large $n$, both even and odd. Exact integer computation of
+the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at
+the even threshold $n = 17{,}340$ and remains ahead through the verified range.
+This shows that even-$n$ crossovers do not require loops, but rather a sufficiently
+massive bipartite graph capable of delaying cancellation between the dominant modes.
 
 \subsection{A Perturbed Non-Bipartite Certificate}
 
@@ -1400,6 +1376,44 @@ reproducible high-precision numerical evidence for a simple non-bipartite
 strongly-Leontovich candidate in the leading-coefficient sense. A fully formal
 reviewer-facing certificate should replace the high-precision eigencomputation
 with interval arithmetic or an explicit Rayleigh-residual bound.
+
+% ════════════════════════════════════════════════════════════════════════
+\section{Conclusion and Open Problems}
+\label{sec:conclusion}
+
+The combination of quotient-matrix reductions and exact computational sweeps
+heavily constrains the landscape of Leontovich graphs. The
+impossibility at $n=5$ for the spherically symmetric family $T(x,y,z)$
+(Proposition~\ref{prop:n5}) and the verified $n=6$ residue establish $n=7$
+as the smallest crossover threshold witnessed in the threshold landscape
+studied here.
+
+We conclude with the two principal open directions highlighted by this work:
+
+\begin{enumerate}
+  \item \textbf{Near-path sufficiency.} Every known Leontovich graph is
+    detected by the near-path family $E_n^{(d)}$. If
+    the near-path sufficiency conjecture from
+    Section~\ref{sec:prelim} holds---that a target $H$ is Leontovich if
+    and only if $\Hom(E_n^{(d)}, H) < \Hom(P_n, H)$ for some $n$ and $d$---then
+    the bounded computational sweeps in this paper upgrade directly to
+    unconditional nonexistence proofs for small targets.
+  \item \textbf{Minimal simple targets.} The bipartite double cover of
+    $\hat{T}(1,35,1,50)$ yields a simple strongly Leontovich graph on 3,644
+    vertices, and the perturbed quotient (Section~\ref{sec:doublecover})
+    provides certified numerical evidence for a simple non-bipartite candidate
+    on 6,806 vertices. Closing the gap between these large analytic
+    constructions and the 12-vertex lower bound established by the simple-graph
+    sweep remains a significant computational challenge.
+\end{enumerate}
+
+\section*{Code and Data Availability}
+The C++ search routines, exact integer arithmetic formulations, and SMT solver
+scripts supporting the exact finite computations \textbf{(E)} and bounded
+sweeps \textbf{(S)} in this paper are available in the project repository. The
+The analytic theorems \textbf{(P)} are currently undergoing formalization in Lean~4.
+Both the executable witness verifiers and the formal theorem scaffolding are
+maintained at \url{https://github.com/ou-school-repos/program-nir-turan-predictor}.
 
 \bibliographystyle{plain}
 \bibliography{references}

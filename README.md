@@ -69,13 +69,13 @@ quotient exactly, and reproduces the leading-coefficient ratio
 - `scripts/`: Python and C++ scripts for exact checks, plotting, search, and
   witness verification.
 - `docs/`: generated figures, logs, and supporting notes.
-- `proofs/`: Lean files and generated proof-related artifacts.
+- `legacy/`: Lean files and generated proof-related artifacts.
 
 ## Formal Verification Status
 
-The Lean files in `proofs/` are not currently a complete formalization of the
+The Lean files in `legacy/` are not currently a complete formalization of the
 paper. Some files are generated witnesses or exploratory proof artifacts, and
-`proofs/SolverVerification.lean` currently contains lightweight verification
+`legacy/SolverVerification.lean` currently contains lightweight verification
 hooks rather than the paper's full executable certificates.
 
 At present, the most reliable verification layer for the headline computational
@@ -83,8 +83,15 @@ claims is exact integer arithmetic in Python/C++, not a Lean proof of the full
 pipeline.
 
 A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
-tree is intended for the paper's main analytic results, while `proofs/` stays
+tree is intended for the paper's main analytic results, while `legacy/` stays
 reserved for exact witness checks and SMT-style computations.
+
+Lean build targets are split accordingly:
+
+- `make lean` builds `LeanLeontovich/`
+- `make lean-cache` fetches the LeanLeontovich mathlib cache
+- `make _lean/verifiers` builds the legacy `legacy/` verifier bundle
+- `make _lean/verifiers-cache` fetches the legacy verifier cache
 
 ## Reproducibility Notes
 

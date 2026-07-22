@@ -5,7 +5,10 @@ __pycache__/
 
 # Lean build artifacts
 .lake/
+.lake
 lake-manifest.json
+!legacy/lake-manifest.json
+!legacy/docbuild/lake-manifest.json
 proofs/lean.log
 
 # Simulation logs
@@ -37,9 +40,11 @@ verify_bipartite_m17
 # PDFs
 *.pdf
 
-# LaTeX build artifacts
+# LaTeX build artifacts (paper)
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
+*.fdb_latexmk
+*.fls
