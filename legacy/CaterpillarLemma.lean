@@ -44,20 +44,22 @@ def builder_minimax (edges : Array (Nat × Nat)) (fuel : Nat)
       (List.range edges.size).foldl (init := 64) fun best i =>
         if (alive >>> i.toUInt64) &&& 1 == 1 then
           let next_alive := alive &&& ~~~((1 : UInt64) <<< i.toUInt64)
-          let new_burned := spread_fire edges b next_alive
-          min best (builder_minimax edges fuel' new_burned next_alive)
+          min best (builder_minimax edges fuel' next_b next_alive)
         else best
 
 /-- Burner (Maximizer) evaluates all spine ignition points. -/
 def evaluate_game (S K : Nat) : Nat :=
-  let spine_edges := (List.range (S - 1)).map (fun i => (i, i + 1))
-  let leaf_edges := (List.range S).flatMap (fun i =>
-    (List.range K).map (fun j => (i, S + i * K + j)))
-  let edges := (spine_edges ++ leaf_edges).toArray
-  let initial_alive := (((1 : UInt64) <<< edges.size.toUInt64) - 1)
-  (List.range S).foldl (init := 0) fun best i =>
-    let b := (1 : UInt64) <<< i.toUInt64
-    max best (builder_minimax edges edges.size b initial_alive)
+  if h : S * (K + 1) ≤ 64 then
+    let spine_edges := (List.range (S - 1)).map (fun i => (i, i + 1))
+    let leaf_edges := (List.range S).flatMap (fun i =>
+      (List.range K).map (fun j => (i, S + i * K + j)))
+    let edges := (spine_edges ++ leaf_edges).toArray
+    let initial_alive := (((1 : UInt64) <<< edges.size.toUInt64) - 1)
+    (List.range S).foldl (init := 0) fun best i =>
+      let b := (1 : UInt64) <<< i.toUInt64
+      max best (builder_minimax edges edges.size b initial_alive)
+  else
+    0
 
 -- ============================================================================
 -- FORMAL VERIFICATION: K=1 Phase Transition

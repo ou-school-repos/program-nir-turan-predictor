@@ -78,8 +78,18 @@ test/all: ##H Run all certification pipelines
 
 # --- Dev Tools ---
 LAKE_PKG_DIR ?= $(HOME)/.cache/lake/packages
+LEAN_PKG_DIR ?= $(HOME)/.cache/lake/LeanLeontovich-proofs
 
-define ensure_lake_packages
+define ensure_leanleontovich_cache
+	@mkdir -p $(LEAN_PKG_DIR)
+	@mkdir -p LeanLeontovich
+	@if [ ! -L LeanLeontovich/.lake ]; then \
+		rm -rf LeanLeontovich/.lake; \
+		ln -s $(LEAN_PKG_DIR) LeanLeontovich/.lake; \
+	fi
+endef
+
+define ensure_legacy_lake_packages
 	@mkdir -p $(LAKE_PKG_DIR)
 	@mkdir -p legacy/.lake
 	@if [ ! -L legacy/.lake/packages ]; then \
@@ -90,11 +100,7 @@ endef
 
 .PHONY: lean
 lean: ##H Build the analytic LeanLeontovich project
-	@mkdir -p $(HOME)/.cache/lake/LeanLeontovich-proofs
-	@if [ ! -L LeanLeontovich/.lake ]; then \
-		rm -rf LeanLeontovich/.lake; \
-		ln -s $(HOME)/.cache/lake/LeanLeontovich-proofs LeanLeontovich/.lake; \
-	fi
+	$(ensure_leanleontovich_cache)
 	@bash -o pipefail -c 'cd LeanLeontovich && lake build | tee lean.log'
 	@printf "\n\033[1;32m--- Verification Complete ---\033[0m\n"
 	@printf "\033[1;36mMapped Theorems & Definitions:\033[0m\n"
@@ -114,15 +120,17 @@ lean: ##H Build the analytic LeanLeontovich project
 
 .PHONY: lean-cache
 lean-cache: ##H Download mathlib cache for LeanLeontovich
+	$(ensure_leanleontovich_cache)
 	cd LeanLeontovich && lake exe cache get
 
 .PHONY: _lean/verifiers
 _lean/verifiers: ##H Build Lean 4 verifiers
-	$(ensure_lake_packages)
+	$(ensure_legacy_lake_packages)
 	cd legacy && lake build
 
 .PHONY: _lean/verifiers-cache
 _lean/verifiers-cache: ##H Download mathlib cache for legacy verifiers
+	$(ensure_legacy_lake_packages)
 	cd legacy && lake exe cache get
 
 
@@ -199,7 +207,7 @@ dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@./dendro adversarial legacy/Adversarial.lean tree15
 	@./dendro adversarial legacy/Adversarial.lean campus
 	@$(PYTHON) src/solver.py finance legacy/RiskAudit.lean
-	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize legacy/SynthesizerDiscovery.lean
+	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize $(shell if [ "$(N)" -le 15 ]; then echo legacy/SynthesizerDiscovery-N15.lean; elif [ "$(N)" -le 20 ]; then echo legacy/SynthesizerDiscovery-N20.lean; else echo legacy/SynthesizerDiscovery-N21.lean; fi)
 
 # Layout engine map: module -> engine
 # Epidemiology (fdp), Surveillance (dot), Finance (sfdp), others (dot)
