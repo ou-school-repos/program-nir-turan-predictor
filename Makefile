@@ -26,7 +26,7 @@ verify/epidemiology: ##H Generate and certify Wolbachia deployment
 		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean; \
 		export DEP_SEQ=$$(grep "deployment_sequence" legacy/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
 		cd legacy && lake build VectorDeployment; \
-		printf "\033[1;34m✓ Verified: policy_is_valid (native_decide evaluated to TRUE).\033[0m\n"; \
+		printf "\033[1;34m✓ Verified: policy_satisfies_bnc (native_decide evaluated to TRUE).\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
 		printf "  %s\n" "$$DEP_SEQ"; \
