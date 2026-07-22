@@ -73,20 +73,20 @@
 We investigate the minimization of graph homomorphisms from trees to fixed
 target graphs $H$, addressing open questions surrounding Leontovich graphs and
 the path minimizer conjecture. By combining exact computational sweeps with
-analytic eigenvalue obstructions, we establish that the absolute minimum
-crossover threshold for any target graph is exactly $n=7$; a universal
-polynomial identity proves that no target can cross over at $n=5$, and the
-$n=6$ source trees are verified computationally. For targets possessing
-symmetric automorphism orbits, we prove an eigenvalue condition that
-permanently forbids crossovers, analytically ruling out all 2-orbit and 3-orbit
-symmetric trees. For the 4-orbit tree $T(7,1,9)$, we provide the first complete
-written proof that its crossover threshold at $n=13$ is permanent. Finally, we
-prove that the bipartite double cover operation strictly preserves the
-Leontovich property, which allows bounded computational sweeps of simple graphs
-to formally rule out small looped targets. Through SMT-based search and
-symmetric pruning, we identify the smallest known Leontovich graphs, including
-a 15-vertex bipartite target and a 3,644-vertex simple strongly Leontovich
-target.
+analytic eigenvalue obstructions, we prove the algebraic impossibility of a
+crossover at $n=5$ for the spherically symmetric family $T(x,y,z)$ and verify
+the $n=6$ residue computationally. Within the threshold landscape studied
+here, the smallest crossover threshold witnessed is $n=7$; the threshold is
+attained by $T(16,1,19)$. For targets possessing symmetric automorphism
+orbits, we prove an eigenvalue condition that permanently forbids crossovers,
+analytically ruling out all 2-orbit and 3-orbit symmetric trees. For the
+4-orbit tree $T(7,1,9)$, we provide the first complete written proof that its
+crossover threshold at $n=13$ is permanent. Finally, we prove that the
+bipartite double cover operation strictly preserves the Leontovich property,
+which allows bounded computational sweeps of simple graphs to formally rule
+out small looped targets. Through SMT-based search and symmetric pruning, we
+identify the smallest known Leontovich graphs, including a 15-vertex bipartite
+target and a 3,644-vertex simple strongly Leontovich target.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -1088,7 +1088,7 @@ of error.
 \subsection*{The Diophantine threshold frontier}
 
 The minimum vertex counts in Table~\ref{tab:landscape_full} can be
-established algebraically, without relying on search limits.
+established algebraically, without search bounds.
 
 \begin{proposition}[Dominance of $y = 1$]
 \label{prop:y1}
@@ -1376,10 +1376,11 @@ with interval arithmetic or an explicit Rayleigh-residual bound.
 \label{sec:conclusion}
 
 The combination of analytic eigenvalue obstructions and exact computational
-sweeps heavily constrains the landscape of Leontovich graphs. The universal
-impossibility at $n=5$ (Proposition~\ref{prop:n5}) and the verified $n=6$
-residue establish $n=7$ as the absolute minimum crossover threshold for any
-target graph.
+sweeps heavily constrains the landscape of Leontovich graphs. The
+impossibility at $n=5$ for the spherically symmetric family $T(x,y,z)$
+(Proposition~\ref{prop:n5}) and the verified $n=6$ residue establish $n=7$
+as the smallest crossover threshold witnessed in the threshold landscape
+studied here.
 
 We conclude with the two principal open directions highlighted by this work:
 
