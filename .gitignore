@@ -7,6 +7,8 @@ __pycache__/
 .lake/
 .lake
 lake-manifest.json
+!legacy/lake-manifest.json
+!legacy/docbuild/lake-manifest.json
 proofs/lean.log
 
 # Simulation logs

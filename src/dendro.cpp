@@ -699,7 +699,7 @@ void run_adversarial(const string& lean_fn, const string& preset,
     }
 
     // JSON state log for interactive replay
-    string json_path = "proofs/AdversarialPV_" + preset + ".json";
+    string json_path = "legacy/AdversarialPV_" + preset + ".json";
     ofstream json_out(json_path);
     json_out << "{\n  \"grid_w\": " << cfg.gw << ",\n  \"grid_h\": " << cfg.gh
              << ",\n  \"depth\": " << depth_limit << ",\n  \"preset\": \""
@@ -812,7 +812,7 @@ int main(int argc, char** argv) {
     string mode = argv[1];
     string lean_fn = argv[2];
 
-    // Derive dot filename: proofs/Foo.lean -> docs/Foo.lean.dot
+    // Derive dot filename: legacy/Foo.lean -> docs/Foo.lean.dot
     string dot_fn;
     if (argc >= 4 && mode != "adversarial") {
         dot_fn = argv[3];
