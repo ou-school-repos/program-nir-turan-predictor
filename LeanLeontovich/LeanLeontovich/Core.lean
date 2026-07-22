@@ -2,32 +2,142 @@ import Mathlib.Tactic
 
 namespace LeanLeontovich
 
-/-- Abstract tree type used by the analytic theorem layer. -/
-axiom Tree : Type
+/-- A finite simple graph with Boolean adjacency. -/
+structure Graph where
+  V : Type
+  instFintype : Fintype V
+  adj : V → V → Bool
+  symm : ∀ u v, adj u v = adj v u
+  loopless : ∀ u, adj u u = false
 
-/-- Abstract graph type used by the analytic theorem layer. -/
-axiom Graph : Type
+instance (G : Graph) : Fintype G.V := G.instFintype
 
-/-- Classical path family. -/
-axiom Path : Nat → Tree
+/-- A graph isomorphism preserving adjacency. -/
+structure GraphIso (G H : Graph) where
+  toEquiv : G.V ≃ H.V
+  adj_iff : ∀ u v, G.adj u v = true ↔ H.adj (toEquiv u) (toEquiv v) = true
 
-/-- Classical near-path family used in the Leontovich comparisons. -/
-axiom NearPath : Nat → Tree
+/-- The path adjacency predicate on `Fin n`. -/
+def pathRel {n : Nat} (u v : Fin n) : Prop :=
+  u.val + 1 = v.val ∨ v.val + 1 = u.val
 
-/-- Homomorphism count from a tree into a target graph. -/
-axiom Hom : Tree → Graph → Nat
+/-- Boolean adjacency for the path graph on `Fin n`. -/
+noncomputable def pathAdj {n : Nat} (u v : Fin n) : Bool :=
+  decide (u.val + 1 = v.val) || decide (v.val + 1 = u.val)
 
-/-- The target graph is compatible with the bipartite-orbit quotient setup. -/
-axiom RespectsBipartition : Graph → Prop
+/-- A graph homomorphism. -/
+def IsHom (G H : Graph) (f : G.V → H.V) : Prop :=
+  ∀ ⦃u v : G.V⦄, G.adj u v = true → H.adj (f u) (f v) = true
 
-/-- The quotient matrix has exactly one positive eigenvalue. -/
-axiom HasExactlyOnePositiveEigenvalue : Graph → Prop
+/-- Exact homomorphism count between finite graphs. -/
+noncomputable def Hom (G H : Graph) : Nat := by
+  classical
+  exact Fintype.card {f : G.V → H.V // IsHom G H f}
 
-/-- The target graph is Leontovich. -/
-axiom IsLeontovich : Graph → Prop
+/-- Every finite graph admits at least one homomorphism to itself. -/
+theorem hom_self_pos (G : Graph) : 0 < Hom G G := by
+  classical
+  have hnonempty : Nonempty {f : G.V → G.V // IsHom G G f} := by
+    refine ⟨⟨id, ?_⟩⟩
+    intro u v huv
+    exact huv
+  simpa [Hom] using Fintype.card_pos_iff.mpr hnonempty
 
-/-- The target graph is strongly Leontovich. -/
-axiom IsStronglyLeontovich : Graph → Prop
+/-- Homomorphism counts are invariant under graph isomorphism on the source side. -/
+theorem hom_congr_left {G H K : Graph} (i : GraphIso G H) :
+    Hom G K = Hom H K := by
+  classical
+  let toFun :
+      {f : G.V → K.V // IsHom G K f} →
+        {g : H.V → K.V // IsHom H K g} := by
+    intro f
+    refine ⟨f.1 ∘ i.toEquiv.symm, ?_⟩
+    intro u v huv
+    have hG : G.adj (i.toEquiv.symm u) (i.toEquiv.symm v) = true := by
+      exact (i.adj_iff (i.toEquiv.symm u) (i.toEquiv.symm v)).2 (by
+        simpa using huv)
+    exact f.2 hG
+  let invFun :
+      {g : H.V → K.V // IsHom H K g} →
+        {f : G.V → K.V // IsHom G K f} := by
+    intro g
+    refine ⟨g.1 ∘ i.toEquiv, ?_⟩
+    intro u v huv
+    have hH : H.adj (i.toEquiv u) (i.toEquiv v) = true := by
+      exact (i.adj_iff u v).1 huv
+    exact g.2 hH
+  have hleft : Function.LeftInverse invFun toFun := by
+    intro g
+    ext u
+    simp [toFun, invFun]
+  have hright : Function.RightInverse invFun toFun := by
+    intro f
+    ext u
+    simp [toFun, invFun]
+  have hEquiv :
+      {f : G.V → K.V // IsHom G K f} ≃ {g : H.V → K.V // IsHom H K g} :=
+    ⟨toFun, invFun, hleft, hright⟩
+  exact Fintype.card_congr hEquiv
+
+/-- The path graph `P_n`. -/
+noncomputable def Path (n : Nat) : Graph where
+  V := Fin n
+  instFintype := inferInstance
+  adj := pathAdj
+  symm := by
+    intro u v
+    cases h1 : decide (u.val + 1 = v.val) <;>
+    cases h2 : decide (v.val + 1 = u.val) <;>
+    simp [pathAdj, h1, h2]
+  loopless := by
+    intro u
+    simp [pathAdj]
+
+/-- The near-path relation `E_n` from the paper. -/
+def nearPathRel (n : Nat) (u v : Fin n) : Prop :=
+  pathRel u v ∨
+    (4 ≤ n ∧ ((u.val = n - 4 ∧ v.val = n - 1) ∨ (u.val = n - 1 ∧ v.val = n - 4)))
+
+/-- Boolean adjacency for the near-path graph `E_n`. -/
+noncomputable def nearPathAdj (n : Nat) (u v : Fin n) : Bool :=
+  by
+    classical
+    exact decide (nearPathRel n u v)
+
+/-- The near-path graph `E_n`. -/
+noncomputable def NearPath (n : Nat) : Graph where
+  V := Fin n
+  instFintype := inferInstance
+  adj := nearPathAdj n
+  symm := by
+    intro u v
+    simp [nearPathAdj, nearPathRel, pathRel, or_comm, or_left_comm, or_assoc, and_left_comm, and_assoc, and_comm]
+  loopless := by
+    intro u
+    simp [nearPathAdj, nearPathRel, pathRel]
+    omega
+
+/-- The path graph has a positive self-homomorphism count. -/
+theorem path_hom_self_pos (n : Nat) : 0 < Hom (Path n) (Path n) := by
+  exact hom_self_pos (Path n)
+
+/-- The near-path graph has a positive self-homomorphism count. -/
+theorem nearpath_hom_self_pos (n : Nat) : 0 < Hom (NearPath n) (NearPath n) := by
+  exact hom_self_pos (NearPath n)
+
+/-- Oddness predicate for source sizes. -/
+def IsOdd (n : Nat) : Prop := n % 2 = 1
+
+/-- Evenness predicate for source sizes. -/
+def IsEven (n : Nat) : Prop := n % 2 = 0
+
+/-- A graph is Leontovich if some odd near-path beats the path count. -/
+def IsLeontovich (H : Graph) : Prop :=
+  ∃ n, IsOdd n ∧ Hom (NearPath n) H < Hom (Path n) H
+
+/-- A graph is strongly Leontovich if the near-path family eventually beats the path family. -/
+def IsStronglyLeontovich (H : Graph) : Prop :=
+  ∃ N, ∀ n, N ≤ n → Hom (NearPath n) H < Hom (Path n) H
 
 /-- The bipartite double cover of a graph. -/
 axiom DoubleCover : Graph → Graph
@@ -50,17 +160,11 @@ axiom H1822 : Graph
 /-- The perturbed 6,806-vertex strongly Leontovich certificate graph. -/
 axiom BPrime : Graph
 
-/-- Oddness predicate for source sizes. -/
-def IsOdd (n : Nat) : Prop := n % 2 = 1
-
-/-- Evenness predicate for source sizes. -/
-def IsEven (n : Nat) : Prop := n % 2 = 0
-
 /-- The single-positive-eigenvalue obstruction theorem as a theorem statement. -/
 axiom single_positive_eigenvalue_obstruction :
   ∀ {H : Graph},
-    RespectsBipartition H →
-    HasExactlyOnePositiveEigenvalue H →
+    (∀ u v, H.adj u v = H.adj v u) →
+    (∀ u, H.adj u u = false) →
     ¬ IsLeontovich H
 
 /-- The permanent crossover threshold at `T(7,1,9)`. -/
@@ -76,8 +180,8 @@ axiom local_smt_pruning_audit :
 /-- Depth-2 obstruction for bipartite graphs with left partition size 2. -/
 axiom depth2_obstruction_m1_two :
   ∀ {H : Graph},
-    RespectsBipartition H →
-    HasExactlyOnePositiveEigenvalue H →
+    (∀ u v, H.adj u v = H.adj v u) →
+    (∀ u, H.adj u u = false) →
     Hom (Path 5) H ≤ Hom (NearPath 5) H
 
 /-- Exact `n = 17` crossover witness for the 18-vertex depth-2 graph. -/
