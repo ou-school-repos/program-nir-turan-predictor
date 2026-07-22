@@ -179,14 +179,15 @@ For all $k \ge 6$, the squared dominant eigenvalue $\lambda_1^2$ is
 irrational. This irrationality breaks any potential integer
 shift-symmetry of the form $A^m \mathbf{1} = cA \mathbf{1}$ (which
 would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
-\mathbb{Q}$), establishing $P_n$ as the unique minimizer.
+\mathbb{Q}$). In the computations above, this is exactly the mechanism
+that separates the $P_5$ tie classes from the verified unique
+minimality of $P_n$ for odd $n \ge 7$.
 
 \begin{remark}[Irrationality]
-  The transition to unique minimality occurs exactly at $P_7$ because it
-  is the first odd path whose squared spectral radius ($2+\sqrt{2}$)
-  is irrational. While still constructible in real radicals, its
-  irrationality prevents the formation of the exact degeneracy classes
-  seen in $P_5$.
+  The verified transition to unique minimality occurs at $P_7$, the
+  first odd path whose squared spectral radius ($2+\sqrt{2}$) is
+  irrational. While still constructible in real radicals, that
+  irrationality prevents the exact degeneracy classes seen in $P_5$.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -232,6 +233,16 @@ would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
   All 2-orbit trees (stars $S_m$) and 3-orbit trees $T(x,y)$ have
   exactly one positive eigenvalue. Hence no star or 3-orbit tree is
   Leontovich.
+\end{corollary}
+
+\begin{corollary}[Double-cover transfer for small sweeps]
+  \label{cor:loopy_transfer}
+  If no connected simple graph on at most $2m$ vertices is Leontovich,
+  then no connected graph on at most $m$ vertices, loops allowed, is
+  Leontovich. In particular, the simple-graph sweep up to $11$ vertices
+  transfers to looped targets on at most $5$ vertices, and the bipartite
+  sweep up to $14$ vertices transfers to looped targets on at most
+  $7$ vertices.
 \end{corollary}
 
 \subsection{Four-orbit trees}
@@ -395,6 +406,19 @@ arithmetic, $n \le 200$, $d \le 20$).}
   parenthesised sum is strictly positive. Multiplied by $-xy < 0$,
   the difference is strictly negative.
 \end{proof}
+
+\begin{remark}[Verified-plus-conjecture $n=6$ residue]
+  \label{rem:n6_residue}
+  The six trees on six vertices split into three proved cases and two
+  checked cases. The path is handled by the recurrence arguments above;
+  the star $K_{1,5}$ follows from Sidorenko's theorem; and the balanced
+  near-path $\Sp(2,2,1)$ is controlled by Theorem~\ref{thm:spectral}.
+  The remaining two six-vertex trees, $\Sp(3,1,1)$ and
+  $\Sp(2,1,1,1)$, are supported by exact computation only. We therefore
+  record the $n=6$ conclusion as verified-plus-conjecture: the proven
+  cases are (P), the two stubborn trees remain (E), and the near-path
+  sufficiency conjecture stays open.
+\end{remark}
 
 \subsection{Minimum threshold landscape}
 
