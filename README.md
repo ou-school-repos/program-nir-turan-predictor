@@ -86,6 +86,12 @@ A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
 tree is intended for the paper's main analytic results, while `proofs/` stays
 reserved for exact witness checks and SMT-style computations.
 
+Lean build targets are split accordingly:
+
+- `make lean` builds `LeanLeontovich/`
+- `make lean-cache` fetches the LeanLeontovich mathlib cache
+- `make _lean/verifiers` builds the legacy `proofs/` verifier bundle
+
 ## Reproducibility Notes
 
 The repository includes exploratory scripts and historical generated artifacts.

@@ -89,12 +89,7 @@ define ensure_lake_packages
 endef
 
 .PHONY: lean
-lean: ##H Build Lean 4 verifiers
-	$(ensure_lake_packages)
-	cd proofs && lake build
-
-.PHONY: lean-analytic
-lean-analytic: ##H Build the analytic LeanLeontovich project
+lean: ##H Build the analytic LeanLeontovich project
 	@mkdir -p $(HOME)/.cache/lake
 	@mkdir -p LeanLeontovich/.lake
 	@if [ ! -L LeanLeontovich/.lake ]; then \
@@ -113,14 +108,19 @@ lean-analytic: ##H Build the analytic LeanLeontovich project
 			} \
 			line = $$0; gsub(/[[:space:]]+/, " ", line); \
 			print "  " line; \
-		}' \
+	}' \
 		LeanLeontovich/LeanLeontovich/*.lean 2>/dev/null || true
 	@printf "\033[1;32m--------------------------------\033[0m\n"
 	@$(call print_success,LeanLeontovich proofs verified.)
 
-.PHONY: lean-analytic-cache
-lean-analytic-cache: ##H Download mathlib cache for LeanLeontovich
+.PHONY: lean-cache
+lean-cache: ##H Download mathlib cache for LeanLeontovich
 	cd LeanLeontovich && lake exe cache get
+
+.PHONY: _lean/verifiers
+_lean/verifiers: ##H Build Lean 4 verifiers
+	$(ensure_lake_packages)
+	cd proofs && lake build
 
 
 .PHONY: doc
@@ -146,10 +146,6 @@ paper: ##H Compile paper/paper.tex to PDF
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
 	@$(call print_success,paper/paper.pdf)
-
-.PHONY: lean-cache
-lean-cache: ##H Download mathlib cache
-	cd proofs && lake exe cache get
 
 N ?= 21
 
