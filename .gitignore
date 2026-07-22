@@ -40,9 +40,11 @@ verify_bipartite_m17
 # PDFs
 *.pdf
 
-# LaTeX build artifacts
+# LaTeX build artifacts (paper)
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
+*.fdb_latexmk
+*.fls
