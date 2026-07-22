@@ -161,12 +161,9 @@ axiom H1822 : Graph
 axiom BPrime : Graph
 
 /-- Certificate data for the single-positive-eigenvalue obstruction.
-The graph-theoretic symmetry and looplessness are recorded alongside the
-separate quotient-matrix witness so the obstruction is not phrased only in
-terms of intrinsic `Graph` fields. -/
+The spectral witness is recorded separately from the graph structure so the
+obstruction is not phrased only in terms of intrinsic `Graph` fields. -/
 structure SinglePositiveEigenvalueCertificate (H : Graph) where
-  graph_symm : ∀ u v, H.adj u v = H.adj v u
-  graph_loopless : ∀ u, H.adj u u = false
   quotientMatrixHasOnePositiveEigenvalue : Prop
 
 /-- The single-positive-eigenvalue obstruction theorem stated against an
@@ -188,7 +185,7 @@ axiom local_smt_pruning_audit :
 The bipartite restriction is recorded explicitly, together with the left-side
 cardinality condition used in the paper. -/
 structure Depth2BipartiteCertificate (H : Graph) where
-  bipartite : Prop
+  bipartiteRestriction : Prop
   leftPartitionSize : Nat
   leftPartitionSize_eq_two : leftPartitionSize = 2
 

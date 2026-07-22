@@ -14,8 +14,6 @@ axiom HStar_quotient_matrix_has_one_positive_eigenvalue : Prop
 
 theorem spectral_obstruction : ¬ IsLeontovich HStar := by
   let hCert : SinglePositiveEigenvalueCertificate HStar := {
-    graph_symm := HStar.symm
-    graph_loopless := HStar.loopless
     quotientMatrixHasOnePositiveEigenvalue :=
       HStar_quotient_matrix_has_one_positive_eigenvalue
   }
