@@ -338,6 +338,24 @@ matrix, can appear in these counts. The eigenvalues of $A(H)$ orthogonal
 to the quotient subspace are invisible here, and we say they are
 \emph{inert}.
 
+\begin{lemma}[Two-step recurrence from a symmetric active spectrum]
+  \label{lem:active_recurrence}
+  If the active spectrum of $Q$ is contained in
+  $\{\lambda_1, 0, -\lambda_1\}$, then the quotient-walk vectors satisfy
+  \[
+    Q^{k+2}\mathbf{1}_K \;=\; \lambda_1^{\,2}\, Q^k\mathbf{1}_K
+  \]
+  for every $k \ge 1$. Equivalently, after the kernel component has
+  vanished, the walk counts obey $w_{k+2} = \lambda_1^2 w_k$.
+\end{lemma}
+
+\begin{proof}
+  Expand $\mathbf{1}_K$ in the $\langle\cdot,\cdot\rangle_{\mathbf{s}}$-
+  orthonormal eigenbasis of $Q$. The zero-eigenspace contributes nothing
+  once $k \ge 1$, and the $\pm \lambda_1$ terms pick up the same factor
+  $\lambda_1^2$ after two more steps.
+\end{proof}
+
 \begin{lemma}[The quotient is self-adjoint in the size weighting]
   \label{lem:selfadjoint}
   Define $\ip{x}{y} = \sum_i s_i x_i y_i$. Then $Q$ is self-adjoint with

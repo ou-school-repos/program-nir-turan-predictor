@@ -158,11 +158,13 @@ homomorphism count into $P_5$: the number of walks of length 3
 originating from any vertex $v$ is exactly three times the number of
 length-1 walks originating from $v$. Thus pendant relocations that
 shift by 2 steps produce identical walk sums. This generates
-    exponentially growing tie classes ($\sim\!200$ ties
-at $n = 20$).
+exponentially growing tie classes ($\sim\!200$ ties at $n = 20$).
 
 The eigenvalues of $P_5$ are $\pm\sqrt{3}, \pm 1, 0$, so
-$\lambda_1^2 = 3$ exactly, and the ratio
+$\lambda_1^2 = 3$ exactly. In the language of
+Lemma~\ref{lem:active_recurrence}, the active spectrum is
+$\{\sqrt{3}, 0, -\sqrt{3}\}$ and the walk counts satisfy
+$w_{k+2} = 3w_k$ for $k \ge 1$. The ratio
 $\Hom(P_{n+2}, P_5) / \allowbreak \Hom(P_n, P_5) = 3$ for all odd $n$.
 
 \subsubsection{Unique minimality}
@@ -191,9 +193,9 @@ would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
 \section{Analytical Properties of Leontovich Graphs}
 \label{sec:leontovich}
 
-\subsection{A spectral condition for Leontovich graphs}
+\subsection{An eigenvalue condition that forbids crossovers}
 
-\begin{theorem}[Single Positive Eigenvalue Condition]
+\begin{theorem}[Single Positive Eigenvalue Obstruction]
   \label{thm:spectral}
   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
   the bipartition (i.e., no orbit contains vertices from both sides).
@@ -202,23 +204,26 @@ would require $\lambda_1^m \in \mathbb{Q}$ or $\lambda_1^{m-1} \in
 \end{theorem}
 
 \begin{proof}
-  Since the orbits respect the bipartition, the quotient matrix is
-  itself bipartite, so its spectrum is symmetric about zero.
+  Since the orbits respect the bipartition, the quotient matrix has
+  block form $\left[\begin{smallmatrix}0&B\\B^T&0\end{smallmatrix}\right]$
+  after ordering the cells by side, so its nonzero spectrum is symmetric
+  about zero.
   Because the base vector $\mathbf{1}$ and the initial degree vector
   are constant on automorphism orbits, the entire dynamic programming
   sequence $\{A^k \mathbf{1}\}$ remains in the column space of the
   quotient matrix, so the full adjacency spectrum is unnecessary.
-  If there is exactly one positive eigenvalue $\lambda_1$, the non-zero
-  active spectrum is $\{\lambda_1, -\lambda_1\}$. By the transfer matrix
-  decomposition over this quotient space,
+  If there is exactly one positive eigenvalue $\lambda_1$, then every
+  other nonzero eigenvalue is $-\lambda_1$, and the active spectrum is
+  contained in $\{\lambda_1, 0, -\lambda_1\}$. By the quotient-eigenbasis
+  expansion and Lemma~\ref{lem:active_recurrence},
   \[
     \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
   \]
-  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$. There are no
-  secondary exponential terms: the ratio $\Hom(E_n, H) / \Hom(P_n, H)$
-  is constant for all odd $n$. Since $P_n$ minimizes the count at
-  small $n$ (verified computationally), it remains the minimizer for
-  all odd $n$.
+  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$, and the kernel
+  component vanishes once the exponent is at least $1$. There are no
+  secondary exponential terms, so the ratio
+  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. The sign is
+  therefore fixed by the first odd case under consideration.
 \end{proof}
 
 \begin{corollary}
@@ -269,7 +274,7 @@ exactly 2 positive eigenvalues.
     \qquad
     \lambda_2 = \sqrt{\frac{17 - \sqrt{37}}{2}} \approx 2.3364.
   \]
-  For odd $n$, the spectral decomposition yields
+  For odd $n$, the quotient-eigenbasis expansion yields
   \[
     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
     \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
@@ -1180,7 +1185,7 @@ odd~$n$ can change sign at most once.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
-By spectral decomposition, the homomorphism counts for large $n$
+By quotient-eigenbasis expansion, the homomorphism counts for large $n$
 are dominated by two terms:
 \[
   \Delta_{\mathrm{odd}}(n) = A\,\lambda_1^n + B\,\lambda_2^n
