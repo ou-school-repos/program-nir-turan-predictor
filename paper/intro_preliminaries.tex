@@ -155,7 +155,10 @@ explicitly.
     $n = 13$, and it is permanent: the sign of the difference changes
     once and never again (Theorem~\ref{thm:threshold}). The companion
     impossibility at $n = 5$ for the whole family $T(x,y,z)$ is a
-    polynomial identity (Proposition~\ref{prop:n5}).
+    polynomial identity (Proposition~\ref{prop:n5}). The threshold
+    phenomenon for $T(7,1,9)$ had already been discussed in
+    correspondence; the theorem here gives a complete written proof and
+    places it in the broader threshold landscape.
   \item \textbf{(S)} All $1{,}018{,}680{,}329$ connected simple graphs on
     $m \le 11$ vertices, and all $608{,}930{,}559$ connected bipartite
     graphs on $m \le 15$ vertices, tested against the near-path family
@@ -194,13 +197,12 @@ vertices. All logarithms are natural and all matrices are real.
 
 \subsection{Walks are the only thing being counted}
 
-The single fact underlying every formula below is elementary. Let
-$\mathbf{1}$ be the all-ones vector and set
+Let $\mathbf{1}$ be the all-ones vector and set
+
 \[
-  w_k \;=\; A^k \mathbf{1},
+  w_k = A^k \mathbf{1},
   \qquad\text{so that}\qquad
-  w_k(u) \;=\; \#\{\text{walks of length } k \text{ in } H
-  \text{ starting at } u\}.
+  w_k(u) = \bigl|\{\text{walks of length } k \text{ in } H \text{ starting at } u\}\bigr|.
 \]
 A homomorphism from a tree is determined by choosing an image for a root
 and then extending independently along each branch, so every count we
