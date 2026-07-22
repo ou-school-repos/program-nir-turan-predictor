@@ -92,8 +92,7 @@ noncomputable def Path (n : Nat) : Graph where
 /-- The near-path relation `E_n` from the paper. -/
 def nearPathRel (n : Nat) (u v : Fin n) : Prop :=
   pathRel u v ∨
-    (4 ≤ n ∧ ((u.val = n - 4 ∧ v.val = n - 1) ∨ (u.val = n - 1 ∧ v.val = n - 4)))
-
+    (5 ≤ n ∧ ((u.val = n - 4 ∧ v.val = n - 1) ∨ (u.val = n - 1 ∧ v.val = n - 4)))
 /-- Boolean adjacency for the near-path graph `E_n`. -/
 noncomputable def nearPathAdj (n : Nat) (u v : Fin n) : Bool :=
   by
