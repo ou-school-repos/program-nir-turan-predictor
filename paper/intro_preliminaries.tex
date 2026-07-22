@@ -212,7 +212,12 @@ need is a sum of products of entries of the $w_k$.
   \label{lem:transfer}
   Let $\Sp(a_1,\dots,a_r)$ denote the \emph{spider}: the tree obtained by
   identifying one endpoint of $r$ paths with $a_1, \dots, a_r$ edges
-  respectively at a common centre. Then
+  respectively at a common centre. A spider is a tree with one branch
+  vertex; we write $\Sp(a,b,c)$ for the spider with leg lengths $a,b,c$.
+  Root the spider at its centre. For each vertex $u \in V(H)$, count the
+  homomorphisms that send the root to $u$; the legs then extend
+  independently, so we sum over all such $u$.
+  Then
   \[
     \Hom(P_n, H) \;=\; \mathbf{1}^{T} A^{\,n-1} \mathbf{1}
       \;=\; \sum_{u \in V(H)} w_{n-1}(u),
@@ -223,12 +228,40 @@ need is a sum of products of entries of the $w_k$.
 \end{lemma}
 
 \begin{proof}
-  Root the spider at its centre and condition on the image $u$ of the
-  root. The branches are vertex-disjoint apart from the centre, so their
-  images may be chosen independently; the choices along a branch with
-  $a_i$ edges are exactly the walks of length $a_i$ from $u$. The path
-  is the case $r = 2$, or directly the $k$-step iteration of $A$.
+  Root the spider at its centre. For each vertex $u \in V(H)$, count the
+  homomorphisms that send the root to $u$; the branches are vertex-disjoint
+  apart from the centre, so their images may be chosen independently. The
+  choices along a branch with $a_i$ edges are exactly the walks of length
+  $a_i$ from $u$. The path is the case $r = 2$, or directly the $k$-step
+  iteration of $A$.
 \end{proof}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[line cap=round, line join=round, every node/.style={font=\small}]
+    \coordinate (root) at (0,0);
+    \coordinate (leftend) at (-5.2,0);
+    \coordinate (rightend) at (5.2,0);
+    \coordinate (downend) at (0,-2.8);
+    \draw[line width=0.8pt] (root) -- (leftend);
+    \draw[line width=0.8pt] (root) -- (rightend);
+    \draw[line width=0.8pt] (root) -- (downend);
+    \foreach \x in {-4.2,-3.2,-2.2,-1.2,1.2,2.2,3.2,4.2} {
+      \fill (\x,0) circle (1.8pt);
+    }
+    \foreach \y in {-0.9,-1.8,-2.7} {
+      \fill (0,\y) circle (1.8pt);
+    }
+    \fill (root) circle (2.8pt);
+    \node[above] at (0,0.45) {root};
+    \node[left] at (-5.45,0) {$a$};
+    \node[right] at (5.45,0) {$b$};
+    \node[below] at (0,-3.15) {$c$};
+    \node[below] at (0,-3.85) {spider $\,\Sp(a,b,c)$};
+  \end{tikzpicture}
+  \caption{A spider rooted at its centre.}
+  \label{fig:spider-lemma}
+\end{figure}
 
 \subsection{The near-path family}
 
