@@ -90,13 +90,12 @@ endef
 
 .PHONY: lean
 lean: ##H Build the analytic LeanLeontovich project
-	@mkdir -p $(HOME)/.cache/lake
-	@mkdir -p LeanLeontovich/.lake
+	@mkdir -p $(HOME)/.cache/lake/LeanLeontovich-proofs
 	@if [ ! -L LeanLeontovich/.lake ]; then \
 		rm -rf LeanLeontovich/.lake; \
 		ln -s $(HOME)/.cache/lake/LeanLeontovich-proofs LeanLeontovich/.lake; \
 	fi
-	set -o pipefail; cd LeanLeontovich && lake build | tee lean.log
+	@bash -o pipefail -c 'cd LeanLeontovich && lake build | tee lean.log'
 	@printf "\n\033[1;32m--- Verification Complete ---\033[0m\n"
 	@printf "\033[1;36mMapped Theorems & Definitions:\033[0m\n"
 	@awk 'BEGIN {last_file=""} \
