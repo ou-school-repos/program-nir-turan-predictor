@@ -73,15 +73,16 @@
 We investigate the minimization of graph homomorphisms from trees to fixed
 target graphs $H$, addressing open questions surrounding Leontovich graphs and
 the path minimizer conjecture. By combining exact computational sweeps with
-analytic eigenvalue obstructions, we prove the algebraic impossibility of a
-crossover at $n=5$ for the spherically symmetric family $T(x,y,z)$ and verify
-the $n=6$ residue computationally. Within the threshold landscape studied
-here, the smallest crossover threshold witnessed is $n=7$; the threshold is
-attained by $T(16,1,19)$. For targets possessing symmetric automorphism
-orbits, we prove an eigenvalue condition that permanently forbids crossovers,
-analytically ruling out all 2-orbit and 3-orbit symmetric trees. For the
-4-orbit tree $T(7,1,9)$, we provide the first complete written proof that its
-crossover threshold at $n=13$ is permanent. Finally, we prove that the
+quotient-matrix reductions, we prove the impossibility of a crossover at $n=5$
+for the spherically symmetric family $T(x,y,z)$ and verify the $n=6$ residue
+computationally.
+Within the threshold landscape studied here, the smallest crossover threshold
+witnessed is $n=7$; the threshold is attained by $T(16,1,19)$. For targets
+possessing symmetric automorphism orbits, quotient-eigenbasis expansions reduce
+odd near-path crossover detection to a finite base-case sign check, covering
+all 2-orbit and 3-orbit symmetric trees.
+For the 4-orbit tree $T(7,1,9)$, we provide the first complete written proof
+that its crossover threshold at $n=13$ is permanent. Finally, we prove that the
 bipartite double cover operation strictly preserves the Leontovich property,
 which allows bounded computational sweeps of simple graphs to formally rule
 out small looped targets. Through SMT-based search and symmetric pruning, we
@@ -1380,8 +1381,8 @@ with interval arithmetic or an explicit Rayleigh-residual bound.
 \section{Conclusion and Open Problems}
 \label{sec:conclusion}
 
-The combination of analytic eigenvalue obstructions and exact computational
-sweeps heavily constrains the landscape of Leontovich graphs. The
+The combination of quotient-matrix reductions and exact computational sweeps
+heavily constrains the landscape of Leontovich graphs. The
 impossibility at $n=5$ for the spherically symmetric family $T(x,y,z)$
 (Proposition~\ref{prop:n5}) and the verified $n=6$ residue establish $n=7$
 as the smallest crossover threshold witnessed in the threshold landscape
