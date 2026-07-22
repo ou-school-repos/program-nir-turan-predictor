@@ -1,0 +1,460 @@
+% ========================================================================
+%  DROP-IN REPLACEMENT for paper.tex lines 99-170
+%  (\section{Introduction} through the end of \section{Preliminaries})
+%
+%  Preamble additions required (place next to \newcommand{\Hom}):
+%
+%    \DeclareMathOperator{\Sp}{Sp}          % spider tree
+%    \newcommand{\Aut}{\mathrm{Aut}}
+%    \newcommand{\Wt}[1]{w_{#1}}            % walk vector
+%    \newcommand{\ip}[2]{\langle #1, #2 \rangle_{\mathbf{s}}}
+%    \usepackage{amsthm}                    % already loaded
+%
+%  No new packages are needed.
+% ========================================================================
+
+% ════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Counting maps between graphs}
+
+Let $G$ and $H$ be finite graphs, where $H$ may carry loops. A
+\emph{homomorphism} $\varphi \colon G \to H$ is a map
+$V(G) \to V(H)$ that sends edges to edges: if $uv \in E(G)$ then
+$\varphi(u)\varphi(v) \in E(H)$. We write $\Hom(G,H)$ for the number of
+such maps.
+
+The quantity $\Hom(G,H)$ is a single number that specialises to many
+familiar ones. If $H = K_q$ is the complete graph, $\Hom(G,K_q)$ counts
+proper $q$-colourings of $G$; if $H$ is a single edge with a loop at one
+end, $\Hom(G,H)$ counts independent sets; if $H$ is a path, $\Hom(G,H)$
+counts height functions with bounded increments. For this reason $H$ is
+called the \emph{target} and the map count is often called the number of
+\emph{$H$-colourings} of $G$.
+
+Two extremal questions present themselves at once. Among all trees $T$
+on $n$ vertices, which maximises $\Hom(T,H)$, and which minimises it?
+The first question is settled: Sidorenko~\cite{sidorenko1991} showed
+that the star $K_{1,n-1}$ is always a maximiser, for every target $H$.
+The second is not.
+
+\subsection{The path conjecture and its failure}
+
+Galvin and Tetali~\cite{galvin-tetali} proposed the natural companion:
+that the path $P_n$ should always be a minimiser. The intuition is
+appealing. A homomorphism from a tree is built by propagating
+constraints outward from a root, and the path is the tree that spreads
+those constraints along the longest possible chain, giving each vertex
+the fewest independent choices. Csikv\'ari and Lin~\cite{csikvari-lin}
+developed the systematic tool for this circle of ideas, the
+KC-transformation, and proved the conjecture for large classes of
+targets.
+
+The conjecture is nevertheless false. Leontovich~\cite{leontovich1989}
+exhibited a target for which some tree beats the path, and
+Galvin, McMillon, Redlich and Nir~\cite{galvin2025} gave explicit
+bipartite counterexamples and named the phenomenon. Following them we
+call $H$ a \emph{Leontovich graph} when the path fails to minimise, and
+we call the smallest $n$ at which it fails the \emph{crossover
+threshold}. A companion paper~\cite{galvin2026} introduces the dual
+class of \emph{Hoffman--London graphs}, the targets for which the path
+does minimise, and poses the quantitative questions this paper takes up:
+how small can a Leontovich graph be, and how early can a crossover
+happen?
+
+What makes these questions hard is that the failure is faint. In every
+known example the two counts agree to within a relative margin of
+$10^{-4}$ or less, and the winning tree differs from the path by a
+single misplaced pendant vertex. The effect is a near-cancellation
+between two exponentially growing quantities, so it is invisible to
+crude estimates and easily destroyed by floating-point noise. Much of
+the work below consists of building comparisons that survive at that
+precision, and of saying plainly which of our conclusions are proofs
+and which are the results of bounded searches.
+
+\subsection{What this paper does}
+
+We attack the problem from three directions.
+
+\emph{Analytically.} We isolate a condition on the eigenvalues of a
+target that forbids a crossover outright
+(Theorem~\ref{thm:spectral}), which disposes of every star and every
+$3$-orbit symmetric tree in one stroke. We determine the exact
+crossover threshold of the smallest previously known Leontovich tree,
+and show that once the sign flips it never flips back
+(Theorem~\ref{thm:threshold}). We prove that passing to the bipartite
+double cover preserves both the Leontovich property and its asymptotic
+strengthening (Theorem~\ref{thm:double_cover}), which converts looped
+witnesses into simple ones.
+
+\emph{Computationally.} We sweep large families of targets --- all
+connected simple graphs on at most $11$ vertices, all connected
+bipartite graphs on at most $15$ vertices, all symmetric trees below
+$78$ vertices --- against the near-path source trees defined below, and
+we record the results as bounded sweeps rather than as theorems.
+
+\emph{By synthesis.} Where enumeration runs out, we encode the
+crossover condition as an integer constraint problem and hand it to an
+SMT solver. This produces the two smallest bipartite witnesses we know
+of, on $15$ and $18$ vertices.
+
+\subsection{Standards of evidence}
+\label{sec:evidence}
+
+Because the arguments below mix proof with computation, and because
+several claims in earlier drafts of this work did not survive contact
+with exact arithmetic, we label every substantive assertion with one of
+four tags and use them consistently.
+
+\begin{description}[leftmargin=2.4em,style=nextline,font=\normalfont\bfseries]
+  \item[(P) Proved.] An unconditional mathematical proof, quantifiers
+    included. Stated as \textbf{Theorem}, \textbf{Proposition},
+    \textbf{Lemma} or \textbf{Corollary}.
+  \item[(E) Exact finite computation.] A specific numerical claim about
+    named objects, verified in exact integer or certified
+    arbitrary-precision arithmetic. A witness of this kind is as
+    reliable as the code that produced it; the scripts are named in
+    place and the values are reproducible.
+  \item[(S) Bounded sweep.] A negative result of the form ``no member of
+    family $\mathcal{F}$ exhibits behaviour $B$ within the tested
+    window''. Such a statement is a certificate about the window, not
+    about the family. Stated as \textbf{Proposition (computational
+    sweep certificate)} and never as a nonexistence theorem.
+  \item[(N) Certified numerics.] A high-precision floating-point
+    computation accompanied by an explicit error bound --- here a
+    Bauer--Fike residual bound on the Perron eigenvalue and a
+    Davis--Kahan bound on its eigenvector --- so that the reported
+    inequality holds with a proven margin.
+\end{description}
+
+The distinction between (P) and (S) is the one that matters most. A
+filter that tests the path against near-path trees only can certify that
+\emph{those} trees fail to beat the path; it cannot certify that no tree
+does. We therefore never upgrade a sweep to a nonexistence theorem, and
+where an earlier claim of ours did so we say where the boundary now
+lies.
+
+\subsection{Summary of contributions}
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{(E)} Verification of the path-minimiser theorem for the
+    odd paths $H \in \{P_3,P_5,P_7,P_9\}$ over all source trees on
+    $n \le 22$ vertices, and an explanation of the accompanying
+    transition: for $P_3$ and $P_5$ the path is a minimiser but not a
+    unique one, and the tie classes are exponentially large; from $P_7$
+    onward the minimiser is unique. The mechanism is an arithmetic one
+    --- $\lambda_1^2$ is rational exactly for $k \in \{1,2,3,5\}$ ---
+    and it answers Problem~6.3 of~\cite{galvin2026}
+    (Section~\ref{sec:odd-path}).
+  \item \textbf{(P)} An eigenvalue criterion (Theorem~\ref{thm:spectral}):
+    a rooted bipartite target whose active quotient has a single
+    positive eigenvalue cannot be Leontovich. This rules out all
+    $2$-orbit and $3$-orbit symmetric trees without any search
+    (Corollary~\ref{cor:2_and_3_orbit_trees}).
+  \item \textbf{(P)} The crossover threshold of $T(7,1,9)$ is exactly
+    $n = 13$, and it is permanent: the sign of the difference changes
+    once and never again (Theorem~\ref{thm:threshold}). The companion
+    impossibility at $n = 5$ for the whole family $T(x,y,z)$ is a
+    polynomial identity (Proposition~\ref{prop:n5}).
+  \item \textbf{(S)} All $1{,}018{,}680{,}329$ connected simple graphs on
+    $m \le 11$ vertices, and all $608{,}930{,}559$ connected bipartite
+    graphs on $m \le 15$ vertices, tested against the near-path family
+    with $n \le 200$, $d \le 20$. No simple target below $12$ vertices
+    produced a near-path crossover. This bounds, but does not settle,
+    Problem~4.3 of~\cite{galvin2025} (Section~\ref{sec:bounds}).
+  \item \textbf{(E)} Two small bipartite witnesses: a $15$-vertex graph
+    $H^*$ whose earliest crossover is at $(n,d) = (49,16)$, and an
+    $18$-vertex graph $H_{18}$ that crosses over against the classical
+    depth-$2$ near-path at $n = 17$ with margin
+    $\Delta = 5{,}068{,}778$ (Section~\ref{sec:discussion}).
+  \item \textbf{(P)} The bipartite double cover preserves both the
+    Leontovich and the strongly Leontovich property
+    (Theorem~\ref{thm:double_cover}). Applied to the looped tree
+    $\hat T(1,35,1,50)$, this yields a \emph{simple} strongly Leontovich
+    bipartite graph on $3{,}644$ vertices, whose first even crossover we
+    locate exactly at $n = 17{,}340$ --- evidence that even-$n$
+    crossovers do not require a loop, only enough room to delay the
+    cancellation.
+  \item \textbf{(N)} A perturbed double cover on $6{,}806$ vertices whose
+    certified leading-coefficient ratio is $0.999952140676 < 1$,
+    a candidate simple non-bipartite strongly Leontovich target.
+\end{enumerate}
+
+Section~\ref{sec:prelim} fixes notation and records the two
+transfer-matrix identities that every computation in the paper rests on.
+
+% ════════════════════════════════════════════════════════════════════════
+\section{Preliminaries}
+\label{sec:prelim}
+
+Throughout, $H$ denotes a finite connected target graph, possibly with
+loops, on $m = |V(H)|$ vertices, with adjacency matrix $A = A(H)$; a
+loop at $u$ contributes $A_{uu} = 1$. Source graphs are trees on $n$
+vertices. All logarithms are natural and all matrices are real.
+
+\subsection{Walks are the only thing being counted}
+
+The single fact underlying every formula below is elementary. Let
+$\mathbf{1}$ be the all-ones vector and set
+\[
+  w_k \;=\; A^k \mathbf{1},
+  \qquad\text{so that}\qquad
+  w_k(u) \;=\; \#\{\text{walks of length } k \text{ in } H
+  \text{ starting at } u\}.
+\]
+A homomorphism from a tree is determined by choosing an image for a root
+and then extending independently along each branch, so every count we
+need is a sum of products of entries of the $w_k$.
+
+\begin{lemma}[Path and spider counts]
+  \label{lem:transfer}
+  Let $\Sp(a_1,\dots,a_r)$ denote the \emph{spider}: the tree obtained by
+  identifying one endpoint of $r$ paths with $a_1, \dots, a_r$ edges
+  respectively at a common centre. Then
+  \[
+    \Hom(P_n, H) \;=\; \mathbf{1}^{T} A^{\,n-1} \mathbf{1}
+      \;=\; \sum_{u \in V(H)} w_{n-1}(u),
+    \qquad
+    \Hom\bigl(\Sp(a_1,\dots,a_r), H\bigr)
+      \;=\; \sum_{u \in V(H)} \prod_{i=1}^{r} w_{a_i}(u).
+  \]
+\end{lemma}
+
+\begin{proof}
+  Root the spider at its centre and condition on the image $u$ of the
+  root. The branches are vertex-disjoint apart from the centre, so their
+  images may be chosen independently; the choices along a branch with
+  $a_i$ edges are exactly the walks of length $a_i$ from $u$. The path
+  is the case $r = 2$, or directly the $k$-step iteration of $A$.
+\end{proof}
+
+\subsection{The near-path family}
+
+\begin{definition}[Near-path trees]
+  \label{def:nearpath}
+  For $n \ge 5$ and $1 \le d \le n-3$, the \emph{near-path tree} is the
+  spider
+  \[
+    E_n^{(d)} \;=\; \Sp\bigl(n-d-2,\; d,\; 1\bigr),
+  \]
+  the tree on $n$ vertices obtained from the path $P_{n-1}$ by attaching
+  a pendant vertex to the vertex at distance $d$ from one end. We write
+  $E_n = E_n^{(2)}$ for the classical case, the tree used by
+  Leontovich~\cite{leontovich1989}, obtained by hanging a pendant on the
+  third-from-last vertex of $P_{n-1}$.
+\end{definition}
+
+Combining Definition~\ref{def:nearpath} with Lemma~\ref{lem:transfer},
+\begin{equation}
+  \label{eq:nearpath-count}
+  \Hom\bigl(E_n^{(d)}, H\bigr)
+    \;=\; \sum_{u \in V(H)} w_{n-d-2}(u)\, w_{d}(u)\, w_{1}(u),
+\end{equation}
+which is the identity implemented by every verification script in this
+work. Two consequences are worth recording.
+
+\begin{remark}[The depth parameter is a leg length]
+  \label{rem:d-symmetry}
+  A spider does not remember the order of its legs, so
+  $E_n^{(d)} \cong E_n^{(n-2-d)}$. The parameter $d$ is therefore not a
+  depth so much as the length of the shorter of the two long legs, and a
+  sweep over $d \le d_{\max}$ covers exactly those near-path trees with
+  $\min\{d,\, n-2-d\} \le d_{\max}$. Our sweeps use
+  $d_{\max} = 20$ with $n \le 200$; the untested trees are those whose
+  pendant sits near the middle of the path.
+\end{remark}
+
+\begin{remark}[Why this family and not another]
+  \label{rem:why-nearpath}
+  The near-path trees are the natural first place to look, for a reason
+  made precise in Remark~\ref{prop:pf}: any tree that beats the path must
+  match its exponential growth rate $\lambda_1^{\,n}$ and win on the
+  constant in front. Branching in the interior raises the growth rate
+  outright, so a challenger must confine its defect to the boundary.
+  This is a heuristic for choosing a search family, not a theorem, and
+  we treat every negative result obtained with it accordingly.
+\end{remark}
+
+\subsection{Symmetric trees and their quotients}
+
+\begin{definition}[Spherically symmetric trees]
+  \label{def:symtree}
+  For $d_1,\dots,d_k \ge 1$, the tree $T(d_1,\dots,d_k)$ is rooted, of
+  depth $k$, in which every vertex at depth $i-1$ has exactly $d_i$
+  children. Its vertex set falls into $k+1$ \emph{orbits} by depth, of
+  sizes $s_0 = 1$ and $s_i = d_1 d_2 \cdots d_i$, and
+  \[
+    |V| \;=\; 1 + d_1 + d_1 d_2 + \cdots + d_1 d_2 \cdots d_k .
+  \]
+  We write $\hat T(d_1,\dots,d_k)$ for the same tree with a loop added at
+  the root. The case $k = 3$ recovers the classical family
+  $T(x,y,z)$ on $1 + x + xy + xyz$ vertices, whose four orbits are root,
+  children, grandchildren and leaves.
+\end{definition}
+
+The loop matters: it destroys bipartiteness, and with it the parity
+obstruction of Section~\ref{sec:leontovich}.
+
+\begin{definition}[Equitable partition and quotient matrix]
+  \label{def:quotient}
+  A partition $\pi = \{C_1,\dots,C_K\}$ of $V(H)$ is \emph{equitable} if
+  there are integers $q_{ij}$ such that every vertex of $C_i$ has exactly
+  $q_{ij}$ neighbours in $C_j$. The matrix $Q = (q_{ij})$ is the
+  \emph{quotient matrix} of $\pi$ and $\mathbf{s} = (|C_1|,\dots,|C_K|)$
+  its \emph{size vector}. The orbit partition of any automorphism group
+  is equitable; so is the coarsest partition produced by colour
+  refinement.
+\end{definition}
+
+\begin{lemma}[Reduction to the quotient]
+  \label{lem:quotient}
+  Let $\pi$ be equitable with quotient $Q$ and size vector $\mathbf{s}$.
+  Then each walk vector $w_k$ is constant on cells, and its cell values
+  are the entries of $Q^k \mathbf{1}_K$. Consequently, for every $n$ and
+  every spider,
+  \[
+    \Hom(P_n,H) \;=\; \mathbf{s}^{T} Q^{\,n-1}\mathbf{1}_K,
+    \qquad
+    \Hom\bigl(\Sp(a_1,\dots,a_r),H\bigr)
+      \;=\; \sum_{i=1}^{K} s_i \prod_{j=1}^{r} \bigl(Q^{a_j}\mathbf{1}_K\bigr)_i .
+  \]
+\end{lemma}
+
+\begin{proof}
+  Induct on $k$. The claim holds for $w_0 = \mathbf{1}$. If $w_{k}$ takes
+  the value $x_i$ on $C_i$, then for $u \in C_i$,
+  $w_{k+1}(u) = \sum_j q_{ij} x_j$, which depends only on $i$. Summing
+  Lemma~\ref{lem:transfer} cell by cell gives the two displayed
+  identities.
+\end{proof}
+
+Lemma~\ref{lem:quotient} is what makes the computations in this paper
+feasible: a target on $6{,}806$ vertices is replaced by an $18 \times 18$
+integer matrix with no loss of information about $\Hom(T,\cdot)$ for the
+trees we test. It also explains the recurring phrase \emph{active
+spectrum}: only the eigenvalues of $Q$, not those of the full adjacency
+matrix, can appear in these counts. The eigenvalues of $A(H)$ orthogonal
+to the quotient subspace are invisible here, and we say they are
+\emph{inert}.
+
+\begin{lemma}[The quotient is self-adjoint in the size weighting]
+  \label{lem:selfadjoint}
+  Define $\ip{x}{y} = \sum_i s_i x_i y_i$. Then $Q$ is self-adjoint with
+  respect to $\langle\cdot,\cdot\rangle_{\mathbf{s}}$; in particular its
+  eigenvalues are real and it has a $\langle\cdot,\cdot\rangle_{\mathbf{s}}$-orthonormal
+  eigenbasis.
+\end{lemma}
+
+\begin{proof}
+  Counting edges between $C_i$ and $C_j$ in two ways gives
+  $s_i q_{ij} = s_j q_{ji}$, i.e.\ $\ip{Qx}{y} = \ip{x}{Qy}$.
+  Equivalently $S^{1/2} Q S^{-1/2}$ is a symmetric matrix, where
+  $S = \operatorname{diag}(\mathbf{s})$.
+\end{proof}
+
+\subsection{Leading coefficients and the two Leontovich properties}
+
+Let $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_K$ be the eigenvalues
+of $Q$ with $\langle\cdot,\cdot\rangle_{\mathbf{s}}$-orthonormal
+eigenvectors $u^{(1)},\dots,u^{(K)}$, and put
+$\alpha_j = \ip{\mathbf{1}}{u^{(j)}}$. Lemma~\ref{lem:quotient} and
+Lemma~\ref{lem:selfadjoint} give the exact expansions
+\begin{equation}
+  \label{eq:expansion}
+  \Hom(P_n,H) = \sum_{j=1}^{K} \alpha_j^{2}\, \lambda_j^{\,n-1},
+  \qquad
+  \Hom\bigl(E_n^{(d)},H\bigr)
+    = \sum_{j=1}^{K} \alpha_j \beta_j^{(d)}\, \lambda_j^{\,n-d-2},
+  \qquad
+  \beta_j^{(d)} = \ip{w_1 \odot w_d}{u^{(j)}},
+\end{equation}
+where $\odot$ is the entrywise product. Everything in this paper is a
+statement about the interference between the $j = 1$ term and the rest.
+
+\begin{definition}[Leontovich, strongly Leontovich]
+  \label{def:leontovich}
+  A target $H$ is \emph{Leontovich} if there is an $n$ and a tree $T$ on
+  $n$ vertices with $\Hom(T,H) < \Hom(P_n,H)$: the path is not a
+  minimiser. It is \emph{strongly Leontovich}~\cite{galvin2026} if
+  moreover a fixed near-path family beats the path for all large $n$,
+  i.e.\ $\Hom(E_n^{(d)},H) < \Hom(P_n,H)$ for all sufficiently large $n$
+  of the relevant parity.
+\end{definition}
+
+If $H$ is connected and non-bipartite, $\lambda_1$ strictly dominates
+$|\lambda_j|$ for $j \ge 2$, and \eqref{eq:expansion} identifies the
+strong property with a single inequality between leading coefficients.
+
+\begin{definition}[Leading-coefficient ratio]
+  \label{def:rho}
+  For a connected non-bipartite target $H$ with active quotient
+  $(Q,\mathbf{s})$, Perron eigenvalue $\lambda_1$ and positive Perron
+  eigenvector $u = u^{(1)}$, set
+  \begin{equation}
+    \label{eq:rho}
+    \rho_d(H) \;=\;
+      \lim_{n \to \infty}
+      \frac{\Hom\bigl(E_n^{(d)},H\bigr)}{\Hom(P_n,H)}
+    \;=\;
+      \frac{\ip{w_1 \odot w_d}{u}}
+           {\lambda_1^{\,d+1}\, \ip{\mathbf{1}}{u}} .
+  \end{equation}
+  The right-hand side is independent of the normalisation of $u$. Then
+  $H$ is strongly Leontovich for depth $d$ precisely when
+  $\rho_d(H) < 1$, and $\rho_d(H) > 1$ forbids it.
+\end{definition}
+
+\begin{remark}[Bipartite targets and parity]
+  \label{rem:bipartite-parity}
+  If $H$ is bipartite then $-\lambda_1$ is also an eigenvalue of $Q$ and
+  the limit in \eqref{eq:rho} need not exist: the two dominant modes
+  reinforce at one parity of $n$ and cancel at the other. This is not a
+  technicality but the governing phenomenon. It is why every crossover
+  in this paper occurs at odd $n$ unless the target is very large
+  (Section~\ref{sec:doublecover}), and why the looped root in
+  $\hat T(\cdot)$ is the standard device for removing the obstruction.
+  For bipartite $H$ we therefore read \eqref{eq:rho} along a fixed
+  parity class and say so explicitly.
+\end{remark}
+
+\begin{remark}[The margins involved]
+  \label{rem:margins}
+  To fix expectations: the smallest witnesses in this paper win by a
+  relative margin of about $3.4 \times 10^{-4}$ ($H_{18}$ at $n = 17$)
+  down to $4.8 \times 10^{-5}$ (the perturbed cover of
+  Section~\ref{sec:doublecover}). A double-precision evaluation of
+  \eqref{eq:nearpath-count} accumulates relative error on the order of
+  $n\,m\,\varepsilon \approx 10^{-12}$, which is comfortably below these
+  margins but not below every margin that might exist. Floating point is
+  therefore used only to \emph{flag} candidates; every reported witness
+  is re-derived in exact integer arithmetic through
+  Lemma~\ref{lem:quotient}, and every asymptotic claim is accompanied by
+  the certified bound described in Section~\ref{sec:evidence}.
+\end{remark}
+
+\subsection{Notation summary}
+
+\begin{table}[H]
+\centering
+\caption{Notation used throughout.}
+\label{tab:notation}
+\begin{tabular}{@{}ll@{}}
+  \toprule
+  Symbol & Meaning \\
+  \midrule
+  $\Hom(G,H)$ & number of homomorphisms $G \to H$ \\
+  $m$, $n$ & order of the target $H$; order of the source tree \\
+  $A$, $w_k = A^k\mathbf{1}$ & adjacency matrix of $H$; walk-count vector \\
+  $P_n$ & path on $n$ vertices ($n-1$ edges) \\
+  $\Sp(a_1,\dots,a_r)$ & spider with legs of $a_1,\dots,a_r$ edges \\
+  $E_n^{(d)} = \Sp(n{-}d{-}2, d, 1)$ & near-path tree; $E_n = E_n^{(2)}$ \\
+  $T(d_1,\dots,d_k)$, $\hat T(\cdot)$ & symmetric tree; same with a looped root \\
+  $Q$, $\mathbf{s}$, $K$ & quotient matrix, cell sizes, number of cells \\
+  $\lambda_1 > |\lambda_j|$, $u$ & Perron eigenvalue and eigenvector of $Q$ \\
+  $\lambda_2^{*}$ & largest active subdominant eigenvalue \\
+  $\rho_d(H)$ & leading-coefficient ratio, \eqref{eq:rho} \\
+  $\Delta_n = \Hom(P_n,H) - \Hom(E_n^{(d)},H)$ & crossover margin; $\Delta_n > 0$ means the path loses \\
+  \bottomrule
+\end{tabular}
+\end{table}

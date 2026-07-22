@@ -48,6 +48,10 @@
 
 % ── Notation shortcuts ──────────────────────────────────────────────────
 \newcommand{\Hom}{\mathrm{hom}}
+\DeclareMathOperator{\Sp}{Sp}
+\newcommand{\Aut}{\mathrm{Aut}}
+\newcommand{\Wt}[1]{w_{#1}}
+\newcommand{\ip}[2]{\langle #1, #2 \rangle_{\mathbf{s}}}
 
 \title{%
   \textbf{Path Minimizers and Leontovich Thresholds in Tree Homomorphisms}\\[0.5em]
@@ -96,78 +100,7 @@ with leading-coefficient ratio $0.999952140676<1$.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
-\section{Introduction}
-
-For graphs $G$ and $H$, a \emph{graph homomorphism} $\varphi \colon
-V(G) \to V(H)$ is a map preserving adjacency. The number of such maps,
-$\Hom(G, H)$, encodes fundamental combinatorial information.
-Sidorenko~\cite{sidorenko1991} established that stars maximize
-$\Hom(T, H)$ among trees $T$ on $n$ vertices for any target $H$.
-
-The dual question---which trees \emph{minimize} homomorphisms---remains
-largely open. Galvin and Tetali~\cite{galvin-tetali} conjectured that
-the path $P_n$ minimizes $\Hom(T, H)$ among $n$-vertex trees for all
-$H$. Leontovich~\cite{leontovich1989} first observed that this fails
-for certain targets;
-Csikv\'ari and Lin~\cite{csikvari-lin} systematically developed the
-theory via the KC-transformation. Recently, Galvin, McMillon, Redlich,
-and Nir~\cite{galvin2025} demonstrated explicit bipartite counterexamples,
-coining \emph{Leontovich graphs}: targets $H$ for which $P_n$ does not
-minimize $\Hom(T, H)$ among trees. Subsequent work by Galvin et al.~\cite{galvin2026}
-introduced the dual concept of \emph{Hoffman-London graphs} to classify
-targets where paths strictly minimize.
-
-\subsection{Summary of contributions}
-\begin{enumerate}[label=(\roman*)]
-  \item Computational verification of the path minimizer theorem for
-    odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to $n = 22$,
-    illustrating a transition from structural degeneracy in $P_3$ and
-    $P_5$ (with $P_5$ exhibiting large structural equivalence classes
-    due to 2-shift invariance) to unique minimality for $P_{\ge 7}$.
-    This directly addresses Problem~6.3 of \cite{galvin2026}
-    (Section~\ref{sec:odd-path}).
-  \item An analytical proof (Theorem~\ref{thm:spectral}) demonstrating
-    that target graphs whose quotient matrices possess exactly one
-    positive eigenvalue cannot be Leontovich, which analytically rules
-    out all 2-orbit and 3-orbit spherically symmetric trees.
-  \item An analytical proof determining the crossover threshold $n = 13$
-    for the known Leontovich graph $T(7,1,9)$, showing this threshold
-    is permanent (Theorem~\ref{thm:threshold}).
-  \item Improving the lower bound on the smallest simple Leontovich
-    graph from $m \ge 4$ to $m \ge 12$ (via exhaustive enumeration of
-    all 1,018,680,329 connected simple graphs on $m \le 11$ vertices).
-    This bounds Problem~4.3 of \cite{galvin2025} for simple graphs.
-  \item Exhaustive search of all spherically symmetric trees
-    $T(d_1, \ldots, d_k)$ with $|V| < 78$ and $k \in \{3,4,5,6\}$,
-    verified with exact integer arithmetic, ruling out smaller
-    Leontovich graphs in this family.
-  \item Algebraic proof that $n = 5$ crossovers are impossible for all
-    $T(x,y,z)$ (Proposition~\ref{prop:n5}), and a threshold landscape
-    showing that $T(7,1,9)$ is the minimum-order graph in this family.
-\end{enumerate}
-
-% ════════════════════════════════════════════════════════════════════════
-\section{Preliminaries}
-\label{sec:prelim}
-
-\begin{definition}[$E_n$]
-  The \emph{near-path tree} $E_n$ is the tree on $n$ vertices obtained
-  from the path $P_{n-1}$ by attaching a pendant vertex to the
-  third-from-last vertex.
-\end{definition}
-
-\begin{definition}[$T(x,y,z)$]
-  For positive integers $x, y, z$, the \emph{spherically symmetric tree}
-  $T(x,y,z)$ is a rooted tree with 4 orbits: a root (orbit~0, 1~vertex),
-  $x$ children of the root (orbit~1), $xy$ grandchildren (orbit~2),
-  and $xyz$ leaves (orbit~3). Total vertices: $|V| = 1 + x + xy + xyz$.
-\end{definition}
-
-\begin{definition}[$E_n^{(d)}$]
-  The \emph{near-path family} $E_n^{(d)}$ consists of trees on $n$
-  vertices obtained from $P_{n-1}$ by attaching a pendant vertex at
-  depth $d$ from the end. When $d = 2$, this recovers $E_n$.
-\end{definition}
+\input{intro_preliminaries}
 
 % ════════════════════════════════════════════════════════════════════════
 \section{The Path Minimizer Theorem}
@@ -777,9 +710,9 @@ For $H$ to be connected, we must have $c_3 \ge 1$. Direct algebraic expansion of
 \[
   \Hom(P_5, H) - \Hom(E_5^{(2)}, H) = -c_3 \bigl( (c_1 - c_2)^2 + c_1 + c_2 \bigr).
 \]
-Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is strictly non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
+Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
 
-Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector). Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual depth-2 dominance. We therefore use this as a structural obstruction and leave any stronger all-threshold, all-source-tree statement to a separate Hoffman--London verification.
+Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector). Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual depth-2 dominance. We therefore use this as a two-part obstruction and leave any stronger all-threshold, all-source-tree statement to a separate Hoffman--London verification.
 \end{proof}
 
 However, for $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
@@ -1091,12 +1024,12 @@ $n = 17$. However, at $|V| = 75$, the gap has narrowed too much ($\lambda_2^* = 
 suppressing the secondary interference coefficient so the Perron mode
 of the path strictly dominates at all odd $n$, and the crossover never occurs.
 
-This yields a sharp structural characterisation: \emph{within the star-of-stars
-basin, asymmetric pruning breaks orbital symmetry and lifts new active
-eigenvalues into the quotient spectrum.} The Leontovich property is lost when
-this symmetry-breaking pushes the active secondary eigenvalue too close to the
-spectral radius, establishing the 76-vertex graph as the unique minimal size
-in this pruning sequence.
+This yields a clean dichotomy: \emph{within the star-of-stars basin,
+asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
+into the quotient spectrum.} The Leontovich property is lost when this
+symmetry-breaking pushes the active secondary eigenvalue too close to the
+spectral radius, establishing the 76-vertex graph as the smallest size not
+excluded by the audit of Section~\ref{sec:odd-path}.
 
 \subsection*{Deeper symmetric trees}
 
@@ -1188,16 +1121,16 @@ in Table~\ref{tab:landscape_full}.
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
 \label{rem:ballast}
 A graph is \emph{strongly Leontovich}~\cite{galvin2026} if
-$E_n$ beats the path asymptotically, i.e.\ the leading projection
-coefficient satisfies $c_1' < c_1$.  This is strictly harder than
+$E_n$ beats the path asymptotically, i.e.\ the leading coefficient ratio
+satisfies $\rho_d(H) < 1$ in Eq.~\eqref{eq:rho}.  This is harder than
 the standard Leontovich condition, which only requires destructive
 interference at \emph{some} odd~$n$.
 
 Under 4-orbit symmetry, the entire spectral dynamics is governed by a
 $4 \times 4$ quotient matrix with only 3 integer degrees of freedom
-$(x, y, z)$.  To force the strict eigenvector inequality $c_1' < c_1$
-within this tiny parameter space, the branching degrees must be scaled
-to extreme values (e.g., $x = 400$, $z = 800$ for
+$(x, y, z)$.  To force the strict ratio inequality $\rho_d(H) < 1$ in
+Eq.~\eqref{eq:rho} within this tiny parameter space, the branching degrees
+must be scaled to extreme values (e.g., $x = 400$, $z = 800$ for
 $\hat{T}(400, 3, 800)$).  The resulting $\sim\!960{,}000$ vertices are
 \emph{algebraic ballast}: redundant, identical branches imposed by the
 symmetry constraint, carrying eigenvectors orthogonal to the initial state
@@ -1306,6 +1239,7 @@ are possible in that setting.
 \end{remark}
 
 \section{The Bipartite Double Cover and Strongly Leontovich Graphs}
+\label{sec:doublecover}
 
 A natural way to remove a loop from a target is to pass to the bipartite double
 cover; Galvin et al.~\cite{galvin2026} note the equivalent two-copy
@@ -1343,7 +1277,7 @@ crossover thresholds and the asymptotic ratio of the leading projection
 coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
 \end{proof}
 
-\subsection{Resolution of Simple Strongly Leontovich Graphs}
+\subsection{A Simple Strongly Leontovich Graph}
 
 The coefficient calculation in this section establishes that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$
 on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient
