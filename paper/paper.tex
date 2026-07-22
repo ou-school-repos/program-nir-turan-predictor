@@ -633,9 +633,13 @@ solvers to bridge this computational gap and discover ultra-small targets.
 
 \subsection{SMT-Based Algebraic Search Formulation}
 
-To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices), the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP) over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
+To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices),
+the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP)
+over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
 
-Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms, we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables. For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
+Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms,
+we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables.
+For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
 \begin{align}
   w_0(i) &= 1, \quad \forall i \in \{1, \dots, m\} \\
   w_k(i) &= \sum_{j=1}^{m} A_{ij} \, w_{k-1}(j), \quad \forall k \ge 1
@@ -717,7 +721,11 @@ For $H$ to be connected, we must have $c_3 \ge 1$. Direct algebraic expansion of
 \]
 Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
 
-Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector). Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual depth-2 dominance. We therefore use this as a two-part obstruction and leave any stronger all-threshold, all-source-tree statement to a separate Hoffman--London verification.
+Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients
+for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector).
+Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual
+depth-2 dominance. We therefore use this as a two-part obstruction and leave any stronger all-threshold,
+all-source-tree statement to a separate Hoffman--London verification.
 \end{proof}
 
 However, for $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
@@ -776,7 +784,8 @@ $18 \times 18$ transition adjacency representation into a $7 \times 7$ quotient 
   \item $R_{12}$: Bipartite core connected to $\{v_1, v_2\}$ ($6$ nodes, degree $2$).
 \end{enumerate}
 
-The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks of length $k$ starting at $u$) are governed by the following exact coupled system:
+The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks of length $k$ starting at $u$)
+are governed by the following exact coupled system:
 \begin{align*}
   w_k(L_0) &= 7 w_{k-1}(R_{\mathrm{leaf},0}) + w_{k-1}(R_{01}) + w_{k-1}(R_{02}) \\
   w_k(L_1) &= w_{k-1}(R_{01}) + 6 w_{k-1}(R_{12}) \\
@@ -786,7 +795,8 @@ The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks 
   w_k(R_{02}) &= w_{k-1}(L_0) + w_{k-1}(L_2) \\
   w_k(R_{12}) &= w_{k-1}(L_1) + w_{k-1}(L_2)
 \end{align*}
-with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit numerical values for the first five steps are shown in Table~\ref{tab:walk_h18}. This iteration can be carried out exactly to $w_{16}(u)$.
+with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit numerical values for the
+first five steps are shown in Table~\ref{tab:walk_h18}. This iteration can be carried out exactly to $w_{16}(u)$.
 
 \begin{table}[H]
 \centering
@@ -806,7 +816,8 @@ with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit nu
 \end{tabular}
 \end{table}
 
-The path count is given by the sum $\Hom(P_{17}, H_{18}) = \sum_u w_{16}(u)$, while the near-path count is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yielding the exact margin reported above.
+The path count is given by the sum $\Hom(P_{17}, H_{18}) = \sum_u w_{16}(u)$, while the near-path count
+is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yielding the exact margin reported above.
 
 \begin{remark}[Rigorous Resolution of Other Bipartite Families]
   To determine whether smaller depth-2 examples occur in other bipartite
@@ -1284,9 +1295,9 @@ coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
 
 \subsection{A Simple Strongly Leontovich Graph}
 
-The coefficient calculation in this section establishes that the looped symmetric tree $\hat{T}(1, 35, 1, 50)$
-on 1,822 vertices is Strongly Leontovich, with an asymptotic leading coefficient
-ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
+The coefficient calculation in this section establishes that the looped symmetric
+tree $\hat{T}(1, 35, 1, 50)$ on 1,822 vertices is Strongly Leontovich, with an asymptotic leading
+coefficient ratio of $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
 \approx 0.999953714414 < 1$.  Exact finite counts at $n=15001$ give the
 still-unconverged ratio $0.999864892078$, reflecting the very slow decay of the
 near-surviving secondary mode.
@@ -1297,7 +1308,12 @@ graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
 than 1, $B$ is a \textbf{simple strongly Leontovich graph}, addressing the
 simple-target existence question.
 
-Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$ for all sufficiently large $n$, both even and odd. Exact integer computation of the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at the even threshold $n = 17{,}340$ and remains ahead through the verified range. This shows that even-$n$ crossovers do not require loops, but rather a sufficiently massive bipartite graph capable of delaying cancellation between the dominant modes.
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
+for all sufficiently large $n$, both even and odd. Exact integer computation of
+the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at
+the even threshold $n = 17{,}340$ and remains ahead through the verified range.
+This shows that even-$n$ crossovers do not require loops, but rather a sufficiently
+massive bipartite graph capable of delaying cancellation between the dominant modes.
 
 \subsection{A Perturbed Non-Bipartite Certificate}
 
