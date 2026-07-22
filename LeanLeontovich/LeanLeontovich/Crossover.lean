@@ -6,7 +6,8 @@ namespace LeanLeontovich
 Crossover theorems for specific target graphs and source families.
 
 The theorem statement below packages the `T(7,1,9)` threshold theorem in the
-form used throughout the paper.
+form used throughout the paper. It is a direct wrapper around
+`permanent_crossover_T719`.
 -/
 
 theorem T719_permanent_crossover :

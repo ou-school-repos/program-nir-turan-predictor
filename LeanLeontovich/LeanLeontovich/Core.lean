@@ -160,12 +160,19 @@ axiom H1822 : Graph
 /-- The perturbed 6,806-vertex strongly Leontovich certificate graph. -/
 axiom BPrime : Graph
 
-/-- The single-positive-eigenvalue obstruction theorem as a theorem statement. -/
+/-- Certificate data for the single-positive-eigenvalue obstruction.
+The graph-theoretic symmetry and looplessness are recorded alongside the
+separate quotient-matrix witness so the obstruction is not phrased only in
+terms of intrinsic `Graph` fields. -/
+structure SinglePositiveEigenvalueCertificate (H : Graph) where
+  graph_symm : ∀ u v, H.adj u v = H.adj v u
+  graph_loopless : ∀ u, H.adj u u = false
+  quotientMatrixHasOnePositiveEigenvalue : Prop
+
+/-- The single-positive-eigenvalue obstruction theorem stated against an
+explicit certificate rather than against the raw graph axioms. -/
 axiom single_positive_eigenvalue_obstruction :
-  ∀ {H : Graph},
-    (∀ u v, H.adj u v = H.adj v u) →
-    (∀ u, H.adj u u = false) →
-    ¬ IsLeontovich H
+  ∀ {H : Graph}, SinglePositiveEigenvalueCertificate H → ¬ IsLeontovich H
 
 /-- The permanent crossover threshold at `T(7,1,9)`. -/
 axiom permanent_crossover_T719 :
@@ -177,12 +184,17 @@ axiom permanent_crossover_T719 :
 axiom local_smt_pruning_audit :
   IsLeontovich H76
 
+/-- Certificate data for the depth-2 `m₁ = 2` obstruction.
+The bipartite restriction is recorded explicitly, together with the left-side
+cardinality condition used in the paper. -/
+structure Depth2BipartiteCertificate (H : Graph) where
+  bipartite : Prop
+  leftPartitionSize : Nat
+  leftPartitionSize_eq_two : leftPartitionSize = 2
+
 /-- Depth-2 obstruction for bipartite graphs with left partition size 2. -/
 axiom depth2_obstruction_m1_two :
-  ∀ {H : Graph},
-    (∀ u v, H.adj u v = H.adj v u) →
-    (∀ u, H.adj u u = false) →
-    Hom (Path 5) H ≤ Hom (NearPath 5) H
+  ∀ {H : Graph}, Depth2BipartiteCertificate H → Hom (Path 5) H ≤ Hom (NearPath 5) H
 
 /-- Exact `n = 17` crossover witness for the 18-vertex depth-2 graph. -/
 axiom h18_depth2_crossover :

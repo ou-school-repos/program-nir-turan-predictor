@@ -5,6 +5,7 @@ __pycache__/
 
 # Lean build artifacts
 .lake/
+.lake
 lake-manifest.json
 proofs/lean.log
 
