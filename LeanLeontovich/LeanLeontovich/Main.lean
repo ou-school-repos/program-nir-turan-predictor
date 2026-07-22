@@ -16,4 +16,7 @@ main analytic claims, separate from the executable witness checks kept under
 
 namespace LeanLeontovich
 
+theorem analytic_project_scaffold : True := by
+  trivial
+
 end LeanLeontovich

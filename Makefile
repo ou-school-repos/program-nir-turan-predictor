@@ -105,28 +105,15 @@ lean-analytic: ##H Build the analytic LeanLeontovich project
 	@printf "\n\033[1;32m--- Verification Complete ---\033[0m\n"
 	@printf "\033[1;36mMapped Theorems & Definitions:\033[0m\n"
 	@awk 'BEGIN {last_file=""} \
-		/^(theorem|lemma|def|axiom|class|instance|structure) / { \
-			if (in_decl) process_buf(); \
-			buf = $$0; in_decl = 1; \
-			if (buf ~ /(:=|:= by|by|where|=>)/) process_buf(); \
-			next; \
-		} \
-		in_decl { \
-			gsub(/^[[:space:]]+/, " ", $$0); \
-			buf = buf $$0; \
-			if ($$0 ~ /(:=|:= by|by|where|=>)/) process_buf(); \
-		} \
-		function process_buf() { \
-			gsub(/[[:space:]]+/, " ", buf); \
+		/^[[:space:]]*(theorem|lemma|def|axiom|class|instance|structure) / { \
 			file = FILENAME; sub(/^LeanLeontovich\//, "", file); \
 			if (file != last_file) { \
 				printf "\n\033[1;33m%s:\033[0m\n", file; \
 				last_file = file; \
 			} \
-			printf "  %s\n", buf; \
-			buf = ""; in_decl = 0; \
-		} \
-		END { if (in_decl) process_buf(); }' \
+			line = $$0; gsub(/[[:space:]]+/, " ", line); \
+			print "  " line; \
+		}' \
 		LeanLeontovich/LeanLeontovich/*.lean 2>/dev/null || true
 	@printf "\033[1;32m--------------------------------\033[0m\n"
 	@$(call print_success,LeanLeontovich proofs verified.)

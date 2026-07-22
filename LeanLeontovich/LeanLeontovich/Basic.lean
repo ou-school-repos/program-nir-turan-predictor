@@ -1,8 +1,9 @@
-import Mathlib.Tactic
+import LeanLeontovich.Core
 
 namespace LeanLeontovich
 
 /-!
+-!
 Basic scaffolding shared by the analytic theorem files.
 
 The intention here is to collect the abstract graph and homomorphism
