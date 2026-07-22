@@ -26,8 +26,8 @@ Some words should be avoided or narrowed:
 ## Results and positioning
 
 - The `T(7,1,9)` threshold result is not new in the informal sense; it was already discussed in correspondence. The paper should present it as the first complete written proof and place it in the broader threshold landscape.
-- The `n = 5` theorem generalizes the earlier `T(x,y,z)` identity to all symmetric nonnegative targets.
-- The `n = 6` residue is best stated as verified-plus-conjecture: three trees are proved, two are exact-computation checks, and the near-path sufficiency conjecture stays open.
+- The `n = 5` statement should stay aligned with the current `T(x,y,z)` proof unless the universal Laplacian proof is added to the manuscript.
+- The `n = 6` residue is best stated as verified-plus-conjecture: four trees are proved or serve as the reference case (`P_6`, `K_{1,5}`, `Sp(2,2,1)`, and `S_{2,2}`), two are exact-computation checks (`Sp(3,1,1)` and `Sp(2,1,1,1)`), and the near-path sufficiency conjecture stays open.
 - The double-cover transfer should be stated as a corollary, because it cleanly turns simple-graph sweep bounds into loopy-graph bounds.
 
 ## Specific places to revisit later

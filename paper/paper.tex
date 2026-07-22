@@ -213,16 +213,17 @@ minimality of $P_n$ for odd $n \ge 7$.
   For odd $n$, this reduces to $(c - d)\,\lambda_1^n$, and the kernel
   component vanishes once the exponent is at least $1$. There are no
   secondary exponential terms, so the ratio
-  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. The sign is
-  therefore determined by any single odd case in the family being
-  studied.
+  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. Thus the
+  eigenvalue condition reduces any odd near-path crossover question to
+  the sign of one verified odd base case in the family being studied.
 \end{proof}
 
 \begin{corollary}
   \label{cor:2_and_3_orbit_trees}
   All 2-orbit trees (stars $S_m$) and 3-orbit trees $T(x,y)$ have
-  exactly one positive eigenvalue. Hence no star or 3-orbit tree is
-  Leontovich.
+  exactly one positive quotient eigenvalue. For these families, the
+  eigenvalue condition reduces odd near-path crossover detection to a
+  single base-case sign check.
 \end{corollary}
 
 \begin{corollary}[Double-cover transfer for small sweeps]
@@ -399,10 +400,11 @@ arithmetic, $n \le 200$, $d \le 20$).}
 
 \begin{remark}[Verified-plus-conjecture $n=6$ residue]
   \label{rem:n6_residue}
-  The six trees on six vertices split into three proved cases and two
-  checked cases. The path is handled by the recurrence arguments above;
-  the star $K_{1,5}$ follows from Sidorenko's theorem; and the balanced
-  near-path $\Sp(2,2,1)$ is controlled by Theorem~\ref{thm:spectral}.
+  The six trees on six vertices split into four proved cases and two
+  checked cases. The path is the reference case; the star $K_{1,5}$
+  follows from Sidorenko's theorem; the balanced near-path $\Sp(2,2,1)$
+  is controlled by Theorem~\ref{thm:spectral}; and the double star
+  $S_{2,2}$ is covered by the Cauchy--Schwarz bound above.
   The remaining two six-vertex trees, $\Sp(3,1,1)$ and
   $\Sp(2,1,1,1)$, are supported by exact computation only. We therefore
   record the $n=6$ conclusion as verified-plus-conjecture: the proven
@@ -677,6 +679,7 @@ by introducing partition variables $x_i \in \{0, 1\}$ such that $A_{ij} = 1
 distance levels from a root vertex.
 
 \subsection{Local SMT Leaf-Pruning Proof for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+\label{sec:local-pruning-audit}
 
 To evaluate the optimality of our 76-vertex Leontovich graph
 $T(7,1,[9^5, 8^2])$ discovered by simulated annealing, we formulated a
@@ -1051,16 +1054,15 @@ $\lambda_1$ decreases while the active secondary eigenvalue $\lambda_2^*$
 increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
 At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
 sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
-$n = 17$. However, at $|V| = 75$, the gap has narrowed too much ($\lambda_2^* = 3.0581$),
-suppressing the secondary interference coefficient so the Perron mode
-of the path strictly dominates at all odd $n$, and the crossover never occurs.
+$n = 17$. However, at $|V| = 75$, the audited odd thresholds $n \le 31$ do
+not produce a crossover.
 
 This yields a clean dichotomy: \emph{within the star-of-stars basin,
 asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
 into the quotient spectrum.} The Leontovich property is lost when this
 symmetry-breaking pushes the active secondary eigenvalue too close to the
 spectral radius, establishing the 76-vertex graph as the smallest size not
-excluded by the audit of Section~\ref{sec:odd-path}.
+excluded by the local audit of Section~\ref{sec:local-pruning-audit}.
 
 \subsection*{Deeper symmetric trees}
 

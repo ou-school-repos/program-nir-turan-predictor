@@ -16,6 +16,9 @@ def popCount (n : UInt64) : Nat :=
   (List.range 64).foldl (init := 0) fun acc i =>
     if (n >>> i.toUInt64) &&& 1 == 1 then acc + 1 else acc
 
+/-- Maximum edge count for the exhaustive legacy minimax verifier. -/
+def maxSearchEdges : Nat := 16
+
 /-- Deterministic Fire Propagation (Strict 1-Hop Limit).
     Reads from `b` (prior state) to prevent infinite-speed chains. -/
 def spread_fire (edges : Array (Nat × Nat)) (b : UInt64)
@@ -35,17 +38,20 @@ def spread_fire (edges : Array (Nat × Nat)) (b : UInt64)
     Exhaustive search = rigorous upper bound. Fuel = recursion bound. -/
 def builder_minimax (edges : Array (Nat × Nat)) (fuel : Nat)
     (b : UInt64) (alive : UInt64) : Nat :=
-  match fuel with
-  | 0 => popCount b
-  | fuel' + 1 =>
-    let next_b := spread_fire edges b alive
-    if next_b == b then popCount b  -- fire starved
-    else
-      (List.range edges.size).foldl (init := 64) fun best i =>
-        if (alive >>> i.toUInt64) &&& 1 == 1 then
-          let next_alive := alive &&& ~~~((1 : UInt64) <<< i.toUInt64)
-          min best (builder_minimax edges fuel' next_b next_alive)
-        else best
+  if _hsearch : edges.size ≤ maxSearchEdges then
+    match fuel with
+    | 0 => popCount b
+    | fuel' + 1 =>
+      let next_b := spread_fire edges b alive
+      if next_b == b then popCount b  -- fire starved
+      else
+        (List.range edges.size).foldl (init := 64) fun best i =>
+          if (alive >>> i.toUInt64) &&& 1 == 1 then
+            let next_alive := alive &&& ~~~((1 : UInt64) <<< i.toUInt64)
+            min best (builder_minimax edges fuel' next_b next_alive)
+          else best
+  else
+    popCount b
 
 /-- Burner (Maximizer) evaluates all spine ignition points. -/
 def evaluate_game (S K : Nat) : Nat :=
@@ -54,10 +60,13 @@ def evaluate_game (S K : Nat) : Nat :=
     let leaf_edges := (List.range S).flatMap (fun i =>
       (List.range K).map (fun j => (i, S + i * K + j)))
     let edges := (spine_edges ++ leaf_edges).toArray
-    let initial_alive := (((1 : UInt64) <<< edges.size.toUInt64) - 1)
-    (List.range S).foldl (init := 0) fun best i =>
-      let b := (1 : UInt64) <<< i.toUInt64
-      max best (builder_minimax edges edges.size b initial_alive)
+    if _hsearch : edges.size ≤ maxSearchEdges then
+      let initial_alive := (((1 : UInt64) <<< edges.size.toUInt64) - 1)
+      (List.range S).foldl (init := 0) fun best i =>
+        let b := (1 : UInt64) <<< i.toUInt64
+        max best (builder_minimax edges edges.size b initial_alive)
+    else
+      0
   else
     0
 
