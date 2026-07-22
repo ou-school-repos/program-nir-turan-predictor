@@ -2,8 +2,8 @@
 name: docs
 
 on:
-  push:
-  pull_request:
+  push: ["main", "master"]
+  pull_request: ["main", "master"]
   workflow_dispatch:
 
 concurrency:

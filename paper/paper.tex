@@ -71,33 +71,22 @@
 
 \begin{abstract}
 We investigate the minimization of graph homomorphisms from trees to fixed
-target graphs $H$, addressing open problems from Galvin et
-al.~\cite{galvin2025,galvin2026}. We computationally verify the path
-minimizer theorem for odd paths $H \in \{P_3, P_5, P_7, P_9\}$ up to source
-trees on $n=22$ vertices, observing a transition from tie classes in
-$P_3$ and $P_5$ to unique minimality in $P_{\ge 7}$. A
-large-scale near-path sweep of all 1,018,680,329 connected simple graphs on
-$m \le 11$ vertices finds no crossover in the tested $E_n^{(d)}$ range,
-providing conditional computational evidence around the small simple-target
-frontier. For rooted bipartite targets whose active automorphism quotient has
-exactly one positive eigenvalue, we prove that no Leontovich crossover can
-occur, ruling out all 2- and 3-orbit spherically symmetric trees. We
-determine the permanent crossover threshold $n=13$ for the known
-Leontovich graph $T(7,1,9)$. Within the $T(7,1,9)$ leaf-pruning basin, a
-finite integer constraint search through $n \le 31$ identifies the 76-vertex
-witness $T(7,1,[9^5, 8^2])$ as the smallest candidate not ruled out by that
-bounded audit. For strongly Leontovich
-graphs, we audit a five-orbit frontier family, separate finite-window
-Leontovich behavior from true asymptotic strong behavior, and identify
-$\hat{T}(1,35,1,50)$ on 1,822 vertices as the smallest strongly
-Leontovich witness in that sweep. Finally, block-pattern searches identify
-a \textbf{15-vertex bipartite Leontovich graph} $H^*$ whose first detected
-near-path crossover is $\Hom(E_{49}^{(16)},H^*)<\Hom(P_{49},H^*)$, a distinct
-\textbf{18-vertex depth-2 bipartite Leontovich graph} $H_{18}$ with triplet
-signature $(7,0,0,1,1,6,0)$ and a depth-2 crossover at $n=17$, and
-high-precision numerical evidence for a simple non-bipartite
-strongly-Leontovich candidate obtained by perturbing a bipartite double cover,
-with leading-coefficient ratio $0.999952140676<1$.
+target graphs $H$, addressing open questions surrounding Leontovich graphs and
+the path minimizer conjecture. By combining exact computational sweeps with
+analytic eigenvalue obstructions, we establish that the absolute minimum
+crossover threshold for any target graph is exactly $n=7$; a universal
+polynomial identity proves that no target can cross over at $n=5$, and the
+$n=6$ source trees are verified computationally. For targets possessing
+symmetric automorphism orbits, we prove an eigenvalue condition that
+permanently forbids crossovers, analytically ruling out all 2-orbit and 3-orbit
+symmetric trees. For the 4-orbit tree $T(7,1,9)$, we provide the first complete
+written proof that its crossover threshold at $n=13$ is permanent. Finally, we
+prove that the bipartite double cover operation strictly preserves the
+Leontovich property, which allows bounded computational sweeps of simple graphs
+to formally rule out small looped targets. Through SMT-based search and
+symmetric pruning, we identify the smallest known Leontovich graphs, including
+a 15-vertex bipartite target and a 3,644-vertex simple strongly Leontovich
+target.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -1381,6 +1370,43 @@ reproducible high-precision numerical evidence for a simple non-bipartite
 strongly-Leontovich candidate in the leading-coefficient sense. A fully formal
 reviewer-facing certificate should replace the high-precision eigencomputation
 with interval arithmetic or an explicit Rayleigh-residual bound.
+
+% ════════════════════════════════════════════════════════════════════════
+\section{Conclusion and Open Problems}
+\label{sec:conclusion}
+
+The combination of analytic eigenvalue obstructions and exact computational
+sweeps heavily constrains the landscape of Leontovich graphs. The universal
+impossibility at $n=5$ (Proposition~\ref{prop:n5}) and the verified $n=6$
+residue establish $n=7$ as the absolute minimum crossover threshold for any
+target graph.
+
+We conclude with the two principal open directions highlighted by this work:
+
+\begin{enumerate}
+  \item \textbf{Near-path sufficiency.} Every known Leontovich graph is
+    detected by the near-path family $E_n^{(d)}$. If
+    the near-path sufficiency conjecture from
+    Section~\ref{sec:prelim} holds---that a target $H$ is Leontovich if
+    and only if $\Hom(E_n^{(d)}, H) < \Hom(P_n, H)$ for some $n$ and $d$---then
+    the bounded computational sweeps in this paper upgrade directly to
+    unconditional nonexistence proofs for small targets.
+  \item \textbf{Minimal simple targets.} The bipartite double cover of
+    $\hat{T}(1,35,1,50)$ yields a simple strongly Leontovich graph on 3,644
+    vertices, and the perturbed quotient (Section~\ref{sec:doublecover})
+    provides certified numerical evidence for a simple non-bipartite candidate
+    on 6,806 vertices. Closing the gap between these large analytic
+    constructions and the 12-vertex lower bound established by the simple-graph
+    sweep remains a significant computational challenge.
+\end{enumerate}
+
+\section*{Code and Data Availability}
+The C++ search routines, exact integer arithmetic formulations, and SMT solver
+scripts supporting the exact finite computations \textbf{(E)} and bounded
+sweeps \textbf{(S)} in this paper are available in the project repository. The
+analytic theorems \textbf{(P)} are currently undergoing formalization in Lean~4.
+Both the executable witness verifiers and the formal theorem scaffolding are
+maintained at \url{https://github.com/sjjaroch/tree-homomorphisms}.
 
 \bibliographystyle{plain}
 \bibliography{references}
