@@ -87,7 +87,8 @@ bipartite double cover operation strictly preserves the Leontovich property,
 which allows bounded computational sweeps of simple graphs to formally rule
 out small looped targets. Through SMT-based search and symmetric pruning, we
 identify the smallest known Leontovich graphs, including a 15-vertex bipartite
-target and a 3,644-vertex simple strongly Leontovich target.
+target (at depth 16), an 18-vertex target for the classical depth-2 near-path,
+and a 3,644-vertex simple strongly Leontovich target.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -645,12 +646,13 @@ dual to trees that minimise homomorphisms into a specific non-bipartite looped t
 \label{sec:discussion}
 
 The computational boundaries established in this work---including large
-near-path sweeps for $m \le 11$, the 15-vertex depth-dependent bipartite
-example $H^*$, and the 18-vertex depth-2 bipartite example $H_{18}$---highlight
-the steep combinatorial complexity of the Leontovich search space. To bypass
-the exponential wall of graph enumeration, we propose and analyze a novel
-algebraic search framework based on Satisfiability Modulo Theories (SMT)
-solvers to bridge this computational gap and discover ultra-small targets.
+near-path sweeps for $m \le 11$ and the 15-vertex depth-dependent bipartite
+example $H^*$---highlight the steep combinatorial complexity of the
+Leontovich search space. To bypass the exponential wall of graph
+enumeration, we propose and analyze a novel algebraic search framework
+based on Satisfiability Modulo Theories (SMT) solvers, which we use below
+to discover the 18-vertex depth-2 bipartite example $H_{18}$, a target
+beyond the reach of exhaustive enumeration.
 
 \subsection{SMT-Based Algebraic Search Formulation}
 
