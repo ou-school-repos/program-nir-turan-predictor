@@ -2,7 +2,7 @@
 
 This directory is a dedicated Lean project for the paper's analytic results.
 
-It is intentionally separate from `proofs/`, which is used as the witness and
+It is intentionally separate from `legacy/`, which is used as the witness and
 SMT-style verification layer.
 
 Planned theorem areas:

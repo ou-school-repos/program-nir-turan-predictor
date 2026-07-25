@@ -925,11 +925,74 @@ class SynthesizerModule:
             )
 
 
+# =========================================================================
+# MODULE 6: GENERAL (Arbitrary Topologies)
+# =========================================================================
+class GeneralGraphModule:
+    """Pass arbitrary Graph6 topologies for structural verification."""
+
+    @staticmethod
+    def execute(fn, g6_str="?"):
+        """Run the general topology solver and emit its Lean witness file."""
+        print(f"{CYN}[Solver] Dispatching General Graph Analysis.{RST}")
+        # Leverage the DendroModule sub-process dispatcher
+        DendroModule.execute("general", fn, g6_str)
+
+
+# =========================================================================
+# MODULE 7: SMT SEARCH (Z3 Target Synthesis)
+# =========================================================================
+class SMTSearchModule:
+    """Delegate SMT-based target search to the standalone Z3 script."""
+
+    @staticmethod
+    def execute(fn, m="18", n="17", d="2", graph_type="bipartite"):
+        """Run the Z3 solver sub-process to synthesize a Leontovich target."""
+        import subprocess
+
+        print(
+            f"{CYN}[Solver] Dispatching Z3 SMT Search for {graph_type} target (m={m}, n={n}, d={d}).{RST}"
+        )
+
+        # Locate the standalone script inside the scripts/ directory
+        smt_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "scripts", "leontovich_smt.py"
+        )
+
+        if not os.path.isfile(smt_script):
+            print(f"{RED}  [Error] SMT script not found: {smt_script}{RST}")
+            print(
+                f"  {YEL}Rollback/Fix: Ensure 'leontovich_smt.py' is in the 'scripts/' directory.{RST}"
+            )
+            return
+
+        try:
+            subprocess.run(
+                [
+                    sys.executable,
+                    smt_script,
+                    "-m",
+                    str(m),
+                    "-n",
+                    str(n),
+                    "-d",
+                    str(d),
+                    "--type",
+                    graph_type,
+                ],
+                check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            print(
+                f"{RED}  [Error] SMT solver exited with error code {e.returncode}.{RST}"
+            )
+
+
 class DendroModule:
     """Delegates to the C++ dendro binary for high-performance computation."""
 
     @staticmethod
-    def execute(module_name, fn):
+    def execute(module_name, fn, *args):
         """Run the requested C++ Dendro module."""
         import subprocess
 
@@ -943,8 +1006,9 @@ class DendroModule:
             print("  Build it with: make dendro")
             sys.exit(1)
 
+        cmd = [dendro_bin, module_name, fn] + list(args)
         result = subprocess.run(
-            [dendro_bin, module_name, fn],
+            cmd,
             stderr=None,
         )
         if result.returncode != 0:
@@ -958,6 +1022,16 @@ MODULES = {
     "finance": lambda fn: DendroModule.execute("finance", fn),
     "adversarial": lambda fn: DendroModule.execute("adversarial", fn),
     "synthesize": SynthesizerModule.execute,
+    "general": lambda fn: GeneralGraphModule.execute(
+        fn, sys.argv[3] if len(sys.argv) > 3 else "?"
+    ),
+    "smt_search": lambda fn: SMTSearchModule.execute(
+        fn,
+        sys.argv[3] if len(sys.argv) > 3 else "18",
+        sys.argv[4] if len(sys.argv) > 4 else "17",
+        sys.argv[5] if len(sys.argv) > 5 else "2",
+        sys.argv[6] if len(sys.argv) > 6 else "bipartite",
+    ),
 }
 
 
@@ -980,7 +1054,7 @@ def generate_dashboard():
     # Load all adversarial replay data (multiple presets)
     adv_presets = []
     for preset in ["grid4x4", "tree15", "campus"]:
-        path = f"proofs/AdversarialPV_{preset}.json"
+        path = f"legacy/AdversarialPV_{preset}.json"
         try:
             with open(path, "r") as f:
                 adv = json.load(f)

@@ -15,9 +15,7 @@
     { "b": 2, "e": 5, "move": 1, "actor": "Builder" },
     { "b": 3, "e": 5, "move": 0, "actor": "Burner" },
     { "b": 3, "e": 4, "move": 0, "actor": "Builder" },
-    { "b": 3, "e": 0, "move": 2, "actor": "Builder" },
-    { "b": 3, "e": 0, "move": -1, "actor": "Builder" },
-    { "b": 3, "e": 0, "move": -1, "actor": "Builder" }
+    { "b": 3, "e": 0, "move": 2, "actor": "Builder" }
   ],
   "nash_value": 2,
   "nodes_searched": 40,

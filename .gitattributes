@@ -1,0 +1,1 @@
+docs/correspondence/*.txt filter=git-crypt diff=git-crypt

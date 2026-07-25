@@ -220,6 +220,83 @@ See `docs/PRECISION_ANALYSIS.md` for floating-point methodology.
 - No bipartite Leontovich graph ($d = 2$) on $\le 15$ vertices
 - No tree Leontovich graph on $\le 23$ vertices (23,428,665 trees tested)
 
+## Looped / General Graph Search (self-loops allowed)
+
+The sweeps above (`m ≥ 12`) are all over **simple** graphs. A separate
+question is whether allowing self-loops on vertices of a general
+(non-bipartite) graph admits a smaller Leontovich witness — motivated by
+the bipartite-double-cover argument that a looped graph on $m$ vertices
+lifts to a simple bipartite graph on $2m$ vertices, so if the smallest
+simple bipartite witness is $H_{18}$ (18 vertices), no looped witness can
+exist below $m = 9$.
+
+### Bugs found and fixed en route
+
+Two independent tools were used to hunt for a small looped witness
+(`scripts/leontovich_anneal.py`, simulated annealing; `scripts/leontovich_smt.py`,
+Z3-based). Both had bugs that produced false leads before being fixed:
+
+- **`leontovich_anneal.py` `mutate_graph()`** unconditionally forbade
+  `i == j` in both the flip and swap branches of `--general` mode, so the
+  annealer could never place a self-loop at all, independent of
+  temperature or penalty tuning. Fixed by allowing `i == j` (toggles/moves
+  a diagonal entry) when `general_mode=True`.
+- **graph6 cannot encode a self-loop** (no diagonal bit), so any pipeline
+  that round-trips a candidate through graph6 — `get_edges()`'s original
+  upper-triangle-only extraction in the annealer, and `to_graph6()` in the
+  SMT script — silently drops loops. This produced a "16-vertex Leontovich
+  graph" from the annealer that failed verification only because the
+  loops needed for the property had been stripped before being checked,
+  not because the graph itself was invalid. Fixed by having both scripts
+  also emit the raw edge list (including `[i, i]` loop entries), and by
+  verifying directly from that edge list rather than through graph6
+  (`scripts/verify_edges.py`).
+- **`leontovich_smt.py --force-triangle`** is not sound symmetry-breaking
+  for `--type general`: it asserts the target graph contains a triangle at
+  all, so a Z3 `UNSAT` under this flag only proves "no such graph _with a
+  triangle_" — a triangle-free witness could still exist. Any `UNSAT`
+  result obtained with `--force-triangle` should be treated as
+  inconclusive, not a real floor.
+- The annealer's float64 `check_leontovich` can report a spurious
+  `is_leo=True` for candidates whose true ratio is exactly 1 (a numerical
+  artifact near the 1e-11 tolerance). One such "hit" at $m=16$
+  (`ratio=0.999323` in float) came back with `hom(E_n^{(2)}) == hom(P_n)`
+  exactly under exact-integer arithmetic — not a genuine violation. Every
+  SA "NEW BEST" needs exact verification before being trusted.
+
+### Exact brute-force enumeration (`scripts/leontovich_brute.cpp`)
+
+Given the above, and that Z3 chokes on the 16th-degree-polynomial walk
+recurrences needed for larger thresholds $n$, small $m$ is more reliably
+settled by exhaustive brute force: enumerate every labeled adjacency
+matrix on $m$ vertices (upper triangle incl. diagonal, so loops are native
+representations, not reconstructed), filter to connected graphs with no
+isolated vertices and a non-increasing degree sequence (sound
+symmetry-breaking — every isomorphism class has such a labeling), and run
+exact `unsigned __int128` walk-vector arithmetic (adaptive overflow
+truncation, never silently wraps) on survivors.
+
+| $m$ | labeled graphs ($2^{m(m+1)/2}$) | time (6 threads)         | Leontovich hits ($n\le40, d\le10$) |
+| :-- | :------------------------------ | :----------------------- | :--------------------------------- |
+| 6   | 2,097,152                       | 0.15s                    | **0**                              |
+| 7   | 268,435,456                     | 12s                      | **0**                              |
+| 8   | 68,719,476,736                  | ~several hrs (6 threads) | **0**                              |
+
+**Current bound: no looped general Leontovich graph exists at $m \le 8$**
+(exact, exhaustive, within $n \le 40$, $d \le 10$) — matching and now
+proving (rather than merely arguing from the double-cover bound) that the
+floor is at least $m = 9$.
+
+### Reproduction
+
+```bash
+g++ -O3 -march=native -std=c++17 -pthread -o scripts/leontovich_brute scripts/leontovich_brute.cpp
+scripts/leontovich_brute -m 8 --max-n 40 --max-d 10 --threads 6
+
+# Verify any candidate edge list directly (loops included, no graph6 round-trip):
+python3 scripts/verify_edges.py   # edit `edges`/`m` in main() first
+```
+
 ## Reproduction
 
 ```bash

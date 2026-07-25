@@ -11,9 +11,12 @@ Entry point for the analytic Lean development.
 
 This project is meant to house the theorem-first formalization of the paper's
 main analytic claims, separate from the executable witness checks kept under
-`proofs/`.
+`legacy/`.
 -/
 
 namespace LeanLeontovich
+
+theorem analytic_project_scaffold : True := by
+  trivial
 
 end LeanLeontovich

@@ -11,6 +11,7 @@ require mathlib from git
 lean_lib «LeanLeontovich» where
   srcDir := "."
   roots := #[
+    `LeanLeontovich.Core,
     `LeanLeontovich.Main,
     `LeanLeontovich.Basic,
     `LeanLeontovich.Spectral,

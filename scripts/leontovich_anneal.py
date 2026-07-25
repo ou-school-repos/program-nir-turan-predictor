@@ -60,8 +60,16 @@ def check_leontovich(A, max_n=200, max_d=20):
 
     # Precompute w[k] = A^k * 1
     w = [ones.copy()]
+    actual_max_n = max_n
     for k in range(max_n):
-        w.append(A @ w[-1])
+        nxt = A @ w[-1]
+        # Prevent float64 overflow by capping the search if walks get too massive
+        if np.max(nxt) > 1e250:
+            actual_max_n = k
+            break
+        w.append(nxt)
+
+    max_n = actual_max_n
 
     # hom(P_n) = sum(w[n-1])
     homP = [0.0] + [np.sum(w[k]) for k in range(max_n)]
@@ -88,10 +96,10 @@ def check_leontovich(A, max_n=200, max_d=20):
 
 
 def get_edges(A):
-    """Extract edge list from adjacency matrix."""
+    """Extract edge list from adjacency matrix, including loops."""
     edges = []
     for i in range(A.shape[0]):
-        for j in range(i + 1, A.shape[1]):
+        for j in range(i, A.shape[1]):  # <-- Start at i to include diagonal
             if A[i, j] > 0:
                 edges.append([i, j])
     return edges
@@ -132,24 +140,33 @@ def random_bipartite_graph(n1, n2):
     return A
 
 
-def mutate_graph(A, n1):
-    """Mutate a bipartite graph by flipping one edge."""
+def mutate_graph(A, n1, general_mode=False):
+    """Mutate a graph by flipping one edge. If general_mode, ignore partitions."""
     m = A.shape[0]
     A_new = A.copy()
 
     action = random.random()
     if action < 0.5:
-        # Flip a random bipartite edge
-        i = random.randint(0, n1 - 1)
-        j = random.randint(n1, m - 1)
+        if general_mode:
+            # i == j allowed here: toggles a self-loop on vertex i
+            i, j = random.randint(0, m - 1), random.randint(0, m - 1)
+        else:
+            # Flip a random bipartite edge
+            i = random.randint(0, n1 - 1)
+            j = random.randint(n1, m - 1)
         A_new[i, j] = 1.0 - A_new[i, j]
         A_new[j, i] = A_new[i, j]
     else:
         # Swap two edges (rewire)
-        i1 = random.randint(0, n1 - 1)
-        j1 = random.randint(n1, m - 1)
-        i2 = random.randint(0, n1 - 1)
-        j2 = random.randint(n1, m - 1)
+        if general_mode:
+            # i == j allowed here too: a "swap" can move a loop onto/off a vertex
+            i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
+            i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
+        else:
+            i1 = random.randint(0, n1 - 1)
+            j1 = random.randint(n1, m - 1)
+            i2 = random.randint(0, n1 - 1)
+            j2 = random.randint(n1, m - 1)
         A_new[i1, j1], A_new[i2, j2] = A_new[i2, j2], A_new[i1, j1]
         A_new[j1, i1], A_new[j2, i2] = A_new[j2, i2], A_new[j1, i1]
 
@@ -227,7 +244,12 @@ def algebraic_penalty(A):
 
 
 def anneal(
-    steps=100000, temp_init=1.0, seed_graph="T(7,1,9)", algebraic=False, start="7,1,9"
+    steps=100000,
+    temp_init=1.0,
+    seed_graph="T(7,1,9)",
+    algebraic=False,
+    start="7,1,9",
+    general=False,
 ):
     """Simulated annealing to find small Leontovich graphs."""
     mode = "ALGEBRAIC" if algebraic else "MINIMIZE"
@@ -261,7 +283,7 @@ def anneal(
     )
 
     # Objective: minimize |V| while staying Leontovich
-    # Non-Leontovich states get a steep penalty to prevent collapse
+    # Non-Leontovich states get a softened penalty to allow tunneling
     def score(A_cand, is_leo_cand, ratio_cand):
         sz = A_cand.shape[0]
         if is_leo_cand:
@@ -270,8 +292,8 @@ def anneal(
                 base += 10.0 * algebraic_penalty(A_cand)
             return base
         else:
-            # Heavy penalty: "distance from crossover" keeps graph near boundary
-            return 500.0 + sz + 100.0 * max(0, ratio_cand - 0.999)
+            # Flat +10 penalty prevents it from destroying the graph just to save 1 vertex
+            return sz + 10.0 + 500.0 * max(0, ratio_cand - 0.999)
 
     current_score = score(A, is_leo, ratio)
     best_m = m
@@ -290,7 +312,7 @@ def anneal(
                 continue
         else:
             # Edge mutation: 90% of the time
-            A_cand, ok = mutate_graph(A, n1)
+            A_cand, ok = mutate_graph(A, n1, general_mode=general)
             n1_cand = n1
             if not ok:
                 continue
@@ -369,6 +391,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Prefer graphs with eigenvalues that are perfect square roots",
     )
+    parser.add_argument(
+        "--general",
+        action="store_true",
+        help="Allow non-bipartite (general) edge mutations",
+    )
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -379,4 +406,5 @@ if __name__ == "__main__":
         temp_init=args.temp,
         algebraic=args.algebraic,
         start=args.start,
+        general=args.general,
     )

@@ -23,10 +23,10 @@ ITER  ?= 1000
 verify/epidemiology: ##H Generate and certify Wolbachia deployment
 	@{ \
 		$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)]); \
-		$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean; \
-		export DEP_SEQ=$$(grep "deployment_sequence" proofs/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
-		cd proofs && lake build VectorDeployment; \
-		printf "\033[1;34m✓ Verified: policy_is_valid (native_decide evaluated to TRUE).\033[0m\n"; \
+		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean; \
+		export DEP_SEQ=$$(grep "deployment_sequence" legacy/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
+		cd legacy && lake build VectorDeployment; \
+		printf "\033[1;34m✓ Verified: policy_satisfies_bnc (native_decide evaluated to TRUE).\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
 		printf "  %s\n" "$$DEP_SEQ"; \
@@ -38,9 +38,9 @@ verify/epidemiology: ##H Generate and certify Wolbachia deployment
 verify/surveillance: ##H Generate and certify drone surveillance playbook
 	@{ \
 		$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)]); \
-		$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean; \
-		export DRONE_SEQ=$$(grep "drone_routing_playbook" proofs/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
-		cd proofs && lake build ThreatHunting; \
+		$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean; \
+		export DRONE_SEQ=$$(grep "drone_routing_playbook" legacy/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
+		cd legacy && lake build ThreatHunting; \
 		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n"; \
@@ -53,16 +53,16 @@ verify/surveillance: ##H Generate and certify drone surveillance playbook
 run/adversarial: ##H Run adversarial Maker-Breaker game (all presets)
 	@{ \
 		$(call print_info,Running Adversarial Burning); \
-		./dendro adversarial proofs/Adversarial.lean grid4x4; \
-		./dendro adversarial proofs/Adversarial.lean tree15; \
-		./dendro adversarial proofs/Adversarial.lean campus; \
+		./dendro adversarial legacy/Adversarial.lean grid4x4; \
+		./dendro adversarial legacy/Adversarial.lean tree15; \
+		./dendro adversarial legacy/Adversarial.lean campus; \
 	} | tee output.log
 
 .PHONY: run/finance
 run/finance: ##H Audit financial network for systemic risk
 	@{ \
 		$(call print_info,Running Systemic Risk Audit [Scale: $(SCALE)]); \
-		$(PYTHON) src/solver.py finance proofs/RiskAudit.lean; \
+		$(PYTHON) src/solver.py finance legacy/RiskAudit.lean; \
 	} | tee output.log
 
 .PHONY: test/all
@@ -78,20 +78,60 @@ test/all: ##H Run all certification pipelines
 
 # --- Dev Tools ---
 LAKE_PKG_DIR ?= $(HOME)/.cache/lake/packages
+LEAN_PKG_DIR ?= $(HOME)/.cache/lake/LeanLeontovich-proofs
 
-define ensure_lake_packages
+define ensure_leanleontovich_cache
+	@mkdir -p $(LEAN_PKG_DIR)
+	@mkdir -p LeanLeontovich
+	@if [ ! -L LeanLeontovich/.lake ]; then \
+		rm -rf LeanLeontovich/.lake; \
+		ln -s $(LEAN_PKG_DIR) LeanLeontovich/.lake; \
+	fi
+endef
+
+define ensure_legacy_lake_packages
 	@mkdir -p $(LAKE_PKG_DIR)
-	@mkdir -p proofs/.lake
-	@if [ ! -L proofs/.lake/packages ]; then \
-		rm -rf proofs/.lake/packages; \
-		ln -s $(LAKE_PKG_DIR) proofs/.lake/packages; \
+	@mkdir -p legacy/.lake
+	@if [ ! -L legacy/.lake/packages ]; then \
+		rm -rf legacy/.lake/packages; \
+		ln -s $(LAKE_PKG_DIR) legacy/.lake/packages; \
 	fi
 endef
 
 .PHONY: lean
-lean: ##H Build Lean 4 verifiers
-	$(ensure_lake_packages)
-	cd proofs && lake build
+lean: ##H Build the analytic LeanLeontovich project
+	$(ensure_leanleontovich_cache)
+	@bash -o pipefail -c 'cd LeanLeontovich && lake build | tee lean.log'
+	@printf "\n\033[1;32m--- Verification Complete ---\033[0m\n"
+	@printf "\033[1;36mMapped Theorems & Definitions:\033[0m\n"
+	@awk 'BEGIN {last_file=""} \
+		/^[[:space:]]*(theorem|lemma|def|axiom|class|instance|structure) / { \
+			file = FILENAME; sub(/^LeanLeontovich\//, "", file); \
+			if (file != last_file) { \
+				printf "\n\033[1;33m%s:\033[0m\n", file; \
+				last_file = file; \
+			} \
+			line = $$0; gsub(/[[:space:]]+/, " ", line); \
+			print "  " line; \
+	}' \
+		LeanLeontovich/LeanLeontovich/*.lean 2>/dev/null || true
+	@printf "\033[1;32m--------------------------------\033[0m\n"
+	@$(call print_success,LeanLeontovich proofs verified.)
+
+.PHONY: lean-cache
+lean-cache: ##H Download mathlib cache for LeanLeontovich
+	$(ensure_leanleontovich_cache)
+	cd LeanLeontovich && lake exe cache get
+
+.PHONY: _lean/verifiers
+_lean/verifiers: ##H Build Lean 4 verifiers
+	$(ensure_legacy_lake_packages)
+	cd legacy && lake build
+
+.PHONY: _lean/verifiers-cache
+_lean/verifiers-cache: ##H Download mathlib cache for legacy verifiers
+	$(ensure_legacy_lake_packages)
+	cd legacy && lake exe cache get
 
 
 .PHONY: doc
@@ -117,10 +157,6 @@ paper: ##H Compile paper/paper.tex to PDF
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
 	@$(call print_success,paper/paper.pdf)
-
-.PHONY: lean-cache
-lean-cache: ##H Download mathlib cache
-	cd proofs && lake exe cache get
 
 N ?= 21
 
@@ -165,13 +201,13 @@ landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
-	@$(PYTHON) src/solver.py epidemiology proofs/VectorDeployment.lean
-	@$(PYTHON) src/solver.py surveillance proofs/ThreatHunting.lean
-	@./dendro adversarial proofs/Adversarial.lean grid4x4
-	@./dendro adversarial proofs/Adversarial.lean tree15
-	@./dendro adversarial proofs/Adversarial.lean campus
-	@$(PYTHON) src/solver.py finance proofs/RiskAudit.lean
-	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize proofs/SynthesizerDiscovery.lean
+	@$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean
+	@$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean
+	@./dendro adversarial legacy/Adversarial.lean grid4x4
+	@./dendro adversarial legacy/Adversarial.lean tree15
+	@./dendro adversarial legacy/Adversarial.lean campus
+	@$(PYTHON) src/solver.py finance legacy/RiskAudit.lean
+	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize $(shell if [ "$(N)" -le 15 ]; then echo legacy/SynthesizerDiscovery-N15.lean; elif [ "$(N)" -le 20 ]; then echo legacy/SynthesizerDiscovery-N20.lean; else echo legacy/SynthesizerDiscovery-N21.lean; fi)
 
 # Layout engine map: module -> engine
 # Epidemiology (fdp), Surveillance (dot), Finance (sfdp), others (dot)
@@ -220,7 +256,7 @@ lint: ##H Lint sources
 
 .PHONY: bundle
 bundle: clean ##H Package project into bundle.zip
-	zip -rv0 bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "proofs/.lake/*" "proofs/docbuild/*" ".tmp/*"
+	zip -rv0 bundle.zip . -x ".git/*" ".lake/*" "bundle.zip" "legacy/.lake/*" "legacy/docbuild/*" ".tmp/*"
 
 .PHONY: clean
 clean: ##H Remove build artifacts
