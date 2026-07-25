@@ -96,10 +96,10 @@ def check_leontovich(A, max_n=200, max_d=20):
 
 
 def get_edges(A):
-    """Extract edge list from adjacency matrix."""
+    """Extract edge list from adjacency matrix, including loops."""
     edges = []
     for i in range(A.shape[0]):
-        for j in range(i + 1, A.shape[1]):
+        for j in range(i, A.shape[1]):  # <-- Start at i to include diagonal
             if A[i, j] > 0:
                 edges.append([i, j])
     return edges
@@ -296,8 +296,8 @@ def anneal(
                 base += 10.0 * algebraic_penalty(A_cand)
             return base
         else:
-            # Softened penalty allows SA to step through the non-Leontovich desert
-            return sz + 50.0 * max(0, ratio_cand - 0.999)
+            # Flat +10 penalty prevents it from destroying the graph just to save 1 vertex
+            return sz + 10.0 + 500.0 * max(0, ratio_cand - 0.999)
 
     current_score = score(A, is_leo, ratio)
     best_m = m
