@@ -1240,9 +1240,9 @@ $n \ge 17$ (checked through $n = 43$), with the gap growing
 exponentially from $\Delta_{17} = 1{,}993{,}646$ to
 $\Delta_{43} > 10^{17}$.
 
-\subsection*{A Disproved Bipartite Parity Hypothesis}
+\subsection*{A Bipartite Parity Hypothesis}
 
-\begin{remark}[Disproved universal bipartite parity hypothesis]
+\begin{remark}[Bipartite parity hypothesis]
 For any bipartite target graph $H$, $\Hom(E_n^{(d)}, H) \ge
 \Hom(P_n, H)$ for all even~$n$.  That is, the path $P_n$ is
 always the minimiser among trees on $n$ vertices when $n$ is even
@@ -1250,22 +1250,13 @@ and $H$ is bipartite.
 \end{remark}
 
 \noindent
-When $n$ is even, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
-minimising its projection onto $H$'s dominant eigenvector.  For even
-depths~$d$ (e.g.\ $d=2$) where $E_n^{(d)}$ remains balanced, the
-path's linear geometry uniquely minimises the projection coefficient.
-For odd depths (e.g.\ $d=1$), $E_n^{(d)}$ is forced into an unbalanced
-$(n/2+1, n/2-1)$ bipartition, giving it a strictly larger leading
-coefficient.  For odd~$n$, both trees share the same
-unbalanced bipartition, allowing the secondary eigenvector to interfere
-and flip the overall count.
-
 This was a useful working hypothesis suggested by extensive finite searches:
 across all target graphs tested (over 463~million bipartite graphs and
-5.6~million trees), no even-$n$ crossover was observed. The double-cover
-construction below disproves the universal statement: massive bipartite double
-covers can silence the parity oscillation, allowing $E_n$ to overtake $P_n$ at
-even thresholds.
+5.6~million trees), no even-$n$ crossover was observed. Section~\ref{sec:doublecover}
+disproves the universal statement: the bipartite double cover $B$ of
+$\hat T(1,35,1,50)$ overtakes the path at the even threshold
+$n = 17{,}340$, together with the mechanism by which a sufficiently massive
+bipartite target can silence the parity effect described below.
 
 \begin{remark}
 The same parity phenomenon appears in the independent set
@@ -1341,6 +1332,22 @@ the even threshold $n = 17{,}340$ and remains ahead through the verified range.
 This shows that even-$n$ crossovers do not require loops, but rather a sufficiently
 massive bipartite graph capable of delaying cancellation between the dominant modes.
 
+\paragraph{Disproof of the universal bipartite parity hypothesis.}
+Appendix~\ref{app:sa} records a working hypothesis, suggested by
+extensive finite search (over 463~million bipartite graphs and 5.6~million
+trees with no even-$n$ crossover observed), that $P_n$ always minimises among
+trees on $n$ vertices when $n$ is even and the target is bipartite
+(Remark~\ref{rem:parity} gives the mechanism: for even $n$, $P_n$'s perfectly
+balanced bipartition $(n/2,n/2)$ uniquely minimises its projection onto the
+dominant eigenvector, whereas odd~$n$ shares an unbalanced bipartition with
+$E_n^{(d)}$ and lets the secondary eigenvector interfere). The $n=17{,}340$
+crossover above disproves this as a universal statement: $B$ is bipartite,
+yet $E_n$ overtakes $P_n$ at an even threshold. The resolution is scale, not
+a structural exception to the parity mechanism --- $B$'s secondary eigenvalue
+$\lambda_2$ is close enough to $\lambda_1$ in magnitude that the interfering
+mode does not decay away before $n=17{,}340$, letting it silence the parity
+protection that holds at small $n$.
+
 \subsection{A Perturbed Non-Bipartite Certificate}
 
 The existence of simple bipartite Strongly Leontovich graphs suggests a route
@@ -1376,11 +1383,32 @@ perturbation: the principal eigenvector mass on terminal leaves is
 exponentially small, and the measured shift is
 $\Delta\lambda_1 \approx 1.77 \times 10^{-4}$. The decisive check, however, is
 the quotient leading-coefficient computation above, not a comparison between an
-eigenvalue shift and a leading-coefficient margin. The construction is therefore
-reproducible high-precision numerical evidence for a simple non-bipartite
-strongly-Leontovich candidate in the leading-coefficient sense. A fully formal
-reviewer-facing certificate should replace the high-precision eigencomputation
-with interval arithmetic or an explicit Rayleigh-residual bound.
+eigenvalue shift and a leading-coefficient margin.
+
+To move this from a high-precision point estimate to a certified bound,
+\texttt{scripts/strong\_coeff.py} (\texttt{certified\_leading\_ratio}) computes
+a Bauer--Fike residual $r = B\tilde u - \tilde\lambda_1\tilde u$ for the
+computed unit Perron pair $(\tilde\lambda_1,\tilde u)$ of the symmetrized
+18-cell quotient $B$, and a Davis--Kahan $\sin\theta$ bound on the angle
+between $\tilde u$ and the true Perron vector, both at 50 significant digits
+of working precision. Propagating these two bounds through the
+leading-coefficient ratio via Cauchy--Schwarz gives a rigorous upper bound
+$\rho_{\mathrm{hi}} \ge \rho_2(B'+e)$. Numerically,
+$\|r\|_2 \approx 7.5\times 10^{-50}$ against a spectral gap
+$\lambda_1 - \lambda_2 \approx 5.1\times 10^{-3}$, propagating to
+$\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
+\[
+  \rho_{\mathrm{hi}} \approx 0.99995214067566 < 1,
+  \qquad 1 - \rho_{\mathrm{hi}} \approx 4.79\times 10^{-5}.
+\]
+The certified error is roughly 41 orders of magnitude smaller than the
+margin $1-\rho_{\mathrm{hi}}$, so $\rho_{\mathrm{hi}} < 1$ is a proof rather
+than a bare floating-point comparison. This certificate rests on 50-digit
+arbitrary-precision arithmetic (\texttt{mpmath}) being correct to the stated
+precision; it is a residual-based certificate in that sense, not a
+directed-rounding interval-arithmetic certificate. The construction is
+therefore certified numerical evidence, evidence tag (N), for a simple
+non-bipartite strongly-Leontovich candidate in the leading-coefficient sense.
 
 % ════════════════════════════════════════════════════════════════════════
 \section{Conclusion and Open Problems}
