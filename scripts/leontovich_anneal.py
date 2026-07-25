@@ -148,9 +148,8 @@ def mutate_graph(A, n1, general_mode=False):
     action = random.random()
     if action < 0.5:
         if general_mode:
+            # i == j allowed here: toggles a self-loop on vertex i
             i, j = random.randint(0, m - 1), random.randint(0, m - 1)
-            while i == j:
-                i, j = random.randint(0, m - 1), random.randint(0, m - 1)
         else:
             # Flip a random bipartite edge
             i = random.randint(0, n1 - 1)
@@ -160,12 +159,9 @@ def mutate_graph(A, n1, general_mode=False):
     else:
         # Swap two edges (rewire)
         if general_mode:
+            # i == j allowed here too: a "swap" can move a loop onto/off a vertex
             i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
-            while i1 == j1:
-                i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
             i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
-            while i2 == j2:
-                i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
         else:
             i1 = random.randint(0, n1 - 1)
             j1 = random.randint(n1, m - 1)

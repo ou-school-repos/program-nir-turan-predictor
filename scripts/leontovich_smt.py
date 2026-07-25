@@ -404,16 +404,20 @@ def run_smt_search(
             hP = model[homP].as_long()
             hE = model[homE].as_long()
             g6 = to_graph6(adj_matrix)
+            edges = [
+                [i, j] for i in range(m) for j in range(i, m) if adj_matrix[i][j] == 1
+            ]
 
             print("\n\033[1;36mFound Target Graph H:\033[0m")
-            print(f"  Graph6:          {g6}")
+            print(f"  Graph6:          {g6} (NOTE: graph6 drops any self-loops!)")
+            print(f"  Edges (w/ loops): {edges}")
             print(f"  Vertices (m):    {m}")
             print(f"  Edges:           {sum(deg_sequence) // 2}")
             print(f"  Degree Seq:      {deg_sequence}")
             print(f"  hom(P_{n}, H):     {hP:,}")
             print(f"  hom(E_{n}^({d}), H): {hE:,}")
             print(f"  Difference:      {hP - hE:,} (winner: E_n^({d}))")
-            return {"sat": True, "g6": g6, "time": elapsed}
+            return {"sat": True, "g6": g6, "edges": edges, "m": m, "time": elapsed}
         elif result == z3.unsat:
             print(f"\033[1;31m✗ UNSATISFIABLE (Proved in {elapsed:.3f} seconds)\033[0m")
             return {"sat": False}
