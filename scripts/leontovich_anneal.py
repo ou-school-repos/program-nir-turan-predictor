@@ -60,8 +60,16 @@ def check_leontovich(A, max_n=200, max_d=20):
 
     # Precompute w[k] = A^k * 1
     w = [ones.copy()]
+    actual_max_n = max_n
     for k in range(max_n):
-        w.append(A @ w[-1])
+        nxt = A @ w[-1]
+        # Prevent float64 overflow by capping the search if walks get too massive
+        if np.max(nxt) > 1e250:
+            actual_max_n = k
+            break
+        w.append(nxt)
+
+    max_n = actual_max_n
 
     # hom(P_n) = sum(w[n-1])
     homP = [0.0] + [np.sum(w[k]) for k in range(max_n)]
@@ -153,7 +161,11 @@ def mutate_graph(A, n1, general_mode=False):
         # Swap two edges (rewire)
         if general_mode:
             i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
+            while i1 == j1:
+                i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
             i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
+            while i2 == j2:
+                i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
         else:
             i1 = random.randint(0, n1 - 1)
             j1 = random.randint(n1, m - 1)
