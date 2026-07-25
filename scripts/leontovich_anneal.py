@@ -132,24 +132,33 @@ def random_bipartite_graph(n1, n2):
     return A
 
 
-def mutate_graph(A, n1):
-    """Mutate a bipartite graph by flipping one edge."""
+def mutate_graph(A, n1, general_mode=False):
+    """Mutate a graph by flipping one edge. If general_mode, ignore partitions."""
     m = A.shape[0]
     A_new = A.copy()
 
     action = random.random()
     if action < 0.5:
-        # Flip a random bipartite edge
-        i = random.randint(0, n1 - 1)
-        j = random.randint(n1, m - 1)
+        if general_mode:
+            i, j = random.randint(0, m - 1), random.randint(0, m - 1)
+            while i == j:
+                i, j = random.randint(0, m - 1), random.randint(0, m - 1)
+        else:
+            # Flip a random bipartite edge
+            i = random.randint(0, n1 - 1)
+            j = random.randint(n1, m - 1)
         A_new[i, j] = 1.0 - A_new[i, j]
         A_new[j, i] = A_new[i, j]
     else:
         # Swap two edges (rewire)
-        i1 = random.randint(0, n1 - 1)
-        j1 = random.randint(n1, m - 1)
-        i2 = random.randint(0, n1 - 1)
-        j2 = random.randint(n1, m - 1)
+        if general_mode:
+            i1, j1 = random.randint(0, m - 1), random.randint(0, m - 1)
+            i2, j2 = random.randint(0, m - 1), random.randint(0, m - 1)
+        else:
+            i1 = random.randint(0, n1 - 1)
+            j1 = random.randint(n1, m - 1)
+            i2 = random.randint(0, n1 - 1)
+            j2 = random.randint(n1, m - 1)
         A_new[i1, j1], A_new[i2, j2] = A_new[i2, j2], A_new[i1, j1]
         A_new[j1, i1], A_new[j2, i2] = A_new[j2, i2], A_new[j1, i1]
 
@@ -227,7 +236,12 @@ def algebraic_penalty(A):
 
 
 def anneal(
-    steps=100000, temp_init=1.0, seed_graph="T(7,1,9)", algebraic=False, start="7,1,9"
+    steps=100000,
+    temp_init=1.0,
+    seed_graph="T(7,1,9)",
+    algebraic=False,
+    start="7,1,9",
+    general=False,
 ):
     """Simulated annealing to find small Leontovich graphs."""
     mode = "ALGEBRAIC" if algebraic else "MINIMIZE"
@@ -290,7 +304,7 @@ def anneal(
                 continue
         else:
             # Edge mutation: 90% of the time
-            A_cand, ok = mutate_graph(A, n1)
+            A_cand, ok = mutate_graph(A, n1, general_mode=general)
             n1_cand = n1
             if not ok:
                 continue
@@ -369,6 +383,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Prefer graphs with eigenvalues that are perfect square roots",
     )
+    parser.add_argument(
+        "--general",
+        action="store_true",
+        help="Allow non-bipartite (general) edge mutations",
+    )
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -379,4 +398,5 @@ if __name__ == "__main__":
         temp_init=args.temp,
         algebraic=args.algebraic,
         start=args.start,
+        general=args.general,
     )

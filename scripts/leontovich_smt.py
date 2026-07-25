@@ -189,14 +189,19 @@ def build_leontovich_solver_partition(
     return s, B, homP, homE
 
 
-def build_leontovich_solver_general(m, n, d=2, max_deg=None, force_triangle=False):
+def build_leontovich_solver_general(
+    m, n, d=2, max_deg=None, force_triangle=False, allow_loops=False
+):
     """Build a general-graph solver (unpartitioned, potentially non-bipartite)."""
     s = z3.Solver()
 
     # 1. Adjacency Matrix Variables: A[i][j] in {0, 1}
     A = [[z3.Int(f"A_{i}_{j}") for j in range(m)] for i in range(m)]
     for i in range(m):
-        s.add(A[i][i] == 0)
+        if allow_loops:
+            s.add(z3.Or(A[i][i] == 0, A[i][i] == 1))
+        else:
+            s.add(A[i][i] == 0)
         for j in range(i + 1, m):
             s.add(A[i][j] == A[j][i])
             s.add(z3.Or(A[i][j] == 0, A[i][j] == 1))
@@ -289,6 +294,7 @@ def run_smt_search(
     max_deg=None,
     timeout_ms=None,
     force_triangle=False,
+    allow_loops=False,
 ):
     """Run SMT search and return results."""
     print(
@@ -299,6 +305,8 @@ def run_smt_search(
     print(f"  Graph Class:      {graph_type}")
     if force_triangle and graph_type == "general":
         print("  Force Triangle:   True (breaking symmetry on nodes 0, 1, 2)")
+    if allow_loops:
+        print("  Allow Loops:      True")
     if max_deg:
         print(f"  Max Degree:       {max_deg}")
     if timeout_ms:
@@ -378,7 +386,7 @@ def run_smt_search(
         # General graph search (unpartitioned)
         start_time = time.time()
         s, A, homP, homE = build_leontovich_solver_general(
-            m, n, d, max_deg, force_triangle
+            m, n, d, max_deg, force_triangle, allow_loops
         )
         if timeout_ms is not None:
             s.set("timeout", timeout_ms)
@@ -453,6 +461,11 @@ def main():
         help="Force a triangle on vertices 0, 1, 2 to break isomorphism symmetry for non-bipartite search",
     )
     parser.add_argument(
+        "--allow-loops",
+        action="store_true",
+        help="Allow self-loops on vertices",
+    )
+    parser.add_argument(
         "--timeout", type=int, default=30000, help="Solver timeout in milliseconds"
     )
 
@@ -468,6 +481,7 @@ def main():
         max_deg=args.max_deg,
         timeout_ms=args.timeout,
         force_triangle=args.force_triangle,
+        allow_loops=args.allow_loops,
     )
 
 
