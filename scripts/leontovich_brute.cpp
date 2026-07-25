@@ -199,6 +199,7 @@ int main(int argc, char** argv) {
 
     std::atomic<uint64_t> checked{0};
     std::atomic<uint64_t> hits{0};
+    std::atomic<uint64_t> passed_filters{0};
     std::mutex print_mtx;
 
     auto worker = [&](int tid) {
@@ -216,6 +217,7 @@ int main(int argc, char** argv) {
             if (!has_sorted_degrees(m, A)) continue;
             if (!has_no_isolated(m, A)) continue;
             if (!is_connected(m, A)) continue;
+            passed_filters.fetch_add(1, std::memory_order_relaxed);
             int n, d;
             if (check_leontovich_exact(m, A, max_n, max_d, n, d)) {
                 hits.fetch_add(1, std::memory_order_relaxed);
@@ -240,8 +242,11 @@ int main(int argc, char** argv) {
     for (int t = 0; t < threads; ++t) pool.emplace_back(worker, t);
     for (auto& th : pool) th.join();
 
-    fprintf(stderr, "Done: checked %llu graphs, %llu hits\n",
+    fprintf(stderr,
+            "Done: checked %llu graphs, %llu passed filters "
+            "(connected, no isolated vertices, degree-sorted), %llu hits\n",
             (unsigned long long)checked.load(),
+            (unsigned long long)passed_filters.load(),
             (unsigned long long)hits.load());
     return 0;
 }
