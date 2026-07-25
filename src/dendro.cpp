@@ -801,6 +801,79 @@ void run_adversarial(const string& lean_fn, const string& preset,
 }
 
 // ============================================================================
+// MODULE: GENERAL (Structural Invariants & Graph6 Parsing)
+// ============================================================================
+void run_general(const string& lean_fn, const string& dot_fn,
+                 const string& g6_str) {
+    cout << CYN << "[Dendro] General Graph Module initialized.\n" << RST;
+
+    // Parse Graph6 string
+    int N = g6_str[0] - 63;
+    if (N < 0 || N > 64) {
+        cerr << RED << "  [Fail] Graph size out of bounds (N=" << N << ").\n"
+             << RST;
+        return;
+    }
+
+    vector<uint64_t> adj(N, 0);
+    int edges = 0, k = 1, bit_pos = 5, val = g6_str[k] - 63;
+
+    for (int j = 1; j < N; j++) {
+        for (int i = 0; i < j; i++) {
+            if ((val >> bit_pos) & 1) {
+                adj[i] |= (1ULL << j);
+                adj[j] |= (1ULL << i);
+                edges++;
+            }
+            if (--bit_pos < 0) {
+                if (++k < (int)g6_str.size()) val = g6_str[k] - 63;
+                bit_pos = 5;
+            }
+        }
+    }
+
+    // Compute basic invariants (e.g., Max Degree)
+    int max_deg = 0;
+    for (int i = 0; i < N; i++) {
+        max_deg = max(max_deg, __builtin_popcountll(adj[i]));
+    }
+
+    cout << GRN << "  [Success] Parsed N=" << N << ", |E|=" << edges
+         << ", Max Deg=" << max_deg << "\n"
+         << RST;
+
+    // --- DOT output ---
+    ofstream dot(dot_fn);
+    dot << "graph GeneralGraph {\n  layout=sfdp; splines=true; overlap=false;\n"
+        << "  graph [label=\"General Graph Analysis\\nN=" << N
+        << " | E=" << edges << " | Max Deg=" << max_deg
+        << "\", fontname=\"Helvetica\", labelloc=t];\n"
+        << "  node [fontname=\"Helvetica\", style=filled, "
+           "fillcolor=\"#e9ecef\"];\n";
+
+    for (int i = 0; i < N; i++) {
+        dot << "  " << i << " [label=\"N" << i
+            << "\\nd=" << __builtin_popcountll(adj[i]) << "\"];\n";
+    }
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            if ((adj[i] >> j) & 1) dot << "  " << i << " -- " << j << ";\n";
+        }
+    }
+    dot << "}\n";
+
+    // --- Lean proof ---
+    ofstream out(lean_fn);
+    out << "import Mathlib.Tactic\ndef general_adj : Array UInt64 := #[\n";
+    for (int i = 0; i < N; i++) out << "  " << adj[i] << ",\n";
+    out << "]\n\n"
+        << "def num_vertices : Nat := " << N << "\n"
+        << "def num_edges : Nat := " << edges << "\n"
+        << "def max_degree : Nat := " << max_deg << "\n\n"
+        << "theorem bounds_check : max_degree < num_vertices := by decide\n";
+}
+
+// ============================================================================
 // Main: Dispatch to module
 // ============================================================================
 int main(int argc, char** argv) {
@@ -838,6 +911,9 @@ int main(int argc, char** argv) {
             if (string(argv[i]) == "--cegis") cegis = true;
         }
         run_adversarial(lean_fn, preset, sync, cegis);
+    } else if (mode == "general") {
+        string g6 = (argc >= 4) ? argv[3] : "?";
+        run_general(lean_fn, dot_fn, g6);
     } else {
         cerr << RED << "Unknown module: " << mode << RST << "\n";
         return 1;
