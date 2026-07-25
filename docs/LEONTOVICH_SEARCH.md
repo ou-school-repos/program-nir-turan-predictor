@@ -276,16 +276,16 @@ symmetry-breaking — every isomorphism class has such a labeling), and run
 exact `unsigned __int128` walk-vector arithmetic (adaptive overflow
 truncation, never silently wraps) on survivors.
 
-| $m$ | labeled graphs ($2^{m(m+1)/2}$) | time (6 threads) | Leontovich hits ($n\le40, d\le10$) |
-| :-- | :------------------------------ | :--------------- | :--------------------------------- |
-| 6   | 2,097,152                       | 0.15s            | **0**                              |
-| 7   | 268,435,456                     | 12s              | **0**                              |
-| 8   | 68,719,476,736                  | in progress      | —                                  |
+| $m$ | labeled graphs ($2^{m(m+1)/2}$) | time (6 threads)         | Leontovich hits ($n\le40, d\le10$) |
+| :-- | :------------------------------ | :----------------------- | :--------------------------------- |
+| 6   | 2,097,152                       | 0.15s                    | **0**                              |
+| 7   | 268,435,456                     | 12s                      | **0**                              |
+| 8   | 68,719,476,736                  | ~several hrs (6 threads) | **0**                              |
 
-**Current bound: no looped general Leontovich graph exists at $m \le 7$**
+**Current bound: no looped general Leontovich graph exists at $m \le 8$**
 (exact, exhaustive, within $n \le 40$, $d \le 10$) — matching and now
 proving (rather than merely arguing from the double-cover bound) that the
-floor is at least $m = 8$.
+floor is at least $m = 9$.
 
 ### Reproduction
 
