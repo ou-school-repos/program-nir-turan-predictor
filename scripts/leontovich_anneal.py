@@ -275,7 +275,7 @@ def anneal(
     )
 
     # Objective: minimize |V| while staying Leontovich
-    # Non-Leontovich states get a steep penalty to prevent collapse
+    # Non-Leontovich states get a softened penalty to allow tunneling
     def score(A_cand, is_leo_cand, ratio_cand):
         sz = A_cand.shape[0]
         if is_leo_cand:
@@ -284,8 +284,8 @@ def anneal(
                 base += 10.0 * algebraic_penalty(A_cand)
             return base
         else:
-            # Heavy penalty: "distance from crossover" keeps graph near boundary
-            return 500.0 + sz + 100.0 * max(0, ratio_cand - 0.999)
+            # Softened penalty allows SA to step through the non-Leontovich desert
+            return sz + 50.0 * max(0, ratio_cand - 0.999)
 
     current_score = score(A, is_leo, ratio)
     best_m = m
