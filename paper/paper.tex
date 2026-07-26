@@ -587,7 +587,7 @@ Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
 Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
 matrices via optimized DAXPY loop
 ordering and OpenMP parallelism. The bipartite sweep
-of 608,930,559 graphs on $m \le 15$ vertices (validated against OEIS
+of 608,930,559 connected bipartite graphs on $m \le 15$ vertices (validated against OEIS
 A005142~\cite{oeis}) completes in approximately 35~minutes.
 
 \begin{remark}[Depth-dependent bipartite Leontovich graph]
@@ -1371,7 +1371,7 @@ $\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
   \qquad 1 - \rho_{\mathrm{hi}} \approx 4.79\times 10^{-5}.
 \]
 The estimated error is roughly 41 orders of magnitude smaller than the
-margin, so the numerical estimate stays below $1$. This is
+margin, so the computed upper bound $\rho_{\mathrm{hi}}$ stays below $1$. This is
 high-precision numerical evidence (N) for a simple non-bipartite
 strongly-Leontovich candidate in the leading-coefficient sense. It is a
 residual-based estimate in that sense, not a directed-rounding
