@@ -79,7 +79,7 @@ crossover threshold witnessed here. For 2- or 3-orbit symmetric trees,
 odd near-path crossover detection reduces to a finite base-case sign check;
 for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent.
 We also show that the bipartite double cover preserves the Leontovich
-property, which lets bounded sweeps rule out small looped targets. The
+property, which lets bounded sweeps rule out small looped targets within the tested ranges. The
 15-vertex graph $H^*$ is found by exhaustive bipartite sweep, the
 18-vertex graph $H_{18}$ by SMT search, and the 3,644-vertex graph by
 the double-cover construction, whose even crossover threshold is
@@ -1246,8 +1246,7 @@ and $H$ is bipartite.
 
 \noindent
 Extensive finite searches suggested this hypothesis: across all tested
-target graphs (the 608,930,559 connected bipartite graphs on $m \le 15$
-vertices, together with the 5.6~million source trees on $n \le 22$
+target graphs (the 608,930,559 bipartite graphs on $m \le 15$
 vertices), no even-$n$ crossover was observed. Section~\ref{sec:doublecover}
 disproves it: the bipartite double cover $B$ of $\hat T(1,35,1,50)$
 overtakes the path at the even threshold $n = 17{,}340$.
@@ -1358,10 +1357,10 @@ why the perturbation is stable: the principal eigenvector mass on the
 added leaves is tiny, and the measured shift is
 $\Delta\lambda_1 \approx 1.77 \times 10^{-4}$.
 
-To estimate the bound, \texttt{scripts/strong\_coeff.py}
+To certify the bound, \texttt{scripts/strong\_coeff.py}
 (\texttt{certified\_leading\_ratio}) computes a Bauer--Fike residual
 and a Davis--Kahan angle bound for the symmetrized 18-cell quotient,
-both at 50 digits. These estimates give $\rho_{\mathrm{hi}} \ge
+both at 50 digits, yielding a rigorous upper bound $\rho_{\mathrm{hi}} \ge
 \rho_2(B'+e)$. Numerically,
 $\|r\|_2 \approx 7.5\times 10^{-50}$ against a spectral gap
 $\lambda_1 - \lambda_2 \approx 5.1\times 10^{-3}$, propagating to
