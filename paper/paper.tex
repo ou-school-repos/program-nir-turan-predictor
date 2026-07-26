@@ -78,11 +78,11 @@ the $n=6$ residue computationally, and identify $n=7$ as the smallest
 crossover threshold witnessed here. For 2- or 3-orbit symmetric trees,
 odd near-path crossover detection reduces to a finite base-case sign check;
 for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent.
-We also show that the bipartite double cover preserves the
-Leontovich property, which lets bounded sweeps rule out small looped targets,
-and we use SMT search to isolate the smallest known Leontovich graphs,
-including a 15-vertex general-depth example, an 18-vertex classical
-depth-2 example, and a 3,644-vertex example.
+We also show that the bipartite double cover preserves the Leontovich
+property, which lets bounded sweeps rule out small looped targets. The
+15-vertex graph $H^*$ is found by exhaustive bipartite sweep, the
+18-vertex graph $H_{18}$ by SMT search, and the 3,644-vertex graph by
+the double-cover construction.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -1245,8 +1245,9 @@ and $H$ is bipartite.
 
 \noindent
 Extensive finite searches suggested this hypothesis: across all tested
-target graphs (over 463~million bipartite graphs and 5.6~million trees),
-no even-$n$ crossover was observed. Section~\ref{sec:doublecover}
+target graphs (the 608,930,559 connected bipartite graphs on $m \le 15$
+vertices, together with the 5.6~million source trees on $n \le 22$
+vertices), no even-$n$ crossover was observed. Section~\ref{sec:doublecover}
 disproves it: the bipartite double cover $B$ of $\hat T(1,35,1,50)$
 overtakes the path at the even threshold $n = 17{,}340$.
 
@@ -1323,8 +1324,9 @@ room for the dominant cancellation to persist.
 
 \paragraph{Disproof of the universal bipartite parity hypothesis.}
 Appendix~\ref{app:sa} records a working hypothesis suggested by
-extensive finite search: over 463~million bipartite graphs and
-5.6~million trees, no even-$n$ crossover was observed. The
+extensive finite search: the 608,930,559 connected bipartite graphs on
+$m \le 15$ vertices, together with the 5.6~million source trees on
+$n \le 22$ vertices, showed no even-$n$ crossover. The
 $n=17{,}340$ example above disproves the universal statement. The point
 is scale, not a new mechanism: $B$'s secondary eigenvalue is close
 enough to $\lambda_1$ that the parity protection survives until very
@@ -1355,11 +1357,11 @@ why the perturbation is stable: the principal eigenvector mass on the
 added leaves is tiny, and the measured shift is
 $\Delta\lambda_1 \approx 1.77 \times 10^{-4}$.
 
-To certify the bound, \texttt{scripts/strong\_coeff.py}
+To estimate the bound, \texttt{scripts/strong\_coeff.py}
 (\texttt{certified\_leading\_ratio}) computes a Bauer--Fike residual
 and a Davis--Kahan angle bound for the symmetrized 18-cell quotient,
-both at 50 digits. Propagating these bounds gives a rigorous upper
-bound $\rho_{\mathrm{hi}} \ge \rho_2(B'+e)$. Numerically,
+both at 50 digits. These estimates give $\rho_{\mathrm{hi}} \ge
+\rho_2(B'+e)$. Numerically,
 $\|r\|_2 \approx 7.5\times 10^{-50}$ against a spectral gap
 $\lambda_1 - \lambda_2 \approx 5.1\times 10^{-3}$, propagating to
 $\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
@@ -1367,12 +1369,12 @@ $\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
   \rho_{\mathrm{hi}} \approx 0.99995214067566 < 1,
   \qquad 1 - \rho_{\mathrm{hi}} \approx 4.79\times 10^{-5}.
 \]
-The certified error is roughly 41 orders of magnitude smaller than the
-margin, so $\rho_{\mathrm{hi}} < 1$ is a proof rather than a bare
-floating-point comparison. This is certified numerical evidence (N) for
-a simple non-bipartite strongly-Leontovich candidate in the
-leading-coefficient sense. It is a residual-based certificate in that
-sense, not a directed-rounding interval-arithmetic certificate.
+The estimated error is roughly 41 orders of magnitude smaller than the
+margin, so the numerical estimate stays below $1$. This is
+high-precision numerical evidence (N) for a simple non-bipartite
+strongly-Leontovich candidate in the leading-coefficient sense. It is a
+residual-based estimate in that sense, not a directed-rounding
+interval-arithmetic certificate.
 
 % ════════════════════════════════════════════════════════════════════════
 \section{Conclusion and Open Problems}
@@ -1395,7 +1397,7 @@ We conclude with the two principal open directions highlighted by this work:
   \item \textbf{Minimal simple targets.} The bipartite double cover of
     $\hat{T}(1,35,1,50)$ yields a simple strongly Leontovich graph on
     3,644 vertices, and the perturbed quotient
-    (Section~\ref{sec:doublecover}) gives certified numerical evidence
+    (Section~\ref{sec:doublecover}) gives high-precision numerical evidence
     for a simple non-bipartite candidate on 6,806 vertices. Closing the
     gap to the 12-vertex frontier probed by the simple-graph sweep
     remains a computational challenge.
@@ -1405,9 +1407,11 @@ We conclude with the two principal open directions highlighted by this work:
 The C++ search routines, exact integer arithmetic formulations, and SMT
 solver scripts supporting the exact finite computations \textbf{(E)}
 and bounded sweeps \textbf{(S)} are available in the project
-repository. The analytic theorems \textbf{(P)} are currently undergoing
-formalization in Lean~4. Both the executable witness verifiers and the
-formal theorem scaffolding are maintained at
+repository at commit \texttt{9d538804240faf0a11241e4a8eb44e81db8bc9cb},
+which is the working repository snapshot used for this paper rather
+than an archival mirror. The analytic theorems \textbf{(P)} are
+currently undergoing formalization in Lean~4. Both the executable
+witness verifiers and the formal theorem scaffolding are maintained at
 \url{https://github.com/sjjaroch/leontovich-utils}.
 
 \bibliographystyle{plain}
