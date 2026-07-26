@@ -81,7 +81,8 @@ check; for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$
 is permanent. We also show that the bipartite double cover preserves the
 Leontovich property, which lets bounded sweeps rule out small looped targets,
 and we use SMT search to isolate the smallest known Leontovich graphs,
-including 15-vertex, 18-vertex, and 3,644-vertex examples.
+including a 15-vertex general-depth example, an 18-vertex classical
+depth-2 example, and a 3,644-vertex example.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -1251,8 +1252,9 @@ overtakes the path at the even threshold $n = 17{,}340$.
 
 \begin{remark}
 The same parity effect appears for independent sets: the consecutive
-ratios $a(N)/a(N-1)$ oscillate with period~2 because the looped target
-$H_{\mathrm{ind}}$ breaks bipartiteness.
+ratios $a(N)/a(N-1)$ oscillate with period~2; the looped target
+$H_{\mathrm{ind}}$ breaks bipartiteness, so the parity protection is
+gone.
 \end{remark}
 
 \section{The Bipartite Double Cover and Strongly Leontovich Graphs}
@@ -1331,7 +1333,7 @@ large $n$.
 \subsection{A Perturbed Non-Bipartite Certificate}
 
 Adding a single edge inside one side of a bipartite strongly Leontovich
-graph produces a simple non-bipartite target. We use the looped
+graph can produce a simple non-bipartite target. Here we use the looped
 symmetric tree $\hat{T}(2, 34, 1, 48)$ on 3,403 vertices, whose
 bipartite double cover $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a
 simple bipartite strongly Leontovich graph on 6,806 vertices with
@@ -1369,7 +1371,8 @@ The certified error is roughly 41 orders of magnitude smaller than the
 margin, so $\rho_{\mathrm{hi}} < 1$ is a proof rather than a bare
 floating-point comparison. This is certified numerical evidence (N) for
 a simple non-bipartite strongly-Leontovich candidate in the
-leading-coefficient sense.
+leading-coefficient sense. It is a residual-based certificate in that
+sense, not a directed-rounding interval-arithmetic certificate.
 
 % ════════════════════════════════════════════════════════════════════════
 \section{Conclusion and Open Problems}
@@ -1385,16 +1388,16 @@ We conclude with the two principal open directions highlighted by this work:
 
 \begin{enumerate}
   \item \textbf{Near-path sufficiency.} Every known Leontovich graph is
-    detected by the near-path family $E_n^{(d)}$. If
-    the near-path sufficiency conjecture from Section~\ref{sec:prelim}
-    holds, the bounded sweeps in this paper upgrade directly to
-    unconditional nonexistence proofs for small targets.
+    detected by the near-path family $E_n^{(d)}$. The near-path
+    sufficiency conjecture asks whether this always holds. If it does,
+    the bounded sweeps in this paper upgrade directly to unconditional
+    nonexistence proofs for small targets.
   \item \textbf{Minimal simple targets.} The bipartite double cover of
     $\hat{T}(1,35,1,50)$ yields a simple strongly Leontovich graph on
     3,644 vertices, and the perturbed quotient
     (Section~\ref{sec:doublecover}) gives certified numerical evidence
     for a simple non-bipartite candidate on 6,806 vertices. Closing the
-    gap to the 12-vertex lower bound from the simple-graph sweep
+    gap to the 12-vertex frontier probed by the simple-graph sweep
     remains a computational challenge.
 \end{enumerate}
 
