@@ -1,4 +1,9 @@
 PYTHON = python3
+GIT_COMMIT ?= $(shell git rev-parse --short=12 HEAD)
+SOURCE_DATE_EPOCH ?= $(shell git show -s --format=%ct HEAD)
+DATE ?= $(shell perl -MPOSIX=strftime -e 'print strftime("%F", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+PDF_SUBJECT ?= Compiled by Shane [$(DATE)]
+PDF_KEYWORDS ?= commit $(GIT_COMMIT)
 
 .DEFAULT_GOAL := _help
 
@@ -155,7 +160,14 @@ docs: ##H Convert all tracked markdown files to PDF
 paper: ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
-	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
+	@cd paper && \
+		pdflatex -interaction=nonstopmode paper.tex && \
+		bibtex paper && \
+		pdflatex -interaction=nonstopmode paper.tex && \
+		pdflatex -interaction=nonstopmode paper.tex && \
+		exiftool -overwrite_original -Title='Path Minimizers and Leontovich Thresholds in Tree Homomorphisms' -Subject='$(PDF_SUBJECT)' -Keywords='$(PDF_KEYWORDS)' paper.pdf && \
+		qpdf --deterministic-id --linearize paper.pdf paper.pdf.tmp && \
+		mv paper.pdf.tmp paper.pdf
 	@$(call print_success,paper/paper.pdf)
 
 N ?= 21
