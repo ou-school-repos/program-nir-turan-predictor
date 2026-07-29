@@ -2,6 +2,8 @@ PYTHON = python3
 GIT_COMMIT ?= $(shell git rev-parse --short=12 HEAD)
 SOURCE_DATE_EPOCH ?= $(shell git show -s --format=%ct HEAD)
 DATE ?= $(shell perl -MPOSIX=strftime -e 'print strftime("%F", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+PDF_DATE ?= $(shell perl -MPOSIX=strftime -e 'print strftime("%Y:%m:%d %H:%M:%S", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+PDF_TITLE ?= Path Minimizers and Leontovich Thresholds in Tree Homomorphisms
 PDF_SUBJECT ?= Compiled by Shane [$(DATE)]
 PDF_KEYWORDS ?= commit $(GIT_COMMIT)
 
@@ -161,11 +163,18 @@ paper: ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	@cd paper && \
-		pdflatex -interaction=nonstopmode paper.tex && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
 		bibtex paper && \
-		pdflatex -interaction=nonstopmode paper.tex && \
-		pdflatex -interaction=nonstopmode paper.tex && \
-		exiftool -overwrite_original -Title='Path Minimizers and Leontovich Thresholds in Tree Homomorphisms' -Subject='$(PDF_SUBJECT)' -Keywords='$(PDF_KEYWORDS)' paper.pdf && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
+		exiftool -overwrite_original \
+			-Title='$(PDF_TITLE)' \
+			-Subject='$(PDF_SUBJECT)' \
+			-Keywords='$(PDF_KEYWORDS)' \
+			-CreateDate='$(PDF_DATE)' \
+			-ModifyDate='$(PDF_DATE)' \
+			-MetadataDate='$(PDF_DATE)' \
+			paper.pdf && \
 		qpdf --deterministic-id --linearize paper.pdf paper.pdf.tmp && \
 		mv paper.pdf.tmp paper.pdf
 	@$(call print_success,paper/paper.pdf)
