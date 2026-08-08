@@ -50,25 +50,31 @@ jobs:
       - name: Build paper and markdown PDFs
         run: make docs paper
 
+      - name: Compute PDF bundle name
+        run: |
+          short_sha="${GITHUB_SHA::7}"
+          date_iso_built="$(date -u +%F)"
+          echo "PDF_BUNDLE_DIR=all-pdfs_${short_sha}_${date_iso_built}" >> "$GITHUB_ENV"
+
       - name: Stage PDFs for upload
         run: |
-          mkdir -p all-pdfs
+          mkdir -p "$PDF_BUNDLE_DIR"
           mapfile -t pdfs < <(find . -type f -name '*.pdf' \
             -not -path './.git/*' \
             -not -path './.github/*' \
             -not -path './.lake/*' \
             -not -path './.tmp/*' \
-            -not -path './all-pdfs/*' \
+            -not -path "./$PDF_BUNDLE_DIR/*" \
             | sort)
           for pdf in "${pdfs[@]}"; do
             rel=${pdf#./}
-            mkdir -p "all-pdfs/$(dirname "$rel")"
-            cp "$pdf" "all-pdfs/$rel"
+            mkdir -p "$PDF_BUNDLE_DIR/$(dirname "$rel")"
+            cp "$pdf" "$PDF_BUNDLE_DIR/$rel"
           done
 
       - name: Upload all-pdfs
         uses: actions/upload-artifact@v4
         with:
-          name: all-pdfs
-          path: all-pdfs
+          name: ${{ env.PDF_BUNDLE_DIR }}
+          path: ${{ env.PDF_BUNDLE_DIR }}
           if-no-files-found: error
