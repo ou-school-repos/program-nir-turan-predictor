@@ -552,6 +552,11 @@ This reduces the per-target cost from brute-force $O(t \cdot n \cdot m^2)$
 $O(m)$ matrix--vector iteration up to $n = 200$, $d \le 20$.
 Filtering across all 1,018,680,329 connected graphs with $m \le 11$
 yields zero near-path violations in the tested range.
+The exact exhaustive and certified-table computations in this paper use
+integer arithmetic, so compiler flags such as \texttt{-march=native}
+change runtime but not the certified values themselves; only
+floating-point screens are treated as conditional filters before exact
+verification.
 
 \begin{table}[H]
 \centering
@@ -626,9 +631,9 @@ No anomalies of any depth were detected at $m \le 14$ in the bipartite sweep.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.38\textwidth]{../docs/out/anomaly_NCQCCA.png}%
+  \includegraphics[width=0.38\textwidth]{figures/anomaly_NCQCCA.png}%
   \hfill
-  \includegraphics[width=0.58\textwidth]{../docs/out/anomaly_ratio.png}
+  \includegraphics[width=0.58\textwidth]{figures/anomaly_ratio.png}
   \caption{\textbf{Left:} The depth-anomaly graph $H^*$ on 15
     vertices\protect\footnotemark; red/blue shows the $(3,12)$ bipartition.
     \textbf{Right:} Ratio $\Hom(E_n^{(d)}, H^*) / \Hom(P_n, H^*)$ for
@@ -776,9 +781,8 @@ Leontovich construction:
   The bipartite graph $H_{18}$ of partition $(3, 15)$ with pattern vector
   $(7, 0, 0, 1, 1, 6, 0)$ is the unique minimal depth-2 bipartite Leontovich
   graph of partition $(3, m_2)$ in this completed depth-2 bounded sweep
-  through path length $n \le 51$. It achieves a crossover against
-  $E_n^{(2)}$ at $n = 17$
-  and possessing the Graph6 representation:
+  through path length $n \le 51$. It first crosses against
+  $E_n^{(2)}$ at $n = 17$. Its Graph6 representation is
   \begin{equation*}
     \texttt{QCaCCA?\_E?S?W?W?K?B??W?@\_??}
   \end{equation*}
@@ -801,7 +805,7 @@ $n \le 51$}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\textwidth]{../docs/out/leontovich_18.pdf}
+  \includegraphics[width=0.9\textwidth]{figures/leontovich_18.pdf}
   \caption{\texorpdfstring{The optimal 18-vertex depth-2 bipartite Leontovich graph $H_{18}$ discovered via SMT synthesis.}{The optimal 18-vertex depth-2 bipartite Leontovich graph H18 discovered via SMT synthesis.}}
   \label{fig:walk_h18}
 \end{figure}
@@ -1033,7 +1037,7 @@ $78 \to 77 \to 76$ represents the unique pruning sequence.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{../docs/out/leontovich_76.pdf}
+\includegraphics[width=0.75\textwidth]{figures/leontovich_76.pdf}
 \caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
 (degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
 Green: leaves (degree~1). The asymmetric pruning of two branches
@@ -1120,7 +1124,7 @@ threshold~$n$. Consequently, throughout the tested range, the
 minimum-vertex frontier is restricted to the subspace $y = 1$.
 \end{proposition}
 
-\begin{proof}
+\begin{proof}[Verification]
 The vertex count $V(x,y,z) = 1 + x + xy + xyz$ is strictly
 increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$. For the
 threshold statement we rely on exact computation rather than a general
@@ -1142,7 +1146,7 @@ feasible region but is not, by itself, a complete proof of minimality
 at the small thresholds realised here.
 \end{compresult}
 
-\begin{proof}
+\begin{proof}[Derivation of the feasible wedge]
 Both $\Hom(P_n, T)$ and $\Hom(E_n^{(2)}, T)$ are computed via
 finite matrix multiplications over the $4 \times 4$ quotient matrix.
 Their difference is therefore an exact polynomial.  For example:

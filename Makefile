@@ -72,14 +72,28 @@ run/finance: ##H Audit financial network for systemic risk
 		$(PYTHON) src/solver.py finance legacy/RiskAudit.lean; \
 	} | tee output.log
 
-.PHONY: test/all
-test/all: ##H Run active verification pipelines
-	@$(call print_info,Running all pipelines)
+.PHONY: verify/core
+verify/core: ##H Run core exact verification checks used by the paper
+	@$(call print_info,Running core paper verifiers)
+	@{ \
+		$(PYTHON) scripts/verify_core_claims.py; \
+		$(PYTHON) scripts/verify_strong.py; \
+	} | tee output.log
+	@$(call print_success,Core paper verifiers completed.)
+
+.PHONY: legacy/demos
+legacy/demos: ##H Run legacy generated-demo pipelines
+	@$(call print_info,Running legacy demo pipelines)
 	@{ \
 		$(MAKE) --no-print-directory verify/epidemiology; \
+		$(MAKE) --no-print-directory verify/surveillance; \
 		$(MAKE) --no-print-directory run/adversarial; \
+		$(MAKE) --no-print-directory run/finance; \
 	} | tee output.log
-	@$(call print_success,All pipelines verified.)
+	@$(call print_success,Legacy demo pipelines completed.)
+
+.PHONY: test/all
+test/all: verify/core ##H Run active verification pipelines
 
 # --- Dev Tools ---
 LAKE_PKG_DIR ?= $(HOME)/.cache/lake/packages
@@ -220,12 +234,7 @@ landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
-	@$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean
-	@$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean
-	@./dendro adversarial legacy/Adversarial.lean grid4x4
-	@./dendro adversarial legacy/Adversarial.lean tree15
-	@./dendro adversarial legacy/Adversarial.lean campus
-	@$(PYTHON) src/solver.py finance legacy/RiskAudit.lean
+	@$(MAKE) --no-print-directory legacy/demos
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize $(shell if [ "$(N)" -le 15 ]; then echo legacy/SynthesizerDiscovery-N15.lean; elif [ "$(N)" -le 20 ]; then echo legacy/SynthesizerDiscovery-N20.lean; else echo legacy/SynthesizerDiscovery-N21.lean; fi)
 
 # Layout engine map: module -> engine

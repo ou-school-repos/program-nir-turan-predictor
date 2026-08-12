@@ -18,6 +18,10 @@ Build:
 make paper
 ```
 
+For manuscript-only work from inside `paper/`, the figure paths resolve
+through `paper/figures/`, which should point at the generated artifacts in
+`docs/out/`.
+
 The paper currently distinguishes between:
 
 - exact algebraic arguments;
@@ -88,6 +92,13 @@ Lean build targets are split accordingly:
 - `make lean-cache` fetches the LeanLeontovich mathlib cache
 - `make _lean/verifiers` builds the legacy `legacy/` verifier bundle
 - `make _lean/verifiers-cache` fetches the legacy verifier cache
+
+Legacy demo targets are separated from the paper verification surface:
+
+- `make verify/core` runs the exact paper-facing verification scripts.
+- `make test/all` aliases that active verification surface.
+- `make legacy/demos` runs the older epidemiology, surveillance, finance,
+  and adversarial demo generators.
 
 ## Reproducibility Notes
 
