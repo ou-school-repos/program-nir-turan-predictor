@@ -82,11 +82,11 @@ odd near-path crossover detection reduces to a finite base-case sign check;
 for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent.
 We also show that the bipartite double cover preserves the Leontovich
 property, which transfers bounded sweep evidence to looped targets within the
-tested ranges. The 15-vertex graph $H^*$ is found by exhaustive bipartite
-sweep; the 18-vertex graph $H_{18}$ is isolated by a depth-2 bounded sweep
-through path length $n \le 51$; and the 3,644-vertex graph from the
-double-cover construction has even crossover threshold $n = 17{,}340$,
-refuting the previously suggested bipartite parity hypothesis for even~$n$.
+tested ranges. The 15-vertex graph $H^*$ comes from an exhaustive bipartite
+sweep, the 18-vertex graph $H_{18}$ from a completed depth-2 bounded sweep
+through path length $n \le 51$, and the 3,644-vertex double-cover witness has
+even crossover threshold $n = 17{,}340$, refuting the previously suggested
+bipartite parity hypothesis for even~$n$.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -780,7 +780,7 @@ Leontovich construction:
 \begin{compresult}
   The bipartite graph $H_{18}$ of partition $(3, 15)$ with pattern vector
   $(7, 0, 0, 1, 1, 6, 0)$ is the unique minimal depth-2 bipartite Leontovich
-  graph of partition $(3, m_2)$ in this completed depth-2 bounded sweep
+  graph of partition $(3, m_2)$ found in this completed depth-2 bounded sweep
   through path length $n \le 51$. It first crosses against
   $E_n^{(2)}$ at $n = 17$. Its Graph6 representation is
   \begin{equation*}
@@ -795,11 +795,11 @@ At the crossover threshold $n=17$, the homomorphism counts verified by exact-pre
 \end{align*}
 yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since $m=18 <
 76$, this represents a more than \textbf{four-fold reduction} in the order of
-the smallest previously known depth-2 Leontovich construction. Because the
-exhaustive check of all 45,838 non-isomorphic configurations for $m_2 < 15$
-returned zero depth-2 hits, \textbf{18 vertices is the depth-2 minimum within
-this partition family in the completed depth-2 sweep through path length
-$n \le 51$}.
+the smallest previously known depth-2 Leontovich construction in the tested
+depth-2 search regime. Because the exhaustive check of all 45,838
+non-isomorphic configurations for $m_2 < 15$ returned zero depth-2 hits,
+\textbf{18 vertices is the depth-2 minimum within this partition family in the
+completed depth-2 sweep through path length $n \le 51$}.
 
 \subsubsection{\texorpdfstring{Topological Characteristics and Step-by-Step Walk Iteration of $H_{18}$}{Topological Characteristics and Step-by-Step Walk Iteration of H18}}
 
@@ -869,8 +869,10 @@ is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yi
   depth-2 hits. This supports the claim that $H_{18}$ is the smallest
   currently verified depth-2 bipartite Leontovich graph across the tested
   partition families in the completed depth-2 sweep through path length
-  $n \le 51$, while the depth-dependent graph $H^*$ remains the smaller
-  bipartite Leontovich example for general $E_n^{(d)}$.
+  $n \le 51$; beyond that bounded regime, Section~\ref{sec:doublecover}
+  shows why larger thresholds can behave differently. The depth-dependent
+  graph $H^*$ remains the smaller bipartite Leontovich example for
+  general $E_n^{(d)}$.
 \end{remark}
 
 \subsection{The Near-Miss Asymptotic Dilution}
@@ -934,8 +936,9 @@ producing the optimal conditions for destructive eigenvalue interference. By
 systematically mapping the phase space of $\mathcal{B}(x,y)$ using this
 quotient matrix, we establish that $\mathcal{B}(x,y)$ is Leontovich for all
 sufficiently large $x$ and $y$, forming an infinite class of bipartite
-counterexamples to the path minimizer conjecture. Within the depth-2
-$(3,m_2)$ block-pattern sweep, $H_{18}$ is the first such example.
+counterexamples to the path minimizer conjecture. Within the completed
+depth-2 $(3,m_2)$ block-pattern sweep through path length $n \le 51$,
+$H_{18}$ is the first such example.
 
 % ════════════════════════════════════════════════════════════════════════
 \section*{Acknowledgments}
@@ -1452,9 +1455,8 @@ We conclude with the two principal open directions highlighted by this work:
 The C++ search routines, exact integer arithmetic formulations, and SMT
 solver scripts supporting the exact finite computations \textbf{(E)}
 and bounded sweeps \textbf{(S)} are available in the project
-repository at commit \texttt{9d538804240faf0a11241e4a8eb44e81db8bc9cb},
-which is the working repository snapshot used for this paper rather
-than an archival mirror. The analytic theorems \textbf{(P)} are
+repository as the working snapshot used for this paper rather than an
+archival mirror. The analytic theorems \textbf{(P)} are
 currently undergoing formalization in Lean~4. Both the executable
 witness verifiers and the formal theorem scaffolding are maintained at
 \url{https://github.com/sjjaroch/leontovich-utils}.
