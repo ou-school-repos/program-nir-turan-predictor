@@ -41,6 +41,7 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{compresult}[theorem]{Computational Result}
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{example}[theorem]{Example}
@@ -73,9 +74,10 @@
 We study the minimisation of graph homomorphisms from trees to fixed target
 graphs $H$, with emphasis on Leontovich graphs and path-minimiser failures.
 Using quotient-matrix reductions and exact computational sweeps, we prove that
-the spherically symmetric family $T(x,y,z)$ cannot cross over at $n=5$, verify
-the $n=6$ residue computationally, and identify $n=7$ as the smallest
-crossover threshold witnessed here. For 2- or 3-orbit symmetric trees,
+the spherically symmetric family $T(x,y,z)$ cannot cross over at source-tree
+size $n=5$, verify the source-tree-size-$n=6$ residue in a
+verified-plus-conjecture sense, and identify crossover threshold $n=7$ as the
+smallest threshold witnessed here. For 2- or 3-orbit symmetric trees,
 odd near-path crossover detection reduces to a finite base-case sign check;
 for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent.
 We also show that the bipartite double cover preserves the Leontovich
@@ -83,7 +85,8 @@ property, which lets bounded sweeps rule out small looped targets within the tes
 15-vertex graph $H^*$ is found by exhaustive bipartite sweep, the
 18-vertex graph $H_{18}$ by SMT search, and the 3,644-vertex graph by
 the double-cover construction, whose even crossover threshold is
-$n = 17{,}340$.
+$n = 17{,}340$, refuting the previously suggested bipartite parity
+hypothesis for even~$n$.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -183,12 +186,14 @@ minimality of $P_n$ for odd $n \ge 7$.
 
 \subsection{An eigenvalue condition that forbids crossovers}
 
-\begin{theorem}[Single Positive Eigenvalue Obstruction]
+\begin{theorem}[Single Positive Eigenvalue Reduction]
   \label{thm:spectral}
   Let $H$ be a rooted bipartite graph whose automorphism orbits respect
   the bipartition (i.e., no orbit contains vertices from both sides).
   If the quotient matrix of $H$ has exactly one positive eigenvalue,
-  then $H$ cannot be Leontovich.
+  then the odd-$n$ near-path comparison has constant sign: for each fixed
+  depth~$d$, the sign of $\Hom(P_n,H)-\Hom(E_n^{(d)},H)$ is determined on
+  all odd~$n$ by any single verified odd base case.
 \end{theorem}
 
 \begin{proof}
@@ -227,10 +232,15 @@ minimality of $P_n$ for odd $n \ge 7$.
   \label{cor:loopy_transfer}
   If no connected simple graph on at most $2m$ vertices is Leontovich,
   then no connected graph on at most $m$ vertices, loops allowed, is
-  Leontovich. In particular, the simple-graph sweep up to $11$ vertices
-  transfers to looped targets on at most $5$ vertices, and the bipartite
-  sweep up to $14$ vertices transfers to looped targets on at most
-  $7$ vertices.
+  Leontovich. In particular, if a connected looped target $H$ is
+  non-bipartite, then its connected double cover $H \times K_2$ converts
+  any unconditional simple-graph nonexistence bound at order~$\le 2m$ into
+  the corresponding looped bound at order~$\le m$. Our bounded near-path
+  sweeps therefore transfer only within their tested ranges: the
+  simple-graph sweep up to $11$ vertices gives looped-target evidence on at
+  most $5$ vertices for $n \le 200$, $d \le 20$, and the bipartite sweep
+  up to $14$ vertices gives the analogous bounded evidence up to
+  $7$ looped vertices.
 \end{corollary}
 
 \subsection{Four-orbit trees}
@@ -296,11 +306,12 @@ we record here the first fully written proof.
   \end{align*}
   Thus $n = 13$ is the unique, permanent threshold.
 
-  For even $n$, the path minimizes due to its perfectly balanced
-  bipartition (see Remark~\ref{rem:parity}).
+  For even $n$, our computations support the same ordering for this
+  specific graph, but that conclusion is not proved here from parity
+  considerations alone.
 \end{proof}
 
-\begin{remark}[Parity]
+\begin{remark}[Parity heuristic, not theorem]
   \label{rem:parity}
   For even $n$, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
   minimising its dominant projection. For even depths $d$ (e.g., $d=2$)
@@ -308,8 +319,9 @@ we record here the first fully written proof.
   a smaller projection onto the dominant eigenvector. For odd depths
   (e.g., $d=1$), $E_n^{(d)}$ is forced into an unbalanced
   $(n/2+1, n/2-1)$ bipartition, giving it a strictly larger leading
-  coefficient. This parity effect keeps the path from being
-  beaten at any even~$n$. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same
+  coefficient. This mechanism explains why even-$n$ crossovers were absent
+  from many small sweeps, but Section~\ref{sec:doublecover} shows that it
+  does not yield a universal obstruction. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same
   unbalanced bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$,
   enabling the secondary eigenvector to interfere and drive the crossover.
 \end{remark}
@@ -318,8 +330,8 @@ we record here the first fully written proof.
 
 Exhaustive grid search over $T(x,y,z)$ with
 $|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
-vertices is the unique smallest Leontovich graph in the $T(x,y,z)$
-family. A generalized search over all spherically symmetric trees
+vertices is the smallest Leontovich graph found in the $T(x,y,z)$
+family within the tested range. A generalized search over all spherically symmetric trees
 $T(d_1, \ldots, d_k)$ with $|V| \le 77$ and depth $k \le 6$ tested
 5,732 trees with exact integer arithmetic
 (\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $d \le 20$) and
@@ -422,7 +434,8 @@ requires a larger graph than $n = 13$.
 
 \begin{table}[H]
 \centering
-\caption{Smallest Leontovich graph by crossover threshold.}
+\caption{Smallest Leontovich graph by crossover threshold within the tested
+range.}
 \label{tab:thresholds}
 \begin{tabular}{@{}llcc@{}}
   \toprule
@@ -442,7 +455,7 @@ requires a larger graph than $n = 13$.
   the $n = 7$ crossover (their Theorem~1.3). Our landscape sweep shows
   that $T(16,1,19)$ achieves the identical crossover with only
   $337$~vertices---a $5.3\times$ reduction.  This is the smallest
-  $T(x,y,z)$ graph achieving a threshold $n \le 7$.
+  $T(x,y,z)$ graph achieving a threshold $n \le 7$ within the tested range.
 \end{remark}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -704,13 +717,13 @@ Leontovich for any threshold $n \le 31$. The solver returned \textbf{UNSAT} for 
 single threshold.
 
 This establishes a bounded computational audit:
-\begin{theorem}
+\begin{compresult}
   Within the $T(7,1,9)$ star-of-stars pruning landscape, no pruning with
   $|V| \le 75$ is detected as Leontovich by the completed integer constraint
   checks for thresholds $n \le 31$. The 76-vertex tree
   $T(7,1,[9^5, 8^2])$ is therefore the minimum witness certified by this
   bounded audit.
-\end{theorem}
+\end{compresult}
 
 \subsection{The 18-Vertex Depth-2 Bipartite Leontovich Graph Discovery}
 
@@ -757,16 +770,17 @@ allowing arbitrary near-path depths yields a smaller bipartite Leontovich graph.
 The following result isolates the smallest example found by the stricter
 depth-2 test $E_n^{(2)}$, the near-path family used in the classical
 Leontovich construction:
-\begin{theorem}
+\begin{compresult}
   The bipartite graph $H_{18}$ of partition $(3, 15)$ with pattern vector
   $(7, 0, 0, 1, 1, 6, 0)$ is the unique minimal depth-2 bipartite Leontovich
-  graph of partition $(3, m_2)$ in this sweep, achieving a crossover
-  against $E_n^{(2)}$ at $n = 17$
+  graph of partition $(3, m_2)$ in this bounded sweep, achieving a crossover
+  against $E_n^{(2)}$ at $n = 17$ in the completed depth-2 sweep through
+  path length $n \le 51$
   and possessing the Graph6 representation:
   \begin{equation*}
     \texttt{QCaCCA?\_E?S?W?W?K?B??W?@\_??}
   \end{equation*}
-\end{theorem}
+\end{compresult}
 
 At the crossover threshold $n=17$, the homomorphism counts verified by exact-precision arithmetic are:
 \begin{align*}
@@ -778,14 +792,14 @@ yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since $m=18 <
 the smallest previously known depth-2 Leontovich construction. Because the
 exhaustive check of all 45,838 non-isomorphic configurations for $m_2 < 15$
 returned zero depth-2 hits, \textbf{18 vertices is the depth-2 minimum within
-this partition family}.
+this partition family in the tested range} $n \le 51$.
 
-\subsubsection{Topological Characteristics and Step-by-Step Walk Iteration of $H_{18}$}
+\subsubsection{\texorpdfstring{Topological Characteristics and Step-by-Step Walk Iteration of $H_{18}$}{Topological Characteristics and Step-by-Step Walk Iteration of H18}}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{../docs/out/leontovich_18.pdf}
-  \caption{The optimal 18-vertex depth-2 bipartite Leontovich graph $H_{18}$ discovered via SMT synthesis.}
+  \caption{\texorpdfstring{The optimal 18-vertex depth-2 bipartite Leontovich graph $H_{18}$ discovered via SMT synthesis.}{The optimal 18-vertex depth-2 bipartite Leontovich graph H18 discovered via SMT synthesis.}}
   \label{fig:walk_h18}
 \end{figure}
 
@@ -848,7 +862,9 @@ is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yi
   depth-2 hits. This supports the claim that $H_{18}$ is the smallest
   currently verified depth-2 bipartite Leontovich graph across the tested
   partition families, while the depth-dependent graph $H^*$ remains the
-  smaller bipartite Leontovich example for general $E_n^{(d)}$.
+  smaller bipartite Leontovich example for general $E_n^{(d)}$. Here
+  ``tested'' means the completed depth-2 sweep through path length
+  $n \le 51$.
 \end{remark}
 
 \subsection{The Near-Miss Asymptotic Dilution}
@@ -926,7 +942,7 @@ for the bipartite double-cover idea, both of which furthered this work.
 
 Table~\ref{tab:landscape_full} extends the threshold landscape
 (Table~\ref{tab:thresholds}) to confirm that the vertex count valley
-at $n = 13$ is a true global minimum within the $T(x,y,z)$ family.
+at $n = 13$ is the minimum within the tested $T(x,y,z)$ family.
 
 \begin{table}[H]
 \centering
@@ -956,7 +972,7 @@ at $n = 13$ is a true global minimum within the $T(x,y,z)$ family.
 \noindent{\footnotesize All 134{,}391{,}973 graphs $T(x,1,z)$ with
 $|V| = 1 + 2x + xz \le 10{,}000{,}000$ were tested exhaustively
 against $E_n^{(2)}$ for odd $n \le 51$ (4\,min, 6 threads).
-Each minimizer is unique: a tie would require distinct $(x_1,z_1),(x_2,z_2)$
+Each minimizer in this table is unique: a tie would require distinct $(x_1,z_1),(x_2,z_2)$
 with $x_1(2{+}z_1)=x_2(2{+}z_2)$ and the same crossover threshold,
 a Diophantine coincidence that does not occur in this range.}
 \end{table}
@@ -1090,38 +1106,39 @@ of error.
 
 \subsection*{The Diophantine threshold frontier}
 
-The minimum vertex counts in Table~\ref{tab:landscape_full} can be
-established algebraically, without search bounds.
+The minimum vertex counts in Table~\ref{tab:landscape_full} are
+explained algebraically and certified computationally in the tested range.
 
-\begin{proposition}[Dominance of $y = 1$]
+\begin{proposition}[Dominance of $y = 1$ in the tested range]
 \label{prop:y1}
-For any 4-orbit tree $T(x,y,z)$ with $y > 1$, the contracted tree
-$T(x,1,z)$ has strictly fewer vertices and achieves the Leontovich
-crossover at an equal or earlier threshold~$n$.  Consequently, the
+For every tested 4-orbit tree $T(x,y,z)$ with $y > 1$ and
+$x,z \le 200$, the contracted tree $T(x,1,z)$ has strictly fewer
+vertices and achieves the Leontovich crossover at an equal or earlier
+threshold~$n$. Consequently, throughout the tested range, the
 minimum-vertex frontier is restricted to the subspace $y = 1$.
 \end{proposition}
 
 \begin{proof}
 The vertex count $V(x,y,z) = 1 + x + xy + xyz$ is strictly
-increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$.  For the
-threshold: expanding $\Delta_n(x,y,z)$ in~$y$ shows that the
-highest-order terms in~$y$ are strictly negative.  For example,
-$\Delta_7(x,y,z)$ has leading term $-xy^4z$, so increasing~$y$
-amplifies the negative ``ballast'' and pushes the first positive
-crossing to a larger~$n$.  We verified this computationally: for
-every $(x,z)$ pair with $x, z \le 200$, the threshold of $T(x,1,z)$
-is at most that of $T(x,y,z)$ for all $y > 1$.
+increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$. For the
+threshold statement we rely on exact computation rather than a general
+algebraic proof: for every tested $(x,z)$ pair with $x, z \le 200$,
+the threshold of $T(x,1,z)$ is at most that of $T(x,y,z)$ for all
+$y > 1$.
 \end{proof}
 
-\begin{theorem}[Algebraic Frontier]
+\begin{compresult}[Frontier certification in the tested range]
 \label{thm:frontier}
 For $T(x,1,z)$, the difference $\Delta_n(x,z) = \Hom(P_n, T) -
 \Hom(E_n^{(2)}, T)$ is an exact polynomial in~$x$ and~$z$.
-The minimum-vertex graph achieving first crossover at odd threshold~$n$
-is the solution to minimising $V(x,z) = 1 + 2x + xz$ over
-$\mathbb{Z}_{\ge 1}^2$ subject to $\Delta_n(x,z) > 0$ and
-$\Delta_{n-2}(x,z) \le 0$.
-\end{theorem}
+Within the tested range of Table~\ref{tab:landscape_full}, the
+minimum-vertex graph achieving first crossover at odd threshold~$n$
+is certified by exhaustive exact search over the integer pairs
+$(x,z)$ satisfying $\Delta_n(x,z) > 0$ and $\Delta_{n-2}(x,z) \le 0$.
+The dominant cubic of $\Delta_n$ explains the geometric shape of the
+feasible region but is not, by itself, a complete proof of minimality
+at the small thresholds realised here.
+\end{compresult}
 
 \begin{proof}
 Both $\Hom(P_n, T)$ and $\Hom(E_n^{(2)}, T)$ are computed via
@@ -1137,19 +1154,20 @@ $-(w-1)(w^2 + w - 1) = 0$.  The positive roots give
 \[
   \frac{\sqrt{5} - 1}{2} < \frac{x}{z} < 1,
 \]
-i.e., the feasible integer pairs lie inside a geometric wedge bounded
-by the inverse golden ratio $\varphi^{-1} \approx 0.618$.  Since
-$V(x,z) = 1 + 2x + xz$ is monotone increasing, each level set
-$V = C$ intersects this wedge in a bounded region, making the
-integer minimisation finite and exact.  For example, at $n = 7$ the
+i.e., the dominant terms place the feasible integer pairs inside a
+geometric wedge bounded by the inverse golden ratio
+$\varphi^{-1} \approx 0.618$. This explains the observed frontier
+shape and sharply narrows the exact search region, but the final
+minimality claims below are certified by exhaustive integer search in
+the tested range rather than by the wedge alone. For example, at
+$n = 7$ the
 unique minimum is $(x,z) = (16,19)$ with $\Delta_7(16,19) = 512 > 0$
 and $\Delta_5(16,19) = -560 \le 0$, yielding $|V| = 337$.  This
 improves the $1{,}801$-vertex bound of
-Galvin et al.~\cite{galvin2026} to 337 vertices.  Iterating
-across thresholds gives the complete frontier:
-$(9,11)$ at $n = 9$; $(8,10)$ at $n = 11$; $(7,9)$ at $n = 13$;
-and $(8,12)$ at $n = 15$---matching the computational landscape
-in Table~\ref{tab:landscape_full}.
+Galvin et al.~\cite{galvin2025} to 337 vertices. Exact exhaustive search then certifies the remaining entries in
+Table~\ref{tab:landscape_full}: $(9,11)$ at $n = 9$; $(8,10)$ at
+$n = 11$; $(7,9)$ at $n = 13$; and $(8,12)$ at $n = 15$, matching
+the computational landscape in Table~\ref{tab:landscape_full}.
 \end{proof}
 
 \begin{remark}[Algebraic ballast in the strongly Leontovich case]
@@ -1214,6 +1232,9 @@ odd~$n$ can change sign at most once.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
+This proposition applies to bipartite trees satisfying its hypotheses, not to
+the 5-orbit looped symmetric targets in Table~\ref{tab:strong_frontier},
+whose odd-$n$ windows can open and later close.
 By quotient-eigenbasis expansion, the homomorphism counts for large $n$
 are dominated by two terms:
 \[
@@ -1237,7 +1258,7 @@ $\Delta_{43} > 10^{17}$.
 
 \subsection*{A Bipartite Parity Hypothesis}
 
-\begin{remark}[Bipartite parity hypothesis]
+\begin{remark}[Bipartite parity hypothesis (refuted in Section~\ref{sec:doublecover})]
 For any bipartite target graph $H$, $\Hom(E_n^{(d)}, H) \ge
 \Hom(P_n, H)$ for all even~$n$.  That is, the path $P_n$ is
 always the minimiser among trees on $n$ vertices when $n$ is even
@@ -1308,7 +1329,8 @@ $\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
 \approx 0.999953714414 < 1$.
 Exact finite counts at $n=15001$ give the
 still-unconverged ratio $0.999864892078$, reflecting the very slow decay of the
-near-surviving secondary mode.
+near-antipodal mode at eigenvalue $-7.282828$, whose magnitude is within a
+factor $0.9997162$ of the Perron root $7.284896$.
 
 By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T}
 \times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite
@@ -1320,8 +1342,13 @@ Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
 for all sufficiently large $n$, both even and odd. Exact integer computation of
 the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at
 the even threshold $n = 17{,}340$ and remains ahead through the verified range.
-So even-$n$ crossovers do not require loops; they only require enough
-room for the dominant cancellation to persist.
+So even-$n$ crossovers do not require loops. What they require here is a
+near-antipodal mode: the two largest eigenvalues of $B$ in magnitude are
+$7.284896$ and $-7.282828$, a ratio of about $0.99972$, so the alternating
+contribution that protects $P_n$ at even~$n$ decays slowly enough to survive
+until $n = 17{,}340$. This is not the second positive eigenvalue
+$\lambda_2 \approx 5.842228$, whose ratio $\lambda_2/\lambda_1 \approx 0.802$
+makes it negligible by comparison at much smaller~$n$.
 
 \paragraph{Disproof of the universal bipartite parity hypothesis.}
 Appendix~\ref{app:sa} records a working hypothesis suggested by
@@ -1329,9 +1356,9 @@ extensive finite search: the 608,930,559 connected bipartite graphs on
 $m \le 15$ vertices, together with the 5.6~million source trees on
 $n \le 22$ vertices, showed no even-$n$ crossover. The
 $n=17{,}340$ example above disproves the universal statement. The point
-is scale, not a new mechanism: $B$'s secondary eigenvalue is close
-enough to $\lambda_1$ that the parity protection survives until very
-large $n$.
+is scale, not a new mechanism: the relevant long-lived term is the
+near-antipodal eigenvalue of magnitude $7.282828$, not the smaller positive
+eigenvalue $\lambda_2$.
 
 \subsection{A Perturbed Non-Bipartite Certificate}
 
@@ -1340,12 +1367,18 @@ graph can produce a simple non-bipartite target. Here we use the looped
 symmetric tree $\hat{T}(2, 34, 1, 48)$ on 3,403 vertices, whose
 bipartite double cover $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a
 simple bipartite strongly Leontovich graph on 6,806 vertices with
-margin $2.87 \times 10^{-4}$.
+leading-coefficient ratio $0.999713000053\ldots$ and margin
+$2.87 \times 10^{-4}$.
 
+Adding a single edge inside one side of this bipartite graph creates an odd
+cycle, so the perturbed target is strictly non-bipartite. We use
+$\hat{T}(2, 34, 1, 48)$ rather than the smaller $\hat{T}(1,35,1,50)$ because
+the larger asymptotic margin survives the perturbation more comfortably.
 Adding an edge $e$ between two sibling terminal leaves of $B'$ gives the
 6,806-vertex graph $B' + e$. The script
-\texttt{scripts/verify\_perturbed\_cert.py} computes its coarsest
-equitable partition and obtains an 18-cell quotient matrix. On this
+\texttt{scripts/verify\_perturbed\_cert.py} computes the coarsest equitable
+partition by colour refinement, verifies equitability vertex-by-vertex with
+exact integer arithmetic, and obtains an 18-cell quotient matrix. On this
 quotient, the leading-coefficient ratio is
 \[
   \lim_{n \to \infty}

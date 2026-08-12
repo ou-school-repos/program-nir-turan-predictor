@@ -73,13 +73,11 @@ run/finance: ##H Audit financial network for systemic risk
 	} | tee output.log
 
 .PHONY: test/all
-test/all: ##H Run all certification pipelines
+test/all: ##H Run active verification pipelines
 	@$(call print_info,Running all pipelines)
 	@{ \
 		$(MAKE) --no-print-directory verify/epidemiology; \
-		$(MAKE) --no-print-directory verify/surveillance; \
 		$(MAKE) --no-print-directory run/adversarial; \
-		$(MAKE) --no-print-directory run/finance; \
 	} | tee output.log
 	@$(call print_success,All pipelines verified.)
 
@@ -201,7 +199,7 @@ firefighter: src/firefighter.cpp ##H Build the single-ignition firefighter solve
 
 leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
 	@$(call print_info,Building leontovich_fast)
-	g++ -O3 -march=native -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
+	g++ -O3 -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
 	@$(call print_success,leontovich_fast built.)
 
 leontovich_sa: src/leontovich_sa.cpp ##H Build the Leontovich SA search

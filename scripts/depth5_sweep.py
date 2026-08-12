@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Depth-5 sweep: find the threshold landscape of smallest Leontovich graphs
-among all spherically symmetric trees T(d1, d2, ..., dk) for k ≤ 5.
+Floating-point screen for the depth-5 symmetric-tree landscape.
+
+This script is an exploratory `float64` screen for spherically symmetric trees
+T(d1, d2, ..., dk) with k <= 5. It is not the exact audited sweep used for the
+paper's certified frontier tables; see `src/depth5_sweep.cpp` for the exact
+pipeline.
 
 Uses the O(1) similarity matrix trick: for a tree with branching
 sequence D = [d1, ..., dk], the quotient matrix M is (k+1)×(k+1)
@@ -84,17 +88,19 @@ def check_leontovich_similarity(M, a, max_n=300):
     lam1 = evals[0] if len(evals) > 0 else 0
     lam2 = evals[1] if len(evals) > 1 else 0
 
-    # Check crossovers for each depth d
-    for d in range(2, min(21, max_n - 2)):
-        b = v[1] * v[d]
-        for stem in range(0, max_n - d - 2):
+    best_hit = None
+    max_depth = min(21, max_n - 2)
+    for n in range(4, max_n):
+        for d in range(2, min(max_depth, n - 1)):
+            stem = n - d - 2
+            if stem < 0:
+                continue
+            b = v[1] * v[d]
             homE = np.dot(a_arr, v[stem] * b)
-            n = stem + d + 2
-            if n >= max_n:
-                break
             if homP[n] > 0 and homE / homP[n] < 1.0 - 1e-11:
                 ratio = homE / homP[n]
-                return True, n, d, ratio, lam1, lam2
+                best_hit = (True, n, d, ratio, lam1, lam2)
+                return best_hit
 
     return False, None, None, None, lam1, lam2
 
@@ -189,7 +195,7 @@ def main():
             if first_n not in frontier or total_v < frontier[first_n][0]:
                 frontier[first_n] = (total_v, degrees, first_d, ratio, lam1, lam2)
                 print(
-                    f"  NEW BEST n≥{first_n}: T{degrees} |V|={total_v} "
+                    f"  NEW BEST n={first_n}: T{degrees} |V|={total_v} "
                     f"d={first_d} r={ratio:.8f} λ1={lam1:.4f} λ2={lam2:.4f}"
                 )
 

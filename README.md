@@ -15,11 +15,7 @@ The manuscript is in `paper/paper.tex`.
 Build:
 
 ```bash
-cd paper
-pdflatex paper.tex
-bibtex paper
-pdflatex paper.tex
-pdflatex paper.tex
+make paper
 ```
 
 The paper currently distinguishes between:
@@ -103,7 +99,7 @@ python3 -m pip install -r requirements.txt
 python3 scripts/verify_core_claims.py
 python3 scripts/verify_strong.py
 python3 scripts/verify_perturbed_cert.py
-cd paper && pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex
+make paper
 ```
 
 Longer exhaustive sweeps should be accompanied by the exact command line,
