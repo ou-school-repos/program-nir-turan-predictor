@@ -31,6 +31,9 @@ def get_similarity_matrix(degrees):
       M[i, i+1] = d_{i+1}  (parent → children)
       M[i+1, i] = 1        (child → parent)
 
+    The symmetric matrix similar to M has off-diagonals sqrt(d_{i+1});
+    we use that matrix for spectral reporting.
+
     Orbit sizes: a = [1, d1, d1*d2, d1*d2*d3, ...]
     Total vertices: sum(a)
     """
@@ -48,7 +51,19 @@ def get_similarity_matrix(degrees):
     return M, a
 
 
-def check_leontovich_similarity(M, a, max_n=300):
+def get_symmetric_spectral_matrix(degrees):
+    """Build the symmetric matrix similar to the quotient matrix."""
+    k = len(degrees)
+    dim = k + 1
+    S = np.zeros((dim, dim))
+    for i in range(k):
+        off_diag = np.sqrt(degrees[i])
+        S[i, i + 1] = off_diag
+        S[i + 1, i] = off_diag
+    return S
+
+
+def check_leontovich_similarity(M, S, a, max_n=300):
     """
     Check Leontovich property using the similarity matrix.
 
@@ -84,23 +99,19 @@ def check_leontovich_similarity(M, a, max_n=300):
         homP[step + 1] = np.dot(a_arr, v[step])
 
     # Eigenvalues for reporting
-    evals = sorted(np.linalg.eigvalsh(M), reverse=True)
+    evals = sorted(np.linalg.eigvalsh(S), reverse=True)
     lam1 = evals[0] if len(evals) > 0 else 0
     lam2 = evals[1] if len(evals) > 1 else 0
 
-    best_hit = None
     max_depth = min(21, max_n - 2)
+    branch_terms = {d: v[1] * v[d] for d in range(2, max_depth)}
     for n in range(4, max_n):
         for d in range(2, min(max_depth, n - 1)):
             stem = n - d - 2
-            if stem < 0:
-                continue
-            b = v[1] * v[d]
-            homE = np.dot(a_arr, v[stem] * b)
+            homE = np.dot(a_arr, v[stem] * branch_terms[d])
             if homP[n] > 0 and homE / homP[n] < 1.0 - 1e-11:
                 ratio = homE / homP[n]
-                best_hit = (True, n, d, ratio, lam1, lam2)
-                return best_hit
+                return True, n, d, ratio, lam1, lam2
 
     return False, None, None, None, lam1, lam2
 
@@ -186,9 +197,12 @@ def main():
         total_checked += 1
 
         M, a = get_similarity_matrix(degrees)
+        S = get_symmetric_spectral_matrix(degrees)
         total_v = sum(a)
 
-        is_leo, first_n, first_d, ratio, lam1, lam2 = check_leontovich_similarity(M, a)
+        is_leo, first_n, first_d, ratio, lam1, lam2 = check_leontovich_similarity(
+            M, S, a
+        )
 
         if is_leo:
             total_leo += 1

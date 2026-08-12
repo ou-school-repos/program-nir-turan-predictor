@@ -524,14 +524,14 @@ $n \in \{5,\ldots,15\}$ vertices was tested (brute-force); the
 Operations column counts hom evaluations. For $m = 10, 11$, only
 near-path trees $E_n^{(d)}$ ($n \le 200$, $d \le 20$) were used
 via the $E_n^{(d)}$ filter (wall-clock time shown). These rows are
-bounded filter results in the sense of Remark~\ref{prop:pf}, not
+bounded filter results in the sense of Remark~\ref{rem:filter}, not
 full all-tree sweeps.}
 \end{table}
 
 \subsection{Asymptotic defense via Perron--Frobenius}
 
 \begin{remark}[Filter heuristic]
-  \label{prop:pf}
+  \label{rem:filter}
   The near-path family $E_n^{(d)}$ is a natural high-sensitivity filter for
   path-minimizer failures.
   The path $P_n$ achieves the minimal exponential growth rate
@@ -1344,13 +1344,18 @@ Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
 for all sufficiently large $n$, both even and odd. Exact integer computation of
 the walk sequences reveals that $E_n$ overtakes $P_n$ on $B$ starting exactly at
 the even threshold $n = 17{,}340$ and remains ahead through the verified range.
-So even-$n$ crossovers do not require loops. What they require here is a
-near-antipodal mode: the two largest eigenvalues of $B$ in magnitude are
-$7.284896$ and $-7.282828$, a ratio of about $0.99972$, so the alternating
-contribution that protects $P_n$ at even~$n$ decays slowly enough to survive
-until $n = 17{,}340$. This is not the second positive eigenvalue
-$\lambda_2 \approx 5.842228$, whose ratio $\lambda_2/\lambda_1 \approx 0.802$
-makes it negligible by comparison at much smaller~$n$.
+So even-$n$ crossovers do not require loops. Since $B$ is bipartite its
+spectrum is exactly symmetric about zero, and that $\pm$ pairing is what
+protects $P_n$ at even~$n$. What eventually defeats the protection is
+near-degeneracy among the dominant magnitudes: the two largest positive
+eigenvalues of $B$ are $7.284896$ and $7.282828$, a ratio of about
+$0.99972$, so the competing mode decays slowly enough to survive until
+$n = 17{,}340$. Equivalently, on the looped source $\hat{T}(1,35,1,50)$
+the same fact appears as a near-antipodal eigenvalue $-7.282828$ just
+inside the Perron root. This is not the second positive eigenvalue of
+$\hat{T}$, $\lambda_2 \approx 5.842228$: at
+$\lambda_2/\lambda_1 \approx 0.802$ that mode is negligible by
+$n \approx 45$.
 
 \paragraph{Disproof of the universal bipartite parity hypothesis.}
 Appendix~\ref{app:sa} records a working hypothesis suggested by
@@ -1359,7 +1364,7 @@ $m \le 15$ vertices, together with the 5.6~million source trees on
 $n \le 22$ vertices, showed no even-$n$ crossover. The
 $n=17{,}340$ example above disproves the universal statement. The point
 is scale, not a new mechanism: the relevant long-lived term is the
-near-antipodal eigenvalue of magnitude $7.282828$, not the smaller positive
+second dominant magnitude $7.282828$, not the smaller positive
 eigenvalue $\lambda_2$.
 
 \subsection{A Perturbed Non-Bipartite Certificate}
