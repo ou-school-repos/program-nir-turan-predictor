@@ -1,6 +1,9 @@
-# Homomorphism Walks on $H_{18}$ (Minimal Bipartite Leontovich Target)
+# Homomorphism Walks on $H_{18}$ (Scoped Depth-2 Bipartite Witness)
 
-This document provides a comprehensive structural reference, canonical walk vector equations, a step-by-step numerical trace, and the exact crossover verification math at $n=17$ for the record-breaking **$H_{18}$ 18-vertex bipartite Leontovich target graph**.
+This document provides a structural reference, canonical walk vector equations,
+a step-by-step numerical trace, and the exact crossover verification math at
+$n=17$ for **$H_{18}$, the current 18-vertex depth-2 bipartite Leontovich
+witness in the completed bounded sweep through path length $n \le 51$**.
 
 ---
 
@@ -133,15 +136,23 @@ At the crossover threshold of path length $n = 17$:
    $$\operatorname{Hom}(E_{17}^{(2)}, H_{18}) < \operatorname{Hom}(P_{17}, H_{18})$$
    $$\Delta_{\text{margin}} = \operatorname{Hom}(P_{17}, H_{18}) - \operatorname{Hom}(E_{17}^{(2)}, H_{18}) = \mathbf{+5{,}068{,}778}$$
 
-This confirms with **$100\%$ exact integer arithmetic** that the path $P_{17}$ fails to minimize tree homomorphisms for target $H_{18}$, making $H_{18}$ the absolute smallest bipartite Leontovich graph in existence!
+This confirms with exact integer arithmetic that the path $P_{17}$ fails to
+minimize tree homomorphisms for target $H_{18}$. Within the completed depth-2
+bounded sweep through path length $n \le 51$, this makes $H_{18}$ the current
+smallest verified bipartite depth-2 witness.
 
 ---
 
 ## 6. Empirical Partition Sweep & Uniqueness Proof
 
-To prove that $H_{18}$ is the **unique global minimum** of its partition class, we executed an exhaustive combinatorial sweep of all possible bipartite $(3, m_2)$ graphs up to $m_2 = 15$ ($45{,}838$ distinct topologies evaluated up to threshold $n=51$).
+To prove that $H_{18}$ is the unique minimum within the tested $(3,m_2)$
+partition class, we executed an exhaustive combinatorial sweep of all possible
+bipartite $(3, m_2)$ graphs up to $m_2 = 15$ ($45{,}838$ distinct topologies
+evaluated up to threshold $n=51$).
 
-The output of the empirical sweep run on `shane@coffeelake` confirms that $H_{18}$ (represented by its symmetry signature `(7, 0, 0, 1, 1, 6, 0)`) is the **only** Leontovich graph of this class in existence:
+The output of the empirical sweep run on `shane@coffeelake` confirms that
+$H_{18}$ (represented by its symmetry signature `(7, 0, 0, 1, 1, 6, 0)`) is
+the only detected depth-2 Leontovich graph in this tested class:
 
 ```bash
 $ python3 scripts/verify_partition3.py
@@ -162,6 +173,13 @@ PROOF COMPLETED in 19.230 seconds.
 ============================================================
 ```
 
-Furthermore, to mathematically guarantee that $H_{18}$ is the absolute **global vertex-count minimum** across all simple bipartite target graphs (including partitions with $m_1 \ge 4$), we executed an exhaustive sweep of all remaining partition classes up to $m \le 17$ vertices using `scripts/verify_bipartite_m17.cpp`.
+Furthermore, to show that no smaller simple bipartite depth-2 witness appears
+in the tested regime across the remaining partition classes with $m_1 \ge 4$,
+we executed an exhaustive sweep of all such families up to $m \le 17$ vertices
+using `scripts/verify_bipartite_m17.cpp`.
 
-Running with **100% exact arbitrary-precision 256-bit integer arithmetic** (`uint256_t`) and multi-threaded **Group Backtrack Pruning** at all intermediate recursion levels, the sweep evaluated all canonical graphs in these families and returned **exactly 0 Leontovich violations**. This rigorously establishes that **no bipartite Leontovich target graph exists of order $m \le 17$**, sealing the global minimality of $H_{18}$ in infinite-precision stone.
+Running with exact `uint256_t` arithmetic and multi-threaded Group Backtrack
+Pruning at all intermediate recursion levels, the sweep evaluated all canonical
+graphs in these families and returned 0 depth-2 Leontovich violations in the
+tested range. Combined with the $(3,m_2)$ sweep above, this establishes that no
+smaller simple bipartite depth-2 witness was found for path lengths $n \le 51$.

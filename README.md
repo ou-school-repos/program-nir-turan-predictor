@@ -46,6 +46,9 @@ conditional sweep result, not an unconditional theorem.
 - The current 5-orbit strong-frontier audit distinguishes ordinary finite-window
   Leontovich behavior from strongly Leontovich behavior.
 
+The paper-facing constants, scope bounds, and reproducer commands are tracked
+in [docs/CLAIMS_LEDGER.md](/home/shane/Documents/school/ou-papers/program-nir-turan-predictor/docs/CLAIMS_LEDGER.md).
+
 Run the fast exact witness check:
 
 ```bash
@@ -69,7 +72,8 @@ quotient exactly, and reproduces the leading-coefficient ratio
 - `src/`: C++ search and verification kernels.
 - `scripts/`: Python and C++ scripts for exact checks, plotting, search, and
   witness verification.
-- `docs/`: generated figures, logs, and supporting notes.
+- `docs/`: generated figures, logs, supporting notes, and the paper-facing
+  claims ledger.
 - `legacy/`: Lean files and generated proof-related artifacts.
 
 ## Formal Verification Status
