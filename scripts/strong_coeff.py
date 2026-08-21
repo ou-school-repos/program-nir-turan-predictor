@@ -22,15 +22,13 @@ def quotient_data(degrees):
     return q, sizes
 
 
-def certified_leading_ratio(Q, sizes, K, dps=50, depth=2):
-    """Compute the high-precision Perron leading-coefficient ratio.
+def certified_ratio_bounds(Q, sizes, K, dps=50, depth=2):
+    """Compute certified lower and upper bounds on the leading ratio.
 
-    Returns (lam1, lam2, rho, rho_hi), where rho_hi is a certified upper
-    bound on the true ratio: derives a Bauer-Fike residual bound on the
-    computed Perron eigenpair and the corresponding Davis-Kahan
-    eigenvector-angle bound, then propagates both through the num/den
-    ratio (Cauchy-Schwarz), so rho_hi >= rho_true is a proof rather than
-    a bare float comparison.
+    Returns (lam1, lam2, rho, rho_lo, rho_hi), where rho_lo <= rho_true <= rho_hi.
+    The enclosing interval derives a Bauer-Fike residual bound on the computed
+    Perron eigenpair and the corresponding Davis-Kahan eigenvector-angle bound,
+    then propagates both through the num/den ratio (Cauchy-Schwarz).
     """
     import mpmath as mp
 
@@ -82,14 +80,31 @@ def certified_leading_ratio(Q, sizes, K, dps=50, depth=2):
     err_s_den = norm_c_den * vec_err
 
     num_hi = num + err_num
+    num_lo = num - err_num
+    lam1_hi = lam1 + eig_err
     lam1_lo = lam1 - eig_err
+    s_den_hi = s_den + err_s_den
     s_den_lo = s_den - err_s_den
-    if not (lam1_lo > 0 and s_den_lo > 0):
+    if not (lam1_lo > 0 and s_den_lo > 0 and num_lo > 0):
         raise RuntimeError("eigenpair error bound too loose to certify")
+    den_hi = lam1_hi ** (depth + 1) * s_den_hi
     den_lo = lam1_lo ** (depth + 1) * s_den_lo
+    rho_lo = num_lo / den_hi
     rho_hi = num_hi / den_lo
 
-    return lam1, lam2, num / den, rho_hi
+    return lam1, lam2, num / den, rho_lo, rho_hi
+
+
+def certified_leading_ratio(Q, sizes, K, dps=50, depth=2):
+    """Compute the high-precision Perron leading-coefficient ratio.
+
+    Returns (lam1, lam2, rho, rho_hi), where rho_hi is a certified upper
+    bound on the true ratio.
+    """
+    lam1, lam2, rho, _rho_lo, rho_hi = certified_ratio_bounds(
+        Q, sizes, K, dps=dps, depth=depth
+    )
+    return lam1, lam2, rho, rho_hi
 
 
 def leading_ratio(degrees):

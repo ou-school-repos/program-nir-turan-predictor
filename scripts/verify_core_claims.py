@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, getcontext
 
+from exact_rho import certify_rho_sign, symmetric_tree_quotient
 from strong_coeff import leading_ratio
 
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
@@ -286,6 +287,8 @@ def verify_even_crossover() -> None:
 def verify_t135_ratio() -> None:
     """Verify leading and high-n ratios for T-hat(1,35,1,50)."""
     tree = LoopedSymmetricTree((1, 35, 1, 50))
+    quotient, sizes = symmetric_tree_quotient((1, 35, 1, 50))
+    check(certify_rho_sign(quotient, sizes, 2).sign < 0, "expected rho_2 < 1")
     rho = Decimal(str(leading_ratio((1, 35, 1, 50))))
     check(rho < Decimal(1), rho)
     check(
@@ -306,6 +309,16 @@ def verify_t135_ratio() -> None:
     )
 
 
+def verify_gadget_depths() -> None:
+    """Verify the new depth-4 witness improvement claim."""
+    quotient, sizes = symmetric_tree_quotient((1, 35, 1, 50))
+    cert2 = certify_rho_sign(quotient, sizes, 2)
+    cert4 = certify_rho_sign(quotient, sizes, 4)
+    check(cert2.sign < 0, "expected rho_2 < 1")
+    check(cert4.sign < 0, "expected rho_4 < 1")
+    print("Depth-4 witness improvement verified")
+
+
 def main() -> None:
     """Run every exact core-claim verification."""
     verify_h_star()
@@ -314,6 +327,7 @@ def main() -> None:
     verify_table8()
     verify_even_crossover()
     verify_t135_ratio()
+    verify_gadget_depths()
     print("All core exact checks passed.")
 
 
