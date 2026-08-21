@@ -108,9 +108,9 @@ substantive assertion with one of four tags and use them consistently.
     of family $\mathcal{F}$ exhibits behaviour $B$ within the tested
     window''. This certifies the window, not the family; we never state it as a
     nonexistence theorem.
-  \item[(N) Certified numerics.] A high-precision floating-point
-    computation with an explicit error bound, so the reported
-    inequality holds with a proven margin.
+  \item[(N) High-precision numerics.] A floating-point computation with
+    a residual-based error estimate but no outward-rounded interval or
+    exact enclosure. This is numerical evidence, not a proof.
 \end{description}
 
 The distinction between (P) and (S) matters most. A near-path sweep
@@ -161,7 +161,7 @@ for proved results and state the scope of each sweep explicitly.
     crossovers do not require a loop, only enough room to delay the
     cancellation.
   \item \textbf{(N)} A perturbed double cover on $6{,}806$ vertices whose
-    certified leading-coefficient ratio is $0.999952140676 < 1$,
+    estimated leading-coefficient ratio is $0.999952140676 < 1$,
     a candidate simple non-bipartite strongly Leontovich target.
 \end{enumerate}
 
@@ -460,7 +460,8 @@ strong property with a single inequality between leading coefficients.
   therefore used only to \emph{flag} candidates; every reported witness
   is re-derived in exact integer arithmetic through
   Lemma~\ref{lem:quotient}, and every asymptotic claim is accompanied by
-  the certified bound described in Section~\ref{sec:evidence}.
+  the high-precision error estimate described in
+  Section~\ref{sec:evidence}.
 \end{remark}
 
 \subsection{Notation summary}

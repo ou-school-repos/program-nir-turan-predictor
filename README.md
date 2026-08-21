@@ -55,7 +55,7 @@ Run the fast exact witness check:
 python3 scripts/verify_core_claims.py
 ```
 
-Run the perturbed non-bipartite certificate:
+Run the perturbed non-bipartite numerical check:
 
 ```bash
 python3 -m pip install -r requirements.txt
