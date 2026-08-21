@@ -97,7 +97,7 @@ verify/core: ##H Run core exact verification checks used by the paper
 	{ \
 		$(PYTHON) scripts/verify_core_claims.py && \
 		$(PYTHON) scripts/verify_strong.py && \
-		$(PYTHON) -m unittest tests/test_exact_rho.py && \
+		$(PYTHON) -m unittest tests/test_exact_rho.py tests/test_sweep_orchestrator.py && \
 		$(call print_success,Core paper verifiers completed.); \
 	} 2>&1 | tee verify-core.log'
 
