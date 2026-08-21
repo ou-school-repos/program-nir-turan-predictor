@@ -6,7 +6,7 @@ artifacts by keeping the main constants, bounds, evidence tags, and
 reproducer commands in one place.
 
 Evidence tags follow
-[paper/intro_preliminaries.tex](../paper/intro_preliminaries.tex#L96):
+[paper/sections/00_introduction.tex](../paper/sections/00_introduction.tex#L80):
 
 - `P`: analytic proof
 - `E`: exact finite computation

@@ -1,0 +1,292 @@
+\section{Simulated Annealing Results}
+\label{app:sa}
+
+Starting from $T(7,1,9)$ ($|V|=78$), our simulated annealing
+search discovered a smaller Leontovich graph with $|V|=76$ via
+edge mutation and vertex contraction.  The result was verified
+independently with exact integer arithmetic
+(\texttt{scripts/verify\_76.py}).
+
+The 76-vertex graph is a tree with 75 edges and degree sequence
+\[
+  [10, 10, 10, 10, 10, 9, 9, 7, \underbrace{2, \ldots, 2}_{7},
+   \underbrace{1, \ldots, 1}_{61}].
+\]
+It retains the star-of-stars topology of $T(7,1,9)$ but with
+asymmetric leaf counts at the bridge layer (one branch lost two
+leaves, another lost one).
+
+\begin{table}[H]
+\centering
+\caption{Active quotient spectra along the pruning sequence. Asymmetric pruning breaks identical-branch symmetry, expanding the quotient matrix and lifting new active eigenvalues $\lambda_2^*$ that govern the Leontovich crossover.}
+\label{tab:sa_hits}
+\begin{tabular}{@{}clccccc@{}}
+  \toprule
+  $|V|$ & Structure & Crossover $n$ & $d$ & $\lambda_2^*/\lambda_1$ & $\lambda_1$ & $\lambda_2^*$ \\
+  \midrule
+  78 & $T(7,1,[9^7])$     & 13  & 2 & 0.6877 & 3.3973 & 2.3364 \\
+  77 & $T(7,1,[9^6,8^1])$ & 15  & 2 & 0.8911 & 3.3874 & 3.0187 \\
+  76 & $T(7,1,[9^5,8^2])$ & 17  & 2 & 0.8997 & 3.3766 & 3.0380 \\
+  \midrule
+  75 & $T(7,1,[9^4,8^3])$ & --- & --- & 0.9089 & 3.3647 & 3.0581 \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The 76-vertex graph has an active secondary quotient eigenvalue of $\lambda_2^* \approx 3.0380$. Its first crossover
+at $n = 17$ with $d = 2$ was verified by exact integer computation
+of $\Hom(P_n, H) - \Hom(E_n^{(2)}, H) = 1{,}993{,}646 > 0$.
+For $n \ge 17$, the sign of $\Delta_n$ strictly alternates between
+even and odd $n$, indicating destructive interference from the
+active secondary eigenvalue.
+
+A 20-seed swarm of $5 \times 10^6$ SA steps each (totalling
+$10^8$ evaluations) was run from $T(7,1,9)$ at temperature 3.0.
+Every seed converged to a 76-vertex graph, with an intermediate
+$|V|=77$ Leontovich graph consistently discovered along the path
+(typically within the first 10 steps). No seed found a graph with
+$|V| < 76$.  This strongly suggests that 76 is the global minimum
+within the star-of-stars basin, and that the descent
+$78 \to 77 \to 76$ represents the unique pruning sequence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/leontovich_76.pdf}
+\caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
+(degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
+Green: leaves (degree~1). The asymmetric pruning of two branches
+from $T(7,1,9)$ expands the active quotient spectrum, shifting
+the first crossover from $n=13$ to $n=17$.}
+\label{fig:leo76}
+\end{figure}
+
+\subsection*{Symmetry breaking and the active quotient spectrum}
+
+The pruning sequence admits a clean analytic
+description that resolves the crossover behaviour. In the fully symmetric
+graph $T(7,1,[9^7])$, the adjacency matrix possesses highly degenerate
+eigenvalues at $\lambda = \sqrt{10}$ (arising from the isolated 9-leaf hubs).
+However, the eigenvectors associated with this eigenspace are antisymmetric
+across the identical branches. Consequently, they are perfectly orthogonal
+to the all-ones vector $\mathbf{1}$ and the initial degree vector, meaning
+their projection coefficients in the transfer matrix expansion
+$\Hom(G_n, H) = \mathbf{1}^T A^{n-4} \mathbf{h}_0$ are identically zero.
+These orthogonal eigenvectors contribute nothing to the homomorphism counts.
+
+Instead, the crossover dynamics are governed exclusively by the \emph{active}
+spectrum---the eigenvalues of the quotient matrix over the graph's
+automorphism orbits. For the fully symmetric graph $T(7,1,[9^7])$, the
+active secondary eigenvalue is $\lambda_2^* \approx 2.3364$.
+
+When leaves are pruned asymmetrically, the perfect identical-branch symmetry
+is broken. For $T(7,1,[9^k, 8^{7-k}])$, the orbits split and the quotient
+matrix expands from $4 \times 4$ to $7 \times 7$. This symmetry breaking
+activates a new secondary eigenvalue $\lambda_2^*$ that directly interferes
+with the Perron mode.
+
+The Leontovich crossover arises from destructive interference between the
+dominant Perron mode $\lambda_1^n$ and the secondary active mode $(\lambda_2^*)^n$
+in the difference $\Hom(P_n, H) - \Hom(E_n^{(d)}, H)$. As branches are pruned,
+$\lambda_1$ decreases while the active secondary eigenvalue $\lambda_2^*$
+increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
+At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
+sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
+$n = 17$. However, at $|V| = 75$, the audited odd thresholds $n \le 31$ do
+not produce a crossover.
+
+This yields a clean dichotomy: \emph{within the star-of-stars basin,
+asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
+into the quotient spectrum.} The Leontovich property is lost when this
+symmetry-breaking pushes the active secondary eigenvalue too close to the
+spectral radius, establishing the 76-vertex graph as the smallest size not
+excluded by the local audit of Section~\ref{sec:local-pruning-audit}.
+
+\subsection*{Deeper symmetric trees}
+
+An overflow-safe sweep (\texttt{\_\_int128} exact arithmetic with
+\texttt{\_\_builtin\_mul\_overflow}) over 596,891 branching sequences
+$T(d_1, \ldots, d_k)$ with $k \le 5$ orbits and $|V| \le 2{,}000$
+found 7,016 Leontovich instances and confirms that $T(7,1,9)$ at
+$|V| = 78$ is the absolute vertex-count minimum across all orbit
+counts.  For each threshold~$n$, the smallest 5-orbit tree is
+consistently \emph{larger} than the corresponding 4-orbit tree:
+for example, at $n = 13$, $T(1,8,1,12)$ ($|V| = 114$) versus
+$T(7,1,9)$ ($|V| = 78$).  Deeper trees do extend the reachable
+threshold range---5-orbit entries reach $n \ge 61$ where no 4-orbit
+tree appears---but at vertex counts exceeding 500.
+
+An earlier floating-point sweep produced false positives (e.g.,
+$T(1,1,1,21)$ at $|V| = 25$ was incorrectly flagged as Leontovich).
+Exact integer verification showed $\Hom(E_n, H) > \Hom(P_n, H)$ at
+all~$n$ for these candidates.  The root cause was signed
+\texttt{\_\_int128} overflow (undefined behaviour under \texttt{-O3}),
+which silently corrupted the comparisons; the
+\texttt{\_\_builtin\_mul\_overflow} intrinsic eliminates this class
+of error.
+
+\subsection*{The Diophantine threshold frontier}
+
+The minimum vertex counts in Table~\ref{tab:landscape_full} are
+explained algebraically and certified computationally in the tested range.
+
+The audited frontier is restricted to the subfamily $T(x,1,z)$. It does
+not establish that contracting an arbitrary $T(x,y,z)$ with $y>1$
+preserves or advances its crossover threshold. Within the audited
+subfamily, the exact landscape sweep checked all $134{,}391{,}973$
+graphs with $|V| \le 10{,}000{,}000$ against $E_n^{(2)}$ for odd
+$n \le 51$ using exact integer arithmetic.
+
+\begin{compresult}[Frontier certification in the tested range]
+\label{thm:frontier}
+For $T(x,1,z)$, the difference $\Delta_n(x,z) = \Hom(P_n, T) -
+\Hom(E_n^{(2)}, T)$ is an exact polynomial in~$x$ and~$z$.
+Within the tested range of Table~\ref{tab:landscape_full}, the
+minimum-vertex graph achieving first crossover at odd threshold~$n$
+is certified by exhaustive exact search over the integer pairs
+$(x,z)$ satisfying $\Delta_n(x,z) > 0$ and $\Delta_{n-2}(x,z) \le 0$.
+The dominant cubic of $\Delta_n$ explains the geometric shape of the
+feasible region but is not, by itself, a complete proof of minimality
+at the small thresholds realised here.
+\end{compresult}
+
+\begin{proof}[Derivation of the feasible wedge]
+Both $\Hom(P_n, T)$ and $\Hom(E_n^{(2)}, T)$ are computed via
+finite matrix multiplications over the $4 \times 4$ quotient matrix.
+Their difference is therefore an exact polynomial.  For example:
+\begin{align*}
+  \Delta_7(x,z) &= -x\bigl(x^3 - x^2 - 2xz^2 - xz - x + (z+1)^3\bigr).
+\end{align*}
+Setting $\Delta_7 > 0$ and extracting the dominant cubic,
+$-x^3 + 2xz^2 - z^3 > 0$, the substitution $w = x/z$ yields the
+characteristic equation $-w^3 + 2w - 1 = 0$, which factors as
+$-(w-1)(w^2 + w - 1) = 0$.  The positive roots give
+\[
+  \frac{\sqrt{5} - 1}{2} < \frac{x}{z} < 1,
+\]
+i.e., the dominant terms place the feasible integer pairs inside a
+geometric wedge bounded by the inverse golden ratio
+$\varphi^{-1} \approx 0.618$. This explains the observed frontier
+shape and sharply narrows the exact search region, but the final
+minimality claims below are certified by exhaustive integer search in
+the tested range rather than by the wedge alone. For example, at
+$n = 7$ the
+unique minimum is $(x,z) = (16,19)$ with $\Delta_7(16,19) = 512 > 0$
+and $\Delta_5(16,19) = -560 \le 0$, yielding $|V| = 337$.  This
+improves the $1{,}801$-vertex bound of
+Galvin et al.~\cite{galvin2025} to 337 vertices. Exact exhaustive search then certifies the remaining entries in
+Table~\ref{tab:landscape_full}: $(9,11)$ at $n = 9$; $(8,10)$ at
+$n = 11$; $(7,9)$ at $n = 13$; and $(8,12)$ at $n = 15$, matching
+the computational landscape in Table~\ref{tab:landscape_full}.
+\end{proof}
+
+\begin{remark}[Algebraic ballast in the strongly Leontovich case]
+\label{rem:ballast}
+A graph is \emph{strongly Leontovich}~\cite{galvin2026} if
+$E_n$ beats the path asymptotically, i.e.\ the leading coefficient ratio
+satisfies $\rho_d(H) < 1$ in Eq.~\eqref{eq:rho}.  This is harder than
+the standard Leontovich condition, which only requires destructive
+interference at \emph{some} odd~$n$.
+
+Under 4-orbit symmetry, the quotient dynamics are governed by a
+$4 \times 4$ quotient matrix with only 3 integer degrees of freedom
+$(x, y, z)$.  To force the strict ratio inequality $\rho_d(H) < 1$ in
+Eq.~\eqref{eq:rho} within this tiny parameter space, the branching degrees
+must be scaled to extreme values (e.g., $x = 400$, $z = 800$ for
+$\hat{T}(400, 3, 800)$).  The resulting $\sim\!960{,}000$ vertices are
+\emph{algebraic ballast}: redundant, identical branches imposed by the
+symmetry constraint, carrying eigenvectors orthogonal to the initial state
+that project to zero in the homomorphism counts and contribute nothing to
+the crossover.
+
+Adding a 5th orbit expands the quotient matrix from $4 \times 4$ to
+$5 \times 5$, unlocking a new independent variable.  This produces many
+small ordinary Leontovich examples, but the strong condition must be checked
+asymptotically rather than by observing a finite crossover window.  A corrected
+exact audit of 5-orbit looped symmetric trees
+$\hat{T}(d_1, d_2, d_3, d_4)$ finds that the smallest verified
+\textit{strongly} Leontovich example in this sweep is
+$\hat{T}(1, 35, 1, 50)$ on $1{,}822$ vertices.  This still improves the
+$961{,}601$-vertex 4-orbit upper bound by roughly a factor of $528$, while the
+smaller examples in Table~\ref{tab:strong_frontier} are ordinary finite-window
+Leontovich graphs rather than strongly Leontovich graphs.
+
+\begin{table}[H]
+\centering
+\caption{Audit of 5-orbit looped symmetric trees: ordinary versus strongly Leontovich behavior.}
+\label{tab:strong_frontier}
+\begin{tabular}{@{}ccll@{}}
+\toprule
+Opening $n$ & $|V|$ & Parameters $(d_1, d_2, d_3, d_4)$ & Verdict \\
+\midrule
+7 & 1,066 & $\hat{T}(1, 28, 1, 36)$ & ordinary only; closes at $n=1827$ \\
+9 & 370 & $\hat{T}(1, 16, 1, 21)$ & ordinary only; closes at $n=251$ \\
+11 & 262 & $\hat{T}(1, 13, 1, 18)$ & ordinary only; closes at $n=141$ \\
+13 & 242 & $\hat{T}(1, 12, 1, 18)$ & ordinary only; closes at $n=127$ \\
+15 & 546 & $\hat{T}(1, 17, 1, 30)$ & ordinary only; closes at $n=261$ \\
+17 & 422 & $\hat{T}(1, 15, 1, 26)$ & ordinary only; closes at $n=133$ \\
+\midrule
+7 & 1,822 & $\hat{T}(1, 35, 1, 50)$ & strongly Leontovich (smallest known record) \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{remark}
+
+\subsection*{Non-oscillatory threshold}
+
+\begin{proposition}
+For a bipartite tree $H$ with exactly two dominant positive
+eigenvalues $\lambda_1 > \lambda_2 > 0$, the difference
+$\Delta_n = \Hom(P_n, H) - \Hom(E_n^{(d)}, H)$ restricted to
+odd~$n$ can change sign at most once.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+This proposition applies to bipartite trees satisfying its hypotheses, not to
+the 5-orbit looped symmetric targets in Table~\ref{tab:strong_frontier},
+whose odd-$n$ windows can open and later close.
+By quotient-eigenbasis expansion, the homomorphism counts for large $n$
+are dominated by two terms:
+\[
+  \Delta_{\mathrm{odd}}(n) = A\,\lambda_1^n + B\,\lambda_2^n
+  = \lambda_1^n \!\left( A - |B|\left(\frac{\lambda_2}{\lambda_1}\right)^{\!n}\right)
+\]
+where $A > 0$ (since $E_n^{(d)}$ is the asymptotic minimizer at odd $n$)
+and $B < 0$ (since $P_n$ wins at small~$n$).  Because
+$0 < \lambda_2/\lambda_1 < 1$, the subtracted term
+$|B|(\lambda_2/\lambda_1)^n$ is strictly decreasing.  Thus the
+parenthesised expression crosses zero at most once: once $\Delta$
+becomes positive, it remains positive for all larger odd~$n$.
+\end{proof}
+
+\noindent
+We verified this computationally for the 76-vertex graph: $\Delta$
+is negative for $n \le 15$ and strictly positive for all
+$n \ge 17$ (checked through $n = 43$), with the gap growing
+exponentially from $\Delta_{17} = 1{,}993{,}646$ to
+$\Delta_{43} > 10^{17}$.
+
+\subsection*{A Bipartite Parity Hypothesis}
+
+\begin{remark}[Bipartite parity hypothesis (refuted in Section~\ref{sec:doublecover})]
+For any bipartite target graph $H$, $\Hom(E_n^{(d)}, H) \ge
+\Hom(P_n, H)$ for all even~$n$.  That is, the path $P_n$ is
+always the minimizer among trees on $n$ vertices when $n$ is even
+and $H$ is bipartite.
+\end{remark}
+
+\noindent
+Extensive finite searches suggested this hypothesis: across all tested
+target graphs (the 608,930,559 connected bipartite graphs on $m \le 15$
+vertices, together with all source trees through $n=22$, including
+$5{,}623{,}756$ at $n=22$), no even-$n$ crossover was observed.
+Section~\ref{sec:doublecover}
+disproves it: the bipartite double cover $B$ of $\hat T(1,35,1,50)$
+overtakes the path at the even threshold $n = 17{,}340$.
+
+\begin{remark}
+The same parity effect appears for independent sets: the consecutive
+ratios $a(N)/a(N-1)$ oscillate with period~2; the looped target
+$H_{\mathrm{ind}}$ breaks bipartiteness, so the parity protection is
+gone.
+\end{remark}

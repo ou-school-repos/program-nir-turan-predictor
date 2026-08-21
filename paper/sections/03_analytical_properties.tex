@@ -1,0 +1,274 @@
+\section{Analytical Properties of Leontovich Graphs}
+\label{sec:leontovich}
+
+\subsection{An eigenvalue condition that forbids crossovers}
+
+\begin{theorem}[Single Positive Eigenvalue Reduction]
+  \label{thm:spectral}
+  Let $H$ be a rooted bipartite graph whose automorphism orbits respect
+  the bipartition (i.e., no orbit contains vertices from both sides).
+  If the quotient matrix of $H$ has exactly one positive eigenvalue,
+  then the odd-$n$ near-path comparison has constant sign: for each fixed
+  depth~$d$, the sign of $\Hom(P_n,H)-\Hom(E_n^{(d)},H)$ is determined on
+  all odd~$n$ by any single verified odd base case.
+\end{theorem}
+
+\begin{proof}
+  Since the orbits respect the bipartition, the quotient matrix has
+  block form $\left[\begin{smallmatrix}0&B\\B^T&0\end{smallmatrix}\right]$
+  after ordering the cells by side, so its nonzero spectrum is symmetric
+  about zero.
+  Because the base vector $\mathbf{1}$ and the initial degree vector
+  are constant on automorphism orbits, the entire dynamic programming
+  sequence $\{A^k \mathbf{1}\}$ remains in the column space of the
+  quotient matrix, so the full adjacency spectrum is unnecessary.
+  If there is exactly one positive eigenvalue $\lambda_1$, then every
+  other nonzero eigenvalue is $-\lambda_1$, and the active spectrum is
+  contained in $\{\lambda_1, 0, -\lambda_1\}$. By the quotient-eigenbasis
+  expansion and Lemma~\ref{lem:active_recurrence},
+  \[
+    \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
+  \]
+  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$, and the kernel
+  component vanishes once the exponent is at least $1$. There are no
+  secondary exponential terms, so the ratio
+  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. Thus the
+  eigenvalue condition reduces any odd near-path crossover question to
+  the sign of one verified odd base case in the family being studied.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:2_and_3_orbit_trees}
+  All 2-orbit trees (stars $S_m$) and 3-orbit trees $T(x,y)$ have
+  exactly one positive quotient eigenvalue. For these families, the
+  eigenvalue condition reduces odd near-path crossover detection to a
+  single base-case sign check.
+\end{corollary}
+
+\begin{corollary}[Double-cover transfer for small sweeps]
+  \label{cor:loopy_transfer}
+  If no connected simple graph on at most $2m$ vertices is Leontovich,
+  then no connected graph on at most $m$ vertices, loops allowed, is
+  Leontovich. In particular, if a connected looped target $H$ is
+  non-bipartite, then its connected double cover $H \times K_2$ converts
+  any unconditional simple-graph nonexistence bound at order~$\le 2m$ into
+  the corresponding looped bound at order~$\le m$. Our bounded near-path
+  sweeps therefore transfer only within their tested ranges: the
+  simple-graph sweep up to $11$ vertices gives looped-target evidence on at
+  most $5$ vertices for $n \le 200$, $d \le 20$, and the bipartite sweep
+  up to $14$ vertices gives the analogous bounded evidence up to
+  $7$ looped vertices.
+\end{corollary}
+
+\subsection{Four-orbit trees}
+
+For 4-orbit trees $T(x,y,z)$, the characteristic polynomial of the
+quotient matrix is
+\begin{equation}
+  \label{eq:charpoly}
+  \lambda^4 - (x+y+z)\,\lambda^2 + xz = 0.
+\end{equation}
+Setting $s = x + y + z$, the discriminant of the quadratic in
+$\lambda^2$ is
+\[
+  s^2 - 4xz = (x - z)^2 + y^2 + 2y(x + z).
+\]
+Since $x, y, z \ge 1$, this expression is always strictly positive
+($\ge 5$). By Descartes' rule of signs, both roots for $\lambda^2$ are
+positive, so \emph{every} spherically symmetric 4-orbit tree possesses
+exactly 2 positive eigenvalues.
+
+\subsection{The crossover threshold for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+
+This result was known privately to JD Nir and David Galvin prior to this work;
+we record here the first fully written proof.
+
+\begin{theorem}[Permanent Crossover]
+  \label{thm:threshold}
+  Let $H = T(7,1,9)$. Then $\Hom(E_n, H) < \Hom(P_n, H)$ for all
+  odd $n \ge 13$, and direct computation gives $\Delta(11) < 0$ and
+  $\Delta(13) > 0$.
+\end{theorem}
+
+\begin{proof}
+  The characteristic polynomial of the quotient matrix
+  \[
+    M = \begin{pmatrix} 0&7&0&0 \\ 1&0&1&0 \\
+    0&1&0&9 \\ 0&0&1&0 \end{pmatrix}
+  \]
+  is $t^4 - 17t^2 + 63 = 0$. Setting $u = t^2$:
+  \[
+    u = \frac{17 \pm \sqrt{37}}{2},
+    \qquad
+    \lambda_1 = \sqrt{\frac{17 + \sqrt{37}}{2}} \approx 3.3973,
+    \qquad
+    \lambda_2 = \sqrt{\frac{17 - \sqrt{37}}{2}} \approx 2.3364.
+  \]
+  For odd $n$, the quotient-eigenbasis expansion yields
+  \[
+    \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
+    \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
+  \]
+  for constants $A > 0$ and $B \neq 0$. Setting
+  $r = \lambda_2 / \lambda_1 = \sqrt{(17 - \sqrt{37})/(17 + \sqrt{37})}
+  \approx 0.6877$:
+  \[
+    \Delta_{\mathrm{odd}}(n) = \lambda_1^n \bigl(A - |B|\,r^n\bigr).
+  \]
+  Since $r^n$ is strictly monotonically decreasing, $A - |B|\,r^n$ can
+  cross zero at most once. Evaluating directly:
+  \begin{align*}
+    \Delta(11) &= 13{,}993{,}266 - 14{,}000{,}700 = -7{,}434 < 0, \\
+    \Delta(13) &= 161{,}209{,}734 - 161{,}161{,}476 = +48{,}258 > 0.
+  \end{align*}
+  Thus $n = 13$ is the unique, permanent threshold.
+\end{proof}
+
+\begin{remark}[Parity heuristic, not theorem]
+  \label{rem:parity}
+  For even $n$, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
+  minimizing its dominant projection. For even depths $d$ (e.g., $d=2$)
+  where $E_n^{(d)}$ remains balanced, the path's linear geometry yields
+  a smaller projection onto the dominant eigenvector. For odd depths
+  (e.g., $d=1$), $E_n^{(d)}$ is forced into an unbalanced
+  $(n/2+1, n/2-1)$ bipartition, giving it a strictly larger leading
+  coefficient. This mechanism explains why even-$n$ crossovers were absent
+  from many small sweeps, but Section~\ref{sec:doublecover} shows that it
+  does not yield a universal obstruction. For odd $n$, both $P_n$ and $E_n^{(d)}$ share the same
+  unbalanced bipartition $(\lceil n/2 \rceil, \lfloor n/2 \rfloor)$,
+  enabling the secondary eigenvector to interfere and drive the crossover.
+\end{remark}
+
+\subsection{Minimum size in the symmetric family}
+
+Exhaustive grid search over $T(x,y,z)$ with
+$|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
+vertices is the smallest Leontovich graph found in the $T(x,y,z)$
+family within the tested range. A generalized search over all spherically symmetric trees
+$T(d_1, \ldots, d_k)$ with $|V| \le 77$ and depth $k \le 6$ tested
+5,732 trees with exact integer arithmetic
+(\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $d \le 20$) and
+confirmed zero Leontovich instances (Table~\ref{tab:symmetric}).
+
+\begin{table}[H]
+\centering
+\caption{Generalized symmetric tree search ($|V| \le 77$, exact integer
+arithmetic, $n \le 200$, $d \le 20$).}
+\label{tab:symmetric}
+\begin{tabular}{@{}cccc@{}}
+  \toprule
+  Depth $k$ & Orbits & Trees tested & Leontovich found \\
+  \midrule
+  1 & 2 &    76 & \textbf{0} \\
+  2 & 3 &   268 & \textbf{0} \\
+  3 & 4 &   592 & \textbf{0} \\
+  4 & 5 & 1,036 & \textbf{0} \\
+  5 & 6 & 1,573 & \textbf{0} \\
+  6 & 7 & 2,187 & \textbf{0} \\
+  \midrule
+  \multicolumn{2}{c}{Total} & 5,732 & \textbf{0} \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The \texorpdfstring{$n = 5$}{n=5} impossibility}
+
+\begin{proposition}[$n = 5$ threshold is algebraically impossible]
+  \label{prop:n5}
+  For all $T(x,y,z)$ with $x, y, z \ge 1$,
+  \[
+    \Hom(P_5, T) - \Hom(E_5, T) = -xy\bigl((x - z - 1)^2 + y^2 z\bigr) < 0.
+  \]
+  In particular, $E_5$ always has \emph{more} homomorphisms than $P_5$
+  into any $T(x,y,z)$, so no Leontovich crossover can occur at $n = 5$.
+\end{proposition}
+
+\begin{proof}
+  Let $M$ denote the $4 \times 4$ quotient matrix of $T(x,y,z)$
+  over its four automorphism orbits (root, children, grandchildren,
+  leaves), with orbit-size vector
+  $\mathbf{s} = (1,\, x,\, xy,\, xyz)^T$:
+  \[
+    M = \begin{pmatrix} 0&x&0&0 \\ 1&0&y&0 \\
+    0&1&0&z \\ 0&0&1&0 \end{pmatrix}.
+  \]
+  For any path $P_n$, the homomorphism count decomposes as
+  $\Hom(P_n, H) = \mathbf{s}^T M^{n-1} \mathbf{1}$,
+  where $\mathbf{1} = (1,1,1,1)^T$. Iterating:
+  \begin{align*}
+    M\,\mathbf{1} &= (x,\; y+1,\; z+1,\; 1)^T, \\
+    M^2\mathbf{1} &= (xy+x,\; x+yz+y,\; y+z+1,\; z+1)^T.
+  \end{align*}
+  The tree $E_5$ has vertices $\{1,2,3,4,5\}$ with edges
+  $(1,2),\,(2,3),\,(3,4),\,(2,5)$, so vertex~2 has degree~3. Rooting
+  at vertex~2 and summing over orbit assignments:
+  \[
+    \Hom(E_5, H) = \sum_{b=0}^{3}
+      s_b \cdot (M\mathbf{1})_b^2 \cdot (M^2\mathbf{1})_b,
+  \]
+  since the three branches from vertex~2 contribute
+  one factor of $(M\mathbf{1})_b$ each for the two pendant
+  leaves (vertices~1 and~5) and one factor of
+  $(M^2\mathbf{1})_b$ for the length-2 branch (vertices 3--4).
+
+  Expanding $\mathbf{s}^T M^4 \mathbf{1}$ and collecting terms:
+  \begin{align*}
+    \Hom(P_5, T) - \Hom(E_5, T)
+    &= -xy\bigl(x^2 - 2x(z+1) + (z+1)^2 + y^2 z\bigr) \\
+    &= -xy\bigl((x - z - 1)^2 + y^2 z\bigr).
+  \end{align*}
+  Since $x, y, z \ge 1$, the squared term
+  $(x - z - 1)^2 \ge 0$ and $y^2 z \ge 1$, so the
+  parenthesised sum is strictly positive. Multiplied by $-xy < 0$,
+  the difference is strictly negative.
+\end{proof}
+
+\begin{remark}[The remaining $n=6$ cases]
+  \label{rem:n6_residue}
+  The six trees on six vertices split into four proved cases and two
+  checked cases. The path is the reference case; the star $K_{1,5}$
+  follows from Sidorenko's theorem; the balanced near-path $\Sp(2,2,1)$
+  is controlled by Theorem~\ref{thm:spectral}; and the double star
+  $S_{2,2}$ is covered by the Cauchy--Schwarz bound above.
+  The remaining two six-vertex trees, $\Sp(3,1,1)$ and
+  $\Sp(2,1,1,1)$, are supported only by exact computation. Consequently,
+  the four proved cases carry label (P), while these two cases carry label
+  (E). A proof covering all six cases would require resolving this gap; the
+  near-path sufficiency conjecture also remains open.
+\end{remark}
+
+\subsection{Minimum threshold landscape}
+
+Sweeping the generator over all $T(x,y,z)$ with $|V| \le 500$ and
+selecting the smallest graph achieving each odd-$n$ threshold yields
+Table~\ref{tab:thresholds}. The vertex count bottoms out at $n = 13$
+with $T(7,1,9)$, then \emph{increases} again---the threshold at $n = 15$
+requires a larger graph than $n = 13$.
+
+\begin{table}[H]
+\centering
+\caption{Smallest Leontovich graph by crossover threshold within the tested
+range.}
+\label{tab:thresholds}
+\begin{tabular}{@{}llcc@{}}
+  \toprule
+  Family & Parameters & $|V|$ & Threshold \\
+  \midrule
+  $T(x,y,z)$ & $T(16, 1, 19)$ & 337 & $n = 7$ \\
+              & $T(9, 1, 11)$  & 118 & $n = 9$ \\
+              & $T(8, 1, 10)$  &  97 & $n = 11$ \\
+              & $T(7, 1, 9)$   &  78 & $n = 13$ \\
+              & $T(8, 1, 12)$  & 113 & $n = 15$ \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}
+  Galvin et al.~\cite{galvin2025} used $T(18,3,32)$ with $1{,}801$ vertices to prove
+  the $n = 7$ crossover (their Theorem~1.3). Our landscape sweep shows
+  that $T(16,1,19)$ achieves the identical crossover with only
+  $337$~vertices---a $5.3\times$ reduction.  This is the smallest
+  $T(x,y,z)$ graph achieving a threshold $n \le 7$ within the tested range.
+\end{remark}
+
+% ════════════════════════════════════════════════════════════════════════
