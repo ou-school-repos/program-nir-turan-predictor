@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Tests for exact algebraic leading-ratio certificates."""
 
+import importlib
 import json
 import subprocess
 import sys
@@ -10,8 +11,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from exact_rho import load_quotient  # noqa: E402
-from exact_rho import certify_rho_sign, symmetric_tree_quotient  # noqa: E402
+exact_rho = importlib.import_module("exact_rho")
+compare_rho_depths = exact_rho.compare_rho_depths
+certify_rho_sign = exact_rho.certify_rho_sign
+load_quotient = exact_rho.load_quotient
+symmetric_tree_quotient = exact_rho.symmetric_tree_quotient
 
 
 class ExactRhoTests(unittest.TestCase):
@@ -78,6 +82,11 @@ class ExactRhoTests(unittest.TestCase):
         self.assertEqual(certificate["schema"], "exact-rho-certificate-v1")
         self.assertEqual(certificate["relation"], "<")
         self.assertEqual(certificate["depth"], 2)
+
+    def test_depth_four_improves_on_depth_two_exactly(self):
+        """The named witness has a strictly smaller exact ratio at depth 4."""
+        quotient, sizes = symmetric_tree_quotient((1, 35, 1, 50))
+        self.assertLess(compare_rho_depths(quotient, sizes, 4, 2), 0)
 
 
 if __name__ == "__main__":

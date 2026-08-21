@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, getcontext
 
-from exact_rho import certify_rho_sign, symmetric_tree_quotient
+from exact_rho import certify_rho_sign, compare_rho_depths, symmetric_tree_quotient
 from strong_coeff import leading_ratio
 
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
@@ -316,6 +316,7 @@ def verify_gadget_depths() -> None:
     cert4 = certify_rho_sign(quotient, sizes, 4)
     check(cert2.sign < 0, "expected rho_2 < 1")
     check(cert4.sign < 0, "expected rho_4 < 1")
+    check(compare_rho_depths(quotient, sizes, 4, 2) < 0, "expected rho_4 < rho_2")
     print("Depth-4 witness improvement verified")
 
 

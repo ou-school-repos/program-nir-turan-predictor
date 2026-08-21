@@ -23,18 +23,17 @@ Pipeline (no hand-derived quotient, so no bookkeeping risk):
      reproduce the independently known 0.999713.
 
 Caveats stated for reviewers:
-  * Step 5's rho < 1 conclusion is certified, not merely observed: leading_ratio
-    computes a Bauer-Fike residual bound on the Perron eigenpair and a
-    Davis-Kahan eigenvector-angle bound, then propagates both through the
-    num/den ratio (Cauchy-Schwarz) to a rigorous upper bound rho_hi >= rho_true.
-    The margin 1 - rho ~ 4.8e-5 exceeds the certified error bound by ~40
-    orders of magnitude, so rho_hi < 1 is a genuine proof, not a float compare.
+  * Step 5's rho < 1 conclusion is high-precision numerical evidence, not an
+    interval-arithmetic certificate. leading_ratio computes a residual/gap-based
+    enclosure heuristic from the Perron eigenpair of the symmetrized quotient.
+    The margin 1 - rho ~ 4.8e-5 is vastly larger than the observed enclosure
+    width, so the estimate is stable, but it is still numerical rather than exact.
   * The exact odd-n scan to n<=3997 is a finite sanity check only, not a
     pointwise-for-all-n certificate: it cannot be extended to a rigorous
     integer scan, because a full sign certificate would need n on the same
     astronomical order as the unperturbed graph's known n=17,340 crossover
     (numbers with that many digits are computationally infeasible to scan).
-    The certified rho_hi < 1 bound above is the actual strong-Leontovich proof.
+    The leading-coefficient estimate is therefore evidence, not proof.
   * Because e breaks bipartiteness only slightly, |lambda2| ~ lambda1 - 2.7e-4
     (the near-surviving -lambda1 mode). Finite-n ratio scans therefore
     converge extremely slowly; the leading-coefficient computation, not a
@@ -173,7 +172,7 @@ def exact_scan(Q, sizes, K, max_n=4001):
 
 def leading_ratio(Q, sizes, K):
     """Compute the high-precision Perron leading-coefficient ratio, with a
-    certified upper bound rho_hi (see strong_coeff.certified_leading_ratio)."""
+    residual-based upper estimate rho_hi (see strong_coeff.certified_leading_ratio)."""
     from strong_coeff import certified_leading_ratio
 
     return certified_leading_ratio(Q, sizes, K)
@@ -196,14 +195,12 @@ def main():
     lam1, lam2, rho, rho_hi = leading_ratio(Q, sizes, K)
     print(f"lambda1 = {mp.nstr(lam1, 12)}   |lambda2| = {mp.nstr(lam2, 12)}")
     print(f"leading-coefficient ratio rho = {mp.nstr(rho, 12)}")
-    print(
-        f"certified upper bound rho_hi = {mp.nstr(rho_hi, 12)} (Bauer-Fike/Davis-Kahan)"
-    )
+    print(f"residual-based upper estimate rho_hi = {mp.nstr(rho_hi, 12)}")
     if not rho_hi < 1:
         raise RuntimeError(
-            f"cannot certify perturbed leading ratio < 1: rho_hi = {rho_hi}"
+            f"numerical upper estimate does not stay below 1: rho_hi = {rho_hi}"
         )
-    print("rho_hi < 1: strongly Leontovich (coefficient sense), certified")
+    print("rho_hi < 1: strongly Leontovich candidate in the coefficient sense")
 
     # validation on unperturbed B' via its known 10-cell quotient
     QH = [

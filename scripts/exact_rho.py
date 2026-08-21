@@ -149,26 +149,16 @@ def _sign_at_isolated_root(
     return 1 if value > 0 else -1 if value < 0 else None
 
 
-def certify_rho_sign(
-    quotient: list[list[int]],
-    sizes: list[int],
-    depth: int = 2,
-    max_precision: int = 80,
-) -> RhoCertificate:
-    """Certify whether rho_depth is below, equal to, or above one."""
-    if depth < 1:
-        raise ValueError("depth must be positive")
-    matrix = _validate_data(quotient, sizes)
+def _rho_candidates(
+    matrix: sp.Matrix, sizes: list[int], depth: int, lam: sp.Symbol
+) -> list[tuple[sp.Poly, sp.Poly]]:
+    """Return exact numerator/denominator candidates for one rho depth."""
     dim = matrix.rows
-    lam = sp.Symbol("lambda")
-    characteristic = sp.Poly(matrix.charpoly(lam).as_expr(), lam, domain=sp.ZZ)
-    adjugate = lam * sp.eye(dim) - matrix
-    adjugate = adjugate.adjugate()
-
+    adjugate = (lam * sp.eye(dim) - matrix).adjugate()
     ones = sp.ones(dim, 1)
+    weights = sp.Matrix(sizes)
     w1 = matrix * ones
     wd = matrix**depth * ones
-    weights = sp.Matrix(sizes)
     coefficient = sp.Matrix([sizes[i] * w1[i] * wd[i] for i in range(dim)])
 
     candidates: list[tuple[sp.Poly, sp.Poly]] = []
@@ -179,10 +169,31 @@ def certify_rho_sign(
         if numerator != 0 and denominator != 0:
             candidates.append(
                 (
-                    sp.Poly(numerator - denominator, lam, domain=sp.ZZ),
+                    sp.Poly(numerator, lam, domain=sp.ZZ),
                     sp.Poly(denominator, lam, domain=sp.ZZ),
                 )
             )
+    if not candidates:
+        raise RuntimeError(f"no Perron-ratio candidate found for depth {depth}")
+    return candidates
+
+
+def certify_rho_sign(
+    quotient: list[list[int]],
+    sizes: list[int],
+    depth: int = 2,
+    max_precision: int = 80,
+) -> RhoCertificate:
+    """Certify whether rho_depth is below, equal to, or above one."""
+    if depth < 1:
+        raise ValueError("depth must be positive")
+    matrix = _validate_data(quotient, sizes)
+    lam = sp.Symbol("lambda")
+    characteristic = sp.Poly(matrix.charpoly(lam).as_expr(), lam, domain=sp.ZZ)
+    candidates = [
+        (sp.Poly(numerator - denominator, lam, domain=sp.ZZ), denominator)
+        for numerator, denominator in _rho_candidates(matrix, sizes, depth, lam)
+    ]
 
     for precision in range(8, max_precision + 1, 8):
         interval = _perron_interval(characteristic, precision)
@@ -205,6 +216,53 @@ def certify_rho_sign(
                 )
     raise RuntimeError(
         f"could not separate rho_{depth} from one at {max_precision} decimal digits"
+    )
+
+
+def compare_rho_depths(
+    quotient: list[list[int]],
+    sizes: list[int],
+    depth_left: int,
+    depth_right: int,
+    max_precision: int = 80,
+) -> int:
+    """Return the exact sign of rho_depth_left - rho_depth_right."""
+    if depth_left < 1 or depth_right < 1:
+        raise ValueError("depths must be positive")
+    matrix = _validate_data(quotient, sizes)
+    lam = sp.Symbol("lambda")
+    characteristic = sp.Poly(matrix.charpoly(lam).as_expr(), lam, domain=sp.ZZ)
+    left_candidates = _rho_candidates(matrix, sizes, depth_left, lam)
+    right_candidates = _rho_candidates(matrix, sizes, depth_right, lam)
+
+    for precision in range(8, max_precision + 1, 8):
+        interval = _perron_interval(characteristic, precision)
+        for left_num, left_den in left_candidates:
+            for right_num, right_den in right_candidates:
+                numerator = sp.Poly(
+                    sp.expand(left_num.as_expr() * right_den.as_expr())
+                    - sp.expand(right_num.as_expr() * left_den.as_expr()),
+                    lam,
+                    domain=sp.ZZ,
+                )
+                denominator = sp.Poly(
+                    sp.expand(left_den.as_expr() * right_den.as_expr()),
+                    lam,
+                    domain=sp.ZZ,
+                )
+                numerator_sign = _sign_at_isolated_root(
+                    numerator, characteristic, interval
+                )
+                denominator_sign = _sign_at_isolated_root(
+                    denominator, characteristic, interval
+                )
+                if numerator_sign is not None and denominator_sign not in (None, 0):
+                    if numerator_sign == 0:
+                        return 0
+                    return numerator_sign * denominator_sign
+    raise RuntimeError(
+        "could not compare leading ratios at the requested depths "
+        f"{depth_left} and {depth_right}"
     )
 
 

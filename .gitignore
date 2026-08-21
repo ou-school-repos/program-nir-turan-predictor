@@ -13,6 +13,7 @@ proofs/lean.log
 
 # Simulation logs
 output.log
+/pr-comments.txt
 
 # Editor junk
 *.swp
