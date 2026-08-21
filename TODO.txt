@@ -1,3 +1,56 @@
+
+##############################
+8/21/2026
+##############################
+
+• I’m locating the exact paper statement for the double-cover identity and then I’ll answer the near-path sufficiency question directly in terms of what this project currently has and what a plausible proof route would need.
+
+• Explored
+  └ Read DoubleCover.lean, 07_bipartite_double_cover.tex
+    Search near-path sufficiency|Conjecture|gadget|long spider|prop:long-spider|Appendix D|appendix D|sufficiency in sections
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• I found the exact location. I’m pulling the nearby near-path discussion too so I can answer the second part against the current manuscript rather than hand-waving.
+
+• Explored
+  └ Read 03_analytical_properties.tex, 08_conclusion.tex
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• It’s in the proof of Theorem thm:double_cover in paper/sections/07_bipartite_double_cover.tex:18. The exact combinatorial identity is the sentence at paper/sections/07_bipartite_double_cover.tex:25: for a connected tree T, every homomorphism T
+  -> H lifts in exactly two ways to T -> B, hence
+  [
+  \Hom(T,B)=2\Hom(T,H).
+  ]
+  The Lean formalization of that identity is LeanLeontovich/LeanLeontovich/DoubleCover.lean:172, theorem connected_hom_doubleCover_eq_two_mul.
+
+  On near-path sufficiency: it is still open in the paper. The current explicit statements are in paper/sections/03_analytical_properties.tex:94 and paper/sections/08_conclusion.tex:14. The strongest thing you have analytically right now is the
+  long-spider obstruction: if all three spider legs go to infinity, that asymptotic challenger cannot beat the path. That kills the easiest non-near-path family, but it does not settle bounded gadgets near an endpoint or in the interior.
+
+  My read is:
+
+  - Full finite-n near-path sufficiency is probably hard and may even be false.
+  - The asymptotic version for primitive targets looks plausible.
+  - A realistic proof route is a gadget-factorization theorem: show that along long spines, the Perron projection makes separated defects contribute multiplicatively, then prove the minimum gadget score is attained by a path-plus-pendant gadget.
+  - The current paper is already pointing at that gap: bounded rooted gadgets still need a separate minimization argument, and bipartite targets need a parity-class version.
+
+  So yes, there is a way this could be proved, but not with the machinery currently finished in the paper. The next real theorem would be something like:
+
+  1. Prove asymptotic factorization for rooted gadgets on primitive targets.
+  2. Reduce all asymptotic challengers to minimizing a single rooted gadget score.
+  3. Show that minimizer is always a near-path gadget.
+
+  That would be a substantial result. It would not automatically give the finite-n conjecture.
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
 › can these results be proven analytically
 
 
