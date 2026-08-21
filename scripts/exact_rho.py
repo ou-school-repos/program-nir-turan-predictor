@@ -16,7 +16,9 @@ the certificate.
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable
 
 import sympy as sp
@@ -37,6 +39,19 @@ class RhoCertificate:
     def relation(self) -> str:
         """Return the certified comparison between rho_d and one."""
         return "<" if self.sign < 0 else ">" if self.sign > 0 else "="
+
+    def as_dict(self) -> dict[str, object]:
+        """Return a deterministic, JSON-serializable certificate summary."""
+        left, right = self.perron_interval
+        return {
+            "schema": "exact-rho-certificate-v1",
+            "depth": self.depth,
+            "relation": self.relation,
+            "characteristic_polynomial": str(self.characteristic_polynomial.as_expr()),
+            "perron_interval": [str(left), str(right)],
+            "sign_polynomial": str(self.sign_polynomial.as_expr()),
+            "denominator_polynomial": str(self.denominator_polynomial.as_expr()),
+        }
 
 
 def symmetric_tree_quotient(
@@ -67,6 +82,10 @@ def _validate_data(quotient: list[list[int]], sizes: list[int]) -> sp.Matrix:
         raise ValueError("orbit sizes must be positive")
     if any(not isinstance(x, int) or x < 0 for row in quotient for x in row):
         raise ValueError("quotient entries must be nonnegative integers")
+    for i in range(dim):
+        for j in range(dim):
+            if sizes[i] * quotient[i][j] != sizes[j] * quotient[j][i]:
+                raise ValueError("quotient and sizes must satisfy edge balance")
 
     reachable = {0}
     pending = [0]
@@ -79,6 +98,22 @@ def _validate_data(quotient: list[list[int]], sizes: list[int]) -> sp.Matrix:
     if len(reachable) != dim:
         raise ValueError("quotient must be irreducible")
     return sp.Matrix(quotient)
+
+
+def load_quotient(path: str | Path) -> tuple[list[list[int]], list[int]]:
+    """Load quotient data from the repository's JSON archive format."""
+    with Path(path).open(encoding="utf-8") as stream:
+        data = json.load(stream)
+    if not isinstance(data, dict) or "Q" not in data or "sizes" not in data:
+        raise ValueError("JSON input must contain Q and sizes")
+    quotient = data["Q"]
+    sizes = data["sizes"]
+    if not isinstance(quotient, list) or not isinstance(sizes, list):
+        raise ValueError("Q and sizes must be arrays")
+    if "dim" in data and data["dim"] != len(quotient):
+        raise ValueError("dim does not match Q")
+    _validate_data(quotient, sizes)
+    return quotient, sizes
 
 
 def _perron_interval(
@@ -174,15 +209,30 @@ def certify_rho_sign(
 
 
 def main() -> None:
-    """Certify one looped radial-tree parameter tuple from the command line."""
+    """Certify radial-tree parameters or an archived quotient matrix."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "degrees", nargs="+", type=int, help="positive radial branching degrees"
+        "degrees", nargs="*", type=int, help="positive radial branching degrees"
     )
+    parser.add_argument("--input", type=Path, help="JSON file containing Q and sizes")
     parser.add_argument("--depth", type=int, default=2)
+    parser.add_argument("--json", action="store_true", help="emit JSON certificate")
+    parser.add_argument("--output", type=Path, help="write JSON certificate to a file")
     args = parser.parse_args()
-    quotient, sizes = symmetric_tree_quotient(args.degrees)
+    if bool(args.degrees) == bool(args.input):
+        parser.error("provide either branching degrees or --input, but not both")
+    if args.input:
+        quotient, sizes = load_quotient(args.input)
+    else:
+        quotient, sizes = symmetric_tree_quotient(args.degrees)
     certificate = certify_rho_sign(quotient, sizes, args.depth)
+    if args.json or args.output:
+        encoded = json.dumps(certificate.as_dict(), indent=2, sort_keys=True) + "\n"
+        if args.output:
+            args.output.write_text(encoded, encoding="utf-8")
+        if args.json:
+            print(encoded, end="")
+        return
     left, right = certificate.perron_interval
     print(f"chi(lambda) = {certificate.characteristic_polynomial.as_expr()}")
     print(f"Perron root in [{left}, {right}]")

@@ -3,7 +3,7 @@
 
 The sweep enumerates looped symmetric trees T-hat(d1,...,dk), 2 <= k <= 6,
 with vertex count at most CAP.  NumPy is used only as a fast prescreen; every
-reported rho < 1 candidate is recomputed with scripts/strong_coeff.py.
+reported rho < 1 candidate receives an exact algebraic sign certificate.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import json
 import time
 
 import numpy as np
-from strong_coeff import leading_ratio
+from exact_rho import certify_rho_sign, symmetric_tree_quotient
 
 
 def vertex_count(degrees: tuple[int, ...]) -> int:
@@ -66,9 +66,10 @@ def sweep(cap: int, max_levels: int, tolerance: float):
             if rho < near_best[0]:
                 near_best = (rho, (vertices, params))
             if rho < 1.0 - tolerance:
-                certified = leading_ratio(params)
-                if certified < 1.0:
-                    candidates.append((vertices, params, float(certified)))
+                quotient, sizes = symmetric_tree_quotient(params)
+                certificate = certify_rho_sign(quotient, sizes)
+                if certificate.sign < 0:
+                    candidates.append((vertices, params, rho, certificate))
 
         if len(degrees) == max_levels:
             return
@@ -84,7 +85,7 @@ def sweep(cap: int, max_levels: int, tolerance: float):
             degree += 1
 
     rec([], 1, 1)
-    candidates.sort()
+    candidates.sort(key=lambda item: (item[0], item[1]))
     return count, candidates, near_best
 
 
@@ -108,14 +109,27 @@ def main() -> None:
     )
     print(f"certified candidates with rho < 1: {len(candidates)}")
     print(f"smallest {min(args.top, len(candidates))} by |V|:")
-    for vertices, degrees, rho in candidates[: args.top]:
-        print(f"  V={vertices:5d} T^{degrees} rho={rho:.12f}")
+    for vertices, degrees, rho, _ in candidates[: args.top]:
+        print(f"  V={vertices:5d} T^{degrees} rho_float={rho:.12f}, exact rho_2<1")
     if near_best[1] is not None:
         rho, (vertices, degrees) = near_best
         print(f"best prescreen rho: V={vertices} T^{degrees} rho_float={rho:.12f}")
 
-    with open(args.json_out, "w") as fh:
-        json.dump([[v, list(d), rho] for v, d, rho in candidates], fh)
+    archive = []
+    for vertices, degrees, rho, certificate in candidates:
+        quotient, sizes = symmetric_tree_quotient(degrees)
+        archive.append(
+            {
+                "vertices": vertices,
+                "degrees": list(degrees),
+                "rho_float": rho,
+                "quotient": {"dim": len(quotient), "Q": quotient, "sizes": sizes},
+                "certificate": certificate.as_dict(),
+            }
+        )
+    with open(args.json_out, "w", encoding="utf-8") as fh:
+        json.dump(archive, fh, indent=2, sort_keys=True)
+        fh.write("\n")
 
 
 if __name__ == "__main__":

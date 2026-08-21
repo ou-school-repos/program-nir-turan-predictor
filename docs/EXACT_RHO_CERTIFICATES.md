@@ -45,6 +45,26 @@ Run one certificate:
 python3 scripts/exact_rho.py 1 35 1 50 --depth 2
 ```
 
+The command also accepts an arbitrary verified equitable quotient archive with
+the keys `Q`, `sizes`, and optional `dim`. The verifier checks irreducibility,
+nonnegative integral entries, and the undirected edge-balance identities
+`s_i Q_ij = s_j Q_ji` before applying the certificate:
+
+```bash
+python3 scripts/exact_rho.py --input data/quotient_Bpe.json --depth 2 --json
+python3 scripts/exact_rho.py --input quotient.json --output certificate.json
+```
+
+JSON output uses the versioned schema `exact-rho-certificate-v1` and records
+the characteristic polynomial, rational Perron interval, sign polynomial,
+denominator polynomial, depth, and certified relation. This is suitable for
+archiving exact sweep results rather than retaining only floating-point ratios.
+
+`scripts/sweep_strong_frontier.py` uses NumPy only as a prescreen. Every
+reported hit is now accepted through `certify_rho_sign`, and its output archive
+contains the quotient data and full exact certificate alongside the approximate
+ratio used for ranking.
+
 This prototype certifies named quotient matrices. It does not by itself upgrade
 the historical `m <= 11` graph sweep: that requires retained quotient data or
 a rerun that emits compact certificates for every target.
