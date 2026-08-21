@@ -8,9 +8,9 @@ import LeanLeontovich.DoubleCover
 
 Entry point for the analytic Lean development.
 
-This project is meant to house the theorem-first formalization of the paper's
-main analytic claims, separate from the executable witness checks kept under
-`legacy/`.
+This project separates axiom-free graph infrastructure from explicitly assumed
+witness claims. It is not yet a formalization of the paper's principal results;
+the first substantive target is the connected-source double-cover count.
 -/
 
 namespace LeanLeontovich

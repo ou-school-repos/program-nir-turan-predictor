@@ -89,11 +89,11 @@ At present, the most reliable verification layer for the headline computational
 claims is exact integer arithmetic in Python/C++, not a Lean proof of the full
 pipeline.
 
-A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
-tree is intended for the paper's main analytic results, while `legacy/` stays
-reserved for exact witness checks and SMT-style computations. The theorem
-project is currently an experimental scaffold whose principal statements
-depend on axioms; it must not be read as formal verification of the paper.
+A separate theorem-focused Lean project now lives in `LeanLeontovich/`. It
+contains axiom-free finite-graph definitions and a concrete bipartite
+double-cover lifting construction, while named witness claims remain explicitly
+under `Assumed`. It does not yet prove a principal paper result and must not be
+read as formal verification of the paper.
 
 Lean build targets are split accordingly:
 

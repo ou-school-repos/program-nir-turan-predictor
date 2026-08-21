@@ -12,8 +12,7 @@ form used throughout the paper. It is a direct wrapper around the unproven
 
 theorem T719_permanent_crossover :
     (∀ n, IsOdd n → 13 ≤ n → Hom (NearPath n) T719 < Hom (Path n) T719) ∧
-    (∀ n, n < 13 → Hom (Path n) T719 ≤ Hom (NearPath n) T719) ∧
-    (∀ n, IsEven n → Hom (Path n) T719 ≤ Hom (NearPath n) T719) := by
+    (∀ n, IsOdd n → n < 13 → Hom (Path n) T719 ≤ Hom (NearPath n) T719) := by
   exact permanent_crossover_T719
 
 end LeanLeontovich.Assumed
