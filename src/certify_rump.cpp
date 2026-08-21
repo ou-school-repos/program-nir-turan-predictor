@@ -3,22 +3,24 @@
 #include <flint/arb.h>
 #include <flint/flint.h>
 
+#include <array>
 #include <iostream>
+#include <string>
 
 namespace {
 
-constexpr slong kPrecision = 128;
 constexpr slong kDimension = 2;
 constexpr ulong kDepth = 2;
+constexpr std::array<slong, 4> kPrecisions = {64, 128, 256, 512};
 
-bool contains_real_value(const acb_t value, slong expected) {
-    return arb_contains_si(acb_realref(value), expected) &&
-           arb_contains_zero(acb_imagref(value));
-}
+enum class SignStatus { kBelow, kAbove, kUnresolved, kInvalid };
 
-}  // namespace
+struct AttemptResult {
+    SignStatus status = SignStatus::kInvalid;
+    std::string rho_interval = "indeterminate";
+};
 
-int main() {
+AttemptResult certify_at_precision(slong precision) {
     // Reversible quotient with Perron eigenpair lambda = 2, u = (1, 1).
     acb_mat_t matrix;
     acb_mat_init(matrix, kDimension, kDimension);
@@ -29,7 +31,6 @@ int main() {
     acb_t lambda_approx;
     acb_init(lambda_approx);
     acb_set_d(lambda_approx, 2.0);
-
     acb_mat_t vector_approx;
     acb_mat_init(vector_approx, kDimension, 1);
     acb_set_d(acb_mat_entry(vector_approx, 0, 0), 1.0);
@@ -39,12 +40,12 @@ int main() {
     acb_init(lambda);
     acb_mat_t vector;
     acb_mat_init(vector, kDimension, 1);
-
     acb_mat_eig_enclosure_rump(lambda, nullptr, vector, matrix, lambda_approx,
-                               vector_approx, kPrecision);
+                               vector_approx, precision);
 
     bool valid = acb_is_finite(lambda) && acb_mat_is_finite(vector) &&
-                 contains_real_value(lambda, 2);
+                 arb_contains_si(acb_realref(lambda), 2) &&
+                 arb_contains_zero(acb_imagref(lambda));
     for (slong i = 0; i < kDimension; ++i) {
         const acb_struct* entry = acb_mat_entry(vector, i, 0);
         valid = valid && arb_contains_zero(acb_imagref(entry)) &&
@@ -52,8 +53,8 @@ int main() {
     }
 
     // For this quotient, w_1 = (2, 2) and w_2 = (4, 4), so rho_2 = 1.
-    const ulong w1[kDimension] = {2, 2};
-    const ulong wd[kDimension] = {4, 4};
+    constexpr std::array<ulong, kDimension> w1 = {2, 2};
+    constexpr std::array<ulong, kDimension> wd = {4, 4};
     arb_t numerator;
     arb_t denominator;
     arb_t vector_sum;
@@ -73,33 +74,27 @@ int main() {
     arb_one(one);
     for (slong i = 0; i < kDimension; ++i) {
         const arb_struct* component = acb_realref(acb_mat_entry(vector, i, 0));
-        arb_mul_ui(term, component, w1[i] * wd[i], kPrecision);
-        arb_add(numerator, numerator, term, kPrecision);
-        arb_add(vector_sum, vector_sum, component, kPrecision);
+        arb_mul_ui(term, component, w1[i] * wd[i], precision);
+        arb_add(numerator, numerator, term, precision);
+        arb_add(vector_sum, vector_sum, component, precision);
     }
-    arb_pow_ui(lambda_power, acb_realref(lambda), kDepth + 1, kPrecision);
-    arb_mul(denominator, lambda_power, vector_sum, kPrecision);
-    arb_div(rho, numerator, denominator, kPrecision);
-    valid = valid && arb_contains(rho, one) && !arb_gt(rho, one) &&
-            !arb_lt(rho, one);
+    arb_pow_ui(lambda_power, acb_realref(lambda), kDepth + 1, precision);
+    arb_mul(denominator, lambda_power, vector_sum, precision);
+    arb_div(rho, numerator, denominator, precision);
 
-    if (valid) {
-        std::cout << "Certified Perron root enclosure: ";
-        arb_printn(acb_realref(lambda), 30, ARB_STR_NO_RADIUS);
-        std::cout << '\n' << "Certified eigenvector enclosure:\n";
-        for (slong i = 0; i < kDimension; ++i) {
-            std::cout << "  u_" << i << ": ";
-            arb_printn(acb_realref(acb_mat_entry(vector, i, 0)), 30,
-                       ARB_STR_NO_RADIUS);
-            std::cout << '\n';
+    SignStatus status = SignStatus::kInvalid;
+    if (valid && arb_is_finite(rho)) {
+        if (arb_gt(rho, one)) {
+            status = SignStatus::kAbove;
+        } else if (arb_lt(rho, one)) {
+            status = SignStatus::kBelow;
+        } else {
+            status = SignStatus::kUnresolved;
         }
-        std::cout << "Certified rho_2 enclosure: ";
-        arb_printn(rho, 30, 0);
-        std::cout << '\n';
-    } else {
-        std::cerr << "Rump enclosure did not certify the expected real "
-                     "positive Perron eigenpair.\n";
     }
+    char* interval = arb_get_str(rho, 30, 0);
+    std::string rho_interval = interval == nullptr ? "indeterminate" : interval;
+    flint_free(interval);
 
     acb_mat_clear(matrix);
     acb_clear(lambda_approx);
@@ -113,7 +108,47 @@ int main() {
     arb_clear(rho);
     arb_clear(term);
     arb_clear(one);
+    return {status, rho_interval};
+}
+
+const char* status_name(SignStatus status) {
+    switch (status) {
+        case SignStatus::kBelow:
+            return "certified_below_one";
+        case SignStatus::kAbove:
+            return "certified_above_one";
+        case SignStatus::kUnresolved:
+            return "unresolved";
+        case SignStatus::kInvalid:
+            return "invalid_enclosure";
+    }
+    return "invalid_enclosure";
+}
+
+}  // namespace
+
+int main() {
+    AttemptResult result{SignStatus::kInvalid, "indeterminate"};
+    slong final_precision = 0;
+    for (slong precision : kPrecisions) {
+        result = certify_at_precision(precision);
+        final_precision = precision;
+        if (result.status == SignStatus::kAbove ||
+            result.status == SignStatus::kBelow) {
+            break;
+        }
+    }
+
+    std::cout << "{\"schema\":\"arb-rho-certificate-v1\","
+              << "\"status\":\"" << status_name(result.status) << "\","
+              << "\"depth\":" << kDepth << ','
+              << "\"precision_bits\":" << final_precision << ','
+              << "\"rho_interval\":\"" << result.rho_interval << "\"}\n";
     flint_cleanup_master();
 
-    return valid ? 0 : 1;
+    // This hardcoded boundary case is a fail-closed self-test: choosing either
+    // strict sign would be an error, while unresolved at 512 bits is expected.
+    return result.status == SignStatus::kUnresolved && final_precision == 512
+               ? 0
+               : 1;
 }
