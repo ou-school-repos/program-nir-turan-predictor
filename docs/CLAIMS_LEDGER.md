@@ -28,6 +28,8 @@ Evidence tags follow
 | `strong-1822`             | `\hat T(1,35,1,50)` is strongly Leontovich                                      | `E`                    | Named 5-orbit looped symmetric tree                            | Exact algebraic `rho_2<1`; high-`n` ratio at `n=15001` is `0.999864892078` | `make verify/core`                            |
 | `even-17340`              | The bipartite double cover has first even crossover at `n=17,340`               | `E`                    | Double cover of `\hat T(1,35,1,50)`                            | negative at `17338`, positive at `17340`                                   | `python3 scripts/verify_core_claims.py`       |
 | `table8-audit`            | Table 8 open/close windows were audited exactly                                 | `E`                    | Named table entries only                                       | finite-window open/close thresholds printed by verifier                    | `python3 scripts/verify_strong.py`            |
+| `long-spider`             | Three spider legs growing independently cannot asymptotically beat the path     | `P`                    | Connected targets with primitive adjacency matrix              | Limiting ratio is at least one by Cauchy--Schwarz                          | Proposition `prop:long-spider`                |
+| `strong-1822-depth4`      | Depth 4 improves the asymptotic margin for `\hat T(1,35,1,50)`                  | `E`                    | Named looped symmetric target                                  | `rho_4=0.999932644624... < rho_2=0.999953714414...`                        | `python3 scripts/gadget_scores.py 1 35 1 50`  |
 
 ## Notes
 

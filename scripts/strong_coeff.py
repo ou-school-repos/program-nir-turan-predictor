@@ -22,7 +22,7 @@ def quotient_data(degrees):
     return q, sizes
 
 
-def certified_leading_ratio(Q, sizes, K, dps=50):
+def certified_leading_ratio(Q, sizes, K, dps=50, depth=2):
     """Compute the high-precision Perron leading-coefficient ratio.
 
     Returns (lam1, lam2, rho, rho_hi), where rho_hi is a certified upper
@@ -50,9 +50,11 @@ def certified_leading_ratio(Q, sizes, K, dps=50):
         raise RuntimeError("Perron vector has non-positive entry")
     one = [mp.mpf(1)] * K
     w1 = [sum(Q[i][j] * one[j] for j in range(K)) for i in range(K)]
-    w2 = [sum(Q[i][j] * w1[j] for j in range(K)) for i in range(K)]
-    num = sum(sizes[i] * w1[i] * w2[i] * u1[i] for i in range(K))
-    den = lam1**3 * sum(sizes[i] * u1[i] for i in range(K))
+    wd = one
+    for _ in range(depth):
+        wd = [sum(Q[i][j] * wd[j] for j in range(K)) for i in range(K)]
+    num = sum(sizes[i] * w1[i] * wd[i] * u1[i] for i in range(K))
+    den = lam1 ** (depth + 1) * sum(sizes[i] * u1[i] for i in range(K))
     lam2 = max(abs(E[i]) for i in range(K - 1))
 
     # Certified bound: residual r = B*v1 - lam1*v1 for the exact unit vector v1.
@@ -71,7 +73,7 @@ def certified_leading_ratio(Q, sizes, K, dps=50):
     # a bound on ||v1_true - v1||_2 for this rank-1, well-separated case.
     vec_err = 2 * resid_norm / gap
 
-    c_num = [mp.sqrt(S[i]) * w1[i] * w2[i] for i in range(K)]
+    c_num = [mp.sqrt(S[i]) * w1[i] * wd[i] for i in range(K)]
     c_den = [mp.sqrt(S[i]) for i in range(K)]
     norm_c_num = mp.sqrt(sum(x**2 for x in c_num))
     norm_c_den = mp.sqrt(sum(x**2 for x in c_den))
@@ -84,7 +86,7 @@ def certified_leading_ratio(Q, sizes, K, dps=50):
     s_den_lo = s_den - err_s_den
     if not (lam1_lo > 0 and s_den_lo > 0):
         raise RuntimeError("eigenpair error bound too loose to certify")
-    den_lo = lam1_lo**3 * s_den_lo
+    den_lo = lam1_lo ** (depth + 1) * s_den_lo
     rho_hi = num_hi / den_lo
 
     return lam1, lam2, num / den, rho_hi

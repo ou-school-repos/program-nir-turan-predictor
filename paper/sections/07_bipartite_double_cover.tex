@@ -86,6 +86,17 @@ is scale, not a new mechanism: the relevant long-lived term is the
 second dominant magnitude $7.282828$, not the smaller positive
 eigenvalue $\lambda_2$.
 
+For the underlying looped target $\hat T(1,35,1,50)$, the exact
+leading-coefficient test is slightly stronger at depth~4 than at depth~2:
+\[
+  \rho_2=0.999953714414\ldots,\qquad
+  \rho_4=0.999932644624\ldots.
+\]
+The signs are certified algebraically by
+\texttt{scripts/gadget\_scores.py}. This does not improve the perturbed
+non-bipartite construction below: applying the same sibling-leaf perturbation
+to its 3,644-vertex double cover gives ratios above one at both depths 2 and 4.
+
 \subsection{A Perturbed Non-Bipartite Certificate}
 
 Adding a single edge inside one side of a bipartite strongly Leontovich

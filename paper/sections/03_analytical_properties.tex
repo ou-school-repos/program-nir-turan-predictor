@@ -61,6 +61,45 @@
   $7$ looped vertices (whose double covers have at most $14$ vertices).
 \end{corollary}
 
+\begin{proposition}[Three long legs do not improve the path]
+  \label{prop:long-spider}
+  Let $H$ be a connected target with primitive adjacency matrix, and let
+  $u>0$ be a Perron eigenvector. With
+  $\langle f,g\rangle=\sum_{v\in V(H)}f(v)g(v)$, one has
+  \[
+    \lim_{a,b,c\to\infty}
+    \frac{\Hom(\Sp(a,b,c),H)}{\Hom(P_{a+b+c+1},H)}
+    =
+    \frac{\langle\mathbf 1,u\rangle\langle\mathbf 1,u^3\rangle}
+         {\langle\mathbf 1,u^2\rangle^2}
+    \ge 1.
+  \]
+  The same formula holds on a balanced equitable quotient after replacing the
+  inner product by $\langle f,g\rangle_s=\sum_i s_i f_i g_i$.
+\end{proposition}
+
+\begin{proof}
+  Normalize $u$ arbitrarily and set
+  $\alpha=\langle\mathbf1,u\rangle/\langle u,u\rangle$. Primitivity and
+  Perron--Frobenius give
+  $A^k\mathbf1=\alpha\lambda_1^k u+o(\lambda_1^k)$. Applying the spider
+  formula from Lemma~\ref{lem:transfer} to its three legs and dividing by the
+  corresponding path asymptotic gives the displayed ratio. Finally,
+  Cauchy--Schwarz applied to $u^{1/2}$ and $u^{3/2}$ gives
+  $\langle\mathbf1,u^2\rangle^2\le
+  \langle\mathbf1,u\rangle\langle\mathbf1,u^3\rangle$.
+  The quotient statement is identical in the weighted inner product.
+\end{proof}
+
+\begin{remark}
+  Proposition~\ref{prop:long-spider} eliminates the most direct
+  non-near-path asymptotic challenger, namely a spider whose three legs all
+  grow. It does not prove asymptotic near-path sufficiency: bounded rooted
+  gadgets attached near an end or in the interior still require a separate
+  minimization argument. Bipartite targets also require a parity-class
+  version because their adjacency matrices are not primitive.
+\end{remark}
+
 \subsection{Four-orbit trees}
 
 For 4-orbit trees $T(x,y,z)$, the characteristic polynomial of the

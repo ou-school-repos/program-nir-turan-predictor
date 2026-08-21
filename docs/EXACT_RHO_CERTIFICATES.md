@@ -93,3 +93,18 @@ printf '%s\n' \
 This pipeline does not by itself upgrade the historical `m <= 11` graph sweep.
 A rigorous upgrade requires rerunning every graph through the certified backend
 and separately resolving the deferred bipartite parity cases.
+
+## Gadget scores
+
+`scripts/gadget_scores.py` reports a sequence of near-path ratios, certifies
+each sign through the exact evaluator, and computes the three-long-leg spider
+score from the Perron vector. For example:
+
+```bash
+python3 scripts/gadget_scores.py 1 35 1 50 --max-depth 8
+```
+
+For this target the best displayed even depth is `d=4`, with
+`rho_4=0.999932644624...`; the exact certificate proves `rho_4<1`. The
+long-spider score is `2.416875686287...`, consistent with Proposition
+`prop:long-spider`.
