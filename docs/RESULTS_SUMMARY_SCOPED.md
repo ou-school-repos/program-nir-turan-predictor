@@ -11,10 +11,11 @@ discipline used in the manuscript and claims ledger.
   eigenvalue becomes irrational.
 - **The `n=5` impossibility:** It is algebraically impossible for any
   spherically symmetric tree `T(x,y,z)` to cross over at `n=5`.
-- **Spectral obstruction:** A rooted bipartite target whose active quotient
-  matrix has exactly one positive eigenvalue cannot produce an odd-`n`
-  near-path sign change. This analytically eliminates all 2-orbit and 3-orbit
-  spherically symmetric trees in that setting.
+- **Spectral reduction:** For a rooted bipartite target whose active quotient
+  matrix has exactly one positive eigenvalue, each fixed-depth near-path
+  comparison has constant sign on odd source orders. For 2-orbit and 3-orbit
+  spherically symmetric trees, detection therefore reduces to one base-case
+  sign check.
 - **`T(7,1,9)` threshold:** Among odd source orders, the Leontovich crossover
   threshold for `T(7,1,9)` is exactly `n=13`, and that threshold is permanent.
 

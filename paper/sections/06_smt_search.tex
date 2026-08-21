@@ -100,7 +100,13 @@ Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning
 
 \end{proof}
 
-However, for $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
+Beyond $n=5$, every $(2,m_2)$ target of total order $m\le15$ is covered at
+every tested depth by the exhaustive bipartite sweep of
+Section~\ref{sec:computation}, which found no crossover for odd $n\le199$ and
+$d\le20$. We make no unconditional claim for larger $m_2$ or beyond that
+window.
+
+For $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
 singletons ($c_1, c_2, c_3$), 3 pairs ($c_4, c_5, c_6$), and 1 triplet ($c_7$).
 Any such bipartite target is uniquely determined by the vector $(c_1, \dots,
 c_7)$.
@@ -128,8 +134,9 @@ target. Exact integer arithmetic gives
   \Hom(E_{15}^{(4)},H_{18})&=1{,}104{,}756{,}090,
 \end{align*}
 so the first near-path crossover for $H_{18}$ occurs at $(n,d)=(15,4)$,
-with margin $500{,}576$. An exact scan over every admissible depth finds no
-crossover for $n<15$.
+with margin $500{,}576$. The symmetric depth $d=9$ gives the same source tree,
+since $E_{15}^{(4)}\cong E_{15}^{(9)}$ by Remark~\ref{rem:d-symmetry}.
+An exact scan over every admissible depth finds no crossover for $n<15$.
 
 At the depth-2 crossover threshold $n=17$, the homomorphism counts verified by exact-precision arithmetic are:
 \begin{align*}
@@ -237,11 +244,10 @@ but at a much slower growth rate $O(1.618^n)$. The ratio approaches $1.0$
 precisely because it is physically impossible to cross over; the strict minimality of $P_4$
 is asymptotically diluted by the dominant degenerate star.
 
-\subsection{The \texorpdfstring{$\mathcal{B}(x,y)$}{B(x,y)} Infinite Bipartite Family}
+\subsection{The parameterized \texorpdfstring{$\mathcal{B}(x,y)$}{B(x,y)} family}
 
-The discovery of $H_{18}$ with pattern $(7, 0, 0, 1, 1, 6, 0)$ reveals that it
-is not an isolated anomaly, but the minimal element of a continuous
-parameterized manifold of bipartite Leontovich graphs.
+The pattern $(7,0,0,1,1,6,0)$ of $H_{18}$ belongs to a natural
+two-parameter family of bipartite targets.
 
 Let $\mathcal{B}(x,y)$ be the bipartite graph defined by the left partition
 $L = \{u_0, u_1, u_2\}$ and the connection pattern $(x, 0, 0, 1, 1, y, 0)$.
@@ -279,6 +285,6 @@ which favors long-lived eigenvalue interference. Computations suggest that
 this parameterized family contains infinitely many Leontovich graphs, but we
 do not prove that assertion here. Within the completed
 depth-2 $(3,m_2)$ block-pattern sweep through path length $n \le 51$,
-$H_{18}$ is the first such example.
+$H_{18}$ is the smallest member of $\mathcal{B}(x,y)$ found to cross over.
 
 % ════════════════════════════════════════════════════════════════════════

@@ -35,7 +35,8 @@ conditional sweep result, not an unconditional theorem.
 
 ## Key Verified Witnesses
 
-- `T(7,1,9)` has a permanent odd `n=13` depth-2 crossover.
+- `T(7,1,9)` has a permanent depth-2 crossover at odd `n=13`; even `n`
+  is not proved.
 - `H*`, a 15-vertex bipartite graph with pattern `(0,1,6,4,1,0,0)`, is a
   depth-dependent bipartite Leontovich graph; the first verified hit is
   `(n,d)=(49,16)`.
