@@ -74,9 +74,10 @@ $\lambda^2$ is
   s^2 - 4xz = (x - z)^2 + y^2 + 2y(x + z).
 \]
 Since $x, y, z \ge 1$, this expression is always strictly positive
-($\ge 5$). By Descartes' rule of signs, both roots for $\lambda^2$ are
-positive, so \emph{every} spherically symmetric 4-orbit tree possesses
-exactly 2 positive eigenvalues.
+($\ge 5$). The two roots in $u=\lambda^2$ are real and distinct; their
+sum is $s>0$ and their product is $xz>0$, so both are positive. Thus
+the quotient matrix of every spherically symmetric 4-orbit tree has
+exactly two positive eigenvalues.
 
 \subsection{The crossover threshold for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
 
@@ -104,24 +105,33 @@ we record here the first fully written proof.
     \qquad
     \lambda_2 = \sqrt{\frac{17 - \sqrt{37}}{2}} \approx 2.3364.
   \]
-  For odd $n$, the quotient-eigenbasis expansion yields
+  For odd $n$, the quotient-eigenbasis expansion and the $\pm$ symmetry
+  of the bipartite quotient yield
   \[
     \Delta_{\mathrm{odd}}(n) \;=\; \Hom(P_n, H) - \Hom(E_n, H)
-    \;=\; A\,\lambda_1^n - |B|\,\lambda_2^n,
+    \;=\; A\,\lambda_1^n + B\,\lambda_2^n.
   \]
-  for constants $A > 0$ and $B \neq 0$. Setting
+  The two exact values at $n=11$ and $n=13$ determine the coefficients:
+  \[
+    A=\frac{111447-3717\sqrt{37}}{\sqrt{37}\,\lambda_1^{11}}>0,
+    \qquad
+    B=-\frac{111447+3717\sqrt{37}}{\sqrt{37}\,\lambda_2^{11}}<0.
+  \]
+  Here $A>0$ follows, for example, from
+  $3717\sqrt{37}<22610<111447$. Setting
   $r = \lambda_2 / \lambda_1 = \sqrt{(17 - \sqrt{37})/(17 + \sqrt{37})}
   \approx 0.6877$:
   \[
-    \Delta_{\mathrm{odd}}(n) = \lambda_1^n \bigl(A - |B|\,r^n\bigr).
+    \Delta_{\mathrm{odd}}(n) = \lambda_1^n \bigl(A + B\,r^n\bigr).
   \]
-  Since $r^n$ is strictly monotonically decreasing, $A - |B|\,r^n$ can
+  Since $B<0$ and $r^n$ is strictly decreasing, $A+B\,r^n$ is strictly
+  increasing and can
   cross zero at most once. Evaluating directly:
   \begin{align*}
     \Delta(11) &= 13{,}993{,}266 - 14{,}000{,}700 = -7{,}434 < 0, \\
     \Delta(13) &= 161{,}209{,}734 - 161{,}161{,}476 = +48{,}258 > 0.
   \end{align*}
-  Thus $n = 13$ is the unique, permanent threshold.
+  Thus $n = 13$ is the unique, permanent threshold among odd $n$.
 \end{proof}
 
 \begin{remark}[Parity heuristic, not theorem]
@@ -223,17 +233,56 @@ arithmetic, $n \le 200$, $d \le 20$).}
   the difference is strictly negative.
 \end{proof}
 
+\begin{proposition}[Two six-vertex source trees]
+  For every $T(x,y,z)$ with $x,y,z\ge1$, neither
+  $\Sp(2,2,1)$ nor the double star $S_{2,2}$ beats $P_6$.
+\end{proposition}
+
+\begin{proof}
+  Direct expansion gives
+  \[
+  \Hom(P_6,T)-\Hom(\Sp(2,2,1),T)=-xy\,Q(x,y,z),
+  \]
+  where
+  \[
+  Q=(y+1)x^2-2(y+z+1)x
+    +(z+1)(y^2z-yz+y+z+1).
+  \]
+  This is a quadratic in $x$ with positive leading coefficient, and
+  \[
+  (y+1)(z+1)(y^2z-yz+y+z+1)-(y+z+1)^2
+    =y^2z(yz+y+1)>0.
+  \]
+  Hence its discriminant is negative and $Q>0$ for every real $x$.
+
+  Similarly,
+  \[
+  \Hom(P_6,T)-\Hom(S_{2,2},T)=-2xy\,R(x,y,z),
+  \]
+  with
+  \begin{align*}
+  R={}&(y+1)x^2-(yz+2y+2z+2)x\\
+     &+y^2z^2+y^2z+yz+y+z^2+2z+1.
+  \end{align*}
+  If $C$ denotes the constant term and $c=yz+2y+2z+2$, then
+  \[
+    4(y+1)C-c^2=y^2z(4yz+4y+3z+4)>0.
+  \]
+  Thus $R$ also has negative discriminant and is strictly positive.
+  Both homomorphism differences are therefore negative.
+\end{proof}
+
 \begin{remark}[The remaining $n=6$ cases]
   \label{rem:n6_residue}
   The six trees on six vertices split into four proved cases and two
-  checked cases. The path is the reference case; the star $K_{1,5}$
-  follows from Sidorenko's theorem; the balanced near-path $\Sp(2,2,1)$
-  is controlled by Theorem~\ref{thm:spectral}; and the double star
-  $S_{2,2}$ is covered by the Cauchy--Schwarz bound above.
+  checked cases for targets in the family $T(x,y,z)$. The path is the
+  reference case; the star $K_{1,5}$ follows from Sidorenko's theorem;
+  and $\Sp(2,2,1)$ and $S_{2,2}$ are covered by the proposition above.
   The remaining two six-vertex trees, $\Sp(3,1,1)$ and
-  $\Sp(2,1,1,1)$, are supported only by exact computation. Consequently,
-  the four proved cases carry label (P), while these two cases carry label
-  (E). A proof covering all six cases would require resolving this gap; the
+  $\Sp(2,1,1,1)$, reduce to explicit cubic polynomial inequalities and
+  have only bounded computational support. Consequently, the four cases
+  above carry label (P), while the two remaining universal claims are open.
+  A proof covering all six cases would require resolving this gap; the
   near-path sufficiency conjecture also remains open.
 \end{remark}
 

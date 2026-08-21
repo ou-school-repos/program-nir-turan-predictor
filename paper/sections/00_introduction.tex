@@ -55,8 +55,9 @@ scale, and about marking proofs separately from bounded searches.
 
 We attack the problem in three ways.
 
-\emph{Analytically.} We isolate an eigenvalue condition that forbids a
-crossover outright (Theorem~\ref{thm:spectral}), determine the exact
+\emph{Analytically.} We isolate an eigenvalue condition that reduces each
+odd near-path comparison to a single base-case sign check
+(Theorem~\ref{thm:spectral}), determine the exact odd crossover
 threshold of the smallest previously known Leontovich tree
 (Theorem~\ref{thm:threshold}), and show that the bipartite double cover
 preserves both the Leontovich property and its asymptotic strengthening
@@ -112,16 +113,19 @@ for proved results and state the scope of each sweep explicitly.
     arithmetic mechanism is that, with $k$ the path-length parameter
     and $\lambda_1$ the first eigenvalue of the active quotient,
     $\lambda_1^2$ is rational exactly for
-    $k \in \{1,2,3,5\}$, which answers Problem~6.3 of~\cite{galvin2026}
+    $k \in \{1,2,3,5\}$. This resolves the question computationally
+    through $n \le 22$ and identifies the arithmetic mechanism behind
+    the observed transition in Problem~6.3 of~\cite{galvin2026}
     (Section~\ref{sec:odd-path}).
   \item \textbf{(P)} An eigenvalue criterion (Theorem~\ref{thm:spectral}):
-    a rooted bipartite target whose active quotient has a single
-    positive eigenvalue cannot be Leontovich. This rules out all
-    $2$-orbit and $3$-orbit symmetric trees without search
+    for a rooted bipartite target whose active quotient has a single
+    positive eigenvalue, each fixed-depth odd near-path comparison has
+    constant sign. For all $2$-orbit and $3$-orbit symmetric trees this
+    reduces detection to one base-case check
     (Corollary~\ref{cor:2_and_3_orbit_trees}).
-  \item \textbf{(P)} The crossover threshold of $T(7,1,9)$ is exactly
-    $n = 13$, and it is permanent: the sign changes once and never
-    again (Theorem~\ref{thm:threshold}). This threshold was already
+  \item \textbf{(P)} Among odd $n$, the crossover threshold of
+    $T(7,1,9)$ is exactly $n = 13$, and it is permanent: the sign changes
+    once and never again (Theorem~\ref{thm:threshold}). This threshold was already
     known in correspondence. The companion impossibility at $n = 5$ for
     the spherically symmetric family $T(x,y,z)$ is a polynomial
     identity (Proposition~\ref{prop:n5}).
@@ -133,8 +137,9 @@ for proved results and state the scope of each sweep explicitly.
     Problem~4.3 of~\cite{galvin2025} (Section~\ref{sec:bounds}).
   \item \textbf{(E)} Two small bipartite witnesses: a $15$-vertex graph
     $H^*$ whose earliest crossover is at $(n,d) = (49,16)$, and an
-    $18$-vertex graph $H_{18}$ that crosses over against the classical
-    depth-$2$ near-path at $n = 17$ with margin
+    $18$-vertex graph $H_{18}$ whose first near-path crossover is at
+    $(n,d)=(15,4)$ with margin $\Delta=500{,}576$. It crosses against
+    the classical depth-$2$ near-path at $n=17$ with margin
     $\Delta = 5{,}068{,}778$ (Section~\ref{sec:discussion}).
   \item \textbf{(P)} The bipartite double cover preserves both the
     Leontovich and the strongly Leontovich property

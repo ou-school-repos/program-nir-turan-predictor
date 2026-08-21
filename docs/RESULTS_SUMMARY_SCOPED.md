@@ -15,8 +15,8 @@ discipline used in the manuscript and claims ledger.
   matrix has exactly one positive eigenvalue cannot produce an odd-`n`
   near-path sign change. This analytically eliminates all 2-orbit and 3-orbit
   spherically symmetric trees in that setting.
-- **`T(7,1,9)` threshold:** The Leontovich crossover threshold for `T(7,1,9)`
-  is exactly `n=13`, and that threshold is permanent.
+- **`T(7,1,9)` threshold:** Among odd source orders, the Leontovich crossover
+  threshold for `T(7,1,9)` is exactly `n=13`, and that threshold is permanent.
 
 ## 2. Key Computational Witnesses
 
@@ -24,8 +24,9 @@ discipline used in the manuscript and claims ledger.
   Leontovich graph. Its first verified hit is `(n,d) = (49,16)`.
 - **`H18` (18 vertices):** Discovered via SMT-guided search and exact
   verification, this is the current depth-2 bipartite Leontovich witness found
-  in the completed bounded sweep through path length `n <= 51`. It crosses
-  against `E_17^(2)` at `n=17` with verified margin `5,068,778`.
+  in the completed bounded sweep through path length `n <= 51`. Its first
+  near-path crossover is `(n,d)=(15,4)`, with verified margin `500,576`; it
+  crosses against `E_17^(2)` at `n=17` with margin `5,068,778`.
 - **`\hat T(1,35,1,50)` (1,822 vertices):** This is the smallest strongly
   Leontovich looped symmetric tree in the audited 5-orbit frontier.
 

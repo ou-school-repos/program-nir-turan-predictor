@@ -35,13 +35,14 @@ conditional sweep result, not an unconditional theorem.
 
 ## Key Verified Witnesses
 
-- `T(7,1,9)` has a permanent `n=13` depth-2 crossover.
+- `T(7,1,9)` has a permanent odd `n=13` depth-2 crossover.
 - `H*`, a 15-vertex bipartite graph with pattern `(0,1,6,4,1,0,0)`, is a
   depth-dependent bipartite Leontovich graph; the first verified hit is
   `(n,d)=(49,16)`.
 - `H18`, pattern `(7,0,0,1,1,6,0)`, is the current 18-vertex depth-2
   bipartite Leontovich witness in the completed bounded sweep through
-  path length `n <= 51`, with
+  path length `n <= 51`. Its first general near-path hit is
+  `(n,d)=(15,4)`, with margin `500,576`; at depth 2,
   `Hom(P_17,H18) - Hom(E_17^(2),H18) = 5,068,778`.
 - The current 5-orbit strong-frontier audit distinguishes ordinary finite-window
   Leontovich behavior from strongly Leontovich behavior.
@@ -89,7 +90,9 @@ pipeline.
 
 A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
 tree is intended for the paper's main analytic results, while `legacy/` stays
-reserved for exact witness checks and SMT-style computations.
+reserved for exact witness checks and SMT-style computations. The theorem
+project is currently an experimental scaffold whose principal statements
+depend on axioms; it must not be read as formal verification of the paper.
 
 Lean build targets are split accordingly:
 

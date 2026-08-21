@@ -82,10 +82,9 @@ For $m_1 = 2$, there are only $2^2 - 1 = 3$ valid connection patterns for
 vertices in $R$. A graph is thus uniquely specified up to isomorphism by a
 triplet $(c_1, c_2, c_3)$ where $c_1 + c_2 + c_3 = m_2$.
 
-\begin{proposition}[Depth-2 obstruction for $m_1 = 2$]
+\begin{proposition}[The $n=5$ depth-2 obstruction for $m_1 = 2$]
 For every connected bipartite graph of partition $(2,m_2)$, the depth-2
-near-path comparison has no crossover at $n=5$, and the leading-coefficient
-comparison does not favor an eventual depth-2 Leontovich crossover.
+near-path comparison has no crossover at $n=5$.
 \end{proposition}
 \begin{proof}
 Let $H$ be a connected bipartite graph with left partition $L = \{u_1, u_2\}$.
@@ -99,11 +98,6 @@ For $H$ to be connected, we must have $c_3 \ge 1$. Direct algebraic expansion of
 \]
 Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
 
-Because $M$ is symmetric, we can apply London's Theorem. Asymptotically, the difference between the leading coefficients
-for $P_n$ and $E_n$ is proportional to $-pq(p-q)^2 \le 0$ (where $(p,q)^T$ is the principal eigenvector).
-Thus the $m_1=2$ family fails both the base depth-2 test at $n=5$ and the leading-coefficient test for eventual
-depth-2 dominance. We therefore use this as a two-part obstruction and leave any stronger all-threshold,
-all-source-tree statement to a separate Hoffman--London verification.
 \end{proof}
 
 However, for $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
@@ -127,7 +121,17 @@ Leontovich construction:
   \end{equation*}
 \end{compresult}
 
-At the crossover threshold $n=17$, the homomorphism counts verified by exact-precision arithmetic are:
+Allowing arbitrary attachment depth gives an earlier crossover for the same
+target. Exact integer arithmetic gives
+\begin{align*}
+  \Hom(P_{15},H_{18})&=1{,}105{,}256{,}666,\\
+  \Hom(E_{15}^{(4)},H_{18})&=1{,}104{,}756{,}090,
+\end{align*}
+so the first near-path crossover for $H_{18}$ occurs at $(n,d)=(15,4)$,
+with margin $500{,}576$. An exact scan over every admissible depth finds no
+crossover for $n<15$.
+
+At the depth-2 crossover threshold $n=17$, the homomorphism counts verified by exact-precision arithmetic are:
 \begin{align*}
   \Hom(P_{17}, H_{18}) &= 14{,}801{,}051{,}732 \\
   \Hom(E_{17}^{(2)}, H_{18}) &= 14{,}795{,}982{,}954
@@ -269,13 +273,11 @@ ratio governing the crossover is thus exactly:
   r = \sqrt{\frac{11 - \sqrt{6}}{11 + \sqrt{6}}} \approx 0.797.
 \end{equation}
 
-By extracting the discriminant $\Delta = (x-2y+1)^2 + 8$, we observe that the
+The discriminant $\Delta = (x-2y+1)^2 + 8$ shows that the
 ratio is maximized precisely along the ``resonance line'' $x = 2y - 1$,
-producing the optimal conditions for destructive eigenvalue interference. By
-systematically mapping the phase space of $\mathcal{B}(x,y)$ using this
-quotient matrix, we establish that $\mathcal{B}(x,y)$ is Leontovich for all
-sufficiently large $x$ and $y$, forming an infinite class of bipartite
-counterexamples to the path minimizer conjecture. Within the completed
+which favors long-lived eigenvalue interference. Computations suggest that
+this parameterized family contains infinitely many Leontovich graphs, but we
+do not prove that assertion here. Within the completed
 depth-2 $(3,m_2)$ block-pattern sweep through path length $n \le 51$,
 $H_{18}$ is the first such example.
 

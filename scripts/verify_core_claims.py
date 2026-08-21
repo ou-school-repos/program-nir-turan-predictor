@@ -5,7 +5,7 @@ This script is intentionally small and dependency-free. It verifies the
 headline witness values with Python integers:
 
 * H* is a 15-vertex depth-dependent bipartite Leontovich graph.
-* H18 has the corrected quotient walk table and n=17 depth-2 margin.
+* H18 first crosses at (n,d)=(15,4) and has the n=17 depth-2 margin.
 * The 5-orbit Table 8 finite-window audit has the expected open/close windows.
 * The m1=2 transfer identity matches exact homomorphism counts on a grid.
 * The double-cover source graph T^(1,35,1,50) has first even d=2 crossover
@@ -112,7 +112,7 @@ def verify_h_star() -> None:
 
 
 def verify_h18() -> None:
-    """Verify the H18 walk table and n=17 depth-2 crossover margin."""
+    """Verify the H18 walk table and its general and depth-2 crossovers."""
     pattern = (7, 0, 0, 1, 1, 6, 0)
     sizes, walks = bipartite_walks(pattern, 20)
     orbit_order = [0, 1, 2, 3, 6, 7, 8]
@@ -129,12 +129,26 @@ def verify_h18() -> None:
         row.append(hom_path(sizes, walks, step + 1) if step > 0 else sum(sizes))
         check(row == expected, (step, row, expected))
 
+    hp15 = hom_path(sizes, walks, 15)
+    he15 = hom_near_path(sizes, walks, 15, 4)
+    check(hp15 == 1_105_256_666, hp15)
+    check(he15 == 1_104_756_090, he15)
+    check(hp15 - he15 == 500_576, hp15 - he15)
+    check(
+        all(
+            hom_path(sizes, walks, n) <= hom_near_path(sizes, walks, n, d)
+            for n in range(5, 15)
+            for d in range(1, n - 2)
+        ),
+        "H18 has an unexpected crossover below n=15",
+    )
+
     hp = hom_path(sizes, walks, 17)
     he = hom_near_path(sizes, walks, 17, 2)
     check(hp == 14_801_051_732, hp)
     check(he == 14_795_982_954, he)
     check(hp - he == 5_068_778, hp - he)
-    print("H18: walk table and n=17 depth-2 margin verified")
+    print("H18: first (15,4) crossover and n=17 depth-2 margin verified")
 
 
 def verify_m1_equals_2_identity() -> None:
