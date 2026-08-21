@@ -243,7 +243,7 @@ leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
 	@$(call print_success,leontovich_fast built.)
 
 .PHONY: certify_rump
-certify_rump: src/certify_rump.cpp ##H Build the optional FLINT Rump-enclosure smoke test
+certify_rump: src/certify_rump.cpp ##H Build the optional FLINT rho certifier
 	@pkg-config --exists flint || { echo "FLINT development files are required." >&2; exit 1; }
 	@$(call print_info,Building certify_rump)
 	g++ -O3 -std=c++17 -Wall -Wextra -Wpedantic -o certify_rump $< $$(pkg-config --cflags --libs flint)

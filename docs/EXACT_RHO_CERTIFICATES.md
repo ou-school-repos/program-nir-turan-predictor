@@ -65,6 +65,31 @@ reported hit is now accepted through `certify_rho_sign`, and its output archive
 contains the quotient data and full exact certificate alongside the approximate
 ratio used for ranking.
 
-This prototype certifies named quotient matrices. It does not by itself upgrade
-the historical `m <= 11` graph sweep: that requires retained quotient data or
-a rerun that emits compact certificates for every target.
+## Adaptive FLINT Backend
+
+For simple graphs, the optional `certify_rump` binary constructs the adjacency
+matrix as the full quotient with unit orbit sizes. It computes an approximate
+Perron pair, encloses that pair with FLINT's Rump method, and evaluates `rho_d`
+with ball arithmetic at 64, 128, 256, and 512 bits. Walk vectors are computed
+as exact `fmpz_mat` products, so their coefficients cannot overflow fixed-width
+integers. Bipartite inputs are deferred because their parity-specific limit
+requires separate treatment.
+
+```bash
+make certify_rump
+./certify_rump --g6 'C{' --depth 2
+```
+
+The sweep orchestrator accepts the binary explicitly. A strict Arb interval is
+archived directly; unresolved non-bipartite intervals fall back to the exact
+symbolic certifier:
+
+```bash
+printf '%s\n' \
+  '{"type":"spectral_candidate","g6":"C{","d":2,"rho_estimate":1.03}' |
+  python3 scripts/sweep_orchestrator.py --arb-certifier ./certify_rump
+```
+
+This pipeline does not by itself upgrade the historical `m <= 11` graph sweep.
+A rigorous upgrade requires rerunning every graph through the certified backend
+and separately resolving the deferred bipartite parity cases.

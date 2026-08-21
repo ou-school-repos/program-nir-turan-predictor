@@ -6,6 +6,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -46,6 +47,28 @@ class SweepOrchestratorTests(unittest.TestCase):
         """Malformed protocol input fails closed with its source line."""
         with self.assertRaisesRegex(ValueError, "line 2"):
             process_stream(["\n", "{}\n"], io.StringIO())
+
+    @patch("sweep_orchestrator.subprocess.run")
+    def test_strict_arb_result_skips_symbolic_fallback(self, run):
+        """A rigorous Arb separation is accepted without invoking SymPy."""
+        run.return_value.returncode = 0
+        run.return_value.stdout = json.dumps(
+            {
+                "schema": "arb-rho-certificate-v1",
+                "status": "certified_above_one",
+                "depth": 2,
+                "precision_bits": 64,
+                "rho_interval": "[1.03 +/- 0.001]",
+            }
+        )
+        run.return_value.stderr = ""
+        record = certify_candidate(
+            {"type": "spectral_candidate", "g6": "C{", "d": 2, "rho_estimate": 1.03},
+            Path(sys.executable),
+        )
+        self.assertEqual(record["status"], "certified_above_one")
+        self.assertNotIn("certificate", record)
+        self.assertTrue(Path(run.call_args.args[0][0]).is_absolute())
 
 
 if __name__ == "__main__":

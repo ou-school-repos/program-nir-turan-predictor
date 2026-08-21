@@ -10,6 +10,7 @@ formula is implemented.
 import argparse
 import json
 import math
+import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable, TextIO
@@ -43,7 +44,43 @@ def is_bipartite(adjacency: list[list[int]]) -> bool:
     return True
 
 
-def certify_candidate(candidate: dict) -> dict:
+def run_arb_certifier(graph6: str, depth: int, executable: Path) -> dict:
+    """Run the certified C++ backend and validate its JSON response."""
+    executable = executable.expanduser().resolve()
+    if not executable.is_file():
+        raise RuntimeError(f"Arb certifier does not exist: {executable}")
+    result = subprocess.run(
+        [str(executable), "--g6", graph6, "--depth", str(depth)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        certificate = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        detail = result.stderr.strip() or "no diagnostic"
+        raise RuntimeError(f"Arb certifier returned invalid JSON: {detail}") from exc
+    if certificate.get("schema") != "arb-rho-certificate-v1":
+        raise RuntimeError("Arb certifier returned an unknown schema")
+    if certificate.get("depth") != depth:
+        raise RuntimeError("Arb certifier returned the wrong depth")
+    status = certificate.get("status")
+    valid_statuses = {
+        "certified_above_one",
+        "certified_below_one",
+        "deferred_bipartite_parity",
+        "unresolved",
+        "unresolved_power_iteration",
+        "invalid_enclosure",
+    }
+    if status not in valid_statuses:
+        raise RuntimeError(f"Arb certifier returned invalid status {status!r}")
+    if result.returncode not in (0, 1):
+        raise RuntimeError(f"Arb certifier failed with exit code {result.returncode}")
+    return certificate
+
+
+def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dict:
     """Validate and certify one C++ spectral-prescreen candidate."""
     if candidate.get("type") != "spectral_candidate":
         raise ValueError("input type must be spectral_candidate")
@@ -65,6 +102,17 @@ def certify_candidate(candidate: dict) -> dict:
         "depth": depth,
         "rho_estimate": estimate,
     }
+    if arb_certifier is not None:
+        arb_certificate = run_arb_certifier(graph6.strip(), depth, arb_certifier)
+        arb_status = arb_certificate["status"]
+        record["arb_certificate"] = arb_certificate
+        if arb_status == "deferred_bipartite_parity":
+            record["status"] = arb_status
+            return record
+        if arb_status in {"certified_above_one", "certified_below_one"}:
+            record["status"] = arb_status
+            return record
+
     if is_bipartite(adjacency):
         record["status"] = "deferred_bipartite_parity"
         return record
@@ -79,7 +127,9 @@ def certify_candidate(candidate: dict) -> dict:
     return record
 
 
-def process_stream(source: Iterable[str], destination: TextIO) -> int:
+def process_stream(
+    source: Iterable[str], destination: TextIO, arb_certifier: Path | None = None
+) -> int:
     """Certify candidate JSONL records and return the processed count."""
     count = 0
     for line_number, line in enumerate(source, 1):
@@ -87,7 +137,7 @@ def process_stream(source: Iterable[str], destination: TextIO) -> int:
             continue
         try:
             candidate = json.loads(line)
-            record = certify_candidate(candidate)
+            record = certify_candidate(candidate, arb_certifier)
         except (
             json.JSONDecodeError,
             KeyError,
@@ -109,12 +159,17 @@ def main() -> None:
     parser.add_argument(
         "--output", type=Path, help="certificate NDJSON; default stdout"
     )
+    parser.add_argument(
+        "--arb-certifier",
+        type=Path,
+        help="certify with this C++ binary before exact symbolic fallback",
+    )
     args = parser.parse_args()
 
     source = args.input.open(encoding="utf-8") if args.input else sys.stdin
     destination = args.output.open("w", encoding="utf-8") if args.output else sys.stdout
     try:
-        process_stream(source, destination)
+        process_stream(source, destination, args.arb_certifier)
     finally:
         if args.input:
             source.close()
