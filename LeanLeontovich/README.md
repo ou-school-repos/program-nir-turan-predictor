@@ -12,11 +12,15 @@ Current axiom-free content:
 - path and near-path definitions
 - a concrete bipartite double-cover definition
 - the canonical lift of a homomorphism from a properly two-colored source
+- the two-to-one homomorphism-count identity for a connected, properly
+  two-colored source
 
 Named witnesses and their crossover properties remain in the `Assumed`
 namespace. The obsolete local-SMT minimality and single-positive-eigenvalue
-claims are intentionally absent. The next formalization target is the
-two-to-one homomorphism-count identity for connected bipartite sources.
+claims are intentionally absent. The next formalization target is to replace
+the placeholder tree predicate with a concrete connected-tree interface and
+derive the paper's full double-cover preservation theorem from the verified
+counting identity.
 
 Build from this directory with:
 

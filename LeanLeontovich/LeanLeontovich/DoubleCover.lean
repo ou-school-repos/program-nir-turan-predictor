@@ -176,4 +176,15 @@ theorem connected_hom_doubleCover_eq_two_mul {G H : Graph}
   exact hom_doubleCover_eq_two_mul c.toBipartiteColoring
     (connected_everyDoubleCoverHomLifts c)
 
+/- Passing to the double cover preserves every strict Hom-count comparison
+between connected bipartite sources. -/
+theorem connected_hom_lt_doubleCover_iff {G₁ G₂ H : Graph}
+    (c₁ : ConnectedBipartiteColoring G₁)
+    (c₂ : ConnectedBipartiteColoring G₂) :
+    Hom G₁ (DoubleCover H) < Hom G₂ (DoubleCover H) ↔
+      Hom G₁ H < Hom G₂ H := by
+  rw [connected_hom_doubleCover_eq_two_mul c₁,
+    connected_hom_doubleCover_eq_two_mul c₂]
+  omega
+
 end LeanLeontovich

@@ -91,9 +91,10 @@ pipeline.
 
 A separate theorem-focused Lean project now lives in `LeanLeontovich/`. It
 contains axiom-free finite-graph definitions and a concrete bipartite
-double-cover lifting construction, while named witness claims remain explicitly
-under `Assumed`. It does not yet prove a principal paper result and must not be
-read as formal verification of the paper.
+double-cover lifting construction. It also proves, without axioms, the
+two-to-one homomorphism-count identity for connected properly two-colored
+sources. Named witness claims remain explicitly under `Assumed`; the project
+does not yet verify the full paper or its computational claims.
 
 Lean build targets are split accordingly:
 
