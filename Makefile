@@ -294,7 +294,7 @@ LINT_LOCS_PY ?= $$(git ls-files '*.py')
 .PHONY: format
 format: ##H Format source files
 	-shfmt -w $$(git ls-files '*.sh')
-	-black $(LINT_LOCS_PY)
+	-ruff format $(LINT_LOCS_PY)
 	-isort $(LINT_LOCS_PY)
 	-clang-format -i $$(git ls-files '*.cpp' '*.hpp' '*.h')
 	-prettier -w .
@@ -305,6 +305,7 @@ format: ##H Format source files
 lint: ##H Lint sources
 	@$(call print_info,Linting)
 	-flake8 $(LINT_LOCS_PY)
+	-ruff check $(LINT_LOCS_PY)
 	-cppcheck --enable=warning,style --std=c++17 --quiet $$(git ls-files '*.cpp')
 	@$(call print_success,Lint complete.)
 

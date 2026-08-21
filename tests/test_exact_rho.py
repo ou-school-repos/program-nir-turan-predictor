@@ -10,8 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from exact_rho import (certify_rho_sign, load_quotient,  # noqa: E402
-                       symmetric_tree_quotient)
+from exact_rho import load_quotient  # noqa: E402
+from exact_rho import certify_rho_sign, symmetric_tree_quotient  # noqa: E402
 
 
 class ExactRhoTests(unittest.TestCase):
