@@ -37,6 +37,7 @@ firefighter
 landscape_txz
 verify_remainders
 verify_bipartite_m17
+certify_rump
 
 # PDFs
 *.pdf

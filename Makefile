@@ -242,6 +242,13 @@ leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
 	g++ -O3 -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
 	@$(call print_success,leontovich_fast built.)
 
+.PHONY: certify_rump
+certify_rump: src/certify_rump.cpp ##H Build the optional FLINT Rump-enclosure smoke test
+	@pkg-config --exists flint || { echo "FLINT development files are required." >&2; exit 1; }
+	@$(call print_info,Building certify_rump)
+	g++ -O3 -std=c++17 -Wall -Wextra -Wpedantic -o certify_rump $< $$(pkg-config --cflags --libs flint)
+	@$(call print_success,certify_rump built.)
+
 leontovich_sa: src/leontovich_sa.cpp ##H Build the Leontovich SA search
 	@$(call print_info,Building leontovich_sa)
 	g++ -O3 -march=native -std=c++17 -o leontovich_sa src/leontovich_sa.cpp
@@ -315,7 +322,7 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast landscape_txz
+	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast certify_rump landscape_txz
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help
