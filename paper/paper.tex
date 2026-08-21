@@ -71,23 +71,20 @@
 \maketitle
 
 \begin{abstract}
-We study the minimisation of graph homomorphisms from trees to fixed target
-graphs $H$, with emphasis on Leontovich graphs and path-minimiser failures.
-Using quotient-matrix reductions and exact computational sweeps, we prove that
-no $T(x,y,z)$ admits a near-path crossover at $n=5$, record the $n=6$ case
---- which quantifies over all six trees on six vertices --- as
-verified-plus-conjecture, and identify crossover threshold $n=7$ as the
-smallest threshold witnessed here. For 2- or 3-orbit symmetric trees,
-odd near-path crossover detection reduces to a finite base-case sign check;
-for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent.
-We also show that the bipartite double cover preserves the Leontovich
-property, which transfers bounded sweep evidence to looped targets within the
-tested ranges. The 15-vertex graph $H^*$ comes from an exhaustive bipartite
-sweep, the 18-vertex graph $H_{18}$ from SMT synthesis followed by a completed
-depth-2 bounded sweep through path length $n \le 51$, and the 3,644-vertex
-double-cover witness has
-even crossover threshold $n = 17{,}340$, refuting the previously suggested
-bipartite parity hypothesis for even~$n$.
+We study graph homomorphisms from trees to fixed target graphs $H$, focusing
+on Leontovich graphs: targets for which the path does not minimize the number
+of homomorphisms. We prove that no $T(x,y,z)$ has a near-path crossover at
+$n=5$. At $n=6$, four of the six source trees are covered by proofs and the
+remaining two by exact computation. Thus $n=7$ is the smallest crossover
+threshold found in the families studied here. For symmetric trees with two or
+three orbits, an odd near-path crossover can be decided by a single finite
+sign check. For the four-orbit tree $T(7,1,9)$, we prove that its threshold
+$n=13$ is permanent. We also prove that the bipartite double cover preserves
+the Leontovich property. Our searches produce a 15-vertex witness $H^*$ by
+exhaustive bipartite enumeration and an 18-vertex witness $H_{18}$ by SMT
+synthesis, followed by a depth-2 sweep through $n \le 51$. Finally, a
+3,644-vertex double-cover witness first crosses at the even threshold
+$n=17{,}340$, disproving the proposed bipartite parity hypothesis.
 \end{abstract}
 
 % ════════════════════════════════════════════════════════════════════════
@@ -311,7 +308,7 @@ we record here the first fully written proof.
 \begin{remark}[Parity heuristic, not theorem]
   \label{rem:parity}
   For even $n$, $P_n$ has a perfectly balanced bipartition $(n/2, n/2)$,
-  minimising its dominant projection. For even depths $d$ (e.g., $d=2$)
+  minimizing its dominant projection. For even depths $d$ (e.g., $d=2$)
   where $E_n^{(d)}$ remains balanced, the path's linear geometry yields
   a smaller projection onto the dominant eigenvector. For odd depths
   (e.g., $d=1$), $E_n^{(d)}$ is forced into an unbalanced
@@ -407,7 +404,7 @@ arithmetic, $n \le 200$, $d \le 20$).}
   the difference is strictly negative.
 \end{proof}
 
-\begin{remark}[Verified-plus-conjecture $n=6$ residue]
+\begin{remark}[The remaining $n=6$ cases]
   \label{rem:n6_residue}
   The six trees on six vertices split into four proved cases and two
   checked cases. The path is the reference case; the star $K_{1,5}$
@@ -415,10 +412,10 @@ arithmetic, $n \le 200$, $d \le 20$).}
   is controlled by Theorem~\ref{thm:spectral}; and the double star
   $S_{2,2}$ is covered by the Cauchy--Schwarz bound above.
   The remaining two six-vertex trees, $\Sp(3,1,1)$ and
-  $\Sp(2,1,1,1)$, are supported by exact computation only. We therefore
-  record the $n=6$ conclusion as verified-plus-conjecture: the proven
-  cases are (P), the two stubborn trees remain (E), and the near-path
-  sufficiency conjecture stays open.
+  $\Sp(2,1,1,1)$, are supported only by exact computation. Consequently,
+  the four proved cases carry label (P), while these two cases carry label
+  (E). A proof covering all six cases would require resolving this gap; the
+  near-path sufficiency conjecture also remains open.
 \end{remark}
 
 \subsection{Minimum threshold landscape}
@@ -650,23 +647,21 @@ graphs within the graph manifold.
 Since an independent set in $G$ is exactly a homomorphism
 $G \to H_{\mathrm{ind}}$ (two vertices, exactly one of which has a loop, connected by an edge), the
 framework developed here extends naturally to the Merrifield--Simmons
-index: degree-constrained trees that maximise independent sets are
-dual to trees that minimise homomorphisms into a specific non-bipartite looped target.
+index: degree-constrained trees that maximize independent sets are
+dual to trees that minimize homomorphisms into a specific non-bipartite looped target.
 \end{remark}
 
 \section{SMT-Based Constraint Search and the 18-Vertex Depth-2 Discovery}
 \label{sec:discussion}
 
-The computational boundaries established in this work---including large
-near-path sweeps for $m \le 11$ and the 15-vertex depth-dependent bipartite
-example $H^*$---highlight the steep combinatorial complexity of the
-Leontovich search space. To bypass the exponential wall of graph
-enumeration, we propose and analyze a novel algebraic search framework
-based on Satisfiability Modulo Theories (SMT) solvers, which we use below
-to discover the 18-vertex depth-2 bipartite example $H_{18}$, a target
-beyond the reach of exhaustive enumeration.
+The near-path sweeps for $m \le 11$ and the 15-vertex bipartite example
+$H^*$ illustrate how quickly the Leontovich search space grows. Beyond the
+range of exhaustive enumeration, we encode the homomorphism inequalities as
+an integer constraint problem for a Satisfiability Modulo Theories (SMT)
+solver. This search produces the 18-vertex depth-2 bipartite example
+$H_{18}$ studied below.
 
-\subsection{SMT-Based Algebraic Search Formulation}
+\subsection{SMT-based algebraic search}
 
 To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices),
 the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP)
@@ -731,7 +726,7 @@ This establishes a bounded computational audit:
 
 \subsection{The 18-Vertex Depth-2 Bipartite Leontovich Graph Discovery}
 
-To search for extremely small non-tree Leontovich graphs, we restricted the
+To search for small non-tree Leontovich graphs, we restricted the
 target class to bipartite graphs with left-partition size $m_1 \in \{2, 3\}$.
 Under this partition constraint, every vertex in the right partition $R$ must
 connect to a non-empty subset of the left partition $L$.
@@ -790,15 +785,15 @@ At the crossover threshold $n=17$, the homomorphism counts verified by exact-pre
   \Hom(P_{17}, H_{18}) &= 14{,}801{,}051{,}732 \\
   \Hom(E_{17}^{(2)}, H_{18}) &= 14{,}795{,}982{,}954
 \end{align*}
-yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since $m=18 <
-76$, this represents a more than \textbf{four-fold reduction} in the order of
-the smallest previously known depth-2 Leontovich construction in the tested
-depth-2 search regime. Because the exhaustive check of all 45,838
+yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since
+$m=18 < 76$, this is less than one quarter the order of the smallest
+previously known depth-2 construction in the tested search regime. Because
+the exhaustive check of all 45,838
 non-isomorphic configurations for $m_2 < 15$ returned zero depth-2 hits,
 \textbf{18 vertices is the depth-2 minimum within this partition family in the
 completed depth-2 sweep through path length $n \le 51$}.
 
-\subsubsection{\texorpdfstring{Topological Characteristics and Step-by-Step Walk Iteration of $H_{18}$}{Topological Characteristics and Step-by-Step Walk Iteration of H18}}
+\subsubsection{\texorpdfstring{Structure and walk iteration of $H_{18}$}{Structure and walk iteration of H18}}
 
 \begin{figure}[H]
   \centering
@@ -1236,7 +1231,7 @@ are dominated by two terms:
   \Delta_{\mathrm{odd}}(n) = A\,\lambda_1^n + B\,\lambda_2^n
   = \lambda_1^n \!\left( A - |B|\left(\frac{\lambda_2}{\lambda_1}\right)^{\!n}\right)
 \]
-where $A > 0$ (since $E_n^{(d)}$ is the asymptotic minimiser at odd $n$)
+where $A > 0$ (since $E_n^{(d)}$ is the asymptotic minimizer at odd $n$)
 and $B < 0$ (since $P_n$ wins at small~$n$).  Because
 $0 < \lambda_2/\lambda_1 < 1$, the subtracted term
 $|B|(\lambda_2/\lambda_1)^n$ is strictly decreasing.  Thus the
@@ -1256,7 +1251,7 @@ $\Delta_{43} > 10^{17}$.
 \begin{remark}[Bipartite parity hypothesis (refuted in Section~\ref{sec:doublecover})]
 For any bipartite target graph $H$, $\Hom(E_n^{(d)}, H) \ge
 \Hom(P_n, H)$ for all even~$n$.  That is, the path $P_n$ is
-always the minimiser among trees on $n$ vertices when $n$ is even
+always the minimizer among trees on $n$ vertices when $n$ is even
 and $H$ is bipartite.
 \end{remark}
 
@@ -1418,7 +1413,7 @@ interval-arithmetic certificate.
 Quotient-matrix reductions and exact computational sweeps constrain the
 landscape of Leontovich graphs sharply. The impossibility at $n=5$ for
 the spherically symmetric family $T(x,y,z)$
-(Proposition~\ref{prop:n5}) and the verified $n=6$ residue establish
+(Proposition~\ref{prop:n5}) and the exact checks at $n=6$ identify
 $n=7$ as the smallest crossover threshold witnessed here.
 
 We conclude with the two principal open directions highlighted by this work:
