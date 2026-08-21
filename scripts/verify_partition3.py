@@ -18,7 +18,47 @@ Any bipartite graph of partition (3, m2) with no isolated vertices is uniquely d
 (up to isomorphic permutations of Left vertices) by the vector (c1..c7).
 """
 
+import itertools
 import time
+
+PERMUTATIONS = tuple(itertools.permutations(range(3)))
+
+
+def permute_pattern(c, permutation):
+    """Apply a permutation of the three left vertices to a pattern vector."""
+    transformed = [0] * 7
+    for mask in range(1, 8):
+        new_mask = sum(1 << permutation[i] for i in range(3) if (mask >> i) & 1)
+        transformed[new_mask - 1] = c[mask - 1]
+    return tuple(transformed)
+
+
+def is_canonical(c):
+    """Return whether c is lexicographically minimal under the full S3 action."""
+    return tuple(c) == min(permute_pattern(c, p) for p in PERMUTATIONS)
+
+
+def is_connected(c):
+    """Check connectivity of the represented bipartite graph."""
+    left_adjacency = [set() for _ in range(3)]
+    present = set()
+    for mask, count in enumerate(c, start=1):
+        if count == 0:
+            continue
+        vertices = [i for i in range(3) if (mask >> i) & 1]
+        present.update(vertices)
+        for i in vertices:
+            left_adjacency[i].update(vertices)
+    if len(present) != 3:
+        return False
+    seen = {0}
+    pending = [0]
+    while pending:
+        u = pending.pop()
+        for v in left_adjacency[u] - seen:
+            seen.add(v)
+            pending.append(v)
+    return len(seen) == 3
 
 
 def verify_vector(c, max_n=51, d=2):
@@ -101,35 +141,29 @@ def prove_bipartite_partition3(max_m2=15, max_n=51):
 
     start_time = time.time()
     total_graphs = 0
+    smaller_graphs = 0
     violations_found = 0
 
     # Generate all partitions c1 + c2 + c3 + c4 + c5 + c6 + c7 = m2
     for m2 in range(1, max_m2 + 1):
         for c1 in range(m2 + 1):
             for c2 in range(m2 - c1 + 1):
-                # Symmetry-breaking: enforce c1 >= c2
-                if c1 < c2:
-                    continue
                 for c3 in range(m2 - c1 - c2 + 1):
-                    if c2 < c3:
-                        continue
                     for c4 in range(m2 - c1 - c2 - c3 + 1):
                         for c5 in range(m2 - c1 - c2 - c3 - c4 + 1):
-                            # Symmetry-breaking: if c1 == c2, we can order c4 and c5, etc.
-                            # For simplicity, we can do basic singleton degree order checks:
                             for c6 in range(m2 - c1 - c2 - c3 - c4 - c5 + 1):
                                 c7 = m2 - c1 - c2 - c3 - c4 - c5 - c6
 
-                                # Check that no left vertex is isolated
-                                if c1 + c4 + c5 + c7 < 1:
+                                pattern = (c1, c2, c3, c4, c5, c6, c7)
+                                if not is_canonical(pattern):
                                     continue
-                                if c2 + c4 + c6 + c7 < 1:
-                                    continue
-                                if c3 + c5 + c6 + c7 < 1:
+                                if not is_connected(pattern):
                                     continue
 
                                 total_graphs += 1
-                                res = verify_vector((c1, c2, c3, c4, c5, c6, c7), max_n)
+                                if m2 < max_m2:
+                                    smaller_graphs += 1
+                                res = verify_vector(pattern, max_n)
                                 if res is not None:
                                     n, homP, homE = res
                                     violations_found += 1
@@ -146,7 +180,8 @@ def prove_bipartite_partition3(max_m2=15, max_n=51):
         "\n\033[1;36m============================================================\033[0m"
     )
     print(f"PROOF COMPLETED in {elapsed:.3f} seconds.")
-    print(f"  Total non-isomorphic (3, m2) graphs evaluated: {total_graphs:,}")
+    print(f"  Connected canonical graphs with m2 < {max_m2}: {smaller_graphs:,}")
+    print(f"  Connected canonical graphs with m2 <= {max_m2}: {total_graphs:,}")
     print(f"  Leontovich violations found:                   {violations_found}")
     if violations_found == 0:
         print(

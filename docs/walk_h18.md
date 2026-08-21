@@ -147,11 +147,12 @@ smallest verified bipartite depth-2 witness.
 
 To prove that $H_{18}$ is the unique minimum within the tested $(3,m_2)$
 partition class, we executed an exhaustive combinatorial sweep of all possible
-bipartite $(3, m_2)$ graphs up to $m_2 = 15$ ($45{,}838$ distinct topologies
-evaluated up to threshold $n=51$).
+bipartite $(3, m_2)$ graphs up to $m_2 = 15$. Full $S_3$ canonicalization and
+connectivity filtering leave $19{,}832$ classes with $m_2<15$ and $29{,}084$
+classes with $m_2\leq15$, all evaluated up to threshold $n=51$.
 
 The output of the empirical sweep run on `shane@coffeelake` confirms that
-$H_{18}$ (represented by its symmetry signature `(7, 0, 0, 1, 1, 6, 0)`) is
+$H_{18}$ (represented canonically by `(0, 0, 7, 6, 1, 1, 0)`) is
 the only detected depth-2 Leontovich graph in this tested class:
 
 ```bash
@@ -160,15 +161,16 @@ $ python3 scripts/verify_partition3.py
 Pioneering rigorous proof for bipartite (3, m2) targets up to m2=15...
   Checking thresholds n up to 51...
 
-* FOUND Leontovich graph! (7, 0, 0, 1, 1, 6, 0)
+* FOUND Leontovich graph! (0, 0, 7, 6, 1, 1, 0)
   Total vertices (m): 3 + 15 = 18
   Crossover at n:     17
   hom(P_n, H):        14,801,051,732
   hom(E_n^(2), H):    14,795,982,954
 
 ============================================================
-PROOF COMPLETED in 19.230 seconds.
-  Total non-isomorphic (3, m2) graphs evaluated: 45,838
+PROOF COMPLETED in 16.395 seconds.
+  Connected canonical graphs with m2 < 15: 19,832
+  Connected canonical graphs with m2 <= 15: 29,084
   Leontovich violations found:                   1
 ============================================================
 ```

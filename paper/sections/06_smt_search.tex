@@ -10,7 +10,9 @@ $H_{18}$ studied below.
 
 \subsection{SMT-based algebraic search}
 
-To bypass the exponential explosion of graph enumeration (e.g., more than $5 \times 10^{11}$ bipartite targets on $m = 16$ vertices),
+To bypass the exponential explosion of graph enumeration (e.g.,
+$14{,}218{,}209{,}962\approx1.4\times10^{10}$ connected bipartite targets on
+$m=16$ vertices),
 the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP)
 over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
 
@@ -58,18 +60,14 @@ exactly $22$ variables per step:
   w_k(\text{hub } i) &= w_{k-1}(\text{bridge } i) + k_i \, w_{k-1}(\text{leaf-type } i) \\
   w_k(\text{leaf-type } i) &= w_{k-1}(\text{hub } i)
 \end{align}
-We executed this local SMT solver to check if any pruning of size $|V| \le 75$ is
-Leontovich for any threshold $n \le 31$. The solver returned \textbf{UNSAT} for every
-single threshold.
-
-This establishes a bounded computational audit:
-\begin{compresult}
-  Within the $T(7,1,9)$ star-of-stars pruning landscape, no pruning with
-  $|V| \le 75$ is detected as Leontovich by the completed integer constraint
-  checks for thresholds $n \le 31$. The 76-vertex tree
-  $T(7,1,[9^5, 8^2])$ is therefore the minimum witness certified by this
-  bounded audit.
-\end{compresult}
+The local solver is configured to test depth~2 at odd thresholds
+$n\in\{13,15,\ldots,31\}$ for prunings of size $|V|\le75$. Under the
+documented 10-second timeout, however, Z3 returns \texttt{unknown} already at
+$n=13$. Thus this experiment does not certify a negative result or minimality
+of the 76-vertex witness. The audit script now records the solver status
+explicitly, accepts only \texttt{unsat} as a completed negative check, and
+fails on \texttt{unknown} rather than misreporting a timeout as
+\textbf{UNSAT}.
 
 \subsection{The 18-Vertex Depth-2 Bipartite Leontovich Graph Discovery}
 
@@ -146,8 +144,8 @@ At the depth-2 crossover threshold $n=17$, the homomorphism counts verified by e
 yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since
 $m=18 < 76$, this is less than one quarter the order of the smallest
 previously known depth-2 construction in the tested search regime. Because
-the exhaustive check of all 45,838
-non-isomorphic configurations for $m_2 < 15$ returned zero depth-2 hits,
+the exhaustive check of all $19{,}832$ connected, full-$S_3$-canonical
+configurations with $m_2<15$ returned zero depth-2 hits,
 \textbf{18 vertices is the depth-2 minimum within this partition family in the
 completed depth-2 sweep through path length $n \le 51$}.
 

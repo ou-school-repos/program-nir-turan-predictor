@@ -92,15 +92,17 @@ $\lambda_1$ decreases while the active secondary eigenvalue $\lambda_2^*$
 increases (see Table~\ref{tab:sa_hits}), narrowing the spectral gap.
 At $|V| = 76$, the interference from $\lambda_2^* \approx 3.0380$ is just
 sufficient to drive the ratio $\Hom(E_n^{(2)}, H)/\Hom(P_n, H)$ below~1 at
-$n = 17$. However, at $|V| = 75$, the audited odd thresholds $n \le 31$ do
-not produce a crossover.
+$n = 17$. The local SMT experiment for $|V| = 75$ times out at its first
+depth-2 threshold, $n=13$, so it does not establish minimality within this
+pruning family.
 
 This yields a clean dichotomy: \emph{within the star-of-stars basin,
 asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
 into the quotient spectrum.} The Leontovich property is lost when this
 symmetry-breaking pushes the active secondary eigenvalue too close to the
-spectral radius, establishing the 76-vertex graph as the smallest size not
-excluded by the local audit of Section~\ref{sec:local-pruning-audit}.
+spectral radius. The 76-vertex graph is the smallest witness found by the
+search, not a certified minimum; Section~\ref{sec:local-pruning-audit}
+describes the incomplete local audit.
 
 \subsection*{Deeper symmetric trees}
 
@@ -108,8 +110,9 @@ An overflow-safe sweep (\texttt{\_\_int128} exact arithmetic with
 \texttt{\_\_builtin\_mul\_overflow}) over 596,891 branching sequences
 $T(d_1, \ldots, d_k)$ with $k \le 5$ orbits and $|V| \le 2{,}000$
 found 7,016 Leontovich instances and confirms that $T(7,1,9)$ at
-$|V| = 78$ is the absolute vertex-count minimum across all orbit
-counts.  For each threshold~$n$, the smallest 5-orbit tree is
+$|V| = 78$ is the vertex-count minimum within the swept symmetric
+branching-sequence family ($k\le5$, $|V|\le2{,}000$). For each
+threshold~$n$, the smallest 5-orbit tree is
 consistently \emph{larger} than the corresponding 4-orbit tree:
 for example, at $n = 13$, $T(1,8,1,12)$ ($|V| = 114$) versus
 $T(7,1,9)$ ($|V| = 78$).  Deeper trees do extend the reachable
@@ -238,13 +241,11 @@ Opening $n$ & $|V|$ & Parameters $(d_1, d_2, d_3, d_4)$ & Verdict \\
 For a bipartite tree $H$ with exactly two dominant positive
 eigenvalues $\lambda_1 > \lambda_2 > 0$, the difference
 $\Delta_n = \Hom(P_n, H) - \Hom(E_n^{(d)}, H)$ restricted to
-odd~$n$ can change sign at most once.
+odd~$n$ can change sign at most once. This statement does not apply to
+the 5-orbit looped symmetric targets in Table~\ref{tab:strong_frontier}.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
-This proposition applies to bipartite trees satisfying its hypotheses, not to
-the 5-orbit looped symmetric targets in Table~\ref{tab:strong_frontier},
-whose odd-$n$ windows can open and later close.
 By quotient-eigenbasis expansion, the homomorphism counts for large $n$
 are dominated by two terms:
 \[
@@ -261,8 +262,8 @@ becomes positive, it remains positive for all larger odd~$n$.
 
 \noindent
 We verified this computationally for the 76-vertex graph: $\Delta$
-is negative for $n \le 15$ and strictly positive for all
-$n \ge 17$ (checked through $n = 43$), with the gap growing
+is negative at odd $n \le 15$ and strictly positive at odd
+$17\le n\le43$, with the gap growing
 exponentially from $\Delta_{17} = 1{,}993{,}646$ to
 $\Delta_{43} > 10^{17}$.
 

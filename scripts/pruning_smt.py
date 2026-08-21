@@ -121,13 +121,17 @@ def search_pruned_leontovich(max_vertices=75, max_n=31):
                 "leaf_counts": leaf_counts,
                 "vertices": m_found,
             }
-        else:
+        elif res == z3.unsat:
             print(f"  n={n}: UNSAT / No Leontovich tree of size <= {max_vertices}")
+        else:
+            reason = s.reason_unknown()
+            raise RuntimeError(f"Z3 returned {res} at n={n}: {reason}")
 
     elapsed = time.time() - start_time
     print(
         f"\n\033[1;31m✗ Completed search in {elapsed:.3f}s. "
-        f"No Leontovich pruned trees exist with <= {max_vertices} vertices.\033[0m"
+        f"No depth-2 Leontovich pruned trees were found at odd n=13..{max_n} "
+        f"with <= {max_vertices} vertices.\033[0m"
     )
     return {"sat": False}
 

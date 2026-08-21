@@ -27,12 +27,13 @@
   contained in $\{\lambda_1, 0, -\lambda_1\}$. By the quotient-eigenbasis
   expansion and Lemma~\ref{lem:active_recurrence},
   \[
-    \Hom(G_n, H) = c\,\lambda_1^n + d\,(-\lambda_1)^n.
+    \Hom(G_n, H) = c_+\,\lambda_1^n + c_-\,(-\lambda_1)^n.
   \]
-  For odd $n$, this reduces to $(c - d)\,\lambda_1^n$, and the kernel
+  For odd $n$, this reduces to $(c_+ - c_-)\,\lambda_1^n$, and the kernel
   component vanishes once the exponent is at least $1$. There are no
   secondary exponential terms, so the ratio
-  $\Hom(E_n, H) / \Hom(P_n, H)$ is constant on odd $n$. Thus the
+  $\Hom(E_n^{(d)}, H) / \Hom(P_n, H)$ is constant on odd $n$ for each
+  fixed depth~$d$. Thus the
   eigenvalue condition reduces any odd near-path crossover question to
   the sign of one verified odd base case in the family being studied.
 \end{proof}
@@ -56,8 +57,8 @@
   sweeps therefore transfer only within their tested ranges: the
   simple-graph sweep up to $11$ vertices gives looped-target evidence on at
   most $5$ vertices for $n \le 200$, $d \le 20$, and the bipartite sweep
-  up to $14$ vertices gives the analogous bounded evidence up to
-  $7$ looped vertices.
+  up to $15$ vertices gives the analogous bounded evidence up to
+  $7$ looped vertices (whose double covers have at most $14$ vertices).
 \end{corollary}
 
 \subsection{Four-orbit trees}

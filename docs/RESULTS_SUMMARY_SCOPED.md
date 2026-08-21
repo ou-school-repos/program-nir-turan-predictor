@@ -22,12 +22,15 @@ discipline used in the manuscript and claims ledger.
 ## 2. Key Computational Witnesses
 
 - **`H*` (15 vertices):** This graph is a depth-dependent bipartite
-  Leontovich graph. Its first verified hit is `(n,d) = (49,16)`.
+  Leontovich graph. Over odd `n <= 199` and `d <= 20`, its first verified
+  hit is `(n,d) = (49,16)`.
 - **`H18` (18 vertices):** Discovered via SMT-guided search and exact
   verification, this is the current depth-2 bipartite Leontovich witness found
   in the completed bounded sweep through path length `n <= 51`. Its first
   near-path crossover is `(n,d)=(15,4)`, with verified margin `500,576`; it
-  crosses against `E_17^(2)` at `n=17` with margin `5,068,778`.
+  crosses against `E_17^(2)` at `n=17` with margin `5,068,778`. The smaller
+  target audit covers all `19,832` connected, full-`S3`-canonical `(3,m2)`
+  configurations with `m2<15` through odd `n<=51`.
 - **`\hat T(1,35,1,50)` (1,822 vertices):** This is the smallest strongly
   Leontovich looped symmetric tree in the audited 5-orbit frontier.
 
@@ -54,6 +57,8 @@ discipline used in the manuscript and claims ledger.
 ## Scope Notes
 
 - `H18` is not stated here as an unconditional globally minimal bipartite
-  Leontovich graph; the bounded `n <= 51` depth-2 sweep is part of the claim.
+  Leontovich graph; its smaller-target scope is the `19,832` connected
+  `(3,m2)` configurations with `m2<15`, tested at depth 2 through odd
+  `n<=51`.
 - The `m <= 11` simple-target sweep is a bounded near-path nonexistence result,
   not a universal small-target theorem.
