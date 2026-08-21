@@ -26,8 +26,8 @@ discipline used in the manuscript and claims ledger.
   verification, this is the current depth-2 bipartite Leontovich witness found
   in the completed bounded sweep through path length `n <= 51`. It crosses
   against `E_17^(2)` at `n=17` with verified margin `5,068,778`.
-- **`\hat T(1,35,1,50)` (1,822 vertices):** This is the smallest known 5-orbit
-  looped symmetric tree that is strongly Leontovich.
+- **`\hat T(1,35,1,50)` (1,822 vertices):** This is the smallest strongly
+  Leontovich looped symmetric tree in the audited 5-orbit frontier.
 
 ## 3. Disproving the Bipartite Parity Hypothesis
 
@@ -46,8 +46,8 @@ discipline used in the manuscript and claims ledger.
   on `m <= 11` vertices producing a near-path violation in the tested range
   `n <= 200`, `d <= 20`.
 - **Precision and verification:** Floating-point arithmetic was used only as a
-  screening layer, with relative tolerance `1e-11`. All headline claims and
-  positive witnesses were then checked with exact integer arithmetic.
+  screening layer, with relative tolerance `1e-11`. The positive witnesses
+  listed above were then checked with exact integer arithmetic.
 
 ## Scope Notes
 
