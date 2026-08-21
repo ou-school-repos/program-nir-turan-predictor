@@ -17,8 +17,7 @@ def DoubleCover (H : Graph) : Graph where
   symm := by
     intro u v
     rw [H.symm]
-    congr
-    simp [ne_comm]
+    cases u.2 <;> cases v.2 <;> rfl
 
 /- A proper two-coloring of a source graph. -/
 structure BipartiteColoring (G : Graph) where
@@ -40,12 +39,13 @@ noncomputable def liftHom {G H : Graph} (c : BipartiteColoring G)
   have hcolor : c.color u ≠ c.color v := c.proper huv
   simp only [DoubleCover]
   rw [hadj]
-  simp [flipSide, hcolor]
+  cases hcu : c.color u <;> cases hcv : c.color v <;>
+    simp_all [flipSide]
 
 /- Projecting a lifted homomorphism recovers its original target map. -/
 theorem liftHom_projection {G H : Graph} (c : BipartiteColoring G)
     (f : {f : G.V → H.V // IsHom G H f}) (flip : Bool) (u : G.V) :
-    (liftHom c f flip).1 u |>.1 = f.1 u := by
+    ((liftHom c f flip).1 u).1 = f.1 u := by
   rfl
 
 end LeanLeontovich
