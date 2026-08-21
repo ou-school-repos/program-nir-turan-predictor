@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-pdfs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out repository
@@ -28,9 +28,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            exiftool \
-            pandoc \
-            qpdf \
+            libimage-exiftool-perl=12.76+dfsg-1 \
+            pandoc=3.1.3+ds-2 \
+            qpdf=11.9.0-1.1build1 \
             python3-pip \
             texlive-bibtex-extra \
             texlive-fonts-recommended \
@@ -39,6 +39,9 @@ jobs:
             texlive-xetex
           python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt matplotlib networkx pillow
+
+      - name: Set reproducible build epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
 
       - name: Build paper figures
         run: |
@@ -53,8 +56,8 @@ jobs:
       - name: Compute PDF bundle name
         run: |
           short_sha="${GITHUB_SHA::7}"
-          date_iso_built="$(date -u +%F)"
-          echo "PDF_BUNDLE_DIR=all-pdfs_${short_sha}_${date_iso_built}" >> "$GITHUB_ENV"
+          date_iso_built="$(date -u +%Y%m%d%H%M%S)"
+          echo "PDF_BUNDLE_DIR=all-pdfs_${short_sha}_${date_iso_built}_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
 
       - name: Stage PDFs for upload
         run: |

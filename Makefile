@@ -1,11 +1,25 @@
 PYTHON = python3
-GIT_COMMIT ?= $(shell git rev-parse --short=12 HEAD)
-SOURCE_DATE_EPOCH ?= $(shell git show -s --format=%ct HEAD)
-DATE ?= $(shell perl -MPOSIX=strftime -e 'print strftime("%F", gmtime(shift))' $(SOURCE_DATE_EPOCH))
-PDF_DATE ?= $(shell perl -MPOSIX=strftime -e 'print strftime("%Y:%m:%d %H:%M:%S", gmtime(shift))' $(SOURCE_DATE_EPOCH))
-PDF_TITLE ?= Path Minimizers and Leontovich Thresholds in Tree Homomorphisms
-PDF_SUBJECT ?= Compiled by Shane [$(DATE)]
-PDF_KEYWORDS ?= commit $(GIT_COMMIT)
+ifndef GIT_COMMIT
+GIT_COMMIT := $(shell git rev-parse --short=12 HEAD)
+endif
+ifndef SOURCE_DATE_EPOCH
+SOURCE_DATE_EPOCH := $(shell git show -s --format=%ct HEAD)
+endif
+ifndef DATE
+DATE := $(shell perl -MPOSIX=strftime -e 'print strftime("%F", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+endif
+ifndef PDF_DATE
+PDF_DATE := $(shell perl -MPOSIX=strftime -e 'print strftime("%Y:%m:%d %H:%M:%S", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+endif
+ifndef PDF_TITLE
+PDF_TITLE := Path Minimizers and Leontovich Thresholds in Tree Homomorphisms
+endif
+ifndef PDF_SUBJECT
+PDF_SUBJECT := Compiled by Shane [$(DATE)]
+endif
+ifndef PDF_KEYWORDS
+PDF_KEYWORDS := commit $(GIT_COMMIT)
+endif
 
 .DEFAULT_GOAL := _help
 
@@ -28,69 +42,75 @@ ITER  ?= 1000
 
 .PHONY: verify/epidemiology
 verify/epidemiology: ##H Generate and certify Wolbachia deployment
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)]); \
-		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean; \
+		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean && \
 		export DEP_SEQ=$$(grep "deployment_sequence" legacy/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
-		cd legacy && lake build VectorDeployment; \
+		cd legacy && lake build VectorDeployment && \
 		printf "\033[1;34m✓ Verified: policy_satisfies_bnc (native_decide evaluated to TRUE).\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
 		printf "  %s\n" "$$DEP_SEQ"; \
 		printf "\033[1;36mMATHEMATICAL GUARANTEE: 100%% network saturation achieved.\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
-	} | tee output.log
+	} 2>&1 | tee verify-epidemiology.log'
 
 .PHONY: verify/surveillance
 verify/surveillance: ##H Generate and certify drone surveillance playbook
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)]); \
-		$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean; \
+		$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean && \
 		export DRONE_SEQ=$$(grep "drone_routing_playbook" legacy/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
-		cd legacy && lake build ThreatHunting; \
+		cd legacy && lake build ThreatHunting && \
 		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
 		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n"; \
 		printf "  %s\n" "$$DRONE_SEQ"; \
 		printf "\033[1;36mMATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible.\033[0m\n"; \
 		printf "\033[1;36m==================================================\033[0m\n"; \
-	} | tee output.log
+	} 2>&1 | tee verify-surveillance.log'
 
 .PHONY: run/adversarial
 run/adversarial: ##H Run adversarial Maker-Breaker game (all presets)
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Running Adversarial Burning); \
-		./dendro adversarial legacy/Adversarial.lean grid4x4; \
-		./dendro adversarial legacy/Adversarial.lean tree15; \
+		./dendro adversarial legacy/Adversarial.lean grid4x4 && \
+		./dendro adversarial legacy/Adversarial.lean tree15 && \
 		./dendro adversarial legacy/Adversarial.lean campus; \
-	} | tee output.log
+	} 2>&1 | tee run-adversarial.log'
 
 .PHONY: run/finance
 run/finance: ##H Audit financial network for systemic risk
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Running Systemic Risk Audit [Scale: $(SCALE)]); \
 		$(PYTHON) src/solver.py finance legacy/RiskAudit.lean; \
-	} | tee output.log
+	} 2>&1 | tee run-finance.log'
 
 .PHONY: verify/core
 verify/core: ##H Run core exact verification checks used by the paper
 	@$(call print_info,Running core paper verifiers)
-	@{ \
-		$(PYTHON) scripts/verify_core_claims.py; \
-		$(PYTHON) scripts/verify_strong.py; \
-	} | tee output.log
-	@$(call print_success,Core paper verifiers completed.)
+	@bash -o pipefail -c '\
+	{ \
+		$(PYTHON) scripts/verify_core_claims.py && \
+		$(PYTHON) scripts/verify_strong.py && \
+		$(call print_success,Core paper verifiers completed.); \
+	} 2>&1 | tee verify-core.log'
 
 .PHONY: legacy/demos
 legacy/demos: ##H Run legacy generated-demo pipelines
 	@$(call print_info,Running legacy demo pipelines)
-	@{ \
-		$(MAKE) --no-print-directory verify/epidemiology; \
-		$(MAKE) --no-print-directory verify/surveillance; \
-		$(MAKE) --no-print-directory run/adversarial; \
-		$(MAKE) --no-print-directory run/finance; \
-	} | tee output.log
-	@$(call print_success,Legacy demo pipelines completed.)
+	@bash -o pipefail -c '\
+	{ \
+		$(MAKE) --no-print-directory verify/epidemiology && \
+		$(MAKE) --no-print-directory verify/surveillance && \
+		$(MAKE) --no-print-directory run/adversarial && \
+		$(MAKE) --no-print-directory run/finance && \
+		$(call print_success,Legacy demo pipelines completed.); \
+	} 2>&1 | tee output.log'
 
 .PHONY: test/all
 test/all: verify/core ##H Run active verification pipelines
@@ -170,8 +190,13 @@ docs: ##H Convert all tracked markdown files to PDF
 	done
 	@$(call print_success,All PDFs generated.)
 
+.PHONY: _check/pdf-tools
+_check/pdf-tools:
+	@command -v exiftool >/dev/null || { printf "Missing required tool: exiftool\n" >&2; exit 1; }
+	@command -v qpdf >/dev/null || { printf "Missing required tool: qpdf\n" >&2; exit 1; }
+
 .PHONY: paper
-paper: ##H Compile paper/paper.tex to PDF
+paper: _check/pdf-tools ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	@cd paper && \

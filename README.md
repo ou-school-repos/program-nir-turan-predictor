@@ -47,7 +47,7 @@ conditional sweep result, not an unconditional theorem.
   Leontovich behavior from strongly Leontovich behavior.
 
 The paper-facing constants, scope bounds, and reproducer commands are tracked
-in [docs/CLAIMS_LEDGER.md](/home/shane/Documents/school/ou-papers/program-nir-turan-predictor/docs/CLAIMS_LEDGER.md).
+in [docs/CLAIMS_LEDGER.md](docs/CLAIMS_LEDGER.md).
 
 Run the fast exact witness check:
 

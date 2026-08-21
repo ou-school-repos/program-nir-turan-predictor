@@ -83,8 +83,9 @@ for the 4-orbit tree $T(7,1,9)$, we prove that the threshold $n=13$ is permanent
 We also show that the bipartite double cover preserves the Leontovich
 property, which transfers bounded sweep evidence to looped targets within the
 tested ranges. The 15-vertex graph $H^*$ comes from an exhaustive bipartite
-sweep, the 18-vertex graph $H_{18}$ from a completed depth-2 bounded sweep
-through path length $n \le 51$, and the 3,644-vertex double-cover witness has
+sweep, the 18-vertex graph $H_{18}$ from SMT synthesis followed by a completed
+depth-2 bounded sweep through path length $n \le 51$, and the 3,644-vertex
+double-cover witness has
 even crossover threshold $n = 17{,}340$, refuting the previously suggested
 bipartite parity hypothesis for even~$n$.
 \end{abstract}
@@ -269,8 +270,8 @@ we record here the first fully written proof.
 \begin{theorem}[Permanent Crossover]
   \label{thm:threshold}
   Let $H = T(7,1,9)$. Then $\Hom(E_n, H) < \Hom(P_n, H)$ for all
-  odd $n \ge 13$, and $\Hom(P_n, H) \le \Hom(E_n, H)$ for all
-  $n < 13$ and all even $n$.
+  odd $n \ge 13$, and direct computation gives $\Delta(11) < 0$ and
+  $\Delta(13) > 0$.
 \end{theorem}
 
 \begin{proof}
@@ -305,10 +306,6 @@ we record here the first fully written proof.
     \Delta(13) &= 161{,}209{,}734 - 161{,}161{,}476 = +48{,}258 > 0.
   \end{align*}
   Thus $n = 13$ is the unique, permanent threshold.
-
-  For even $n$, our computations support the same ordering for this
-  specific graph, but that conclusion is not proved here from parity
-  considerations alone.
 \end{proof}
 
 \begin{remark}[Parity heuristic, not theorem]
@@ -1118,23 +1115,12 @@ of error.
 The minimum vertex counts in Table~\ref{tab:landscape_full} are
 explained algebraically and certified computationally in the tested range.
 
-\begin{proposition}[Dominance of $y = 1$ in the tested range]
-\label{prop:y1}
-For every tested 4-orbit tree $T(x,y,z)$ with $y > 1$ and
-$x,z \le 200$, the contracted tree $T(x,1,z)$ has strictly fewer
-vertices and achieves the Leontovich crossover at an equal or earlier
-threshold~$n$. Consequently, throughout the tested range, the
-minimum-vertex frontier is restricted to the subspace $y = 1$.
-\end{proposition}
-
-\begin{proof}[Verification]
-The vertex count $V(x,y,z) = 1 + x + xy + xyz$ is strictly
-increasing in~$y$, so $V(x,1,z) < V(x,y,z)$ for $y > 1$. For the
-threshold statement we rely on exact computation rather than a general
-algebraic proof: for every tested $(x,z)$ pair with $x, z \le 200$,
-the threshold of $T(x,1,z)$ is at most that of $T(x,y,z)$ for all
-$y > 1$.
-\end{proof}
+The audited frontier is restricted to the subfamily $T(x,1,z)$. It does
+not establish that contracting an arbitrary $T(x,y,z)$ with $y>1$
+preserves or advances its crossover threshold. Within the audited
+subfamily, the exact landscape sweep checked all $134{,}391{,}973$
+graphs with $|V| \le 10{,}000{,}000$ against $E_n^{(2)}$ for odd
+$n \le 51$ using exact integer arithmetic.
 
 \begin{compresult}[Frontier certification in the tested range]
 \label{thm:frontier}
@@ -1277,8 +1263,9 @@ and $H$ is bipartite.
 \noindent
 Extensive finite searches suggested this hypothesis: across all tested
 target graphs (the 608,930,559 connected bipartite graphs on $m \le 15$
-vertices, together with the 5.6~million source trees on $n \le 22$
-vertices), no even-$n$ crossover was observed. Section~\ref{sec:doublecover}
+vertices, together with all source trees through $n=22$, including
+$5{,}623{,}756$ at $n=22$), no even-$n$ crossover was observed.
+Section~\ref{sec:doublecover}
 disproves it: the bipartite double cover $B$ of $\hat T(1,35,1,50)$
 overtakes the path at the even threshold $n = 17{,}340$.
 
@@ -1367,8 +1354,8 @@ $n \approx 45$.
 \paragraph{Disproof of the universal bipartite parity hypothesis.}
 Appendix~\ref{app:sa} records a working hypothesis suggested by
 extensive finite search: the 608,930,559 connected bipartite graphs on
-$m \le 15$ vertices, together with the 5.6~million source trees on
-$n \le 22$ vertices, showed no even-$n$ crossover. The
+$m \le 15$ vertices, together with all source trees through $n=22$
+(including $5{,}623{,}756$ at $n=22$), showed no even-$n$ crossover. The
 $n=17{,}340$ example above disproves the universal statement. The point
 is scale, not a new mechanism: the relevant long-lived term is the
 second dominant magnitude $7.282828$, not the smaller positive
@@ -1408,8 +1395,8 @@ $\Delta\lambda_1 \approx 1.77 \times 10^{-4}$.
 To estimate the bound, \texttt{scripts/strong\_coeff.py}
 (\texttt{certified\_leading\_ratio}) computes a Bauer--Fike residual
 and a Davis--Kahan angle bound for the symmetrized 18-cell quotient,
-both at 50 digits. These estimates give $\rho_{\mathrm{hi}} \ge
-\rho_2(B'+e)$. Numerically,
+both at 50 digits. Denote the resulting numerical estimate by
+$\rho_{\mathrm{hi}}$. Numerically,
 $\|r\|_2 \approx 7.5\times 10^{-50}$ against a spectral gap
 $\lambda_1 - \lambda_2 \approx 5.1\times 10^{-3}$, propagating to
 $\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
@@ -1418,7 +1405,7 @@ $\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
   \qquad 1 - \rho_{\mathrm{hi}} \approx 4.79\times 10^{-5}.
 \]
 The estimated error is roughly 41 orders of magnitude smaller than the
-margin, so the computed upper bound $\rho_{\mathrm{hi}}$ stays below $1$. This is
+margin, so the numerical estimate $\rho_{\mathrm{hi}}$ stays below $1$. This is
 high-precision numerical evidence (N) for a simple non-bipartite
 strongly-Leontovich candidate in the leading-coefficient sense. It is a
 residual-based estimate in that sense, not a directed-rounding
@@ -1455,8 +1442,10 @@ We conclude with the two principal open directions highlighted by this work:
 The C++ search routines, exact integer arithmetic formulations, and SMT
 solver scripts supporting the exact finite computations \textbf{(E)}
 and bounded sweeps \textbf{(S)} are available in the project
-repository as the working snapshot used for this paper rather than an
-archival mirror. The analytic theorems \textbf{(P)} are
+repository. The
+\href{https://github.com/sjjaroch/leontovich-utils/tree/7aab6dd68bccd7614794c75333dddc692b53541f}{archival fork at commit \texttt{7aab6dd68bcc}}
+is a mirror of the project repository pinned to the exact shared-history
+snapshot used for the reported computations. The analytic theorems \textbf{(P)} are
 currently undergoing formalization in Lean~4. Both the executable
 witness verifiers and the formal theorem scaffolding are maintained at
 \url{https://github.com/sjjaroch/leontovich-utils}.

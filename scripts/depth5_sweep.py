@@ -105,7 +105,7 @@ def check_leontovich_similarity(M, S, a, max_n=300):
 
     max_depth = min(21, max_n - 2)
     branch_terms = {d: v[1] * v[d] for d in range(2, max_depth)}
-    for n in range(4, max_n):
+    for n in range(4, max_n + 1):
         for d in range(2, min(max_depth, n - 1)):
             stem = n - d - 2
             homE = np.dot(a_arr, v[stem] * branch_terms[d])

@@ -49,3 +49,6 @@ verify_bipartite_m17
 *.out
 *.fdb_latexmk
 *.fls
+
+# top-level ignores
+/*.txt
