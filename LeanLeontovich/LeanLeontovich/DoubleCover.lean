@@ -1,6 +1,6 @@
 import LeanLeontovich.Basic
 
-namespace LeanLeontovich
+namespace LeanLeontovich.Assumed
 
 /-!
 Results about bipartite double covers and strong Leontovich behavior.
@@ -19,4 +19,4 @@ theorem double_cover_preserves_strongly_leontovich :
     ∀ H : Graph, IsStronglyLeontovich H ↔ IsStronglyLeontovich (DoubleCover H) := by
   exact strongly_leontovich_iff_double_cover
 
-end LeanLeontovich
+end LeanLeontovich.Assumed

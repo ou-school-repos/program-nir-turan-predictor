@@ -132,7 +132,7 @@ Graph counts cross-validated against [OEIS A001349](https://oeis.org/A001349).
 | 8              | 11,117        | 12,113         | $1.3 \times 10^{11}$                   | **0**      |
 | 9              | 261,080       | 273,193        | $4.0 \times 10^{12}$                   | **0**      |
 | 10             | 11,716,571    | 11,989,764     | 45s$^\dagger$                          | **0**      |
-| 11             | 1,006,690,565 | 1,018,680,329  | 136m$^\dagger$                         | **0**      |
+| 11             | 1,006,700,565 | 1,018,690,329  | 136m$^\dagger$                         | **0**      |
 
 ### General Connected Graph Sweep (OEIS A001349)
 
@@ -151,7 +151,7 @@ via $O(m)$ matrix-vector iteration up to $n = 200$, $d \le 20$.
 | 8   | 11,117        | < 1s        | **0**                    |
 | 9   | 261,080       | ~40s        | **0**                    |
 | 10  | 11,716,571    | ~45s        | **0**                    |
-| 11  | 1,006,690,565 | ~136 min    | **0**                    |
+| 11  | 1,006,700,565 | ~136 min    | **0**                    |
 
 ### Bipartite Graph Sweep (OEIS A005142)
 
@@ -185,7 +185,7 @@ Tree counts match [OEIS A000055](https://oeis.org/A000055).
 ### Current bound
 
 **Rigorous bound: $m \ge 12$ for general graphs**,
-via exhaustive enumeration of all 1,018,680,325 connected simple graphs
+via exhaustive enumeration of all 1,018,690,329 connected simple graphs
 on $4 \le m \le 11$ vertices against the $E_n^{(d)}$ filter
 ($n \le 200$, $d \le 20$). Zero violations.
 

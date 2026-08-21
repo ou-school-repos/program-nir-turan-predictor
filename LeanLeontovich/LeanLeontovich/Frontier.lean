@@ -1,6 +1,6 @@
 import LeanLeontovich.Basic
 
-namespace LeanLeontovich
+namespace LeanLeontovich.Assumed
 
 /-!
 Structural frontier results for the smallest Leontovich witnesses.
@@ -17,4 +17,4 @@ theorem pruning_audit_certificate : IsLeontovich H76 := by
 theorem h18_minimality_certificate : IsLeontovich H18 := by
   exact h18_minimal_depth2_sweep
 
-end LeanLeontovich
+end LeanLeontovich.Assumed

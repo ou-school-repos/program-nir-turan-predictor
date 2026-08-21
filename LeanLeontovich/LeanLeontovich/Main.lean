@@ -1,5 +1,4 @@
 import LeanLeontovich.Basic
-import LeanLeontovich.Spectral
 import LeanLeontovich.Crossover
 import LeanLeontovich.Frontier
 import LeanLeontovich.DoubleCover

@@ -122,6 +122,8 @@ def IsOdd (n : Nat) : Prop := n % 2 = 1
 /-- Evenness predicate for source sizes. -/
 def IsEven (n : Nat) : Prop := n % 2 = 0
 
+namespace Assumed
+
 /-- Placeholder predicate for the source graphs that are trees. -/
 axiom IsTree : Graph → Prop
 
@@ -131,19 +133,21 @@ axiom path_is_tree : ∀ n, IsTree (Path n)
 /-- Near-paths are tree sources. -/
 axiom nearpath_is_tree : ∀ n, IsTree (NearPath n)
 
+end Assumed
+
 /-- The near-path filter property used by the bounded sweeps. -/
 def IsNearPathLeontovich (H : Graph) : Prop :=
   ∃ n, IsOdd n ∧ Hom (NearPath n) H < Hom (Path n) H
 
 /-- A graph is Leontovich if some tree beats the path of the same order. -/
 def IsLeontovich (H : Graph) : Prop :=
-  ∃ n, ∃ T : Graph, IsTree T ∧ Fintype.card T.V = n ∧ Hom T H < Hom (Path n) H
+  ∃ n, ∃ T : Graph, Assumed.IsTree T ∧ Fintype.card T.V = n ∧ Hom T H < Hom (Path n) H
 
 /-- A near-path violation gives a Leontovich violation. -/
 theorem nearpath_leontovich {H : Graph} :
     IsNearPathLeontovich H → IsLeontovich H := by
   rintro ⟨n, _hnodd, hlt⟩
-  exact ⟨n, NearPath n, nearpath_is_tree n, Fintype.card_fin n, hlt⟩
+  exact ⟨n, NearPath n, Assumed.nearpath_is_tree n, Fintype.card_fin n, hlt⟩
 
 /-- A graph passes the near-path filter if no odd near-path beats the path count. -/
 def NoNearPathCrossover (H : Graph) : Prop :=
@@ -152,6 +156,8 @@ def NoNearPathCrossover (H : Graph) : Prop :=
 /-- A graph is strongly Leontovich if the near-path family eventually beats the path family. -/
 def IsStronglyLeontovich (H : Graph) : Prop :=
   ∃ N, ∀ n, N ≤ n → Hom (NearPath n) H < Hom (Path n) H
+
+namespace Assumed
 
 /-- The bipartite double cover of a graph. -/
 axiom DoubleCover : Graph → Graph
@@ -174,6 +180,8 @@ axiom H1822 : Graph
 /-- The perturbed 6,806-vertex strongly Leontovich certificate graph. -/
 axiom BPrime : Graph
 
+end Assumed
+
 /-- Certificate data for the single-positive-eigenvalue obstruction.
 The spectral witness is recorded separately from the graph structure so the
 obstruction is not phrased only in terms of intrinsic `Graph` fields. -/
@@ -182,6 +190,8 @@ structure SinglePositiveEigenvalueCertificate (H : Graph) where
 
 /-- The single-positive-eigenvalue obstruction theorem stated against an
 explicit certificate rather than against the raw graph axioms. -/
+namespace Assumed
+
 axiom single_positive_eigenvalue_obstruction :
   ∀ {H : Graph}, SinglePositiveEigenvalueCertificate H → ¬ IsLeontovich H
 
@@ -230,5 +240,7 @@ axiom h1822_strongly_leontovich :
 /-- Strongly Leontovich certificate for the perturbed 6,806-vertex graph. -/
 axiom perturbed_nonbipartite_certificate :
   IsStronglyLeontovich BPrime
+
+end Assumed
 
 end LeanLeontovich
