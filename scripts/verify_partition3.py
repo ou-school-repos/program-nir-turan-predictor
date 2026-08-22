@@ -122,7 +122,7 @@ def verify_vector(c, max_n=51, d=2):
 
     b = [w[1][u] * w[d][u] for u in range(m)]
 
-    for n in range(5, max_n, 2):
+    for n in range(5, max_n + 1, 2):
         homP = sum(w[n - 1])
         stem = n - d - 2
         if stem < 0:

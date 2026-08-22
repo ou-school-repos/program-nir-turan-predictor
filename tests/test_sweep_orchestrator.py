@@ -110,6 +110,29 @@ class SweepOrchestratorTests(unittest.TestCase):
         self.assertTrue(Path(run.call_args.args[0][0]).is_absolute())
 
     @patch("sweep_orchestrator.subprocess.run")
+    def test_strict_arb_result_requires_precision_metadata(self, run):
+        """Certified Arb results must include the precision metadata."""
+        run.return_value.returncode = 0
+        run.return_value.stdout = json.dumps(
+            {
+                "schema": "arb-rho-certificate-v1",
+                "status": "certified_below_one",
+                "depth": 2,
+            }
+        )
+        run.return_value.stderr = ""
+        with self.assertRaisesRegex(RuntimeError, "invalid precision_bits value"):
+            certify_candidate(
+                {
+                    "type": "spectral_candidate",
+                    "g6": "Bw",
+                    "d": 2,
+                    "rho_estimate": 0.97,
+                },
+                Path(sys.executable),
+            )
+
+    @patch("sweep_orchestrator.subprocess.run")
     def test_disconnected_arb_result_is_preserved(self, run):
         """Disconnected Arb candidates are routed through the known status."""
         run.return_value.returncode = 1

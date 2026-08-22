@@ -19,6 +19,15 @@ from exact_rho import certify_rho_sign
 from verify_hom import normalize_graph6, parse_graph6
 
 SCHEMA = "exact-rho-sweep-record-v1"
+CERTIFIED_STATUSES = {"certified_above_one", "certified_below_one"}
+OPTIONAL_ARB_STATUSES = {
+    "deferred_bipartite_parity",
+    "invalid_disconnected",
+    "unresolved",
+    "unresolved_power_iteration",
+    "invalid_enclosure",
+}
+VALID_PRECISIONS = {64, 128, 256, 512}
 
 
 def is_bipartite(adjacency: list[list[int]]) -> bool:
@@ -65,17 +74,24 @@ def run_arb_certifier(graph6: str, depth: int, executable: Path) -> dict:
     if certificate.get("depth") != depth:
         raise RuntimeError("Arb certifier returned the wrong depth")
     status = certificate.get("status")
-    valid_statuses = {
-        "certified_above_one",
-        "certified_below_one",
-        "deferred_bipartite_parity",
-        "invalid_disconnected",
-        "unresolved",
-        "unresolved_power_iteration",
-        "invalid_enclosure",
-    }
+    valid_statuses = CERTIFIED_STATUSES | OPTIONAL_ARB_STATUSES
     if status not in valid_statuses:
         raise RuntimeError(f"Arb certifier returned invalid status {status!r}")
+    if status in CERTIFIED_STATUSES:
+        precision_bits = certificate.get("precision_bits")
+        rho_interval = certificate.get("rho_interval")
+        if (
+            not isinstance(precision_bits, int)
+            or precision_bits not in VALID_PRECISIONS
+        ):
+            raise RuntimeError("Arb certifier returned an invalid precision_bits value")
+        if (
+            not isinstance(rho_interval, str)
+            or not rho_interval
+            or rho_interval == "indeterminate"
+            or not (rho_interval.startswith("[") and rho_interval.endswith("]"))
+        ):
+            raise RuntimeError("Arb certifier returned an invalid rho_interval value")
     if result.returncode not in (0, 1):
         raise RuntimeError(f"Arb certifier failed with exit code {result.returncode}")
     return certificate

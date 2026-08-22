@@ -197,7 +197,7 @@ _check/pdf-tools:
 	@command -v qpdf >/dev/null || { printf "Missing required tool: qpdf\n" >&2; exit 1; }
 
 .PHONY: paper
-paper: _check/pdf-tools ##H Compile paper/paper.tex to PDF
+paper: _check/pdf-tools paper-figures ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
 	@cd paper && \
@@ -216,6 +216,15 @@ paper: _check/pdf-tools ##H Compile paper/paper.tex to PDF
 		qpdf --deterministic-id --linearize paper.pdf paper.pdf.tmp && \
 		mv paper.pdf.tmp paper.pdf
 	@$(call print_success,paper/paper.pdf)
+
+.PHONY: paper-figures
+paper-figures: ##H Generate the figure artifacts required by the paper
+	@$(call print_info,Generating paper figures)
+	@mkdir -p docs/out
+	@$(PYTHON) scripts/plot_18.py
+	@$(PYTHON) scripts/plot_76.py --pdf
+	@$(PYTHON) scripts/plot_anomaly.py
+	@$(call print_success,Paper figures generated.)
 
 N ?= 21
 
@@ -244,7 +253,7 @@ leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
 
 .PHONY: certify_rump
 certify_rump: src/certify_rump.cpp ##H Build the optional FLINT rho certifier
-	@pkg-config --exists flint || { echo "FLINT development files are required." >&2; exit 1; }
+	@pkg-config --atleast-version=3.0 flint || { echo "FLINT >= 3.0 development files are required." >&2; exit 1; }
 	@$(call print_info,Building certify_rump)
 	g++ -O3 -std=c++17 -Wall -Wextra -Wpedantic -o certify_rump $< $$(pkg-config --cflags --libs flint)
 	@$(call print_success,certify_rump built.)
