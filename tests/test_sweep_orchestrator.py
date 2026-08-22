@@ -4,13 +4,14 @@
 import io
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from sweep_orchestrator import certify_candidate, process_stream  # noqa: E402
+from sweep_orchestrator import certify_candidate, main, process_stream  # noqa: E402
 
 
 class SweepOrchestratorTests(unittest.TestCase):
@@ -32,6 +33,13 @@ class SweepOrchestratorTests(unittest.TestCase):
         self.assertEqual(record["status"], "exact_equal_one")
         self.assertEqual(record["certificate"]["relation"], "=")
 
+    def test_malformed_graph6_is_rejected(self):
+        """Malformed graph6 input fails before certification starts."""
+        with self.assertRaisesRegex(ValueError, "graph6 payload length"):
+            certify_candidate(
+                {"type": "spectral_candidate", "g6": "B", "d": 2, "rho_estimate": 1.0}
+            )
+
     def test_stream_output_is_deterministic_ndjson(self):
         """Equivalent runs produce byte-identical compact JSON records."""
         candidate = json.dumps(
@@ -48,6 +56,37 @@ class SweepOrchestratorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "line 2"):
             process_stream(["\n", "{}\n"], io.StringIO())
 
+    def test_same_input_and_output_path_is_rejected(self):
+        """The CLI refuses to truncate its own input file."""
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidates.ndjson"
+            path.write_text(
+                json.dumps(
+                    {
+                        "type": "spectral_candidate",
+                        "g6": "Bg",
+                        "d": 2,
+                        "rho_estimate": 1.0,
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with patch.object(
+                sys,
+                "argv",
+                [
+                    "sweep_orchestrator.py",
+                    "--input",
+                    str(path),
+                    "--output",
+                    str(path),
+                ],
+            ):
+                with self.assertRaises(SystemExit) as ctx:
+                    main()
+            self.assertEqual(ctx.exception.code, 2)
+
     @patch("sweep_orchestrator.subprocess.run")
     def test_strict_arb_result_skips_symbolic_fallback(self, run):
         """A rigorous Arb separation is accepted without invoking SymPy."""
@@ -63,12 +102,30 @@ class SweepOrchestratorTests(unittest.TestCase):
         )
         run.return_value.stderr = ""
         record = certify_candidate(
-            {"type": "spectral_candidate", "g6": "C{", "d": 2, "rho_estimate": 1.03},
+            {"type": "spectral_candidate", "g6": "Bw", "d": 2, "rho_estimate": 1.03},
             Path(sys.executable),
         )
         self.assertEqual(record["status"], "certified_above_one")
         self.assertNotIn("certificate", record)
         self.assertTrue(Path(run.call_args.args[0][0]).is_absolute())
+
+    @patch("sweep_orchestrator.subprocess.run")
+    def test_disconnected_arb_result_is_preserved(self, run):
+        """Disconnected Arb candidates are routed through the known status."""
+        run.return_value.returncode = 1
+        run.return_value.stdout = json.dumps(
+            {
+                "schema": "arb-rho-certificate-v1",
+                "status": "invalid_disconnected",
+                "depth": 2,
+            }
+        )
+        run.return_value.stderr = ""
+        record = certify_candidate(
+            {"type": "spectral_candidate", "g6": "Bg", "d": 2, "rho_estimate": 1.0},
+            Path(sys.executable),
+        )
+        self.assertEqual(record["status"], "invalid_disconnected")
 
 
 if __name__ == "__main__":

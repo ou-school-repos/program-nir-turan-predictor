@@ -303,17 +303,22 @@ int main(int argc, char** argv) {
     if (argc > 1) {
         std::string graph6;
         int depth = 2;
-        for (int i = 1; i < argc; ++i) {
-            const std::string argument = argv[i];
-            if (argument == "--g6" && i + 1 < argc) {
-                graph6 = argv[++i];
-            } else if (argument == "--depth" && i + 1 < argc) {
-                depth = std::stoi(argv[++i]);
-            } else {
-                std::cerr << "Usage: " << argv[0]
-                          << " [--g6 GRAPH6 --depth D]\n";
-                return 2;
+        try {
+            for (int i = 1; i < argc; ++i) {
+                const std::string argument = argv[i];
+                if (argument == "--g6" && i + 1 < argc) {
+                    graph6 = argv[++i];
+                } else if (argument == "--depth" && i + 1 < argc) {
+                    depth = std::stoi(argv[++i]);
+                } else {
+                    std::cerr << "Usage: " << argv[0]
+                              << " [--g6 GRAPH6 --depth D]\n";
+                    return 2;
+                }
             }
+        } catch (const std::exception&) {
+            std::cerr << "invalid --depth value\n";
+            return 2;
         }
         if (graph6.empty() || depth < 1) {
             std::cerr << "graph6 input and a positive depth are required\n";

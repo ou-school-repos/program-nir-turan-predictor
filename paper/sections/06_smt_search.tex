@@ -263,11 +263,13 @@ collapse into the $2 \times 2$ asymmetric quotient matrix:
   M = A^2|_L = \begin{pmatrix} x+2 & 2 \\ 1 & 2y+1 \end{pmatrix}.
 \end{equation}
 
-The non-zero squared eigenvalues of $\mathcal{B}(x,y)$ are precisely the roots
-of the characteristic polynomial of $M$:
+The squared eigenvalues visible to the all-ones state are the roots of the
+characteristic polynomial of $M$:
 \begin{equation}
   \lambda^2 - (x + 2y + 3)\lambda + (2xy + x + 4y) = 0.
 \end{equation}
+The full non-zero squared spectrum also includes the antisymmetric
+orbit-difference mode $\lambda^2 = 1$.
 
 For our record-breaking graph $H_{18}$, we evaluate $\mathcal{B}(7,6)$. The
 characteristic polynomial simplifies to $\lambda^2 - 22\lambda + 115 = 0$,
@@ -277,9 +279,11 @@ ratio governing the crossover is thus exactly:
   r = \sqrt{\frac{11 - \sqrt{6}}{11 + \sqrt{6}}} \approx 0.797.
 \end{equation}
 
-The discriminant $\Delta = (x-2y+1)^2 + 8$ shows that the
-ratio is maximized precisely along the ``resonance line'' $x = 2y - 1$,
-which favors long-lived eigenvalue interference. Computations suggest that
+The discriminant $\Delta = (x-2y+1)^2 + 8$ shows that, on each fixed-order
+slice, the closest approach to resonance occurs along the line
+$x = 2y - 1$. Without fixing the order, however, the ratio approaches $1$
+along $x = 2y - 1$ as $y \to \infty$ without attaining a global maximum, so
+the discriminant alone does not prove optimality. Computations suggest that
 this parameterized family contains infinitely many Leontovich graphs, but we
 do not prove that assertion here. Within the completed
 depth-2 $(3,m_2)$ block-pattern sweep through path length $n \le 51$,

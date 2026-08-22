@@ -15,9 +15,10 @@
 
 \begin{proof}
   Since the orbits respect the bipartition, the quotient matrix has
-  block form $\left[\begin{smallmatrix}0&B\\B^T&0\end{smallmatrix}\right]$
-  after ordering the cells by side, so its nonzero spectrum is symmetric
-  about zero.
+  block form $\left[\begin{smallmatrix}0&B\\C&0\end{smallmatrix}\right]$
+  after ordering the cells by side. By Lemma~\ref{lem:selfadjoint}, the
+  size-weighted similarity $S^{1/2}QS^{-1/2}$ is symmetric, so its
+  nonzero spectrum is symmetric about zero.
   Because the base vector $\mathbf{1}$ and the initial degree vector
   are constant on automorphism orbits, the entire dynamic programming
   sequence $\{A^k \mathbf{1}\}$ remains in the column space of the
@@ -56,7 +57,7 @@
   the corresponding looped bound at order~$\le m$. Our bounded near-path
   sweeps therefore transfer only within their tested ranges: the
   simple-graph sweep up to $11$ vertices gives looped-target evidence on at
-  most $5$ vertices for $n \le 200$, $d \le 20$, and the bipartite sweep
+  most $5$ vertices for $n \le 200$, $2 \le d \le 20$, and the bipartite sweep
   up to $15$ vertices gives the analogous bounded evidence up to
   $7$ looped vertices (whose double covers have at most $14$ vertices).
 \end{corollary}
@@ -195,17 +196,17 @@ we record here the first fully written proof.
 
 Exhaustive grid search over $T(x,y,z)$ with
 $|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
-vertices is the smallest Leontovich graph found in the $T(x,y,z)$
-family within the tested range. A generalized search over all spherically symmetric trees
-$T(d_1, \ldots, d_k)$ with $|V| \le 77$ and depth $k \le 6$ tested
-5,732 trees with exact integer arithmetic
-(\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $d \le 20$) and
+vertices is the smallest Leontovich graph found in the audited
+$T(x,1,z)$ family within the tested range. A generalized search over all
+spherically symmetric trees $T(d_1, \ldots, d_k)$ with $|V| \le 77$ and
+depth $k \le 6$ tested 5,732 trees with exact integer arithmetic
+(\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $2 \le d \le 20$) and
 confirmed zero Leontovich instances (Table~\ref{tab:symmetric}).
 
 \begin{table}[H]
 \centering
 \caption{Generalized symmetric tree search ($|V| \le 77$, exact integer
-arithmetic, $n \le 200$, $d \le 20$).}
+arithmetic, $n \le 200$, $2 \le d \le 20$).}
 \label{tab:symmetric}
 \begin{tabular}{@{}cccc@{}}
   \toprule
@@ -332,7 +333,8 @@ arithmetic, $n \le 200$, $d \le 20$).}
 
 \subsection{Minimum threshold landscape}
 
-Sweeping the generator over all $T(x,y,z)$ with $|V| \le 500$ and
+Sweeping the generator over the audited family $T(x,1,z)$ with
+$|V| = 1 + 2x + xz \le 10{,}000{,}000$ and
 selecting the smallest graph achieving each odd-$n$ threshold yields
 Table~\ref{tab:thresholds}. The vertex count bottoms out at $n = 13$
 with $T(7,1,9)$, then \emph{increases} again---the threshold at $n = 15$

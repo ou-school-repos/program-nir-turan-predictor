@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Iterable, TextIO
 
 from exact_rho import certify_rho_sign
-from verify_hom import parse_graph6
+from verify_hom import normalize_graph6, parse_graph6
 
 SCHEMA = "exact-rho-sweep-record-v1"
 
@@ -69,6 +69,7 @@ def run_arb_certifier(graph6: str, depth: int, executable: Path) -> dict:
         "certified_above_one",
         "certified_below_one",
         "deferred_bipartite_parity",
+        "invalid_disconnected",
         "unresolved",
         "unresolved_power_iteration",
         "invalid_enclosure",
@@ -94,6 +95,7 @@ def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dic
     if not isinstance(estimate, (int, float)) or not math.isfinite(estimate):
         raise ValueError("candidate rho_estimate must be finite")
 
+    graph6 = normalize_graph6(graph6)
     adjacency = parse_graph6(graph6)
     record = {
         "schema": SCHEMA,
@@ -106,7 +108,7 @@ def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dic
         arb_certificate = run_arb_certifier(graph6.strip(), depth, arb_certifier)
         arb_status = arb_certificate["status"]
         record["arb_certificate"] = arb_certificate
-        if arb_status == "deferred_bipartite_parity":
+        if arb_status in {"deferred_bipartite_parity", "invalid_disconnected"}:
             record["status"] = arb_status
             return record
         if arb_status in {"certified_above_one", "certified_below_one"}:
@@ -166,10 +168,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    source = args.input.open(encoding="utf-8") if args.input else sys.stdin
-    destination = args.output.open("w", encoding="utf-8") if args.output else sys.stdout
+    source = sys.stdin
+    destination = sys.stdout
     try:
+        if args.input is not None and args.output is not None:
+            input_path = args.input.expanduser().resolve()
+            output_path = args.output.expanduser().resolve()
+            if input_path == output_path:
+                raise ValueError("--input and --output must name different files")
+        if args.input:
+            source = args.input.open(encoding="utf-8")
+        if args.output:
+            destination = args.output.open("w", encoding="utf-8")
         process_stream(source, destination, args.arb_certifier)
+    except ValueError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(2) from exc
     finally:
         if args.input:
             source.close()

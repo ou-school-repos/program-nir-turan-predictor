@@ -152,8 +152,11 @@ connectivity filtering leave $19{,}832$ classes with $m_2<15$ and $29{,}084$
 classes with $m_2\leq15$, all evaluated up to threshold $n=51$.
 
 The output of the empirical sweep run on `shane@coffeelake` confirms that
-$H_{18}$ (represented canonically by `(0, 0, 7, 6, 1, 1, 0)`) is
-the only detected depth-2 Leontovich graph in this tested class:
+$H_{18}$ is the only detected depth-2 Leontovich graph in this tested
+class. The sweep prints its $S_3$-canonical relabeling as
+`(0, 0, 7, 6, 1, 1, 0)`, which is the same witness as the section-2
+pattern vector `(7, 0, 0, 1, 1, 6, 0)` after relabeling the left
+vertices:
 
 ```bash
 $ python3 scripts/verify_partition3.py

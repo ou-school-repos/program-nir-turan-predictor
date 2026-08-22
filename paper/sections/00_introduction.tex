@@ -65,8 +65,9 @@ preserves both the Leontovich property and its asymptotic strengthening
 
 \emph{Computationally.} We sweep large families of targets --- all
 connected simple graphs on at most $11$ vertices, all connected
-bipartite graphs on at most $15$ vertices, and all symmetric trees
-below $78$ vertices --- against the near-path source trees defined
+bipartite graphs on $2 \le m \le 15$ vertices, and all symmetric trees
+of depth at most $5$ with fewer than $78$ vertices --- against the
+near-path source trees defined
 below, and we record the results as bounded sweeps rather than theorems.
 
 \emph{By synthesis.} Where enumeration runs out, we encode the
@@ -108,8 +109,10 @@ for proved results and state the scope of each sweep explicitly.
 \begin{enumerate}[label=(\roman*)]
   \item \textbf{(E)} Verification of the path-minimizer theorem for the
     odd paths $H \in \{P_3,P_5,P_7,P_9\}$ over all source trees on
-    $n \le 22$ vertices. For $P_3$ and $P_5$ the path is minimal but
-    not unique; from $P_7$ onward it is uniquely minimal. The
+    $n \le 22$ vertices. For $P_3$ the path is minimal but not unique;
+    for $P_5$ the observed ties are among non-minimizing trees, and
+    from $P_7$ onward the path is uniquely minimal in the tested range.
+    The
     arithmetic mechanism is that, with $k$ the path-length parameter
     and $\lambda_1$ the first eigenvalue of the active quotient,
     $\lambda_1^2$ is rational exactly for
@@ -131,8 +134,8 @@ for proved results and state the scope of each sweep explicitly.
     identity (Proposition~\ref{prop:n5}).
   \item \textbf{(S)} All $1{,}018{,}690{,}329$ connected simple graphs on
     $m \le 11$ vertices, and all $608{,}930{,}559$ connected bipartite
-    graphs on $m \le 15$ vertices, tested against the near-path family
-    with $n \le 200$, $d \le 20$. No simple target below $12$ vertices
+    graphs on $2 \le m \le 15$ vertices, tested against the near-path family
+    with $n \le 200$, $2 \le d \le 20$. No simple target below $12$ vertices
     produced a near-path crossover. This bounds, but does not settle,
     Problem~4.3 of~\cite{galvin2025} (Section~\ref{sec:bounds}).
   \item \textbf{(E)} Two small bipartite witnesses: a $15$-vertex graph

@@ -40,9 +40,10 @@ conditional sweep result, not an unconditional theorem.
 - `H*`, a 15-vertex bipartite graph with pattern `(0,1,6,4,1,0,0)`, is a
   depth-dependent bipartite Leontovich graph; the first verified hit is
   `(n,d)=(49,16)`.
-- `H18`, pattern `(7,0,0,1,1,6,0)`, is the current 18-vertex depth-2
-  bipartite Leontovich witness in the completed bounded sweep through
-  path length `n <= 51`. Its first general near-path hit is
+- `H18`, pattern `(7,0,0,1,1,6,0)` and canonical relabeling
+  `(0,0,7,6,1,1,0)`, is the current 18-vertex depth-2 bipartite
+  Leontovich witness in the completed bounded sweep through path
+  length `n <= 51`. Its first general near-path hit is
   `(n,d)=(15,4)`, with margin `500,576`; at depth 2,
   `Hom(P_17,H18) - Hom(E_17^(2),H18) = 5,068,778`.
 - The current 5-orbit strong-frontier audit distinguishes ordinary finite-window

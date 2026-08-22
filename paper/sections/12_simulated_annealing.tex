@@ -13,8 +13,8 @@ The 76-vertex graph is a tree with 75 edges and degree sequence
    \underbrace{1, \ldots, 1}_{61}].
 \]
 It retains the star-of-stars topology of $T(7,1,9)$ but with
-asymmetric leaf counts at the bridge layer (one branch lost two
-leaves, another lost one).
+asymmetric leaf counts at the bridge layer (two branches each lost one
+leaf).
 
 \begin{table}[H]
 \centering
@@ -53,11 +53,11 @@ $78 \to 77 \to 76$ represents the unique pruning sequence.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{figures/leontovich_76.pdf}
-\caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
-(degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
-Green: leaves (degree~1). The asymmetric pruning of two branches
-from $T(7,1,9)$ expands the active quotient spectrum, shifting
-the first crossover from $n=13$ to $n=17$.}
+  \caption{The 76-vertex Leontovich graph $T(7,1,[9^5,8^2])$. Red: root
+  (degree~7). Blue: bridges (degree~2). Orange: hubs (degree~9--10).
+  Green: leaves (degree~1). The asymmetric pruning of one leaf from
+  each of two branches in $T(7,1,9)$ expands the active quotient
+  spectrum, shifting the first crossover from $n=13$ to $n=17$.}
 \label{fig:leo76}
 \end{figure}
 
@@ -108,10 +108,11 @@ describes the incomplete local audit.
 
 An overflow-safe sweep (\texttt{\_\_int128} exact arithmetic with
 \texttt{\_\_builtin\_mul\_overflow}) over 596,891 branching sequences
-$T(d_1, \ldots, d_k)$ with $k \le 5$ orbits and $|V| \le 2{,}000$
+$T(d_1, \ldots, d_k)$ with branching depth $k \le 5$ (at most six
+orbits) and $|V| \le 2{,}000$
 found 7,016 Leontovich instances and confirms that $T(7,1,9)$ at
 $|V| = 78$ is the vertex-count minimum within the swept symmetric
-branching-sequence family ($k\le5$, $|V|\le2{,}000$). For each
+branching-sequence family (depth $k\le5$, $|V|\le2{,}000$). For each
 threshold~$n$, the smallest 5-orbit tree is
 consistently \emph{larger} than the corresponding 4-orbit tree:
 for example, at $n = 13$, $T(1,8,1,12)$ ($|V| = 114$) versus
@@ -243,26 +244,25 @@ Opening $n$ & $|V|$ & Parameters $(d_1, d_2, d_3, d_4)$ & Verdict \\
 \subsection*{Non-oscillatory threshold}
 
 \begin{proposition}
-For a bipartite tree $H$ with exactly two dominant positive
-eigenvalues $\lambda_1 > \lambda_2 > 0$, the difference
-$\Delta_n = \Hom(P_n, H) - \Hom(E_n^{(d)}, H)$ restricted to
-odd~$n$ can change sign at most once. This statement does not apply to
-the 5-orbit looped symmetric targets in Table~\ref{tab:strong_frontier}.
+Suppose the odd-$n$ difference has the exact two-mode form
+\[
+  \Delta_n = \Hom(P_n, H) - \Hom(E_n^{(d)}, H)
+  = A\,\lambda_1^n + B\,\lambda_2^n
+\]
+for some $A>0$, $B<0$, and $0 < \lambda_2 < \lambda_1$. Then
+$\Delta_n$ restricted to odd~$n$ can change sign at most once. This
+statement does not apply to the 5-orbit looped symmetric targets in
+Table~\ref{tab:strong_frontier}.
 \end{proposition}
 
 \begin{proof}[Proof sketch]
-By quotient-eigenbasis expansion, the homomorphism counts for large $n$
-are dominated by two terms:
+Write $r = \lambda_2/\lambda_1 \in (0,1)$. Then
 \[
-  \Delta_{\mathrm{odd}}(n) = A\,\lambda_1^n + B\,\lambda_2^n
-  = \lambda_1^n \!\left( A - |B|\left(\frac{\lambda_2}{\lambda_1}\right)^{\!n}\right)
+  \Delta_n = \lambda_1^n\bigl(A + B r^n\bigr)
 \]
-where $A > 0$ (since $E_n^{(d)}$ is the asymptotic minimizer at odd $n$)
-and $B < 0$ (since $P_n$ wins at small~$n$).  Because
-$0 < \lambda_2/\lambda_1 < 1$, the subtracted term
-$|B|(\lambda_2/\lambda_1)^n$ is strictly decreasing.  Thus the
-parenthesised expression crosses zero at most once: once $\Delta$
-becomes positive, it remains positive for all larger odd~$n$.
+and $B r^n$ is strictly increasing because $B<0$ and $r^n$ decreases
+with $n$. Hence $A + B r^n$ crosses zero at most once on the odd
+subsequence. Any finite base cases still need to be checked directly.
 \end{proof}
 
 \noindent
