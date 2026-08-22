@@ -3,81 +3,40 @@
 8/21/2026
 ##############################
 
-• I’m locating the exact paper statement for the double-cover identity and then I’ll answer the near-path sufficiency question directly in terms of what this project currently has and what a plausible proof route would need.
+• Double-cover identity
 
-• Explored
-  └ Read DoubleCover.lean, 07_bipartite_double_cover.tex
-    Search near-path sufficiency|Conjecture|gadget|long spider|prop:long-spider|Appendix D|appendix D|sufficiency in sections
+  - The paper states the identity for a connected tree T:
+    \[
+      \Hom(T,B)=2\Hom(T,H).
+    \]
+  - The Lean theorem `connected_hom_doubleCover_eq_two_mul` is broader: it applies to any graph `G` with `ConnectedBipartiteColoring G`.
+  - Keep the paper wording narrow and treat the Lean theorem as the formalized generalization.
 
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+• Near-path sufficiency
 
-• I found the exact location. I’m pulling the nearby near-path discussion too so I can answer the second part against the current manuscript rather than hand-waving.
+  - This remains open in the paper.
+  - The current analytic obstruction is the long-spider family: if all three legs go to infinity, that challenger does not beat the path.
+  - That rules out the easiest non-near-path family, but it does not settle bounded gadgets near an endpoint or in the interior.
+  - Plausible proof route: prove asymptotic factorization for rooted gadgets on primitive targets, reduce challengers to a rooted gadget score, then show the minimum is attained by a near-path gadget.
 
-• Explored
-  └ Read 03_analytical_properties.tex, 08_conclusion.tex
+• Analytic vs computational status
 
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  - Likely analytically provable:
+    - `m1 = 2` base case.
+    - Double-cover lemma.
+    - `B(x,y)` spectral family.
+    - `H18` walk-table margin, as exact finite arithmetic from the quotient matrix.
+  - Probably analytic but still requires work:
+    - Strongness of `T^(1,28,1,36)`.
+    - `H*` as a 15-vertex Leontovich graph.
+    - The `n = 17340` even crossover threshold.
+  - Probably computational:
+    - `No graph on m <= 11 is Leontovich`.
+    - `No smaller bipartite depth-2 graph exists`.
+    - `76`-vertex leaf-pruning minimality.
+    - The perturbed non-bipartite construction, unless the quotient proof is made fully symbolic.
 
-• It’s in the proof of Theorem thm:double_cover in paper/sections/07_bipartite_double_cover.tex:18. The exact combinatorial identity is the sentence at paper/sections/07_bipartite_double_cover.tex:25: for a connected tree T, every homomorphism T
-  -> H lifts in exactly two ways to T -> B, hence
-  [
-  \Hom(T,B)=2\Hom(T,H).
-  ]
-  The Lean formalization of that identity is LeanLeontovich/LeanLeontovich/DoubleCover.lean:172, theorem connected_hom_doubleCover_eq_two_mul.
+• Paper strategy
 
-  On near-path sufficiency: it is still open in the paper. The current explicit statements are in paper/sections/03_analytical_properties.tex:94 and paper/sections/08_conclusion.tex:14. The strongest thing you have analytically right now is the
-  long-spider obstruction: if all three spider legs go to infinity, that asymptotic challenger cannot beat the path. That kills the easiest non-near-path family, but it does not settle bounded gadgets near an endpoint or in the interior.
-
-  My read is:
-
-  - Full finite-n near-path sufficiency is probably hard and may even be false.
-  - The asymptotic version for primitive targets looks plausible.
-  - A realistic proof route is a gadget-factorization theorem: show that along long spines, the Perron projection makes separated defects contribute multiplicatively, then prove the minimum gadget score is attained by a path-plus-pendant gadget.
-  - The current paper is already pointing at that gap: bounded rooted gadgets still need a separate minimization argument, and bipartite targets need a parity-class version.
-
-  So yes, there is a way this could be proved, but not with the machinery currently finished in the paper. The next real theorem would be something like:
-
-  1. Prove asymptotic factorization for rooted gadgets on primitive targets.
-  2. Reduce all asymptotic challengers to minimizing a single rooted gadget score.
-  3. Show that minimizer is always a near-path gadget.
-
-  That would be a substantial result. It would not automatically give the finite-n conjecture.
-
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
-› can these results be proven analytically
-
-
-• Some can, some probably need computational certificates.
-
-  Likely Analytically Provable
-
-  - m1 = 2 base case: yes. The polynomial identity
-    -c3((c1-c2)^2+c1+c2) proves the P_5 versus E_5^(2) sign. A universal
-    all-threshold/all-source-tree argument remains outstanding.
-
-  - T(7,1,9) permanent crossover: yes. The quotient has a small spectral form; once the sign flips and the subdominant ratio decays monotonically, permanence is analytic.
-  - Double-cover lemma: yes. Pure homomorphism lifting argument.
-  - B(x,y) spectral family: yes. The 2x2 quotient gives exact eigenvalues and likely an analytic infinite-family theorem.
-  - H18 walk-table/margin: the existence at n=17 is exact finite arithmetic, but can be written as an analytic calculation from the quotient matrix.
-
-  Maybe Analytically Provable, But Needs Work
-
-  - Strongness of T^(1,28,1,36): probably. Need a spectral decomposition / recurrence proof showing the leading coefficient for E_n is smaller than for P_n, then separately handle pre-asymptotic sign.
-  - H* as 15-vertex Leontovich: existence is finite exact arithmetic. Minimality below 15 likely remains computational unless you derive structural inequalities for all smaller bipartite pattern vectors.
-  - The n=17340 even crossover: existence/threshold can be exact recurrence arithmetic; “no earlier even crossover” is computational unless you prove monotonicity over the recurrence tail and check a finite prefix.
-
-  Hard / Probably Computational
-
-  - “No graph on m <= 11 is Leontovich”: very hard analytically because it quantifies over all target graphs and all source trees. Current near-path filter is not enough.
-  - “No smaller bipartite depth-2 graph exists”: likely computational enumeration unless reduced to a tractable finite symbolic inequality.
-  - 76-vertex leaf-pruning minimality: computational certificate / exhaustive family proof, not naturally analytic.
-  - Perturbed non-bipartite construction: could become analytic if you explicitly derive the quotient matrix after perturbation and prove its leading coefficient ratio is < 1.
-
-  Best paper strategy: present finite exact computations as certified arithmetic lemmas, not pretend everything is hand-analytic. Then reserve “theorem” for claims whose quantifiers are fully covered by proof or exhaustive certificate.
+  - State finite exact computations as certified arithmetic lemmas.
+  - Reserve `theorem` for claims whose quantifiers are fully covered by proof or exhaustive certificate.
