@@ -47,10 +47,11 @@ jobs:
 
       - name: Build paper figures
         run: |
+          . .venv/bin/activate
           mkdir -p docs/out
-          python3 scripts/plot_18.py
-          python3 scripts/plot_76.py --pdf
-          python3 scripts/plot_anomaly.py
+          python scripts/plot_18.py
+          python scripts/plot_76.py --pdf
+          python scripts/plot_anomaly.py
 
       - name: Build paper and markdown PDFs
         run: make docs paper
