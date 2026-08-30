@@ -9,18 +9,18 @@ trees in graph6 format on \texttt{stdout}, which is piped to the
 precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
 $\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration in
 IEEE 754 double precision. Because the adjacency matrices and state vectors
-are strictly non-negative, the iteration is immune to catastrophic subtractive
-cancellation. By standard \textbf{forward error analysis}, the worst-case
-accumulated relative rounding error grows strictly linearly, bounded by
-$\sim n_{\max} \cdot m \cdot \varepsilon \approx 6.7 \times 10^{-13}$ (at
+are strictly non-negative, the iteration avoids catastrophic subtractive
+cancellation. A standard forward-error estimate suggests an accumulated
+relative rounding error on the order of
+$n_{\max} \cdot m \cdot \varepsilon \approx 6.7 \times 10^{-13}$ (at
 $m=15, n=200$, with machine epsilon $\varepsilon \approx 2.22 \times 10^{-16}$).
 Comparisons use a relative tolerance of $10^{-11}$, which safely exceeds this
-noise floor by more than an order of magnitude. This floating-point engine acts
-strictly as a high-speed filter: all flagged anomalies are subsequently
-verified using exact infinite-precision integer arithmetic. The filter can
-miss a true crossover whose relative margin lies below the tolerance, so
-claims based solely on this pass are stated as conditional sweep results rather
-than unconditional nonexistence theorems.
+estimate by more than an order of magnitude. It is not an outward-rounded
+error enclosure. This floating-point engine acts strictly as a high-speed
+filter: all flagged anomalies are subsequently verified using exact
+integer arithmetic. The filter can miss a true crossover whose relative margin
+lies below the tolerance, so its negative results are conditional screens, not
+unconditional nonexistence theorems.
 The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
 $O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
 
@@ -48,7 +48,9 @@ $n \le 199$; the first occurs at $(n,d)=(49,16)$ with
 \]
 The maximum relative deficit in the tested range is
 $\sim 7.6 \times 10^{-4}$.
-No anomalies of any depth were detected at $m \le 14$ in the bipartite sweep.
+No anomalies of any depth were \emph{flagged} at $m \le 14$ in this
+floating-point screen; as above, this is conditional on the tolerance and does
+not exclude an unflagged crossover with a smaller relative margin.
 \end{remark}
 
 \begin{figure}[H]

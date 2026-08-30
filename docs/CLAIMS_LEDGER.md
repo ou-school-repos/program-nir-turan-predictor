@@ -37,5 +37,7 @@ Evidence tags follow
   that bound belongs in the sentence stating the claim.
 - Anything discovered first by a floating-point search remains `N` until an
   exact verifier promotes the specific witness or threshold to `E`.
+- A negative floating-point screen remains conditional even when its tolerance
+  exceeds a forward-error estimate; it is not an outward-rounded enclosure.
 - This file is intentionally conservative. If a paper sentence is stronger
   than the matching row here, the sentence should be treated as suspect.

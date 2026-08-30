@@ -194,10 +194,11 @@ we record here the first fully written proof.
 
 \subsection{Minimum size in the symmetric family}
 
-Exhaustive grid search over $T(x,y,z)$ with
-$|V| = 1 + x + xy + xyz \le 100$ confirms that $T(7,1,9)$ with 78
-vertices is the smallest Leontovich graph found in the audited
-$T(x,1,z)$ family within the tested range. A generalized search over all
+Exhaustive grid search over the subfamily $T(x,1,z)$ with
+$|V| = 1 + 2x + xz \le 100$ confirms that $T(7,1,9)$ with 78
+vertices is the smallest Leontovich graph found in that audited subfamily
+within the tested range. This does not compare it against the full
+$T(x,y,z)$ family with $y>1$. A generalized search over all
 spherically symmetric trees $T(d_1, \ldots, d_k)$ with $|V| \le 77$ and
 depth $k \le 6$ tested 5,732 trees with exact integer arithmetic
 (\texttt{scripts/verify\_leontovich.py}, $n \le 200$, $2 \le d \le 20$) and
