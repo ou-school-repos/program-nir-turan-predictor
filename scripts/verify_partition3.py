@@ -62,6 +62,7 @@ def is_connected(c):
 
 
 def verify_vector(c, max_n=51, d=2):
+    """Return the first odd near-path crossover for a pattern, if any."""
     c1, c2, c3, c4, c5, c6, c7 = c
     m = 3 + sum(c)
     adj = [[] for _ in range(m)]
@@ -134,6 +135,7 @@ def verify_vector(c, max_n=51, d=2):
 
 
 def prove_bipartite_partition3(max_m2=15, max_n=51):
+    """Exhaustively check canonical connected ``(3, m2)`` targets."""
     print(
         f"\n\033[1;36mPioneering rigorous proof for bipartite (3, m2) targets up to m2={max_m2}...\033[0m"
     )
