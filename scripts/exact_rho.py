@@ -24,6 +24,10 @@ from typing import Iterable
 import sympy as sp
 
 
+class CertificationUnresolved(RuntimeError):
+    """Raised when the exact sign procedure reaches its precision limit."""
+
+
 @dataclass(frozen=True)
 class RhoCertificate:
     """Exact sign certificate for a leading-coefficient ratio."""
@@ -214,7 +218,7 @@ def certify_rho_sign(
                     sign,
                     depth,
                 )
-    raise RuntimeError(
+    raise CertificationUnresolved(
         f"could not separate rho_{depth} from one at {max_precision} decimal digits"
     )
 

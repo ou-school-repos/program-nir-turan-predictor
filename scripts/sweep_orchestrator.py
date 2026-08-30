@@ -9,13 +9,14 @@ formula is implemented.
 
 import argparse
 import json
+import logging
 import math
 import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable, TextIO
 
-from exact_rho import certify_rho_sign
+from exact_rho import CertificationUnresolved, certify_rho_sign
 from verify_hom import normalize_graph6, parse_graph6
 
 SCHEMA = "exact-rho-sweep-record-v1"
@@ -28,6 +29,7 @@ OPTIONAL_ARB_STATUSES = {
     "invalid_enclosure",
 }
 VALID_PRECISIONS = {64, 128, 256, 512}
+LOGGER = logging.getLogger(__name__)
 
 
 def is_bipartite(adjacency: list[list[int]]) -> bool:
@@ -59,10 +61,12 @@ def run_arb_certifier(graph6: str, depth: int, executable: Path) -> dict:
     if not executable.is_file():
         raise RuntimeError(f"Arb certifier does not exist: {executable}")
     result = subprocess.run(
+        # Arguments are passed directly with no shell interpretation.
         [str(executable), "--g6", graph6, "--depth", str(depth)],
         check=False,
         capture_output=True,
         text=True,
+        shell=False,
     )
     try:
         certificate = json.loads(result.stdout)
@@ -135,7 +139,13 @@ def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dic
         record["status"] = "deferred_bipartite_parity"
         return record
 
-    certificate = certify_rho_sign(adjacency, [1] * len(adjacency), depth)
+    try:
+        certificate = certify_rho_sign(adjacency, [1] * len(adjacency), depth)
+    except CertificationUnresolved as exc:
+        LOGGER.warning("Exact rho certification unresolved for %s: %s", graph6, exc)
+        record["status"] = "unresolved"
+        record["certificate_error"] = str(exc)
+        return record
     record["status"] = {
         -1: "exact_below_one",
         0: "exact_equal_one",

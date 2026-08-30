@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+from exact_rho import CertificationUnresolved  # noqa: E402
 from sweep_orchestrator import certify_candidate, main, process_stream  # noqa: E402
 
 
@@ -149,6 +150,38 @@ class SweepOrchestratorTests(unittest.TestCase):
             Path(sys.executable),
         )
         self.assertEqual(record["status"], "invalid_disconnected")
+
+    @patch("sweep_orchestrator.certify_rho_sign")
+    def test_unresolved_exact_certificate_does_not_abort_stream(self, certify):
+        """An exact-certification limit is archived and later records continue."""
+        certify.side_effect = CertificationUnresolved("precision limit")
+        source = [
+            json.dumps(
+                {
+                    "type": "spectral_candidate",
+                    "g6": "Bw",
+                    "d": 2,
+                    "rho_estimate": 1.0,
+                }
+            ),
+            json.dumps(
+                {
+                    "type": "spectral_candidate",
+                    "g6": "Bg",
+                    "d": 2,
+                    "rho_estimate": 1.0,
+                }
+            ),
+        ]
+        destination = io.StringIO()
+
+        with self.assertLogs("sweep_orchestrator", level="WARNING") as logs:
+            self.assertEqual(process_stream(source, destination), 2)
+        records = [json.loads(line) for line in destination.getvalue().splitlines()]
+        self.assertEqual(records[0]["status"], "unresolved")
+        self.assertEqual(records[0]["certificate_error"], "precision limit")
+        self.assertEqual(records[1]["status"], "deferred_bipartite_parity")
+        self.assertIn("Exact rho certification unresolved", logs.output[0])
 
 
 if __name__ == "__main__":
