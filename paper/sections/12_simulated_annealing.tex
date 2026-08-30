@@ -46,9 +46,9 @@ $10^8$ evaluations) was run from $T(7,1,9)$ at temperature 3.0.
 Every seed converged to a 76-vertex graph, with an intermediate
 $|V|=77$ Leontovich graph consistently discovered along the path
 (typically within the first 10 steps). No seed found a graph with
-$|V| < 76$.  This strongly suggests that 76 is the global minimum
-within the star-of-stars basin, and that the descent
-$78 \to 77 \to 76$ represents the unique pruning sequence.
+$|V| < 76$. This is search evidence only: it does not certify a minimum
+within the star-of-stars basin or the uniqueness of the observed descent
+$78 \to 77 \to 76$.
 
 \begin{figure}[H]
 \centering
@@ -96,13 +96,13 @@ $n = 17$. The local SMT experiment for $|V| = 75$ times out at its first
 depth-2 threshold, $n=13$, so it does not establish minimality within this
 pruning family.
 
-This yields a clean dichotomy: \emph{within the star-of-stars basin,
-asymmetric pruning breaks orbital symmetry and lifts new active eigenvalues
-into the quotient spectrum.} The Leontovich property is lost when this
-symmetry-breaking pushes the active secondary eigenvalue too close to the
-spectral radius. The 76-vertex graph is the smallest witness found by the
-search, not a certified minimum; Section~\ref{sec:local-pruning-audit}
-describes the incomplete local audit.
+Within the explored star-of-stars basin, asymmetric pruning breaks orbital
+symmetry and lifts new active eigenvalues into the quotient spectrum. The
+observed crossover appears when the resulting active secondary eigenvalue is
+close enough to the spectral radius to interfere with the Perron term. The
+76-vertex graph is the smallest witness found by the search, not a certified
+minimum; Section~\ref{sec:local-pruning-audit} describes the incomplete local
+audit.
 
 \subsection*{Deeper symmetric trees}
 
