@@ -141,7 +141,7 @@ def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dic
 
     try:
         certificate = certify_rho_sign(adjacency, [1] * len(adjacency), depth)
-    except CertificationUnresolved as exc:
+    except (CertificationUnresolved, RuntimeError) as exc:
         LOGGER.warning("Exact rho certification unresolved for %s: %s", graph6, exc)
         record["status"] = "unresolved"
         record["certificate_error"] = str(exc)

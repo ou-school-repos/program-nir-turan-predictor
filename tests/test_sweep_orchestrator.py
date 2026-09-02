@@ -11,7 +11,6 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from exact_rho import CertificationUnresolved  # noqa: E402
 from sweep_orchestrator import certify_candidate, main, process_stream  # noqa: E402
 
 
@@ -152,9 +151,9 @@ class SweepOrchestratorTests(unittest.TestCase):
         self.assertEqual(record["status"], "invalid_disconnected")
 
     @patch("sweep_orchestrator.certify_rho_sign")
-    def test_unresolved_exact_certificate_does_not_abort_stream(self, certify):
-        """An exact-certification limit is archived and later records continue."""
-        certify.side_effect = CertificationUnresolved("precision limit")
+    def test_symbolic_certification_failure_does_not_abort_stream(self, certify):
+        """A symbolic failure is archived and later records continue."""
+        certify.side_effect = RuntimeError("precision limit")
         source = [
             json.dumps(
                 {
