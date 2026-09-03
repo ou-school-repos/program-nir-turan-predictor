@@ -226,9 +226,9 @@ paper: _check/pdf-tools paper-figures ##H Compile paper/paper.tex to PDF
 paper-figures: ##H Generate the figure artifacts required by the paper
 	@$(call print_info,Generating paper figures)
 	@mkdir -p docs/out
-	@SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' $(PYTHON) scripts/plot_18.py
-	@SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' $(PYTHON) scripts/plot_76.py --pdf
-	@SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' $(PYTHON) scripts/plot_anomaly.py
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_18.py
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_76.py --pdf
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_anomaly.py
 	@for f in docs/out/leontovich_18.pdf docs/out/leontovich_76.pdf; do \
 		if [ -f "$$f" ]; then \
 			qpdf --deterministic-id --linearize "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f"; \
