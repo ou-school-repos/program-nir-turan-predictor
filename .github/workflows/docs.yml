@@ -17,6 +17,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python venv
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+
+      - name: Run tests
+        run: |
+          . .venv/bin/activate
+          python -m pytest tests/ -v
+
   build-pdfs:
     runs-on: ubuntu-24.04
     permissions:
