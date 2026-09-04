@@ -324,7 +324,7 @@ format: ##H Format source files
 	-ruff format $(LINT_LOCS_PY)
 	-clang-format -i $$(git ls-files '*.c' '*.cc' '*.cpp' '*.hpp' '*.h')
 	-prettier -w $$(git ls-files '*.y*ml' '*.md' '*.html' '*.json' '.clang-format')
-	-pre-commit run --all-files
+	pre-commit run --all-files
 
 
 .PHONY: lint
