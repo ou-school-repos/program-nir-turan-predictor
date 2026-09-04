@@ -38,6 +38,30 @@ jobs:
           . .venv/bin/activate
           python -m pytest tests/ -v
 
+  lean:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache mathlib artifacts
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/lake
+          key: lean-${{ hashFiles('LeanLeontovich/lean-toolchain', 'LeanLeontovich/lake-manifest.json') }}
+          restore-keys: lean-
+
+      - name: Build LeanLeontovich
+        run: make lean
+
   build-pdfs:
     runs-on: ubuntu-24.04
     permissions:
