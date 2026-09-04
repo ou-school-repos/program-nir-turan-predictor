@@ -5,7 +5,7 @@ This script is intentionally small and dependency-free. It verifies the
 headline witness values with Python integers:
 
 * H* is a 15-vertex depth-dependent bipartite Leontovich graph.
-* H18 has the corrected quotient walk table and n=17 depth-2 margin.
+* H18 first crosses at (n,d)=(15,4) and has the n=17 depth-2 margin.
 * The 5-orbit Table 8 finite-window audit has the expected open/close windows.
 * The m1=2 transfer identity matches exact homomorphism counts on a grid.
 * The double-cover source graph T^(1,35,1,50) has first even d=2 crossover
@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, getcontext
 
+from exact_rho import certify_rho_sign, compare_rho_depths, symmetric_tree_quotient
 from strong_coeff import leading_ratio
 
 SUBSETS = ((0,), (1,), (2,), (0, 1), (0, 2), (1, 2), (0, 1, 2))
@@ -112,7 +113,7 @@ def verify_h_star() -> None:
 
 
 def verify_h18() -> None:
-    """Verify the H18 walk table and n=17 depth-2 crossover margin."""
+    """Verify the H18 walk table and its general and depth-2 crossovers."""
     pattern = (7, 0, 0, 1, 1, 6, 0)
     sizes, walks = bipartite_walks(pattern, 20)
     orbit_order = [0, 1, 2, 3, 6, 7, 8]
@@ -129,12 +130,26 @@ def verify_h18() -> None:
         row.append(hom_path(sizes, walks, step + 1) if step > 0 else sum(sizes))
         check(row == expected, (step, row, expected))
 
+    hp15 = hom_path(sizes, walks, 15)
+    he15 = hom_near_path(sizes, walks, 15, 4)
+    check(hp15 == 1_105_256_666, hp15)
+    check(he15 == 1_104_756_090, he15)
+    check(hp15 - he15 == 500_576, hp15 - he15)
+    check(
+        all(
+            hom_path(sizes, walks, n) <= hom_near_path(sizes, walks, n, d)
+            for n in range(5, 15)
+            for d in range(1, n - 2)
+        ),
+        "H18 has an unexpected crossover below n=15",
+    )
+
     hp = hom_path(sizes, walks, 17)
     he = hom_near_path(sizes, walks, 17, 2)
     check(hp == 14_801_051_732, hp)
     check(he == 14_795_982_954, he)
     check(hp - he == 5_068_778, hp - he)
-    print("H18: walk table and n=17 depth-2 margin verified")
+    print("H18: first (15,4) crossover and n=17 depth-2 margin verified")
 
 
 def verify_m1_equals_2_identity() -> None:
@@ -272,6 +287,8 @@ def verify_even_crossover() -> None:
 def verify_t135_ratio() -> None:
     """Verify leading and high-n ratios for T-hat(1,35,1,50)."""
     tree = LoopedSymmetricTree((1, 35, 1, 50))
+    quotient, sizes = symmetric_tree_quotient((1, 35, 1, 50))
+    check(certify_rho_sign(quotient, sizes, 2).sign < 0, "expected rho_2 < 1")
     rho = Decimal(str(leading_ratio((1, 35, 1, 50))))
     check(rho < Decimal(1), rho)
     check(
@@ -292,6 +309,17 @@ def verify_t135_ratio() -> None:
     )
 
 
+def verify_gadget_depths() -> None:
+    """Verify the new depth-4 witness improvement claim."""
+    quotient, sizes = symmetric_tree_quotient((1, 35, 1, 50))
+    cert2 = certify_rho_sign(quotient, sizes, 2)
+    cert4 = certify_rho_sign(quotient, sizes, 4)
+    check(cert2.sign < 0, "expected rho_2 < 1")
+    check(cert4.sign < 0, "expected rho_4 < 1")
+    check(compare_rho_depths(quotient, sizes, 4, 2) < 0, "expected rho_4 < rho_2")
+    print("Depth-4 witness improvement verified")
+
+
 def main() -> None:
     """Run every exact core-claim verification."""
     verify_h_star()
@@ -300,6 +328,7 @@ def main() -> None:
     verify_table8()
     verify_even_crossover()
     verify_t135_ratio()
+    verify_gadget_depths()
     print("All core exact checks passed.")
 
 

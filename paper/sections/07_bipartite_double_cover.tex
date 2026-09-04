@@ -1,0 +1,150 @@
+\section{The Bipartite Double Cover and Strongly Leontovich Graphs}
+\label{sec:doublecover}
+
+A natural way to remove a loop from a target is to pass to the
+bipartite double cover; Galvin et al.~\cite{galvin2026} note the
+equivalent two-copy construction. We use this language to state the
+preservation result and the even crossover threshold for the resulting
+simple bipartite graph.
+
+\begin{definition}[Bipartite Double Cover]
+For any graph $H$, its bipartite double cover $B = H \times K_2$ is a
+bipartite graph on $2|V(H)|$ vertices. The vertex set is $V(H) \times \{0, 1\}$,
+with edges connecting $(u, 0)$ to $(v, 1)$ if and only if $(u, v) \in E(H)$.
+A loop at vertex $u$ in $H$ corresponds to a standard edge between $(u, 0)$ and
+$(u, 1)$ in $B$. Thus, $B$ is always a simple bipartite graph.
+\end{definition}
+
+\begin{theorem}
+\label{thm:double_cover}
+A graph $H$ is Leontovich if and only if its bipartite double cover $B = H
+\times K_2$ is Leontovich. Furthermore, $H$ is Strongly Leontovich if and only
+if $B$ is Strongly Leontovich.
+\end{theorem}
+\begin{proof}
+Let $T$ be any connected tree. Because $T$ is bipartite, it admits exactly two
+proper 2-colorings. Consequently, any homomorphism $\phi \colon T \to H$ lifts
+to exactly two distinct homomorphisms $\Phi \colon T \to B$, corresponding to
+the two choices of mapping the color classes of $T$ to the partitions $\{0, 1\}$
+of $B$. Therefore, for any tree $T$, $\Hom(T, B) = 2 \Hom(T, H)$.
+
+It follows immediately that for all $n$ and $d$:
+\[
+  \Hom(P_n, B) - \Hom(E_n^{(d)}, B) = 2 \Bigl[ \Hom(P_n, H) - \Hom(E_n^{(d)}, H) \Bigr]
+\]
+Because the homomorphism difference scales by a strict positive constant, the
+crossover thresholds and the asymptotic ratio of the leading projection
+coefficients $c_1(E_n)/c_1(P_n)$ are perfectly preserved.
+\end{proof}
+
+\subsection{A Simple Strongly Leontovich Graph}
+
+The coefficient calculation in this section establishes that the looped symmetric
+tree $\hat{T}(1, 35, 1, 50)$ on 1,822 vertices is Strongly Leontovich, with an asymptotic leading
+coefficient ratio of
+
+$\lim_{n \to \infty} \Hom(E_n^{(2)}, \hat{T}) / \Hom(P_n, \hat{T})
+\approx 0.999953714414 < 1$.
+The strict inequality is certified algebraically by rational isolation of the
+Perron root and an exact sign test for $\rho_2-1$.
+Exact finite counts at $n=15001$ give the
+still-unconverged ratio $0.999864892078$, reflecting the very slow decay of the
+near-antipodal mode at eigenvalue $-7.282828$, whose magnitude is within a
+factor $0.9997162$ of the Perron root $7.284896$.
+
+By Theorem~\ref{thm:double_cover}, its bipartite double cover $B = \hat{T}
+\times K_2$ inherits this exact property. $B$ is a simple, loopless, bipartite
+graph on exactly 3,644 vertices. Because its asymptotic ratio is strictly less
+than 1, $B$ is a \textbf{simple strongly Leontovich graph}, addressing the
+simple-target existence question.
+
+Furthermore, because $B$ is Strongly Leontovich, $\Hom(E_n, B) < \Hom(P_n, B)$
+for all sufficiently large $n$, both even and odd. An exact integer scan of the
+even orders through $n=20{,}000$ finds its first even-$n$ crossover at
+$n=17{,}340$ and no later sign change in that scanned interval. The same target
+already has an odd crossover at $n=7$.
+So even-$n$ crossovers do not require loops. Since $B$ is bipartite its
+spectrum is exactly symmetric about zero, and that $\pm$ pairing is what
+protects $P_n$ at even~$n$. What eventually defeats the protection is
+near-degeneracy among the dominant magnitudes: the two largest positive
+eigenvalues of $B$ are $7.284896$ and $7.282828$, a ratio of about
+$0.99972$, so the competing mode decays slowly enough to survive until
+$n = 17{,}340$. Equivalently, on the looped source $\hat{T}(1,35,1,50)$
+the same fact appears as a near-antipodal eigenvalue $-7.282828$ just
+inside the Perron root. This is not the second positive eigenvalue of
+$\hat{T}$, $\lambda_2 \approx 5.842228$: at
+$\lambda_2/\lambda_1 \approx 0.802$ that mode is negligible by
+$n \approx 45$.
+
+\paragraph{Disproof of the universal bipartite parity hypothesis.}
+Appendix~\ref{app:sa} records a working hypothesis suggested by
+extensive finite search: the 608,930,559 connected bipartite graphs on
+$m \le 15$ vertices, together with all source trees through $n=22$
+(including $5{,}623{,}756$ at $n=22$), showed no even-$n$ crossover. The
+$n=17{,}340$ example above disproves the universal statement. The point
+is scale, not a new mechanism: the relevant long-lived term is the
+second dominant magnitude $7.282828$, not the smaller positive
+eigenvalue $\lambda_2$.
+
+For the underlying looped target $\hat T(1,35,1,50)$, the exact
+leading-coefficient test is slightly stronger at depth~4 than at depth~2:
+\[
+  \rho_2=0.999953714414\ldots,\qquad
+  \rho_4=0.999932644624\ldots.
+\]
+The signs are certified algebraically by
+\texttt{scripts/gadget\_scores.py}. This does not improve the perturbed
+non-bipartite construction below, which is built from
+$\hat T(2,34,1,48)$ rather than from the smaller looped witness.
+
+\subsection{A Perturbed Non-Bipartite Certificate}
+
+Adding a single edge inside one side of a bipartite strongly Leontovich
+graph can produce a simple non-bipartite target. Here we use the looped
+symmetric tree $\hat{T}(2, 34, 1, 48)$ on 3,403 vertices, whose
+bipartite double cover $B' = \hat{T}(2, 34, 1, 48) \times K_2$ is a
+simple bipartite strongly Leontovich graph on 6,806 vertices with
+leading-coefficient ratio $0.999713000053\ldots$ and margin
+$2.87 \times 10^{-4}$.
+
+Adding a single edge inside one side of this bipartite graph creates an odd
+cycle, so the perturbed target is strictly non-bipartite. We use
+$\hat{T}(2, 34, 1, 48)$ rather than the smaller $\hat{T}(1,35,1,50)$ because
+the larger asymptotic margin survives the perturbation more comfortably.
+Adding an edge $e$ between two sibling terminal leaves of $B'$ gives the
+6,806-vertex graph $B' + e$. The script
+\texttt{scripts/verify\_perturbed\_cert.py} computes the coarsest equitable
+partition by colour refinement, verifies equitability vertex-by-vertex with
+exact integer arithmetic, and obtains an 18-cell quotient matrix. On this
+quotient, the leading-coefficient ratio is
+\[
+  \lim_{n \to \infty}
+  \frac{\Hom(E_n^{(2)}, B' + e)}{\Hom(P_n, B' + e)}
+  \approx 0.999952140676 < 1.
+\]
+The same pipeline reproduces the unperturbed ratio
+$0.999713000053\ldots$ for $B'$. A Rayleigh quotient estimate explains
+why the perturbation is stable: the principal eigenvector mass on the
+added leaves is tiny, and the measured shift is
+$\Delta\lambda_1 \approx 1.77 \times 10^{-4}$.
+
+To estimate the bound, \texttt{scripts/strong\_coeff.py}
+(\texttt{certified\_leading\_ratio}) computes a Bauer--Fike residual
+and a Davis--Kahan angle bound for the symmetrized 18-cell quotient,
+both at 50 digits. Denote the resulting numerical estimate by
+$\rho_{\mathrm{hi}}$. Numerically,
+$\|r\|_2 \approx 7.5\times 10^{-50}$ against a spectral gap
+$\lambda_1 - \lambda_2 \approx 5.1\times 10^{-3}$, propagating to
+$\rho_{\mathrm{hi}} - \rho_2(B'+e) \approx 7.5\times 10^{-47}$ and
+\[
+  \rho_{\mathrm{hi}} \approx 0.99995214067566 < 1,
+  \qquad 1 - \rho_{\mathrm{hi}} \approx 4.79\times 10^{-5}.
+\]
+The estimated error is roughly 41 orders of magnitude smaller than the
+margin, so the numerical estimate $\rho_{\mathrm{hi}}$ stays below $1$. This is
+high-precision numerical evidence (N) for a simple non-bipartite
+strongly-Leontovich candidate in the leading-coefficient sense. It is a
+residual-based estimate in that sense, not a directed-rounding
+interval-arithmetic certificate.
+
+% ════════════════════════════════════════════════════════════════════════

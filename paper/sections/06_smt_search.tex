@@ -1,0 +1,288 @@
+\section{SMT-Based Constraint Search and the 18-Vertex Depth-2 Discovery}
+\label{sec:discussion}
+
+The near-path sweeps for $m \le 11$ and the 15-vertex bipartite example
+$H^*$ illustrate how quickly the Leontovich search space grows. Beyond the
+range of exhaustive enumeration, we encode the homomorphism inequalities as
+an integer constraint problem for a Satisfiability Modulo Theories (SMT)
+solver. This search produces the 18-vertex depth-2 bipartite example
+$H_{18}$ studied below.
+
+\subsection{SMT-based algebraic search}
+
+To bypass the exponential explosion of graph enumeration (e.g.,
+$14{,}218{,}209{,}962\approx1.4\times10^{10}$ connected bipartite targets on
+$m=16$ vertices),
+the search for a Leontovich target graph $H$ of order $m$ can be formulated as a Constraint Satisfaction Problem (CSP)
+over the binary adjacency variables $A_{ij} \in \{0, 1\}$.
+
+Rather than explicitly unrolling the sum over all $m^n$ possible mappings to compute tree homomorphisms,
+we embed the dynamic programming walk recurrences directly into the solver's constraint network as auxiliary variables.
+For a target graph $H$, we define the walk vectors $w_k \in \mathbb{Z}^m$ recursively:
+\begin{align}
+  w_0(i) &= 1, \quad \forall i \in \{1, \dots, m\} \\
+  w_k(i) &= \sum_{j=1}^{m} A_{ij} \, w_{k-1}(j), \quad \forall k \ge 1
+\end{align}
+The homomorphism count for the path is given by the linear sum
+$\Hom(P_n, H) = \sum_{i=1}^{m} w_{n-1}(i)$. For the near-path family
+$E_n^{(d)}$ with a pendant edge attached at depth $d$, the count can be
+represented compactly as:
+\begin{equation}
+  \Hom(E_n^{(d)}, H) = \sum_{i=1}^{m} w_{n-d-2}(i) \, w_1(i) \, w_d(i)
+\end{equation}
+The search for a Leontovich target graph then reduces to solving the polynomial inequality:
+\begin{equation}
+  \label{eq:smt_ineq}
+  \Hom(E_n^{(d)}, H) < \Hom(P_n, H)
+\end{equation}
+subject to adjacency constraints. Bipartiteness can be enforced dynamically
+by introducing partition variables $x_i \in \{0, 1\}$ such that $A_{ij} = 1
+\implies x_i \neq x_j$, while connectivity is guaranteed by defining
+distance levels from a root vertex.
+
+\subsection{Local SMT Leaf-Pruning Proof for \texorpdfstring{$T(7,1,9)$}{T(7,1,9)}}
+\label{sec:local-pruning-audit}
+
+To evaluate the optimality of our 76-vertex Leontovich graph
+$T(7,1,[9^5, 8^2])$ discovered by simulated annealing, we formulated a
+highly targeted local leaf-pruning search. Starting from the fully symmetric
+tree $T(7,1,9)$ (78 vertices), we define integer decision variables $k_1,
+\dots, k_7 \in \{0, \dots, 9\}$ representing the number of active leaves on
+each of the 7 hubs. To break isomorphic permutations, we enforce $9 \ge k_1 \ge
+k_2 \ge \dots \ge k_7 \ge 0$.
+
+Because of the high symmetry of the quotient orbits, the walk equations can be
+simplified from $m = 15 + \sum k_i$ variables down to a bilinear recurrence of
+exactly $22$ variables per step:
+\begin{align}
+  w_k(\text{root}) &= \sum_{i=1}^{7} w_{k-1}(\text{bridge } i) \\
+  w_k(\text{bridge } i) &= w_{k-1}(\text{root}) + w_{k-1}(\text{hub } i) \\
+  w_k(\text{hub } i) &= w_{k-1}(\text{bridge } i) + k_i \, w_{k-1}(\text{leaf-type } i) \\
+  w_k(\text{leaf-type } i) &= w_{k-1}(\text{hub } i)
+\end{align}
+The local solver is configured to test depth~2 at odd thresholds
+$n\in\{13,15,\ldots,31\}$ for prunings of size $|V|\le75$. Under the
+documented 10-second timeout, however, Z3 returns \texttt{unknown} already at
+$n=13$. Thus this experiment does not certify a negative result or minimality
+of the 76-vertex witness. The audit script now records the solver status
+explicitly, accepts only \texttt{unsat} as a completed negative check, and
+fails on \texttt{unknown} rather than misreporting a timeout as
+\textbf{UNSAT}.
+
+\subsection{The 18-Vertex Depth-2 Bipartite Leontovich Graph Discovery}
+
+To search for small non-tree Leontovich graphs, we restricted the
+target class to bipartite graphs with left-partition size $m_1 \in \{2, 3\}$.
+Under this partition constraint, every vertex in the right partition $R$ must
+connect to a non-empty subset of the left partition $L$.
+
+For $m_1 = 2$, there are only $2^2 - 1 = 3$ valid connection patterns for
+vertices in $R$. A graph is thus uniquely specified up to isomorphism by a
+triplet $(c_1, c_2, c_3)$ where $c_1 + c_2 + c_3 = m_2$.
+
+\begin{proposition}[The $n=5$ depth-2 obstruction for $m_1 = 2$]
+For every connected bipartite graph of partition $(2,m_2)$, the depth-2
+near-path comparison has no crossover at $n=5$.
+\end{proposition}
+\begin{proof}
+Let $H$ be a connected bipartite graph with left partition $L = \{u_1, u_2\}$.
+The homomorphism counts at odd thresholds $n=2k+1$ are governed by the $2 \times 2$ transfer matrix $M = A^2|_L$, where $A$ is the adjacency matrix. We have:
+\[
+  M = \begin{pmatrix} c_1+c_3 & c_3 \\ c_3 & c_2+c_3 \end{pmatrix}.
+\]
+For $H$ to be connected, we must have $c_3 \ge 1$. Direct algebraic expansion of the transfer matrix product for $n=5$ yields the exact difference:
+\[
+  \Hom(P_5, H) - \Hom(E_5^{(2)}, H) = -c_3 \bigl( (c_1 - c_2)^2 + c_1 + c_2 \bigr).
+\]
+Since $c_1, c_2 \ge 0$ and $c_3 \ge 1$, this difference is non-positive, meaning $\Hom(P_5, H) \le \Hom(E_5^{(2)}, H)$.
+
+\end{proof}
+
+Beyond $n=5$, every $(2,m_2)$ target of total order $m\le15$ is covered at
+every tested depth by the exhaustive bipartite sweep of
+Section~\ref{sec:computation}, which found no crossover for odd $n\le199$ and
+$d\le20$. We make no unconditional claim for larger $m_2$ or beyond that
+window.
+
+For $m_1 = 3$, there are $2^3 - 1 = 7$ valid connection patterns: 3
+singletons ($c_1, c_2, c_3$), 3 pairs ($c_4, c_5, c_6$), and 1 triplet ($c_7$).
+Any such bipartite target is uniquely determined by the vector $(c_1, \dots,
+c_7)$.
+
+The 15-vertex graph $H^*$ from Remark~\ref{rem:depth_anomaly} shows that
+allowing arbitrary near-path depths yields a smaller bipartite Leontovich graph.
+The following result isolates the smallest example found by the stricter
+depth-2 test $E_n^{(2)}$, the near-path family used in the classical
+Leontovich construction:
+\begin{compresult}
+  The bipartite graph $H_{18}$ of partition $(3, 15)$ with pattern vector
+  $(7, 0, 0, 1, 1, 6, 0)$ is the unique minimal depth-2 bipartite Leontovich
+  graph of partition $(3, m_2)$ found in this completed depth-2 bounded sweep
+  through path length $n \le 51$. It first crosses against
+  $E_n^{(2)}$ at $n = 17$. Its Graph6 representation is
+  \begin{equation*}
+    \texttt{QCaCCA?\_E?S?W?W?K?B??W?@\_??}
+  \end{equation*}
+\end{compresult}
+
+Allowing arbitrary attachment depth gives an earlier crossover for the same
+target. Exact integer arithmetic gives
+\begin{align*}
+  \Hom(P_{15},H_{18})&=1{,}105{,}256{,}666,\\
+  \Hom(E_{15}^{(4)},H_{18})&=1{,}104{,}756{,}090,
+\end{align*}
+so the first near-path crossover for $H_{18}$ occurs at $(n,d)=(15,4)$,
+with margin $500{,}576$. The symmetric depth $d=9$ gives the same source tree,
+since $E_{15}^{(4)}\cong E_{15}^{(9)}$ by Remark~\ref{rem:d-symmetry}.
+An exact scan over every admissible depth finds no crossover for $n<15$.
+
+At the depth-2 crossover threshold $n=17$, the homomorphism counts verified by exact-precision arithmetic are:
+\begin{align*}
+  \Hom(P_{17}, H_{18}) &= 14{,}801{,}051{,}732 \\
+  \Hom(E_{17}^{(2)}, H_{18}) &= 14{,}795{,}982{,}954
+\end{align*}
+yielding a positive Leontovich margin of $\Delta = 5{,}068{,}778$. Since
+$m=18 < 76$, this is less than one quarter the order of the smallest
+previously known depth-2 construction in the tested search regime. Because
+the exhaustive check of all $19{,}832$ connected, full-$S_3$-canonical
+configurations with $m_2<15$ returned zero depth-2 hits,
+\textbf{18 vertices is the depth-2 minimum within this partition family in the
+completed depth-2 sweep through path length $n \le 51$}.
+
+\subsubsection{\texorpdfstring{Structure and walk iteration of $H_{18}$}{Structure and walk iteration of H18}}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{leontovich_18.pdf}
+  \caption{\texorpdfstring{The optimal 18-vertex depth-2 bipartite Leontovich graph $H_{18}$ discovered via SMT synthesis.}{The optimal 18-vertex depth-2 bipartite Leontovich graph H18 discovered via SMT synthesis.}}
+  \label{fig:walk_h18}
+\end{figure}
+
+To make the mechanics of the Leontovich crossover transparent, we detail the
+orbit decomposition and walk recurrences for $H_{18}$.
+By partitioning the $18$ vertices into canonical symmetry groups, we reduce the
+$18 \times 18$ transition adjacency representation into a $7 \times 7$ quotient system. The seven symmetry groups are:
+\begin{enumerate}
+  \item $L_0$: Left vertex $v_0$ ($1$ node, degree $9$).
+  \item $L_1$: Left vertex $v_1$ ($1$ node, degree $7$).
+  \item $L_2$: Left vertex $v_2$ ($1$ node, degree $7$).
+  \item $R_{\mathrm{leaf},0}$: Right leaves connected only to $v_0$ ($7$ nodes, degree $1$).
+  \item $R_{01}$: Cross-connector connected to $\{v_0, v_1\}$ ($1$ node, degree $2$).
+  \item $R_{02}$: Cross-connector connected to $\{v_0, v_2\}$ ($1$ node, degree $2$).
+  \item $R_{12}$: Bipartite core connected to $\{v_1, v_2\}$ ($6$ nodes, degree $2$).
+\end{enumerate}
+
+The step-by-step walk recurrence vectors $w_k(u)$ (denoting the number of walks of length $k$ starting at $u$)
+are governed by the following exact coupled system:
+\begin{align*}
+  w_k(L_0) &= 7 w_{k-1}(R_{\mathrm{leaf},0}) + w_{k-1}(R_{01}) + w_{k-1}(R_{02}) \\
+  w_k(L_1) &= w_{k-1}(R_{01}) + 6 w_{k-1}(R_{12}) \\
+  w_k(L_2) &= w_{k-1}(R_{02}) + 6 w_{k-1}(R_{12}) \\
+  w_k(R_{\mathrm{leaf},0}) &= w_{k-1}(L_0) \\
+  w_k(R_{01}) &= w_{k-1}(L_0) + w_{k-1}(L_1) \\
+  w_k(R_{02}) &= w_{k-1}(L_0) + w_{k-1}(L_2) \\
+  w_k(R_{12}) &= w_{k-1}(L_1) + w_{k-1}(L_2)
+\end{align*}
+with the base canonical condition $w_0(u) = 1$ for all vertices. The explicit numerical values for the
+first five steps are shown in Table~\ref{tab:walk_h18}. This iteration can be carried out exactly to $w_{16}(u)$.
+
+\begin{table}[H]
+\centering
+\caption{Step-by-step walk vector iteration and total sum counts for $H_{18}$.}
+\label{tab:walk_h18}
+\begin{tabular}{lcccccccc}
+  \toprule
+  Step $k$ & $L_0$ & $L_1$ & $L_2$ & $R_{\mathrm{leaf},0}$ ($\times 7$) & $R_{01}$ ($\times 1$) & $R_{02}$ ($\times 1$) & $R_{12}$ ($\times 6$) & Total $\sum w_k$ \\
+  \midrule
+  $w_0$ & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 18 \\
+  $w_1$ & 9 & 7 & 7 & 1 & 2 & 2 & 2 & 46 \\
+  $w_2$ & 11 & 14 & 14 & 9 & 16 & 16 & 14 & 218 \\
+  $w_3$ & 95 & 100 & 100 & 11 & 25 & 25 & 28 & 590 \\
+  $w_4$ & 127 & 193 & 193 & 95 & 195 & 195 & 200 & 2{,}768 \\
+  $w_5$ & 1055 & 1395 & 1395 & 127 & 320 & 320 & 386 & 7{,}690 \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+The path count is given by the sum $\Hom(P_{17}, H_{18}) = \sum_u w_{16}(u)$, while the near-path count
+is computed as $\Hom(E_{17}^{(2)}, H_{18}) = \sum_u w_{13}(u) w_1(u) w_2(u)$, yielding the exact margin reported above.
+
+\begin{remark}[Bounded audit of the remaining bipartite partitions]
+  We also audited the partition families with $m_1 \ge 4$ and total order
+  $m_1+m_2\le 16$ for smaller depth-2 examples. A C++ enumerator evaluated
+  every non-isomorphic connection pattern in those families through path
+  length $n=51$ and found no depth-2 hit. Together with the $(3,m_2)$ audit
+  (total order $\le 17$), this makes $H_{18}$ the smallest depth-2 bipartite
+  witness found in the completed, explicitly bounded partition sweep. It does
+  not assert minimality beyond total order~17, path length~51, or depth~2;
+  the large-threshold behavior in Section~\ref{sec:doublecover} illustrates
+  why those bounds matter. The depth-dependent graph $H^*$ remains the
+  smaller bipartite Leontovich example for general $E_n^{(d)}$.
+\end{remark}
+
+\subsection{The Near-Miss Asymptotic Dilution}
+
+In the $m_1 = 3$ sweep, some pattern vectors produced ratios very close to
+$1$ from above (for example, the 14-vertex target
+$c = (9, 1, 0, 0, 0, 1, 0)$). Algebraic inspection shows that these are
+disjoint unions, not candidates for a crossover.
+
+The vector $(9, 1, 0, 0, 0, 1, 0)$ specifies a disconnected graph
+$H \cong K_{1,9} \sqcup P_4$. Because homomorphism counts map connected trees
+entirely into a single connected component, they are strictly additive over
+disjoint components: $\Hom(T, H) = \Hom(T, K_{1,9}) + \Hom(T, P_4)$. The star
+$K_{1,9}$ is degenerate (Proposition~\ref{prop:p3}) and yields
+identical counts for $P_n$ and $E_n^{(2)}$, contributing a massive
+$O(3^n)$ perfect tie term. The path $P_4$ provides a strict positive margin,
+but at a much slower growth rate $O(1.618^n)$. The ratio approaches $1$
+because a crossover cannot occur: the strict $P_4$ margin is asymptotically
+diluted by the dominant degenerate-star term.
+
+\subsection{The parameterized \texorpdfstring{$\mathcal{B}(x,y)$}{B(x,y)} family}
+
+The pattern $(7,0,0,1,1,6,0)$ of $H_{18}$ belongs to a natural
+two-parameter family of bipartite targets.
+
+Let $\mathcal{B}(x,y)$ be the bipartite graph defined by the left partition
+$L = \{u_0, u_1, u_2\}$ and the connection pattern $(x, 0, 0, 1, 1, y, 0)$.
+This graph has left partition size $m_1 = 3$ and right partition size
+$m_2 = x + y + 2$, giving a total order of $m = x + y + 5$.
+
+Due to the symmetry of the connection subsets, $u_1$ and $u_2$ form a perfect
+automorphism orbit. The random walks restricted to the left partition taking
+steps of length 2 are governed by a $3 \times 3$ matrix. However, the
+antisymmetric eigenvector $(0, 1, -1)^T$ has an exact eigenvalue of $\lambda^2=1$,
+but is perfectly orthogonal to the all-ones initial state vector $\mathbf{1}$.
+Thus, it contributes nothing to the homomorphism counts. The active dynamics
+collapse into the $2 \times 2$ asymmetric quotient matrix:
+\begin{equation}
+  M = A^2|_L = \begin{pmatrix} x+2 & 2 \\ 1 & 2y+1 \end{pmatrix}.
+\end{equation}
+
+The squared eigenvalues visible to the all-ones state are the roots of the
+characteristic polynomial of $M$:
+\begin{equation}
+  \lambda^2 - (x + 2y + 3)\lambda + (2xy + x + 4y) = 0.
+\end{equation}
+The full non-zero squared spectrum also includes the antisymmetric
+orbit-difference mode $\lambda^2 = 1$.
+
+For our record-breaking graph $H_{18}$, we evaluate $\mathcal{B}(7,6)$. The
+characteristic polynomial simplifies to $\lambda^2 - 22\lambda + 115 = 0$,
+yielding exact squared eigenvalues of $11 \pm \sqrt{6}$. The active eigenvalue
+ratio governing the crossover is thus exactly:
+\begin{equation}
+  r = \sqrt{\frac{11 - \sqrt{6}}{11 + \sqrt{6}}} \approx 0.797.
+\end{equation}
+
+The discriminant $\Delta = (x-2y+1)^2 + 8$ shows that, on each fixed-order
+slice, the closest approach to resonance occurs along the line
+$x = 2y - 1$. Without fixing the order, however, the ratio approaches $1$
+along $x = 2y - 1$ as $y \to \infty$ without attaining a global maximum, so
+the discriminant alone does not prove optimality. Computations suggest that
+this parameterized family contains infinitely many Leontovich graphs, but we
+do not prove that assertion here. Within the completed
+depth-2 $(3,m_2)$ block-pattern sweep through path length $n \le 51$,
+$H_{18}$ is the smallest member of $\mathcal{B}(x,y)$ found to cross over.
+
+% ════════════════════════════════════════════════════════════════════════

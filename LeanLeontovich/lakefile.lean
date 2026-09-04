@@ -14,7 +14,6 @@ lean_lib «LeanLeontovich» where
     `LeanLeontovich.Core,
     `LeanLeontovich.Main,
     `LeanLeontovich.Basic,
-    `LeanLeontovich.Spectral,
     `LeanLeontovich.Crossover,
     `LeanLeontovich.Frontier,
     `LeanLeontovich.DoubleCover

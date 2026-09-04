@@ -1,0 +1,82 @@
+\section{Computational Methodology}
+\label{sec:computation}
+
+Tree enumeration uses the Beyer--Hedetniemi canonical level-sequence
+algorithm~\cite{BeyerH80}, generating all non-isomorphic trees on $n$ vertices in
+$O(n)$ amortized time per tree. The \texttt{synthesizer} engine outputs
+trees in graph6 format on \texttt{stdout}, which is piped to the
+\texttt{leontovich\_fast} filter. The filter decodes graph6 strings,
+precomputes $A^k \mathbf{1}$ for $k = 0, \ldots, n_{\max}$, and evaluates
+$\Hom(E_n^{(d)}, H)$ vs.\ $\Hom(P_n, H)$ via matrix--vector iteration in
+IEEE 754 double precision. Because the adjacency matrices and state vectors
+are strictly non-negative, the iteration avoids catastrophic subtractive
+cancellation. A standard forward-error estimate suggests an accumulated
+relative rounding error on the order of
+$n_{\max} \cdot m \cdot \varepsilon \approx 6.7 \times 10^{-13}$ (at
+$m=15, n=200$, with machine epsilon $\varepsilon \approx 2.22 \times 10^{-16}$).
+Comparisons use a relative tolerance of $10^{-11}$, which safely exceeds this
+estimate by more than an order of magnitude. It is not an outward-rounded
+error enclosure. This floating-point engine acts strictly as a high-speed
+filter: all flagged anomalies are subsequently verified using exact
+integer arithmetic. The filter can miss a true crossover whose relative margin
+lies below the tolerance, so its negative results are conditional screens, not
+unconditional nonexistence theorems.
+The total cost per target graph is $O(n_{\max} \cdot m^2)$, giving
+$O(h \cdot n_{\max} \cdot m^2)$ for the full sweep over $h$ targets.
+
+Throughput: $\sim\!256{,}000$ graphs/second on six threads (Intel
+Coffee Lake, AVX2 FMA) using dense $16 \times 16$ padded adjacency
+matrices via optimized DAXPY loop
+ordering and OpenMP parallelism. The bipartite sweep
+of 608,930,559 connected bipartite graphs on $2 \le m \le 15$ vertices
+(validated against OEIS A005142~\cite{oeis}) completes in approximately
+35~minutes.
+
+\begin{remark}[Depth-dependent bipartite Leontovich graph]
+\label{rem:depth_anomaly}
+While no $d = 2$ Leontovich violations were found, the $m = 15$
+bipartite sweep revealed a single graph $H^*$ (Figure~\ref{fig:anomaly})
+for which $\Hom(E_n^{(d)}, H^*) < \Hom(P_n, H^*)$ at several larger
+depths, verified with exact integer arithmetic.
+This bipartite graph on 15 vertices with partition sizes $(3,12)$
+and degree sequence $[7, 5, 5, 2^5, 1^7]$ exhibits 300
+such anomalies across $d \in \{14,16,18,20\}$ and odd
+$n \le 199$; the first occurs at $(n,d)=(49,16)$ with
+\[
+  \Hom(P_{49},H^*)-\Hom(E_{49}^{(16)},H^*) =
+  41{,}377{,}493{,}496{,}440{,}451{,}164 > 0.
+\]
+The maximum relative deficit in the tested range is
+$\sim 7.6 \times 10^{-4}$.
+No anomalies of any depth were \emph{flagged} at $m \le 14$ in this
+floating-point screen; as above, this is conditional on the tolerance and does
+not exclude an unflagged crossover with a smaller relative margin.
+\end{remark}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.38\textwidth]{anomaly_NCQCCA.png}%
+  \hfill
+  \includegraphics[width=0.58\textwidth]{anomaly_ratio.png}
+  \caption{\textbf{Left:} The depth-anomaly graph $H^*$ on 15
+    vertices\protect\footnotemark; red/blue shows the $(3,12)$ bipartition.
+    \textbf{Right:} Ratio $\Hom(E_n^{(d)}, H^*) / \Hom(P_n, H^*)$ for
+    odd~$n$. For the displayed larger depths the ratio drops below~1
+    (shaded), meaning $E_n^{(d)}$ beats the path. For $d = 2$ the path
+    remains the minimizer.}
+  \label{fig:anomaly}
+\end{figure}
+\footnotetext{Graph6 encoding: \texttt{NCQCCA?\_B?K?W?g?K??}}
+
+To search beyond the exhaustive enumeration wall,
+we employ a simulated annealing search seeded from $T(7,1,9)$,
+mutating edges and contracting vertices to seek smaller Leontovich
+graphs within the graph manifold.
+
+\begin{remark}
+Since an independent set in $G$ is exactly a homomorphism
+$G \to H_{\mathrm{ind}}$ (two vertices, exactly one of which has a loop, connected by an edge), the
+framework developed here extends naturally to the Merrifield--Simmons
+index: degree-constrained trees that maximize independent sets are
+dual to trees that maximize homomorphisms into the same looped target.
+\end{remark}

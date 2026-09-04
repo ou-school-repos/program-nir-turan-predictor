@@ -62,9 +62,21 @@ the rounding error to exceed the tolerance — ruled out by the 15x margin.
 Occur when a genuine `homE < homP` is masked by rounding that inflates
 `homE` past the threshold. For this to happen, the true relative
 difference $(homP - homE) / homP$ would need to be smaller than the
-tolerance `1e-11`. Given the algebraic structure (spectral gap dominance),
-genuine violations — if they exist — would have relative differences
-well above this threshold.
+tolerance `1e-11`.
+
+That possibility cannot be ruled out on structural grounds alone. Near a
+first crossover, the relative margin can be arbitrarily small by construction;
+the 5-orbit looped witness discussed in the paper has leading-coefficient
+ratio approximately `0.999953714413647` and first even crossover at
+`n=17340`, illustrating that genuine margins can stay close to zero for a
+long time before the sign changes. Accordingly:
+
+- the `double` filter is reliable as a screen for margins comfortably above
+  the tolerance;
+- a bounded no-hit result from the filter is only a bounded conditional sweep
+  result, not an unconditional nonexistence theorem;
+- all positive hits still require exact integer verification before they are
+  used as claims.
 
 ## Empirical Validation
 
@@ -90,6 +102,6 @@ No overflow. The $m \le 9$ results are exact.
 
 - **No overflow** in either `double` or `uint64_t` within operating ranges
 - **Rounding error** is bounded at ~$10^{-13}$, well within the $10^{-11}$ tolerance
-- **False negatives** would require violations with relative margins < $10^{-11}$,
-  which is physically implausible given spectral gap structure
+- **False negatives** remain possible for genuine violations whose relative
+  margins fall below the `1e-11` tolerance, especially near a first crossover
 - All flagged anomalies can be verified exactly with `verify_hom.py`

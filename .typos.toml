@@ -1,0 +1,20 @@
+[default.extend-words]
+Hom = "Hom"
+nd = "nd"
+Comput = "Comput"
+Se = "Se"
+thm = "thm"
+Fike = "Fike"
+Pn = "Pn"
+Ser = "Ser"
+
+[default.extend-identifiers]
+McMillon = "McMillon"
+
+[files]
+extend-exclude = [
+    "examples/",
+    "build/jsonl/",
+    "**/*.dsl",
+    "**/*.json"
+]

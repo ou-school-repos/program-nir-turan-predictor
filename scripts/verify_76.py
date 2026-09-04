@@ -72,6 +72,7 @@ def verify():
     print("-" * 120)
 
     found_crossover = False
+    crossover_n = None
     for n in range(5, 50):
         homP = sum(w[n - 1])
         stem = n - 4
@@ -82,6 +83,7 @@ def verify():
         flag = " <<<" if delta > 0 else ""
         if delta > 0 and not found_crossover:
             found_crossover = True
+            crossover_n = n
             flag = " <<< CROSSOVER!"
         print(f"{n:4d} {str(homP):>45s} {str(homE):>45s} {str(delta):>15s}{flag}")
 
@@ -94,7 +96,7 @@ def verify():
     # Also compare with T(7,1,9)
     print("\n--- Comparison with T(7,1,9) ---")
     print("T(7,1,9): |V| = 78, crosses at n=13")
-    print(f"This graph: |V| = {M}, crosses at n=21")
+    print(f"This graph: |V| = {M}, crosses at n={crossover_n}")
     print(f"Improvement: {78 - M} fewer vertices")
 
 

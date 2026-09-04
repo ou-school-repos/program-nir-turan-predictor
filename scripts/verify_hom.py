@@ -15,11 +15,28 @@ MAX_N = 202
 MAX_D = 20
 
 
-def parse_graph6(g6: str) -> list[list[int]]:
-    """Parse a graph6 string into an adjacency matrix (integer entries)."""
+def normalize_graph6(g6: str) -> str:
+    """Validate and normalize a short-form graph6 string."""
     s = g6.strip()
     if s.startswith(">>graph6<<"):
         s = s[10:]
+    if not s:
+        raise ValueError("graph6 string is empty")
+    if any(ord(ch) < 63 or ord(ch) > 126 for ch in s):
+        raise ValueError("graph6 contains an invalid character")
+
+    m = ord(s[0]) - 63
+    if m < 1 or m > 62:
+        raise ValueError("only short-form graph6 with 1..62 vertices is supported")
+    required_length = 1 + (m * (m - 1) + 5) // 6
+    if len(s) != required_length:
+        raise ValueError("graph6 payload length does not match its order")
+    return s
+
+
+def parse_graph6(g6: str) -> list[list[int]]:
+    """Parse a graph6 string into an adjacency matrix (integer entries)."""
+    s = normalize_graph6(g6)
     m = ord(s[0]) - 63
     A = [[0] * m for _ in range(m)]
     k, bit_pos = 1, 5

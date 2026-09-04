@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Depth-5 sweep: find the threshold landscape of smallest Leontovich graphs
-among all spherically symmetric trees T(d1, d2, ..., dk) for k ≤ 5.
+Floating-point screen for the depth-5 symmetric-tree landscape.
+
+This script is an exploratory `float64` screen for spherically symmetric trees
+T(d1, d2, ..., dk) with k <= 5. It is not the exact audited sweep used for the
+paper's certified frontier tables; see `src/depth5_sweep.cpp` for the exact
+pipeline.
 
 Uses the O(1) similarity matrix trick: for a tree with branching
 sequence D = [d1, ..., dk], the quotient matrix M is (k+1)×(k+1)
@@ -27,6 +31,9 @@ def get_similarity_matrix(degrees):
       M[i, i+1] = d_{i+1}  (parent → children)
       M[i+1, i] = 1        (child → parent)
 
+    The symmetric matrix similar to M has off-diagonals sqrt(d_{i+1});
+    we use that matrix for spectral reporting.
+
     Orbit sizes: a = [1, d1, d1*d2, d1*d2*d3, ...]
     Total vertices: sum(a)
     """
@@ -44,7 +51,19 @@ def get_similarity_matrix(degrees):
     return M, a
 
 
-def check_leontovich_similarity(M, a, max_n=300):
+def get_symmetric_spectral_matrix(degrees):
+    """Build the symmetric matrix similar to the quotient matrix."""
+    k = len(degrees)
+    dim = k + 1
+    S = np.zeros((dim, dim))
+    for i in range(k):
+        off_diag = np.sqrt(degrees[i])
+        S[i, i + 1] = off_diag
+        S[i + 1, i] = off_diag
+    return S
+
+
+def check_leontovich_similarity(M, S, a, max_n=300):
     """
     Check Leontovich property using the similarity matrix.
 
@@ -80,18 +99,16 @@ def check_leontovich_similarity(M, a, max_n=300):
         homP[step + 1] = np.dot(a_arr, v[step])
 
     # Eigenvalues for reporting
-    evals = sorted(np.linalg.eigvalsh(M), reverse=True)
+    evals = sorted(np.linalg.eigvalsh(S), reverse=True)
     lam1 = evals[0] if len(evals) > 0 else 0
     lam2 = evals[1] if len(evals) > 1 else 0
 
-    # Check crossovers for each depth d
-    for d in range(2, min(21, max_n - 2)):
-        b = v[1] * v[d]
-        for stem in range(0, max_n - d - 2):
-            homE = np.dot(a_arr, v[stem] * b)
-            n = stem + d + 2
-            if n >= max_n:
-                break
+    max_depth = min(21, max_n - 2)
+    branch_terms = {d: v[1] * v[d] for d in range(2, max_depth)}
+    for n in range(5, max_n + 1):
+        for d in range(2, min(max_depth, n - 2)):
+            stem = n - d - 2
+            homE = np.dot(a_arr, v[stem] * branch_terms[d])
             if homP[n] > 0 and homE / homP[n] < 1.0 - 1e-11:
                 ratio = homE / homP[n]
                 return True, n, d, ratio, lam1, lam2
@@ -180,16 +197,19 @@ def main():
         total_checked += 1
 
         M, a = get_similarity_matrix(degrees)
+        S = get_symmetric_spectral_matrix(degrees)
         total_v = sum(a)
 
-        is_leo, first_n, first_d, ratio, lam1, lam2 = check_leontovich_similarity(M, a)
+        is_leo, first_n, first_d, ratio, lam1, lam2 = check_leontovich_similarity(
+            M, S, a
+        )
 
         if is_leo:
             total_leo += 1
             if first_n not in frontier or total_v < frontier[first_n][0]:
                 frontier[first_n] = (total_v, degrees, first_d, ratio, lam1, lam2)
                 print(
-                    f"  NEW BEST n≥{first_n}: T{degrees} |V|={total_v} "
+                    f"  NEW BEST n={first_n}: T{degrees} |V|={total_v} "
                     f"d={first_d} r={ratio:.8f} λ1={lam1:.4f} λ2={lam2:.4f}"
                 )
 

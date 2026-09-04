@@ -1,5 +1,4 @@
 import LeanLeontovich.Basic
-import LeanLeontovich.Spectral
 import LeanLeontovich.Crossover
 import LeanLeontovich.Frontier
 import LeanLeontovich.DoubleCover
@@ -9,9 +8,10 @@ import LeanLeontovich.DoubleCover
 
 Entry point for the analytic Lean development.
 
-This project is meant to house the theorem-first formalization of the paper's
-main analytic claims, separate from the executable witness checks kept under
-`legacy/`.
+This project separates axiom-free graph infrastructure from explicitly assumed
+witness claims. It is not yet a formalization of the paper's principal results;
+the connected-source double-cover counting identity is the first substantive
+result proved without axioms.
 -/
 
 namespace LeanLeontovich

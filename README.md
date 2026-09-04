@@ -15,12 +15,12 @@ The manuscript is in `paper/paper.tex`.
 Build:
 
 ```bash
-cd paper
-pdflatex paper.tex
-bibtex paper
-pdflatex paper.tex
-pdflatex paper.tex
+make paper
 ```
+
+For manuscript-only work from inside `paper/`, the figure paths resolve
+through `paper/figures/`, which should point at the generated artifacts in
+`docs/out/`.
 
 The paper currently distinguishes between:
 
@@ -35,15 +35,22 @@ conditional sweep result, not an unconditional theorem.
 
 ## Key Verified Witnesses
 
-- `T(7,1,9)` has a permanent `n=13` depth-2 crossover.
+- `T(7,1,9)` has a permanent depth-2 crossover at odd `n=13`; even `n`
+  is not proved.
 - `H*`, a 15-vertex bipartite graph with pattern `(0,1,6,4,1,0,0)`, is a
   depth-dependent bipartite Leontovich graph; the first verified hit is
   `(n,d)=(49,16)`.
-- `H18`, pattern `(7,0,0,1,1,6,0)`, is an 18-vertex depth-2 bipartite
-  Leontovich graph with
+- `H18`, pattern `(7,0,0,1,1,6,0)` and canonical relabeling
+  `(0,0,7,6,1,1,0)`, is the current 18-vertex depth-2 bipartite
+  Leontovich witness in the completed bounded sweep through path
+  length `n <= 51`. Its first general near-path hit is
+  `(n,d)=(15,4)`, with margin `500,576`; at depth 2,
   `Hom(P_17,H18) - Hom(E_17^(2),H18) = 5,068,778`.
 - The current 5-orbit strong-frontier audit distinguishes ordinary finite-window
   Leontovich behavior from strongly Leontovich behavior.
+
+The paper-facing constants, scope bounds, and reproducer commands are tracked
+in [docs/CLAIMS_LEDGER.md](docs/CLAIMS_LEDGER.md).
 
 Run the fast exact witness check:
 
@@ -51,7 +58,7 @@ Run the fast exact witness check:
 python3 scripts/verify_core_claims.py
 ```
 
-Run the perturbed non-bipartite certificate:
+Run the perturbed non-bipartite numerical check:
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -68,7 +75,8 @@ quotient exactly, and reproduces the leading-coefficient ratio
 - `src/`: C++ search and verification kernels.
 - `scripts/`: Python and C++ scripts for exact checks, plotting, search, and
   witness verification.
-- `docs/`: generated figures, logs, and supporting notes.
+- `docs/`: generated figures, logs, supporting notes, and the paper-facing
+  claims ledger.
 - `legacy/`: Lean files and generated proof-related artifacts.
 
 ## Formal Verification Status
@@ -82,9 +90,12 @@ At present, the most reliable verification layer for the headline computational
 claims is exact integer arithmetic in Python/C++, not a Lean proof of the full
 pipeline.
 
-A separate theorem-focused Lean project now lives in `LeanLeontovich/`. That
-tree is intended for the paper's main analytic results, while `legacy/` stays
-reserved for exact witness checks and SMT-style computations.
+A separate theorem-focused Lean project now lives in `LeanLeontovich/`. It
+contains axiom-free finite-graph definitions and a concrete bipartite
+double-cover lifting construction. It also proves, without axioms, the
+two-to-one homomorphism-count identity for connected properly two-colored
+sources. Named witness claims remain explicitly under `Assumed`; the project
+does not yet verify the full paper or its computational claims.
 
 Lean build targets are split accordingly:
 
@@ -92,6 +103,13 @@ Lean build targets are split accordingly:
 - `make lean-cache` fetches the LeanLeontovich mathlib cache
 - `make _lean/verifiers` builds the legacy `legacy/` verifier bundle
 - `make _lean/verifiers-cache` fetches the legacy verifier cache
+
+Legacy demo targets are separated from the paper verification surface:
+
+- `make verify/core` runs the exact paper-facing verification scripts.
+- `make test/all` aliases that active verification surface.
+- `make legacy/demos` runs the older epidemiology, surveillance, finance,
+  and adversarial demo generators.
 
 ## Reproducibility Notes
 
@@ -103,7 +121,7 @@ python3 -m pip install -r requirements.txt
 python3 scripts/verify_core_claims.py
 python3 scripts/verify_strong.py
 python3 scripts/verify_perturbed_cert.py
-cd paper && pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex
+make paper
 ```
 
 Longer exhaustive sweeps should be accompanied by the exact command line,

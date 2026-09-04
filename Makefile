@@ -1,4 +1,30 @@
-PYTHON = python3
+PYTHON = $(or $(wildcard .venv/bin/python),python3)
+ifndef GIT_COMMIT
+GIT_COMMIT := $(shell git rev-parse --short=12 HEAD)
+endif
+ifndef SOURCE_DATE_EPOCH
+SOURCE_DATE_EPOCH := $(shell git show -s --format=%ct HEAD)
+endif
+ifndef DATE
+DATE := $(shell perl -MPOSIX=strftime -e 'print strftime("%F", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+endif
+ifndef PDF_DATE
+PDF_DATE := $(shell perl -MPOSIX=strftime -e 'print strftime("%Y:%m:%d %H:%M:%S", gmtime(shift))' $(SOURCE_DATE_EPOCH))
+endif
+ifndef PDF_TITLE
+PDF_TITLE := Path Minimizers and Leontovich Thresholds in Tree Homomorphisms
+endif
+ifndef PDF_SUBJECT
+PDF_SUBJECT := Compiled by Shane [$(DATE)]
+endif
+ifndef PDF_KEYWORDS
+PDF_KEYWORDS := commit $(GIT_COMMIT)
+endif
+
+# Latin Modern Mono (XeLaTeX's default monospace font) lacks several Unicode
+# symbols commonly used in source snippets and mathematical notes.  DejaVu
+# Sans Mono is available on the Ubuntu documentation runner and covers them.
+PANDOC_PDF_OPTIONS ?= -V geometry:margin=1in -V 'monofont=DejaVu Sans Mono'
 
 .DEFAULT_GOAL := _help
 
@@ -21,60 +47,79 @@ ITER  ?= 1000
 
 .PHONY: verify/epidemiology
 verify/epidemiology: ##H Generate and certify Wolbachia deployment
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Generating Epidemiology Policy [Scale: $(SCALE)]); \
-		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean; \
-		export DEP_SEQ=$$(grep "deployment_sequence" legacy/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //'); \
-		cd legacy && lake build VectorDeployment; \
-		printf "\033[1;34m✓ Verified: policy_satisfies_bnc (native_decide evaluated to TRUE).\033[0m\n"; \
+		$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean && \
+		export DEP_SEQ=$$(grep "deployment_sequence" legacy/VectorDeployment.lean | sed 's/def deployment_sequence : List Nat := //') && \
+		cd legacy && lake build VectorDeployment && \
+		printf "\033[1;34m✓ Verified: policy_satisfies_bnc (native_decide evaluated to TRUE).\033[0m\n" && \
+		printf "\033[1;36m==================================================\033[0m\n" && \
+		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n" && \
+		printf "  %s\n" "$$DEP_SEQ" && \
+		printf "\033[1;36mMATHEMATICAL GUARANTEE: 100%% network saturation achieved.\033[0m\n" && \
 		printf "\033[1;36m==================================================\033[0m\n"; \
-		printf "\033[1;36mCERTIFIED DEPLOYMENT LOGISTIC MAP:\033[0m\n"; \
-		printf "  %s\n" "$$DEP_SEQ"; \
-		printf "\033[1;36mMATHEMATICAL GUARANTEE: 100%% network saturation achieved.\033[0m\n"; \
-		printf "\033[1;36m==================================================\033[0m\n"; \
-	} | tee output.log
+	} 2>&1 | tee verify-epidemiology.log'
 
 .PHONY: verify/surveillance
 verify/surveillance: ##H Generate and certify drone surveillance playbook
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Generating Threat Hunting Playbook [Iter: $(ITER)]); \
-		$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean; \
-		export DRONE_SEQ=$$(grep "drone_routing_playbook" legacy/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //'); \
-		cd legacy && lake build ThreatHunting; \
-		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n"; \
+		$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean && \
+		export DRONE_SEQ=$$(grep "drone_routing_playbook" legacy/ThreatHunting.lean | sed 's/def drone_routing_playbook : List Nat := //') && \
+		cd legacy && lake build ThreatHunting && \
+		printf "\033[1;34m✓ Verified: capture_guaranteed (native_decide evaluated to TRUE).\033[0m\n" && \
+		printf "\033[1;36m==================================================\033[0m\n" && \
+		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n" && \
+		printf "  %s\n" "$$DRONE_SEQ" && \
+		printf "\033[1;36mMATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible.\033[0m\n" && \
 		printf "\033[1;36m==================================================\033[0m\n"; \
-		printf "\033[1;36mCERTIFIED DRONE FLIGHT PLAYBOOK:\033[0m\n"; \
-		printf "  %s\n" "$$DRONE_SEQ"; \
-		printf "\033[1;36mMATHEMATICAL GUARANTEE: 0 blind spots. Evasion impossible.\033[0m\n"; \
-		printf "\033[1;36m==================================================\033[0m\n"; \
-	} | tee output.log
+	} 2>&1 | tee verify-surveillance.log'
 
 .PHONY: run/adversarial
 run/adversarial: ##H Run adversarial Maker-Breaker game (all presets)
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Running Adversarial Burning); \
-		./dendro adversarial legacy/Adversarial.lean grid4x4; \
-		./dendro adversarial legacy/Adversarial.lean tree15; \
+		./dendro adversarial legacy/Adversarial.lean grid4x4 && \
+		./dendro adversarial legacy/Adversarial.lean tree15 && \
 		./dendro adversarial legacy/Adversarial.lean campus; \
-	} | tee output.log
+	} 2>&1 | tee run-adversarial.log'
 
 .PHONY: run/finance
 run/finance: ##H Audit financial network for systemic risk
-	@{ \
+	@bash -o pipefail -c '\
+	{ \
 		$(call print_info,Running Systemic Risk Audit [Scale: $(SCALE)]); \
 		$(PYTHON) src/solver.py finance legacy/RiskAudit.lean; \
-	} | tee output.log
+	} 2>&1 | tee run-finance.log'
+
+.PHONY: verify/core
+verify/core: ##H Run core exact verification checks used by the paper
+	@$(call print_info,Running core paper verifiers)
+	@bash -o pipefail -c '\
+		{ \
+			$(PYTHON) scripts/verify_core_claims.py && \
+			$(PYTHON) scripts/verify_strong.py && \
+			$(PYTHON) -m unittest tests/test_exact_rho.py tests/test_sweep_orchestrator.py tests/test_gadget_scores.py && \
+			$(call print_success,Core paper verifiers completed.); \
+		} 2>&1 | tee verify-core.log'
+
+.PHONY: legacy/demos
+legacy/demos: ##H Run legacy generated-demo pipelines
+	@$(call print_info,Running legacy demo pipelines)
+	@bash -o pipefail -c '\
+	{ \
+		$(MAKE) --no-print-directory verify/epidemiology && \
+		$(MAKE) --no-print-directory verify/surveillance && \
+		$(MAKE) --no-print-directory run/adversarial && \
+		$(MAKE) --no-print-directory run/finance && \
+		$(call print_success,Legacy demo pipelines completed.); \
+	} 2>&1 | tee output.log'
 
 .PHONY: test/all
-test/all: ##H Run all certification pipelines
-	@$(call print_info,Running all pipelines)
-	@{ \
-		$(MAKE) --no-print-directory verify/epidemiology; \
-		$(MAKE) --no-print-directory verify/surveillance; \
-		$(MAKE) --no-print-directory run/adversarial; \
-		$(MAKE) --no-print-directory run/finance; \
-	} | tee output.log
-	@$(call print_success,All pipelines verified.)
+test/all: verify/core ##H Run active verification pipelines
 
 # --- Dev Tools ---
 LAKE_PKG_DIR ?= $(HOME)/.cache/lake/packages
@@ -138,7 +183,7 @@ _lean/verifiers-cache: ##H Download mathlib cache for legacy verifiers
 F ?= docs/SEQUENCE_DISCOVERY.md
 doc: ##H Convert markdown to PDF (F=docs/file.md)
 	@$(call print_info,Generating PDF from $(F))
-	pandoc $(F) --resource-path="$$(dirname "$(F)")" --pdf-engine=xelatex -V geometry:margin=1in -o $(basename $(F)).pdf
+	pandoc $(F) --resource-path="$$(dirname "$(F)")" --pdf-engine=xelatex $(PANDOC_PDF_OPTIONS) -o $(basename $(F)).pdf
 	touch -r $(F) $(basename $(F)).pdf
 	@$(call print_success,$(basename $(F)).pdf)
 
@@ -146,17 +191,50 @@ doc: ##H Convert markdown to PDF (F=docs/file.md)
 docs: ##H Convert all tracked markdown files to PDF
 	@for f in $$(git ls-files '*.md'); do \
 		$(call print_info,$$f → $$(basename $$f .md).pdf); \
-		pandoc "$$f" --resource-path="$$(dirname "$$f")" --pdf-engine=xelatex -V geometry:margin=1in -o "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
+		pandoc "$$f" --resource-path="$$(dirname "$$f")" --pdf-engine=xelatex $(PANDOC_PDF_OPTIONS) -o "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
 		touch -r "$$f" "$$(dirname $$f)/$$(basename $$f .md).pdf"; \
 	done
 	@$(call print_success,All PDFs generated.)
 
+.PHONY: _check/pdf-tools
+_check/pdf-tools:
+	@command -v exiftool >/dev/null || { printf "Missing required tool: exiftool\n" >&2; exit 1; }
+	@command -v qpdf >/dev/null || { printf "Missing required tool: qpdf\n" >&2; exit 1; }
+
 .PHONY: paper
-paper: ##H Compile paper/paper.tex to PDF
+paper: _check/pdf-tools paper-figures ##H Compile paper/paper.tex to PDF
 	@$(call print_info,Building paper)
 	#-for g in docs/out/*.gif; do magick "$$g" "$${g%.gif}.png" 2>/dev/null || convert "$$g" "$${g%.gif}.png" 2>/dev/null || true; done
-	cd paper && pdflatex -interaction=nonstopmode paper.tex && bibtex paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
+	@cd paper && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
+		bibtex paper && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
+		SOURCE_DATE_EPOCH='$(SOURCE_DATE_EPOCH)' FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode paper.tex && \
+		exiftool -overwrite_original \
+			-Title='$(PDF_TITLE)' \
+			-Subject='$(PDF_SUBJECT)' \
+			-Keywords='$(PDF_KEYWORDS)' \
+			-CreateDate='$(PDF_DATE)' \
+			-ModifyDate='$(PDF_DATE)' \
+			-MetadataDate='$(PDF_DATE)' \
+			paper.pdf && \
+		qpdf --deterministic-id --linearize paper.pdf paper.pdf.tmp && \
+		mv paper.pdf.tmp paper.pdf
 	@$(call print_success,paper/paper.pdf)
+
+.PHONY: paper-figures
+paper-figures: ##H Generate the figure artifacts required by the paper
+	@$(call print_info,Generating paper figures)
+	@mkdir -p docs/out
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_18.py
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_76.py --pdf
+	@SOURCE_DATE_EPOCH=0 $(PYTHON) scripts/plot_anomaly.py
+	@for f in docs/out/leontovich_18.pdf docs/out/leontovich_76.pdf; do \
+		if [ -f "$$f" ]; then \
+			qpdf --deterministic-id --linearize "$$f" "$$f.tmp" && mv "$$f.tmp" "$$f"; \
+		fi; \
+	done
+	@$(call print_success,Paper figures generated.)
 
 N ?= 21
 
@@ -180,8 +258,15 @@ firefighter: src/firefighter.cpp ##H Build the single-ignition firefighter solve
 
 leontovich_fast: src/leontovich_fast.cpp ##H Build the Leontovich graph filter
 	@$(call print_info,Building leontovich_fast)
-	g++ -O3 -march=native -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
+	g++ -O3 -std=c++17 -fopenmp -o leontovich_fast src/leontovich_fast.cpp
 	@$(call print_success,leontovich_fast built.)
+
+.PHONY: certify_rump
+certify_rump: src/certify_rump.cpp ##H Build the optional FLINT rho certifier
+	@pkg-config --atleast-version=3.0 flint || { echo "FLINT >= 3.0 development files are required." >&2; exit 1; }
+	@$(call print_info,Building certify_rump)
+	g++ -O3 -std=c++17 -Wall -Wextra -Wpedantic -o certify_rump $< $$(pkg-config --cflags --libs flint)
+	@$(call print_success,certify_rump built.)
 
 leontovich_sa: src/leontovich_sa.cpp ##H Build the Leontovich SA search
 	@$(call print_info,Building leontovich_sa)
@@ -201,12 +286,7 @@ landscape_txz: src/landscape_txz.cpp ##H Build the T(x,1,z) landscape search
 .PHONY: dots
 dots: dendro ##H Regenerate all .dot visual proofs and .lean witnesses
 	@$(call print_info,Regenerating witnesses and graphs)
-	@$(PYTHON) src/solver.py epidemiology legacy/VectorDeployment.lean
-	@$(PYTHON) src/solver.py surveillance legacy/ThreatHunting.lean
-	@./dendro adversarial legacy/Adversarial.lean grid4x4
-	@./dendro adversarial legacy/Adversarial.lean tree15
-	@./dendro adversarial legacy/Adversarial.lean campus
-	@$(PYTHON) src/solver.py finance legacy/RiskAudit.lean
+	@$(MAKE) --no-print-directory legacy/demos
 	@SYNTH_N=$(N) $(PYTHON) src/solver.py synthesize $(shell if [ "$(N)" -le 15 ]; then echo legacy/SynthesizerDiscovery-N15.lean; elif [ "$(N)" -le 20 ]; then echo legacy/SynthesizerDiscovery-N20.lean; else echo legacy/SynthesizerDiscovery-N21.lean; fi)
 
 # Layout engine map: module -> engine
@@ -240,17 +320,19 @@ LINT_LOCS_PY ?= $$(git ls-files '*.py')
 .PHONY: format
 format: ##H Format source files
 	-shfmt -w $$(git ls-files '*.sh')
-	-black $(LINT_LOCS_PY)
 	-isort $(LINT_LOCS_PY)
-	-clang-format -i $$(git ls-files '*.cpp' '*.hpp' '*.h')
-	-prettier -w .
-	-pre-commit run --all-files
+	-ruff format $(LINT_LOCS_PY)
+	-clang-format -i $$(git ls-files '*.c' '*.cc' '*.cpp' '*.hpp' '*.h')
+	-prettier -w $$(git ls-files '*.y*ml' '*.md' '*.html' '*.json' '.clang-format')
+	pre-commit run --all-files
 
 
 .PHONY: lint
 lint: ##H Lint sources
 	@$(call print_info,Linting)
-	-flake8 $(LINT_LOCS_PY)
+	-pylint $(LINT_LOCS_PY)
+	flake8 $(LINT_LOCS_PY)
+	ruff check $(LINT_LOCS_PY)
 	-cppcheck --enable=warning,style --std=c++17 --quiet $$(git ls-files '*.cpp')
 	@$(call print_success,Lint complete.)
 
@@ -260,7 +342,7 @@ bundle: clean ##H Package project into bundle.zip
 
 .PHONY: clean
 clean: ##H Remove build artifacts
-	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast landscape_txz
+	rm -f *.o bundle.zip synthesizer dendro firefighter leontovich_fast certify_rump landscape_txz
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 .PHONY: _help

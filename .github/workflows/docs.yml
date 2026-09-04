@@ -17,56 +17,115 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-pdfs:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Set up Python venv
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+
+      - name: Run tests
+        run: |
+          . .venv/bin/activate
+          python -m pytest tests/ -v
+
+  lean:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache mathlib artifacts
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/lake
+          key: lean-${{ hashFiles('LeanLeontovich/lean-toolchain', 'LeanLeontovich/lake-manifest.json') }}
+          restore-keys: lean-
+
+      - name: Build LeanLeontovich
+        run: make lean
+
+  build-pdfs:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
 
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            pandoc \
+            libimage-exiftool-perl=12.76+dfsg-1 \
+            pandoc=3.1.3+ds-2 \
+            qpdf=11.9.0-1.1build1 \
             python3-pip \
-            texlive-bibtex-extra \
-            texlive-fonts-recommended \
-            texlive-latex-extra \
-            texlive-lang-english \
-            texlive-xetex
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt matplotlib networkx pillow
+            texlive-bibtex-extra=2023.20240207-1 \
+            texlive-fonts-recommended=2023.20240207-1 \
+            texlive-latex-extra=2023.20240207-1 \
+            texlive-lang-english=2023.20240207-1 \
+            texlive-xetex=2023.20240207-1
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install -r requirements.txt
+
+      - name: Set reproducible build epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
 
       - name: Build paper figures
         run: |
-          mkdir -p docs/out
-          python3 scripts/plot_18.py
-          python3 scripts/plot_76.py --pdf
-          python3 scripts/plot_anomaly.py
+          . .venv/bin/activate
+          make paper-figures
 
       - name: Build paper and markdown PDFs
-        run: make docs paper
+        run: |
+          . .venv/bin/activate
+          make docs paper
+
+      - name: Compute PDF bundle name
+        run: |
+          short_sha="${GITHUB_SHA::7}"
+          date_iso_built="$(date -u +%Y%m%d%H%M%S)"
+          echo "PDF_BUNDLE_DIR=all-pdfs_${short_sha}_${date_iso_built}_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
 
       - name: Stage PDFs for upload
         run: |
-          mkdir -p all-pdfs
+          mkdir -p "$PDF_BUNDLE_DIR"
           mapfile -t pdfs < <(find . -type f -name '*.pdf' \
             -not -path './.git/*' \
             -not -path './.github/*' \
             -not -path './.lake/*' \
             -not -path './.tmp/*' \
-            -not -path './all-pdfs/*' \
+            -not -path "./$PDF_BUNDLE_DIR/*" \
             | sort)
           for pdf in "${pdfs[@]}"; do
             rel=${pdf#./}
-            mkdir -p "all-pdfs/$(dirname "$rel")"
-            cp "$pdf" "all-pdfs/$rel"
+            mkdir -p "$PDF_BUNDLE_DIR/$(dirname "$rel")"
+            cp "$pdf" "$PDF_BUNDLE_DIR/$rel"
           done
 
       - name: Upload all-pdfs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: all-pdfs
-          path: all-pdfs
+          name: ${{ env.PDF_BUNDLE_DIR }}
+          path: ${{ env.PDF_BUNDLE_DIR }}
           if-no-files-found: error

@@ -122,6 +122,8 @@ def IsOdd (n : Nat) : Prop := n % 2 = 1
 /-- Evenness predicate for source sizes. -/
 def IsEven (n : Nat) : Prop := n % 2 = 0
 
+namespace Assumed
+
 /-- Placeholder predicate for the source graphs that are trees. -/
 axiom IsTree : Graph → Prop
 
@@ -131,19 +133,21 @@ axiom path_is_tree : ∀ n, IsTree (Path n)
 /-- Near-paths are tree sources. -/
 axiom nearpath_is_tree : ∀ n, IsTree (NearPath n)
 
+end Assumed
+
 /-- The near-path filter property used by the bounded sweeps. -/
 def IsNearPathLeontovich (H : Graph) : Prop :=
   ∃ n, IsOdd n ∧ Hom (NearPath n) H < Hom (Path n) H
 
 /-- A graph is Leontovich if some tree beats the path of the same order. -/
 def IsLeontovich (H : Graph) : Prop :=
-  ∃ n, ∃ T : Graph, IsTree T ∧ Fintype.card T.V = n ∧ Hom T H < Hom (Path n) H
+  ∃ n, ∃ T : Graph, Assumed.IsTree T ∧ Fintype.card T.V = n ∧ Hom T H < Hom (Path n) H
 
 /-- A near-path violation gives a Leontovich violation. -/
 theorem nearpath_leontovich {H : Graph} :
     IsNearPathLeontovich H → IsLeontovich H := by
   rintro ⟨n, _hnodd, hlt⟩
-  exact ⟨n, NearPath n, nearpath_is_tree n, Fintype.card_fin n, hlt⟩
+  exact ⟨n, NearPath n, Assumed.nearpath_is_tree n, Fintype.card_fin n, hlt⟩
 
 /-- A graph passes the near-path filter if no odd near-path beats the path count. -/
 def NoNearPathCrossover (H : Graph) : Prop :=
@@ -153,8 +157,7 @@ def NoNearPathCrossover (H : Graph) : Prop :=
 def IsStronglyLeontovich (H : Graph) : Prop :=
   ∃ N, ∀ n, N ≤ n → Hom (NearPath n) H < Hom (Path n) H
 
-/-- The bipartite double cover of a graph. -/
-axiom DoubleCover : Graph → Graph
+namespace Assumed
 
 /-- The named graph `T(7,1,9)`. -/
 axiom T719 : Graph
@@ -174,26 +177,14 @@ axiom H1822 : Graph
 /-- The perturbed 6,806-vertex strongly Leontovich certificate graph. -/
 axiom BPrime : Graph
 
-/-- Certificate data for the single-positive-eigenvalue obstruction.
-The spectral witness is recorded separately from the graph structure so the
-obstruction is not phrased only in terms of intrinsic `Graph` fields. -/
-structure SinglePositiveEigenvalueCertificate (H : Graph) where
-  quotientMatrixHasOnePositiveEigenvalue : Prop
+end Assumed
 
-/-- The single-positive-eigenvalue obstruction theorem stated against an
-explicit certificate rather than against the raw graph axioms. -/
-axiom single_positive_eigenvalue_obstruction :
-  ∀ {H : Graph}, SinglePositiveEigenvalueCertificate H → ¬ IsLeontovich H
+namespace Assumed
 
 /-- The permanent crossover threshold at `T(7,1,9)`. -/
 axiom permanent_crossover_T719 :
   (∀ n, IsOdd n → 13 ≤ n → Hom (NearPath n) T719 < Hom (Path n) T719) ∧
-  (∀ n, n < 13 → Hom (Path n) T719 ≤ Hom (NearPath n) T719) ∧
-  (∀ n, IsEven n → Hom (Path n) T719 ≤ Hom (NearPath n) T719)
-
-/-- Bounded local pruning audit for the `T(7,1,9)` leaf-pruning landscape. -/
-axiom local_smt_pruning_audit :
-  IsLeontovich H76
+  (∀ n, IsOdd n → n < 13 → Hom (Path n) T719 ≤ Hom (NearPath n) T719)
 
 /-- Certificate data for the depth-2 `m₁ = 2` obstruction.
 The bipartite restriction is recorded explicitly, together with the left-side
@@ -211,17 +202,9 @@ axiom depth2_obstruction_m1_two :
 axiom h18_depth2_crossover :
   Hom (Path 17) H18 > Hom (NearPath 17) H18
 
-/-- Minimality statement for the depth-2 bipartite sweep. -/
-axiom h18_minimal_depth2_sweep :
+/- Witness status of H18; this does not encode sweep minimality. -/
+axiom h18_is_leontovich :
   IsLeontovich H18
-
-/-- Double-cover preservation for Leontovich graphs. -/
-axiom leontovich_iff_double_cover :
-  ∀ H : Graph, IsLeontovich H ↔ IsLeontovich (DoubleCover H)
-
-/-- Double-cover preservation for strong Leontovich graphs. -/
-axiom strongly_leontovich_iff_double_cover :
-  ∀ H : Graph, IsStronglyLeontovich H ↔ IsStronglyLeontovich (DoubleCover H)
 
 /-- Strongly Leontovich witness for the 1,822-vertex looped symmetric tree. -/
 axiom h1822_strongly_leontovich :
@@ -230,5 +213,7 @@ axiom h1822_strongly_leontovich :
 /-- Strongly Leontovich certificate for the perturbed 6,806-vertex graph. -/
 axiom perturbed_nonbipartite_certificate :
   IsStronglyLeontovich BPrime
+
+end Assumed
 
 end LeanLeontovich

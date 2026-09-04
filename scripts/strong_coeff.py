@@ -1,9 +1,9 @@
-"""Leading-coefficient test for looped symmetric near-path targets.
+"""High-precision leading-coefficient estimates for symmetric near-path targets.
 
-Uses mpmath at high precision plus a Bauer-Fike eigenvalue-residual bound
-and a Davis-Kahan eigenvector-angle bound (propagated through the ratio via
-Cauchy-Schwarz) so callers get a certified upper bound on the true ratio,
-not just an uncertified floating-point point estimate.
+This module uses mpmath plus residual/gap heuristics to produce numerical
+estimates and conservative-looking enclosures for the Perron ratio. These
+values are useful screening data, but they are not interval-arithmetic or
+exact certificates. Exact sign claims belong to scripts/exact_rho.py.
 """
 
 
@@ -22,18 +22,17 @@ def quotient_data(degrees):
     return q, sizes
 
 
-def certified_leading_ratio(Q, sizes, K, dps=50):
-    """Compute the high-precision Perron leading-coefficient ratio.
+def certified_ratio_bounds(Q, sizes, K, dps=50, depth=2):
+    """Compute residual-based lower and upper estimates on the leading ratio.
 
-    Returns (lam1, lam2, rho, rho_hi), where rho_hi is a certified upper
-    bound on the true ratio: derives a Bauer-Fike residual bound on the
-    computed Perron eigenpair and the corresponding Davis-Kahan
-    eigenvector-angle bound, then propagates both through the num/den
-    ratio (Cauchy-Schwarz), so rho_hi >= rho_true is a proof rather than
-    a bare float comparison.
+    Returns (lam1, lam2, rho, rho_lo, rho_hi). The interval is derived from the
+    computed eigenpair, its residual, and the observed spectral gap. It is a
+    high-precision numerical estimate, not an outward-rounded proof object.
     """
     import mpmath as mp
 
+    if depth < 1:
+        raise ValueError("depth must be positive")
     mp.mp.dps = dps
     S = [mp.mpf(s) for s in sizes]
     B = mp.matrix(K, K)
@@ -50,28 +49,27 @@ def certified_leading_ratio(Q, sizes, K, dps=50):
         raise RuntimeError("Perron vector has non-positive entry")
     one = [mp.mpf(1)] * K
     w1 = [sum(Q[i][j] * one[j] for j in range(K)) for i in range(K)]
-    w2 = [sum(Q[i][j] * w1[j] for j in range(K)) for i in range(K)]
-    num = sum(sizes[i] * w1[i] * w2[i] * u1[i] for i in range(K))
-    den = lam1**3 * sum(sizes[i] * u1[i] for i in range(K))
+    wd = one
+    for _ in range(depth):
+        wd = [sum(Q[i][j] * wd[j] for j in range(K)) for i in range(K)]
+    num = sum(sizes[i] * w1[i] * wd[i] * u1[i] for i in range(K))
+    den = lam1 ** (depth + 1) * sum(sizes[i] * u1[i] for i in range(K))
     lam2 = max(abs(E[i]) for i in range(K - 1))
 
-    # Certified bound: residual r = B*v1 - lam1*v1 for the exact unit vector v1.
-    # For symmetric B, some true eigenvalue mu satisfies |mu - lam1| <= ||r||_2
-    # (Bauer-Fike, symmetric case). Since v1 is the Perron-like vector, the
-    # nearby true eigenvalue is the true lam1 provided the spectral gap to the
-    # rest of the (already-computed) spectrum comfortably exceeds ||r||_2.
+    # Residual/gap heuristic: use the symmetric similarity B and the computed
+    # eigendata to estimate how much the dominant pair can drift numerically.
     Bv1 = [sum(B[i, j] * v1[j] for j in range(K)) for i in range(K)]
     resid = [Bv1[i] - lam1 * v1[i] for i in range(K)]
     resid_norm = mp.sqrt(sum(x**2 for x in resid))
     gap = lam1 - E[K - 2]
     if not gap > 2 * resid_norm:
-        raise RuntimeError("spectral gap too small to certify Perron pair")
+        raise RuntimeError("spectral gap too small for a stable Perron estimate")
     eig_err = resid_norm
-    # Davis-Kahan sin(theta) <= ||r|| / gap; use it (with 2x safety factor) as
-    # a bound on ||v1_true - v1||_2 for this rank-1, well-separated case.
+    # Use the residual-to-gap ratio as a conservative numerical proxy for the
+    # eigenvector drift in this well-separated rank-1 setting.
     vec_err = 2 * resid_norm / gap
 
-    c_num = [mp.sqrt(S[i]) * w1[i] * w2[i] for i in range(K)]
+    c_num = [mp.sqrt(S[i]) * w1[i] * wd[i] for i in range(K)]
     c_den = [mp.sqrt(S[i]) for i in range(K)]
     norm_c_num = mp.sqrt(sum(x**2 for x in c_num))
     norm_c_den = mp.sqrt(sum(x**2 for x in c_den))
@@ -80,24 +78,38 @@ def certified_leading_ratio(Q, sizes, K, dps=50):
     err_s_den = norm_c_den * vec_err
 
     num_hi = num + err_num
+    num_lo = num - err_num
+    lam1_hi = lam1 + eig_err
     lam1_lo = lam1 - eig_err
+    s_den_hi = s_den + err_s_den
     s_den_lo = s_den - err_s_den
-    if not (lam1_lo > 0 and s_den_lo > 0):
-        raise RuntimeError("eigenpair error bound too loose to certify")
-    den_lo = lam1_lo**3 * s_den_lo
+    if not (lam1_lo > 0 and s_den_lo > 0 and num_lo > 0):
+        raise RuntimeError("eigenpair error estimate too loose for a stable ratio")
+    den_hi = lam1_hi ** (depth + 1) * s_den_hi
+    den_lo = lam1_lo ** (depth + 1) * s_den_lo
+    rho_lo = num_lo / den_hi
     rho_hi = num_hi / den_lo
 
-    return lam1, lam2, num / den, rho_hi
+    return lam1, lam2, num / den, rho_lo, rho_hi
+
+
+def certified_leading_ratio(Q, sizes, K, dps=50, depth=2):
+    """Compute the high-precision Perron leading-coefficient ratio.
+
+    Returns (lam1, lam2, rho, rho_hi), where rho_hi is the upper side of the
+    residual-based numerical enclosure from certified_ratio_bounds.
+    """
+    lam1, lam2, rho, _rho_lo, rho_hi = certified_ratio_bounds(
+        Q, sizes, K, dps=dps, depth=depth
+    )
+    return lam1, lam2, rho, rho_hi
 
 
 def leading_ratio(degrees):
-    """Return a certified upper bound on the Perron leading-coefficient
-    ratio for E_n^(2) versus P_n on the looped symmetric near-path quotient.
+    """Return the upper side of the residual-based depth-2 ratio estimate.
 
-    The returned value is rho_hi (see certified_leading_ratio): a proven
-    upper bound on the true ratio, so `leading_ratio(degrees) < 1.0` is a
-    certified strongly-Leontovich conclusion, not a float comparison on an
-    uncertified point estimate.
+    This is useful as a high-precision screen, but exact sign claims should use
+    scripts/exact_rho.py rather than treating rho_hi as a formal certificate.
     """
     q, sizes = quotient_data(degrees)
     _, _, _, rho_hi = certified_leading_ratio(q, sizes, len(q))

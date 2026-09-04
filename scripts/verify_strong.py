@@ -67,7 +67,9 @@ def report(params):
     verdict = (
         "STRONGLY Leontovich"
         if strong
-        else "Leontovich (finite window only)" if leo else "not Leontovich"
+        else "Leontovich (finite window only)"
+        if leo
+        else "not Leontovich"
     )
     win = "" if not flips else f"  window opens at n={flips[0]}"
     if len(flips) >= 2:
