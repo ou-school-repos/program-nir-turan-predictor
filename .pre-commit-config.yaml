@@ -19,10 +19,11 @@ repos:
       - id: check-json
       - id: check-toml
       - id: end-of-file-fixer
-        exclude: \.lake/
+        exclude: ".lake/"
       - id: trailing-whitespace
-        exclude: \.lake/
+        exclude: '\.log$'
       - id: mixed-line-ending
+        exclude: '\.log$'
       - id: check-merge-conflict
       - id: check-added-large-files
 
