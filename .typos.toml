@@ -1,0 +1,10 @@
+[default.extend-words]
+Hom = "Hom"
+
+[files]
+extend-exclude = [
+    "examples/",
+    "build/jsonl/",
+    "**/*.dsl",
+    "**/*.json"
+]
