@@ -322,15 +322,16 @@ format: ##H Format source files
 	-shfmt -w $$(git ls-files '*.sh')
 	-isort $(LINT_LOCS_PY)
 	-ruff format $(LINT_LOCS_PY)
-	-clang-format -i $$(git ls-files '*.cpp' '*.hpp' '*.h')
-	-prettier -w .
+	-clang-format -i $$(git ls-files '*.c' '*.cc' '*.cpp' '*.hpp' '*.h')
+	-prettier -w $$(git ls-files '*.y*ml' '*.md' '*.html' '*.json' '.clang-format')
 	-pre-commit run --all-files
 
 
 .PHONY: lint
 lint: ##H Lint sources
 	@$(call print_info,Linting)
-	-flake8 $(LINT_LOCS_PY)
+	-pylint $(LINT_LOCS_PY)
+	flake8 $(LINT_LOCS_PY)
 	ruff check $(LINT_LOCS_PY)
 	-cppcheck --enable=warning,style --std=c++17 --quiet $$(git ls-files '*.cpp')
 	@$(call print_success,Lint complete.)
