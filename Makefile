@@ -1,4 +1,4 @@
-PYTHON = python3
+PYTHON = $(or $(wildcard .venv/bin/python),python3)
 ifndef GIT_COMMIT
 GIT_COMMIT := $(shell git rev-parse --short=12 HEAD)
 endif
@@ -331,7 +331,7 @@ format: ##H Format source files
 lint: ##H Lint sources
 	@$(call print_info,Linting)
 	-flake8 $(LINT_LOCS_PY)
-	-ruff check $(LINT_LOCS_PY)
+	ruff check $(LINT_LOCS_PY)
 	-cppcheck --enable=warning,style --std=c++17 --quiet $$(git ls-files '*.cpp')
 	@$(call print_success,Lint complete.)
 

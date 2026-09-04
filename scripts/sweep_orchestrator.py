@@ -13,8 +13,9 @@ import logging
 import math
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, TextIO
+from typing import TextIO
 
 from exact_rho import CertificationUnresolved, certify_rho_sign
 from verify_hom import normalize_graph6, parse_graph6
@@ -55,19 +56,40 @@ def is_bipartite(adjacency: list[list[int]]) -> bool:
     return True
 
 
+def _is_connected(adjacency: list[list[int]]) -> bool:
+    """Return whether the graph (given as an adjacency matrix) is connected."""
+    n = len(adjacency)
+    if n == 0:
+        return True
+    visited = [False] * n
+    stack = [0]
+    visited[0] = True
+    while stack:
+        v = stack.pop()
+        for neighbor, edge in enumerate(adjacency[v]):
+            if edge and not visited[neighbor]:
+                visited[neighbor] = True
+                stack.append(neighbor)
+    return all(visited)
+
+
 def run_arb_certifier(graph6: str, depth: int, executable: Path) -> dict:
     """Run the certified C++ backend and validate its JSON response."""
     executable = executable.expanduser().resolve()
     if not executable.is_file():
         raise RuntimeError(f"Arb certifier does not exist: {executable}")
-    result = subprocess.run(
-        # Arguments are passed directly with no shell interpretation.
-        [str(executable), "--g6", graph6, "--depth", str(depth)],
-        check=False,
-        capture_output=True,
-        text=True,
-        shell=False,
-    )
+    try:
+        result = subprocess.run(
+            # Arguments are passed directly with no shell interpretation.
+            [str(executable), "--g6", graph6, "--depth", str(depth)],
+            check=False,
+            capture_output=True,
+            text=True,
+            shell=False,
+            timeout=120,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"Arb certifier timed out after {exc.timeout}s") from exc
     try:
         certificate = json.loads(result.stdout)
     except json.JSONDecodeError as exc:
@@ -139,6 +161,10 @@ def certify_candidate(candidate: dict, arb_certifier: Path | None = None) -> dic
         record["status"] = "deferred_bipartite_parity"
         return record
 
+    if not _is_connected(adjacency):
+        record["status"] = "invalid_disconnected"
+        return record
+
     try:
         certificate = certify_rho_sign(adjacency, [1] * len(adjacency), depth)
     except (CertificationUnresolved, RuntimeError) as exc:
@@ -196,6 +222,8 @@ def main() -> None:
 
     source = sys.stdin
     destination = sys.stdout
+    input_file = None
+    output_file = None
     try:
         if args.input is not None and args.output is not None:
             input_path = args.input.expanduser().resolve()
@@ -203,18 +231,20 @@ def main() -> None:
             if input_path == output_path:
                 raise ValueError("--input and --output must name different files")
         if args.input:
-            source = args.input.open(encoding="utf-8")
+            input_file = args.input.open(encoding="utf-8")
+            source = input_file
         if args.output:
-            destination = args.output.open("w", encoding="utf-8")
+            output_file = args.output.open("w", encoding="utf-8")
+            destination = output_file
         process_stream(source, destination, args.arb_certifier)
     except ValueError as exc:
         print(exc, file=sys.stderr)
         raise SystemExit(2) from exc
     finally:
-        if args.input:
-            source.close()
-        if args.output:
-            destination.close()
+        if input_file is not None:
+            input_file.close()
+        if output_file is not None:
+            output_file.close()
 
 
 if __name__ == "__main__":
