@@ -7,6 +7,8 @@ thm = "thm"
 Fike = "Fike"
 Pn = "Pn"
 Ser = "Ser"
+
+[default.extend-identifiers]
 McMillon = "McMillon"
 
 [files]
